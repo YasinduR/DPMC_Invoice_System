@@ -6,6 +6,10 @@ import 'package:myapp/util/snack_bar.dart';
 import 'package:myapp/widgets/action_button.dart';
 import 'package:myapp/widgets/app_table.dart';
 import 'package:myapp/widgets/text_form_field.dart';
+// ignore: unused_import
+import 'package:equatable/equatable.dart';
+import 'package:collection/collection.dart'; // Import the collection package for list comparison
+
 
 class AddCreditNotesView extends StatefulWidget {
   // Callback to pass the final list of notes up to the parent
@@ -28,6 +32,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   final _amountController = TextEditingController();
   // final List<CreditNote> _addedCreditNotes = [];
   late final List<CreditNote> _addedCreditNotes;
+  late final List<CreditNote> _initialNotes;
 
   @override
   void initState() {
@@ -35,8 +40,16 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
     // Initialize the local list with a *copy* of the list passed from the parent.
     // This is important so that changes are only saved when the user hits 'Submit'.
     _addedCreditNotes = List<CreditNote>.from(widget.initialNotes);
+    _initialNotes = List<CreditNote>.from(widget.initialNotes);// Represent initial list useful
+
+
         _crnController.addListener(() => setState(() {}));
     _amountController.addListener(() => setState(() {}));
+  }
+
+    bool _areListsEqual(List<CreditNote> listA, List<CreditNote> listB) {
+    if (listA.length != listB.length) return false;
+    return const DeepCollectionEquality.unordered().equals(listA, listB);
   }
 
     void _addNoteToList() {
@@ -131,7 +144,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   Widget build(BuildContext context) {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
     final isAddButtonDisabled = _crnController.text.isEmpty || _amountController.text.isEmpty ||!isFormValid;
-
+    final bool hasMadeChange = _areListsEqual(_addedCreditNotes, _initialNotes);
     return Column(
         children: [
           Expanded(
@@ -178,12 +191,12 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
           ActionButton(
             label: 'Submit',
             onPressed: () => widget.onSubmit(_addedCreditNotes),
-            disabled: _addedCreditNotes.isEmpty,
+            disabled: hasMadeChange
           ),
             ],
           ),
         ),
         ]
-           );
+    );
   }
 }

@@ -43,6 +43,7 @@ dependencies:
   esc_pos_utils_plus: ^2.0.2 # For thermal printers
   auto_size_text: ^3.0.0 #for reduce size of texts when nessary
   decimal: ^2.3.3 # for financial calculations
+  equatable: ^2.0.5 # For comparison of two object list used in credit note
 dev_dependencies:
   flutter_test:
     sdk: flutter

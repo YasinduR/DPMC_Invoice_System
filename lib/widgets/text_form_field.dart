@@ -14,6 +14,10 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function(String)? onFieldSubmitted; // 1. ADD THIS LINE
 
+    // --- ADDITIONS ---
+  final void Function(String)? onChanged; // 1. ADD this for real-time validation
+  final TextInputAction? textInputAction;   // 2. ADD this for better keyboard UX
+
   const AppTextField({
     super.key,
     this.controller,
@@ -28,6 +32,8 @@ class AppTextField extends StatelessWidget {
     this.contentPadding, // NEW
     this.validator,
     this.onFieldSubmitted,
+        this.onChanged, // 3. ADD to constructor
+    this.textInputAction, // 4. ADD to constructor
   });
 
   String? _internalValidator(String? value) {
@@ -62,7 +68,9 @@ class AppTextField extends StatelessWidget {
       keyboardType: effectiveKeyboardType,
       obscureText: shouldObscure,
       onFieldSubmitted: onFieldSubmitted, // 3. PASS THE CALLBACK HERE
-      textInputAction: TextInputAction.done, // 4. SET THE KEYBOARD ACTION
+      //textInputAction: TextInputAction.done, // 4. SET THE KEYBOARD ACTION
+      onChanged: onChanged, // 5. PASS the onChanged callback here
+      textInputAction: textInputAction ?? TextInputAction.done, // Use provided action or default to 'done'
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         labelText: labelText,

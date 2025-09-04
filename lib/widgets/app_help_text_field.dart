@@ -30,6 +30,11 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
   final FilterConditions? filterConditions;
   final Future<bool> Function()? preRequest;
 
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final void Function(String)? onFieldSubmitted;
+  final TextInputAction? textInputAction;
+
   const AppSelectionField({
     super.key,
     required this.controller,
@@ -47,7 +52,10 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.initialValue,
     this.filterConditions,
     this.preRequest, // <<< ADD THIS
-
+    this.validator, // Added
+    this.onChanged, // Added
+    this.onFieldSubmitted, // Added
+    this.textInputAction, // Added
   });
 
   @override
@@ -117,7 +125,7 @@ class _AppSelectionFieldState<T extends Mappable>
         return;
       }
     }
-    
+
     _loadingOverlay.show(context); // Use the common overlay
     try {
       // --- Build the full URL with filters ---
@@ -224,6 +232,14 @@ class _AppSelectionFieldState<T extends Mappable>
       labelText: widget.labelText,
       icon: widget.icon,
       onIconPressed: () => _showSelectionSheet(context),
+
+      validator: widget.validator,
+      textInputAction: widget.textInputAction,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      // The onChanged from the parent is passed directly,
+      // while our internal _handleTextChange continues to work
+      // via the listener added in initState.
+      onChanged: widget.onChanged,
     );
   }
 }
@@ -241,6 +257,10 @@ class AppHelpTextField extends StatelessWidget {
   final bool hideBorder;
   final EdgeInsetsGeometry? contentPadding;
 
+  final void Function(String)? onChanged;
+  final void Function(String)? onFieldSubmitted;
+  final TextInputAction? textInputAction;
+
   const AppHelpTextField({
     super.key,
     required this.controller,
@@ -251,6 +271,9 @@ class AppHelpTextField extends StatelessWidget {
     this.validator,
     this.hideBorder = false,
     this.contentPadding,
+    this.onChanged,
+    this.onFieldSubmitted,
+    this.textInputAction,
   });
 
   @override
@@ -262,6 +285,9 @@ class AppHelpTextField extends StatelessWidget {
       children: [
         Expanded(
           child: TextFormField(
+            onChanged: onChanged,
+            textInputAction: textInputAction,
+            //autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
             onFieldSubmitted: (_) => onIconPressed!(),
             keyboardType: keyboardType,
