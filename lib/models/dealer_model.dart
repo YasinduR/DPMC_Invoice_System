@@ -7,6 +7,7 @@ class Dealer implements Mappable {
   final String address;
   final String city;
   final String region;
+  final bool hasBankGuarantee;
 
   Dealer({
     required this.name,
@@ -14,7 +15,8 @@ class Dealer implements Mappable {
     required this.accountCode,
     required this.address,
     required this.city,
-    this.region =''
+    this.region = '',
+    this.hasBankGuarantee = false,
   });
 
   @override
@@ -25,7 +27,7 @@ class Dealer implements Mappable {
       'surname': surname,
       'address': address,
       'city': city,
-      'region': region
+      'region': region,
     };
   }
 }

@@ -42,7 +42,7 @@ dependencies:
   intl: ^0.18.1
   esc_pos_utils_plus: ^2.0.2 # For thermal printers
   auto_size_text: ^3.0.0 #for reduce size of texts when nessary
-
+  decimal: ^2.3.3 # for financial calculations
 dev_dependencies:
   flutter_test:
     sdk: flutter

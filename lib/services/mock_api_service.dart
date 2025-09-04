@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 
 // class MockApiService {
@@ -42,6 +43,41 @@ import 'package:myapp/services/dummy_data.dart';
 //   }
 // }
 class MockApiService {
+  static final List<Receipt> _sessionReceipts = [];
+
+  static Future<void> postData<T extends Mappable>(String dataUrl, T data) async {
+    
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network latency
+
+    switch (dataUrl) {
+      case 'api/receipts/save':
+        // Specific logic for saving receipts
+        if (data is Receipt) {
+          final isDuplicate = _sessionReceipts.any((existingReceipt) =>
+              existingReceipt.dealerCode == data.dealerCode &&
+              existingReceipt.bankCode == data.bankCode &&
+              existingReceipt.chequeNumber == data.chequeNumber);
+
+          if (isDuplicate) {
+            throw Exception(
+                'This cheque number already exists for the selected dealer and bank.');
+          } else {
+            _sessionReceipts.add(data);
+           // print('Receipt saved successfully to session. Total receipts: ${_sessionReceipts.length}');
+          }
+        } else {
+          throw Exception('Data for receipts/save endpoint must be a Receipt type.');
+        }
+        break;
+      default:
+        // Default behavior for other URLs (e.g., just log and pretend to save)
+        //print('Generic save for $dataUrl: ${data.toMap()}');
+        // If you need to actually store other types generically, you'd need
+        // more generic session storage (e.g., Map<String, List<Mappable>>)
+        break;
+    }
+  }
+
   static Future<List<T>> fetchData<T extends Mappable>(String url) async {
     await Future.delayed(const Duration(milliseconds: 1000));
 
@@ -123,4 +159,27 @@ class MockApiService {
     }
     return sourceData.cast<T>();
   }
+
+
+  // THIS IS SIMILAR TO SP CALL 
+  static Future<void> postReceipt(Receipt dataToSave) async {
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network latency
+
+    // 2. DUPLICATE CHECK
+    final isDuplicate = _sessionReceipts.any((existingReceipt) =>
+        existingReceipt.dealerCode == dataToSave.dealerCode &&
+        existingReceipt.bankCode == dataToSave.bankCode &&
+        existingReceipt.chequeNumber == dataToSave.chequeNumber);
+
+    if (isDuplicate) {
+      // 3. Deny the save and throw an error if a duplicate is found
+      throw Exception(
+          'Duplicate Error: This cheque number already exists for the selected dealer and bank.');
+    } else {
+      // 4. Otherwise, save the data to the session
+      _sessionReceipts.add(dataToSave);
+    }
+  }
+
+  
 }

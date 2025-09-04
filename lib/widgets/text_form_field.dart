@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
-
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String? labelText;
@@ -9,6 +8,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final bool obscureText;
   final bool isPin;
+  final bool isFinanceNum; // for money
   final bool hideBorder;
   final EdgeInsetsGeometry? contentPadding;
   final String? Function(String?)? validator;
@@ -22,11 +22,12 @@ class AppTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.isPin = false,
+    this.isFinanceNum = false, // For money
     this.hideBorder =
         false, // NEW: Default to false to not break existing fields
     this.contentPadding, // NEW
     this.validator,
-    this.onFieldSubmitted
+    this.onFieldSubmitted,
   });
 
   String? _internalValidator(String? value) {
@@ -35,6 +36,17 @@ class AppTextField extends StatelessWidget {
       final isDigitsOnly = RegExp(r'^[0-9]+$').hasMatch(value);
       if (!isDigitsOnly) return 'PIN must contain only numbers';
     }
+
+    if (isFinanceNum) {
+      if (value == null || value.isEmpty) {
+        return null; // For now no error upon empty values
+      }
+      final isFinanceNum = RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value);
+      if (!isFinanceNum) {
+        return 'Please enter a valid value in Rupees';
+      }
+    }
+
     if (validator != null) return validator!(value);
     return null;
   }

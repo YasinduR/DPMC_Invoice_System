@@ -12,6 +12,9 @@ import 'package:myapp/widgets/dealer_info_card.dart';
 import 'package:myapp/widgets/text_form_field.dart';
 
 class RecieptDetailsView extends StatefulWidget {
+   // final GlobalKey<FormState> formKey;
+
+  //final ValueChanged<bool> onValidationChanged;
   final Dealer dealer;
   final VoidCallback onSubmit;
   final VoidCallback addCreditnote;
@@ -44,6 +47,7 @@ class RecieptDetailsView extends StatefulWidget {
 
   const RecieptDetailsView({
     super.key,
+    //required this.onValidationChanged, // Add to constructor
     required this.dealer,
     required this.onSubmit,
     required this.addCreditnote,
@@ -66,7 +70,7 @@ class RecieptDetailsView extends StatefulWidget {
     required this.onDateSelected,
     required this.onTinCommitChanged,
     required this.onBankCommitChanged,
-    required this.onBranchCommitChanged,
+    required this.onBranchCommitChanged
   });
 
   @override
@@ -75,6 +79,10 @@ class RecieptDetailsView extends StatefulWidget {
 
 class _RecieptDetailsViewState extends State<RecieptDetailsView> {
   // --- ALL STATE HAS BEEN REMOVED FROM HERE ---
+  final _formKey = GlobalKey<FormState>();
+  bool _isChildFormValid= false;
+  //= _formKey.currentState?.validate() ?? false;
+
 
   @override
   void initState() {
@@ -92,6 +100,14 @@ class _RecieptDetailsViewState extends State<RecieptDetailsView> {
     if (widget.selectedBranch != null && widget.branchController.text.isEmpty) {
       widget.branchController.text = widget.selectedBranch!.branchName;
     }
+
+    widget.chequeNoController.addListener(_validateChildForm);
+    widget.amountController.addListener(_validateChildForm);
+  }
+
+    void _validateChildForm() {
+    _isChildFormValid = _formKey.currentState?.validate() ?? false;
+   // widget.onValidationChanged(isChildFormValid);
   }
 
   Future<bool> _handlePreRequestBank() async {
@@ -107,6 +123,9 @@ class _RecieptDetailsViewState extends State<RecieptDetailsView> {
     return true;
   }
 
+
+
+
   // --- _validateForm and _onBankTextChanged have been moved to the parent ---
 
   // --- dispose is also simplified as the parent now owns the controllers ---
@@ -114,11 +133,16 @@ class _RecieptDetailsViewState extends State<RecieptDetailsView> {
   void dispose() {
     // Parent handles disposal of controllers.
     super.dispose();
+        widget.chequeNoController.removeListener(_validateChildForm);
+    widget.amountController.removeListener(_validateChildForm);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Form(
+      key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction, // For real-time feedback
+      child:SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -143,6 +167,7 @@ class _RecieptDetailsViewState extends State<RecieptDetailsView> {
               icon: Icons.add_card,
               onPressed: widget.addCreditnote,
               color: AppColors.success,
+              disabled: !widget.dealer.hasBankGuarantee,
             ),
             const SizedBox(height: 16),
             AppTextField(
@@ -197,6 +222,7 @@ class _RecieptDetailsViewState extends State<RecieptDetailsView> {
               controller: widget.amountController, // Use controller from widget
               labelText: 'Amount',
               keyboardType: TextInputType.number,
+              isFinanceNum: true,
             ),
             const SizedBox(height: 40),
             ActionButton(
@@ -204,13 +230,11 @@ class _RecieptDetailsViewState extends State<RecieptDetailsView> {
               icon: Icons.check_circle_outline,
               onPressed: widget.onSubmit,
               // Use validation flags from parent
-              disabled: !widget.isFormValid,
-
-
+              disabled: !widget.isFormValid && !_isChildFormValid,
             ),
           ],
         ),
       ),
-    );
+    ));
   }
 }

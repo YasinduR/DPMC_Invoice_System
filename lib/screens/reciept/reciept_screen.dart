@@ -1,12 +1,15 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
 import 'package:myapp/models/dealer_model.dart';
+import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/providers/region_provider.dart';
+import 'package:myapp/util/api_util.dart';
 import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/views/reciept_detail_view.dart';
 import 'package:myapp/views/region_selection_view.dart';
@@ -26,7 +29,7 @@ class RecieptScreen extends ConsumerStatefulWidget {
 
 class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   int _currentStep = 0;
-  List<CreditNote> _creditNotes = []; // This will be useful later
+  List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
 
   // Regional settings
@@ -73,9 +76,11 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   TinData? _selectedTin;
   Bank? _selectedBank;
   BankBranch? _selectedBranch;
-
+  // bool _areChildFieldsValid = false;
   // We will manage this from the parent now
   bool _isReceiptFormValid = false;
+  // final _formKey =
+  //     GlobalKey<FormState>(); // Form Validty (to check correct formats)
 
   @override
   void initState() {
@@ -108,14 +113,49 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   }
 
   // New method in parent to validate the form
+  // void _validateReceiptForm() {
+  //   final isFormValid = _formKey.currentState?.validate() ?? false;  // Validate correct format on field amount
+  //   final isValid =
+  //       _chequeNoController.text.isNotEmpty &&
+  //       _amountController.text.isNotEmpty &&
+  //       _selectedChequeDate != null &&
+  //       _isTinSelectionCommitted &&
+  //       _isBankSelectionCommitted &&
+  //       _isBranchSelectionCommitted &&
+  //       isFormValid;
+
+  //   if (isValid != _isReceiptFormValid) {
+  //     setState(() {
+  //       _isReceiptFormValid = isValid;
+  //     });
+  //   }
+  // }
+  // 3. Create the handler for the child's callback
+  // void _onChildValidationChanged(bool isValid) {
+  //   // To prevent unnecessary rebuilds, only update if the value changed
+  //   if (_areChildFieldsValid != isValid) {
+  //     setState(() {
+  //       _areChildFieldsValid = isValid;
+  //     });
+  //     // CRUCIAL: After updating the child's status,
+  //     // we must re-run the parent's overall validation logic.
+  //     _validateReceiptForm();
+  //   }
+  // }
+
   void _validateReceiptForm() {
-    final isValid =
+    // The parent now trusts the child's report (`_areChildFieldsValid`)
+    // instead of checking the form key itself.
+
+    final bool isValid =
         _chequeNoController.text.isNotEmpty &&
         _amountController.text.isNotEmpty &&
         _selectedChequeDate != null &&
         _isTinSelectionCommitted &&
         _isBankSelectionCommitted &&
         _isBranchSelectionCommitted;
+
+    // final bool isOverallValid = _areChildFieldsValid && isValid;
 
     if (isValid != _isReceiptFormValid) {
       setState(() {
@@ -196,16 +236,86 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
     );
   }
 
-  void _submitChequeDetails() {
-    showSnackBar(
-      context: context,
-      message: 'Cheque Details Submitted!',
-      type: MessageType.success,
+  void _onSubmit() async {
+    // // 1. Validate that all required data objects are selected/entered.
+    if (_selectedTin == null ||
+        _selectedDealer == null ||
+        _selectedBank == null ||
+        _selectedBranch == null ||
+        _selectedChequeDate == null ||
+        _chequeNoController.text.isEmpty) {
+      showSnackBar(
+        context: context,
+        message: 'Please fill in all required fields.',
+        type: MessageType.error,
+      );
+      return;
+    }
+    // 2. Perform amount validation.
+    final double chequeAmount = double.tryParse(_amountController.text) ?? 0.0;
+    final double totalCreditNoteAmount = _creditNotes.fold(
+      0.0,
+      (sum, note) => sum + note.amount,
     );
-    _clearReceiptDetails();
-    setState(() {
-      _currentStep = 2; // Move to the same Page
-    });
+    //final double totalPayment = totalCreditNoteAmount + chequeAmount;
+    // final double totalDue = _selectedTin!.totalValue;
+
+    // Convert your initial values to the high-precision 'Decimal' type.
+    final totalPayment = Decimal.parse(
+      (totalCreditNoteAmount + chequeAmount).toString(),
+    );
+    final totalDue = Decimal.parse(_selectedTin!.totalValue.toString());
+
+    if (totalPayment != totalDue) {
+      final difference = (totalPayment - totalDue).abs();
+      final message =
+          totalPayment < totalDue
+              ? 'The payment is lower by ${difference.toStringAsFixed(2)}.'
+              : 'The payment is higher by ${difference.toStringAsFixed(2)}.';
+      showSnackBar(
+        context: context,
+        message: message,
+        type: MessageType.warning,
+      );
+      return; // Stop the submission if amounts don't balance
+    }
+    // 3. Create the Receipt object using CODES from the selected objects.
+    final receiptData = Receipt(
+      dealerCode: _selectedDealer!.accountCode,
+      chequeNumber: _chequeNoController.text,
+      chequeAmount: chequeAmount,
+      chequeDate: _selectedChequeDate!,
+      bankCode: _selectedBank!.bankCode,
+      branchCode: _selectedBranch!.branchCode,
+      tinNumber: _selectedTin!.tinNumber,
+      creditNotes: _creditNotes,
+    );
+
+    await save(
+      context: context,
+      dataUrl: 'api/receipts/save', // The specific endpoint for saving receipts
+      dataToSave: receiptData,
+      onSuccess: () {
+        showSnackBar(
+          context: context,
+          message: 'Receipt saved successfully !',
+          type: MessageType.success,
+        );
+        // You can reset the form or navigate away here
+      },
+      onError: (e) {
+        String errorMessage = e.toString();
+
+        if (errorMessage.startsWith('Exception: ')) {
+          errorMessage = errorMessage.substring('Exception: '.length);
+        }
+        showSnackBar(
+          context: context,
+          message: errorMessage, // This will display our custom duplicate error
+          type: MessageType.error,
+        );
+      },
+    );
   }
 
   void _gotoaddCreditNotes() {
@@ -300,8 +410,9 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
 
       case 2:
         return RecieptDetailsView(
+          //onValidationChanged: _onChildValidationChanged,
           dealer: _selectedDealer!,
-          onSubmit: _submitChequeDetails,
+          onSubmit: _onSubmit,
           addCreditnote: _gotoaddCreditNotes,
 
           // Pass down controllers
@@ -336,26 +447,26 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           onDateSelected: (date) {
             setState(() {
               _selectedChequeDate = date;
-              _validateReceiptForm(); 
+              _validateReceiptForm();
             });
           },
           onTinCommitChanged: (isCommitted) {
             setState(() {
               _isTinSelectionCommitted = isCommitted;
             });
-            _validateReceiptForm(); 
+            _validateReceiptForm();
           },
           onBankCommitChanged: (isCommitted) {
             setState(() {
               _isBankSelectionCommitted = isCommitted;
             });
-            _validateReceiptForm(); 
+            _validateReceiptForm();
           },
           onBranchCommitChanged: (isCommitted) {
             setState(() {
               _isBranchSelectionCommitted = isCommitted;
             });
-            _validateReceiptForm(); 
+            _validateReceiptForm();
           },
         );
 
@@ -384,269 +495,3 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
     }
   }
 }
-
-// class RecieptDetailsView extends StatefulWidget {
-//   final Dealer dealer;
-//   final TinData? selectedTin;
-//   final Bank? selectedBank;
-//   final BankBranch? selectedBranch;
-//   final VoidCallback onSubmit;
-//   final VoidCallback addCreditnote;
-
-//   const RecieptDetailsView({
-//     super.key,
-//     required this.onSubmit,
-//     required this.addCreditnote,
-//     required this.dealer,
-//     this.selectedTin,
-//     this.selectedBank,
-//     this.selectedBranch,
-//   });
-
-//   @override
-//   State<RecieptDetailsView> createState() => _RecieptDetailsViewState();
-// }
-
-// class _RecieptDetailsViewState extends State<RecieptDetailsView> {
-//   final _chequeNoController = TextEditingController();
-//   final _amountController = TextEditingController();
-//   final TextEditingController _tinController = TextEditingController();
-//   final TextEditingController _bankController = TextEditingController();
-//   final TextEditingController _branchController = TextEditingController();
-//   // State to track if the selection is valid and committed.
-//   bool _isTinSelectionCommitted = false;
-//   bool _isBankSelectionCommitted = false;
-//   bool _isBranchSelectionCommitted = false;
-//   DateTime? _selectedChequeDate;
-//   TinData? _selectedTin; // On submit Extract _selectedTin _selectedBank _selected
-//   Bank? _selectedBank;
-//   BankBranch? _selectedBranch;
-
-//   bool _isFormValid = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     // If a TIN is pre-selected, populate the controller and set the initial state.
-//     if (widget.selectedTin != null) {
-//       _tinController.text = widget.selectedTin!.tinNumber;
-//       _isTinSelectionCommitted = true;
-//     }
-//     if (widget.selectedBank != null) {
-//       _bankController.text = widget.selectedBank!.bankName;
-//       _isBankSelectionCommitted = true;
-//     }
-
-//     if (widget.selectedBranch != null) { 
-//     _branchController.text = widget.selectedBranch!.branchName;
-//     _isBranchSelectionCommitted = true;
-//     }
-
-//     // Add listeners to check form validity on every change
-//     _chequeNoController.addListener(_validateForm);
-//     _amountController.addListener(_validateForm);
-
-//     _bankController.addListener(_onBankTextChanged);
-//   }
-
-//   void _onBankTextChanged() {
-//   // If the text is manually changed and doesn't match the selected bank's name
-//     if (_isBankSelectionCommitted && _bankController.text != _selectedBank?.bankName) {
-//       setState(() {
-//       // Reset bank selection
-//       _selectedBank = null;
-//       _isBankSelectionCommitted = false;
-
-//       // Reset branch selection as it depends on the bank
-//       _selectedBranch = null;
-//       _branchController.text = '';
-//       _isBranchSelectionCommitted = false;
-//     });
-//   }
-// }
-
-//   Future<bool> _handlePreRequestBank() async {
-//     if (_selectedBank == null) {
-//       showInfoDialog(
-//         context: context,
-//         title: 'Select a Bank First',
-//         content: 'Please Select Bank.',
-//         //isError: true,
-//       );
-//       // Prevent the selection sheet from opening
-//       return false;
-//     }
-//     // Proceed if region is selected
-//     return true;
-//   }
-
-//   void _validateForm() {
-//     // This logic checks if all required fields are filled
-//     final isValid =
-//         _chequeNoController.text.isNotEmpty &&
-//         _amountController.text.isNotEmpty &&
-//         _selectedChequeDate != null;
-
-//     // setState is only called if the validity state changes, which is efficient
-//     if (isValid != _isFormValid) {
-//       setState(() {
-//         _isFormValid = isValid;
-//       });
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     _chequeNoController.dispose();
-//     _amountController.dispose();
-//     _tinController.dispose();
-//     _bankController.removeListener(_onBankTextChanged); 
-//     _bankController.dispose(); 
-//     _branchController.dispose(); 
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SingleChildScrollView(
-//       child: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             DealerInfoCard(dealer: widget.dealer),
-//             const SizedBox(height: 12),
-//             AppSelectionField<TinData>(
-//               controller: _tinController,
-//               labelText: 'Select TIN Number',
-//               selectionSheetTitle: 'Select a TIN Number',
-//               initialValue: widget.selectedTin,
-//               //items: widget.tins,
-//               onSelected: (TinData tin) {
-//                 setState(() {
-//                   _selectedTin = tin;
-//                 });
-//               }, // displayString: (tin) => tin.tinNumber,
-//               onCommitStateChanged: (isCommitted) {
-//                 setState(() {
-//                   _isTinSelectionCommitted = isCommitted;
-//                 });
-//               },
-//               displayNames: const ['TIN Number', 'Total Value'],
-//               valueFields: const ['tinNumber', 'totalValue'],
-//               mainField: 'tinNumber',
-//               dataUrl: 'api/tins/list',
-//             ),
-//             const SizedBox(height: 12),
-//             ActionButton(
-//               label: 'Add Credit Note',
-//               icon: Icons.add_card,
-//               onPressed: widget.addCreditnote,
-//               color: AppColors.success,
-//             ),
-//             const SizedBox(height: 16),
-//             // REPLACEMENT: Using the CustomTextField widget
-//             AppTextField(
-//               controller: _chequeNoController,
-//               labelText: 'Cheque No.',
-//             ),
-//             const SizedBox(height: 16),
-//             const AppTextField(labelText: 'Account No.'), // Dummy for now
-//             const SizedBox(height: 16),
-//             DatePickerField(
-//               labelText: 'Cheque Date',
-//               selectedDate: _selectedChequeDate,
-//               onDateSelected: (date) {
-//                 setState(() {
-//                   _selectedChequeDate = date;
-//                   _validateForm(); // Validate after date selection
-//                 });
-//               },
-//             ),
-//             const SizedBox(height: 16),
-//             const AppTextField(labelText: 'To Be Deposited'), // Dummy
-//             const SizedBox(height: 16),
-//             // const AppTextField(labelText: 'Bank'), // Dummy
-//             AppSelectionField<Bank>(
-//               controller: _bankController,
-//               labelText: 'Select Bank',
-//               selectionSheetTitle: 'Select a Bank',
-//               initialValue: widget.selectedBank,
-//               //items: widget.tins,
-//               onSelected: (Bank bank) {
-//                 setState(() {
-//                   if (_selectedBank != bank) {
-//                     _selectedBranch = null;
-//                     _branchController.text = '';
-//                     _isBranchSelectionCommitted = false;
-
-//                   }
-//                   _selectedBank = bank;
-//                 });
-//               },
-//               onCommitStateChanged: (isCommitted) {
-//                 setState(() {
-//                   _isBankSelectionCommitted = isCommitted;
-//                 });
-//               },
-//               displayNames: const ['Bank Name'],
-//               valueFields: const ['bankName'],
-//               mainField: 'bankName',
-//               dataUrl: 'api/bank/list',
-//             ),
-//             const SizedBox(height: 16),
-//             // const AppTextField(labelText: 'Branch'), // Dummy
-//             AppSelectionField<BankBranch>(
-//               controller: _branchController,
-//               labelText: 'Select Branch',
-//               selectionSheetTitle: 'Select a Branch',
-//               initialValue: widget.selectedBranch,
-//               //items: widget.tins,
-//               onSelected: (BankBranch branch) {
-//                 setState(() {
-//                   _selectedBranch = branch;
-//                 });
-//               },
-//               onCommitStateChanged: (isCommitted) {
-//                 setState(() {
-//                   _isBranchSelectionCommitted = isCommitted;
-//                 });
-//               },
-//               displayNames: const ['Branch Name', 'Bank Name'],
-//               valueFields: const ['branchName', 'bankName'],
-//               mainField: 'branchName',
-//               dataUrl: 'api/branch/list',
-//               preRequest: _handlePreRequestBank,
-//               filterConditions:
-//                   _selectedBank != null
-//                       ? [
-//                         ['bankCode', '=', _selectedBank!.bankCode],
-//                         ['bankName', '=', _selectedBank!.bankName],
-//                       ]
-//                       : [],
-//             ),
-
-//             const SizedBox(height: 16),
-//             // REPLACEMENT: Using the CustomTextField widget with keyboardType
-//             AppTextField(
-//               controller: _amountController,
-//               labelText: 'Amount',
-//               keyboardType: TextInputType.number,
-//             ),
-//             const SizedBox(height: 40),
-//             ActionButton(
-//               label: 'Submit',
-//               icon: Icons.check_circle_outline,
-//               onPressed: widget.onSubmit,
-//               disabled:
-//                   !_isFormValid ||
-//                   !_isTinSelectionCommitted ||
-//                   !_isBankSelectionCommitted ||
-//                   !_isBranchSelectionCommitted,
-//               // Button is disabled based on form validity
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

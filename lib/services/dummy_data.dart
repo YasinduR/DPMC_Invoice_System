@@ -61,6 +61,7 @@ class DummyData {
       address: '55, Main Street',
       city: 'Madapatha',
       region: 'MADAPATHA',
+      hasBankGuarantee: true
     ),
     Dealer(
       accountCode: 'AC2000123307',

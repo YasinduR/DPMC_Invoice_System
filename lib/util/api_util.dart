@@ -51,3 +51,28 @@ Future<void> inquire<T extends Mappable>({
     }
   }
 }
+
+/// A generic function to save Mappable data to a specified endpoint.
+Future<void> save<T extends Mappable>({
+  required BuildContext context,
+  required String dataUrl, // Now takes a dataUrl
+  required T dataToSave,
+  required Function() onSuccess,
+  required Function(String errorMessage) onError,
+}) async {
+  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+  if (!context.mounted) return;
+
+  try {
+    loadingOverlay.show(context);
+    // Call the generic postData method in the service
+    await MockApiService.postData<T>(dataUrl, dataToSave);
+    onSuccess();
+  } catch (e) {
+    onError(e.toString());
+  } finally {
+    if (loadingOverlay.isShowing) {
+      loadingOverlay.hide();
+    }
+  }
+}

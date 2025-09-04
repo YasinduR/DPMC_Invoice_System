@@ -378,7 +378,7 @@ class _SelectInvoiceViewState extends State<SelectInvoiceView> {
             ],
             // Set the main field for the exact-match auto-selection feature.
             mainField: 'invoiceNumber',
-            dataUrl: 'api/invoicess/list',
+            dataUrl: 'api/invoices/list',
           ),
 
           const Spacer(),
