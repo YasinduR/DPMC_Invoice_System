@@ -1,4 +1,5 @@
 // Dummy Data File
+import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -962,6 +963,94 @@ class DummyData {
     BankBranch(bankCode: '7135', bankName: 'Peoples Bank', branchCode: '004', branchName: 'Peoples Bank - Anuradhapura'),
   ];
 
+    static final List<TinInvoice> _tinInvoices = [
+    // --- Invoices for Madapatha Car Mart (AC2000123306) ---
+    const TinInvoice(
+      tinNo: 'TINBDM2025011500101',
+      mobileInvNo: 'MIN0020512201400010',
+      invAmount: 45200.50,
+      paymentOnDeliveryStatus: 'Y',
+      //receiptStatus: true, // Example of an already processed receipt
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025011800105',
+      mobileInvNo: 'MIN0020512201400014',
+      invAmount: 18750.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025012500119',
+      mobileInvNo: 'MIN0020512201400028',
+      invAmount: 33400.0,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025012800122',
+      mobileInvNo: 'MIN0020512201400031',
+      invAmount: 9800.25,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306', // receiptStatus defaults to false
+    ),
+
+
+    // --- Invoices for Jayalath Enterprises (AC2000123307) ---
+    const TinInvoice(
+      tinNo: 'TINBDM2025020300112',
+      mobileInvNo: 'MIN0020512201400021',
+      invAmount: 89300.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123307', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025020400113',
+      mobileInvNo: 'MIN0020512201400022',
+      invAmount: 32000.75,
+      paymentOnDeliveryStatus: 'Y',
+      //receiptStatus: true, // Example of an already processed receipt
+      dealerAccCode: 'AC2000123307',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021500128',
+      mobileInvNo: 'MIN0020512201400039',
+      invAmount: 112000.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123307', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021800131',
+      mobileInvNo: 'MIN0020512201400042',
+      invAmount: 6500.50,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123307', // receiptStatus defaults to false
+    ),
+
+    // --- Invoices for Kesbewa Auto Zone (AC2000123308) ---
+    const TinInvoice(
+      tinNo: 'TINBDM2025030100125',
+      mobileInvNo: 'MIN0020512201400035',
+      invAmount: 152500.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123308', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025030900142',
+      mobileInvNo: 'MIN0020512201400051',
+      invAmount: 25000.0,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123308', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025031200148',
+      mobileInvNo: 'MIN0020512201400059',
+      invAmount: 48900.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123308', // receiptStatus defaults to false
+    ),
+  ];
+
   static List<Bank> get banks => _banks;
   static List<BankBranch> get branches => _branches;
   static List<Dealer> get dealers => _dealers;
@@ -971,4 +1060,5 @@ class DummyData {
   static List<Region> get regions => _regions;
   static List<ReturnItem> get returnItems => _returnItems;
   static List<Part> get parts => _parts;
+  static List<TinInvoice> get tinInvoices => _tinInvoices;
 }

@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
@@ -32,7 +33,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
   Region? _selectedRegion;
-
+  final GlobalKey<RecieptDetailsViewState> _receiptDetailsKey =
+      GlobalKey<RecieptDetailsViewState>();
   // --- Controllers are now created and managed in the parent's state ---
   late final TextEditingController _chequeNoController;
   late final TextEditingController _amountController;
@@ -41,6 +43,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   late final TextEditingController _branchController;
 
   // --- Form data objects remain in the parent ---
+  List<TinInvoice> _selectedTins = [];
   TinData? _selectedTin;
   Bank? _selectedBank;
   BankBranch? _selectedBranch;
@@ -91,6 +94,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       _isBranchSelectionCommitted = false;
       _selectedChequeDate = null;
       _selectedTin = null;
+      _selectedTins = [];
       _selectedBank = null;
       _selectedBranch = null;
       _isReceiptFormValid = false;
@@ -103,7 +107,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         _chequeNoController.text.isNotEmpty &&
         _amountController.text.isNotEmpty &&
         _selectedChequeDate != null &&
-        _isTinSelectionCommitted &&
+        _selectedTins.isNotEmpty && // Check if at least one TIN is selected
+        // _isTinSelectionCommitted &&
         _isBankSelectionCommitted &&
         _isBranchSelectionCommitted;
 
@@ -115,13 +120,11 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   }
 
   // --- Text changed handlers de-select the object if the text no longer matches ---
-
   void _onBankTextChanged(String currentText) {
     if (_selectedBank != null && currentText != _selectedBank!.bankName) {
       setState(() {
         _selectedBank = null;
         _isBankSelectionCommitted = false;
-
         // CRITICAL: Also clear the dependent branch state and controller text
         _selectedBranch = null;
         _isBranchSelectionCommitted = false;
@@ -139,6 +142,17 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       });
       _validateReceiptForm();
     }
+  }
+
+  void _toggleTinSelection(TinInvoice tin) {
+    setState(() {
+      if (_selectedTins.contains(tin)) {
+        _selectedTins.remove(tin);
+      } else {
+        _selectedTins.add(tin);
+      }
+    });
+    _validateReceiptForm();
   }
 
   void _onBranchTextChanged(String currentText) {
@@ -167,11 +181,17 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       0.0,
       (sum, note) => sum + note.amount,
     );
+    // MODIFIED: Calculate total due by summing up all selected invoice amounts.
+    final totalDue = _selectedTins.fold(
+      Decimal.zero,
+      (sum, tin) => sum + Decimal.parse(tin.invAmount.toString()),
+    );
+
+    //final totalDue = Decimal.parse(_selectedTin!.totalValue.toString());  by Due by single tin
 
     final totalPayment = Decimal.parse(
       (totalCreditNoteAmount + chequeAmount).toString(),
     );
-    final totalDue = Decimal.parse(_selectedTin!.totalValue.toString());
 
     if (totalPayment != totalDue) {
       final difference = (totalPayment - totalDue).abs();
@@ -184,6 +204,28 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         message: message,
         type: MessageType.warning,
       );
+
+      return;
+    }
+
+    if (_selectedTins.isEmpty) {
+      showSnackBar(
+        context: context,
+        message: 'Please select at least one TIN invoice to proceed.',
+        type: MessageType.warning,
+      );
+      return;
+    }
+    final podStatuses =
+        _selectedTins.map((tin) => tin.paymentOnDeliveryStatus).toSet();
+
+    if (podStatuses.length > 1) {
+      showSnackBar(
+        context: context,
+        message:
+            'All selected invoices must have the same Payment on Delivery status.',
+        type: MessageType.warning,
+      );
       return;
     }
 
@@ -194,7 +236,11 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       chequeDate: _selectedChequeDate!,
       bankCode: _selectedBank!.bankCode,
       branchCode: _selectedBranch!.branchCode,
-      tinNumber: _selectedTin!.tinNumber,
+      //tinNumber: _selectedTin!.tinNumber,  // when single tin used through helper
+      tinNumbers:
+          _selectedTins
+              .map((t) => t.tinNo)
+              .toList(), // Assuming list of strings
       creditNotes: _creditNotes,
     );
 
@@ -208,8 +254,9 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           message: 'Receipt saved successfully!',
           type: MessageType.success,
         );
-
+        //_onAuthenticated();
         _clearReceiptDetails();
+        _receiptDetailsKey.currentState?.loadTinInvoices();
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -236,8 +283,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   };
 
   void _gotoaddCreditNotes() => setState(() => _currentStep = 3);
-  
-    void _onback() {
+
+  void _onback() {
     if (_currentStep > 0) {
       setState(() {
         _currentStep--; // Go back to the previous step
@@ -287,7 +334,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       case 1:
         return 'Authenticate Dealer';
       case 2:
-        return 'Cheque Deposit Details';
+        return 'Reciept Details';
       case 3:
         return 'Add Credit Notes';
       case 4:
@@ -333,6 +380,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         );
       case 2:
         return RecieptDetailsView(
+          key: _receiptDetailsKey, // Refresh Tin Data on succussful cheque save
+
           dealer: _selectedDealer!,
           onSubmit: _onSubmit,
           addCreditnote: _gotoaddCreditNotes,
@@ -344,6 +393,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           bankController: _bankController,
           branchController: _branchController,
 
+          selectedTins: _selectedTins,
+          onTinToggle: _toggleTinSelection,
           // Pass down the data objects and flags
           selectedTin: _selectedTin,
           selectedBank: _selectedBank,
@@ -353,16 +404,16 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
 
           // --- Pass down callbacks to update parent's state ---
           onBankTextChanged: _onBankTextChanged,
-          onTinTextChanged: _onTinTextChanged,
+          // onTinTextChanged: _onTinTextChanged,
           onBranchTextChanged: _onBranchTextChanged,
 
-          onTinSelected: (tin) {
-            setState(() {
-              _selectedTin = tin;
-              _tinController.text = tin.tinNumber; // Sync controller text
-            });
-            _validateReceiptForm();
-          },
+          // onTinSelected: (tin) {
+          //   setState(() {
+          //     _selectedTin = tin;
+          //     _tinController.text = tin.tinNumber; // Sync controller text
+          //   });
+          //   _validateReceiptForm();
+          // },
           onBankSelected: (bank) {
             setState(() {
               if (_selectedBank != bank) {
@@ -387,10 +438,10 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
             setState(() => _selectedChequeDate = date);
             _validateReceiptForm();
           },
-          onTinCommitChanged: (isCommitted) {
-            setState(() => _isTinSelectionCommitted = isCommitted);
-            _validateReceiptForm();
-          },
+          // onTinCommitChanged: (isCommitted) {
+          //   setState(() => _isTinSelectionCommitted = isCommitted);
+          //   _validateReceiptForm();
+          // },
           onBankCommitChanged: (isCommitted) {
             setState(() => _isBankSelectionCommitted = isCommitted);
             _validateReceiptForm();

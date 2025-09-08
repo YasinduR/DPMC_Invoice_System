@@ -9,7 +9,7 @@ class Receipt implements Mappable {
   final DateTime chequeDate;
   final String bankCode;
   final String branchCode;
-  final String tinNumber;
+  final List<String> tinNumbers;
   final List<CreditNote> creditNotes;
 
   Receipt({
@@ -19,7 +19,7 @@ class Receipt implements Mappable {
     required this.chequeDate,
     required this.bankCode,
     required this.branchCode,
-    required this.tinNumber,
+    required this.tinNumbers,
     required this.creditNotes,
   });
 
@@ -32,7 +32,7 @@ class Receipt implements Mappable {
       'chequeDate': chequeDate.toIso8601String(), // Standard format for APIs
       'bank': bankCode,
       'branch': branchCode,
-      'tinData': tinNumber,
+      'tinData': tinNumbers,
       'creditNotes': creditNotes.map((note) => note.toMap()).toList()
     };
   }
