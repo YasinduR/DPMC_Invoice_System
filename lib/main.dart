@@ -16,7 +16,7 @@ import 'package:myapp/screens/print_invoice/print_invoice_screen.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/screens/test_notify/test_notify.dart';
 import 'package:myapp/services/notification_services.dart';
-import 'package:myapp/util/snack_bar.dart'; // snack bar
+import 'package:myapp/widgets/app_snack_bars.dart'; // snack bar
 
 import 'package:timezone/data/latest.dart' as tz;
 

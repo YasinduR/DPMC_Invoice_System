@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
 import 'package:myapp/theme/app_theme.dart';
-import 'package:myapp/util/snack_bar.dart';
-import 'package:myapp/widgets/action_button.dart';
-import 'package:myapp/widgets/app_table.dart';
-import 'package:myapp/widgets/text_form_field.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
+import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/app_text_form_field.dart';
 // ignore: unused_import
 import 'package:equatable/equatable.dart';
 import 'package:collection/collection.dart'; // Import the collection package for list comparison
-
 
 class AddCreditNotesView extends StatefulWidget {
   // Callback to pass the final list of notes up to the parent
@@ -40,19 +39,20 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
     // Initialize the local list with a *copy* of the list passed from the parent.
     // This is important so that changes are only saved when the user hits 'Submit'.
     _addedCreditNotes = List<CreditNote>.from(widget.initialNotes);
-    _initialNotes = List<CreditNote>.from(widget.initialNotes);// Represent initial list useful
+    _initialNotes = List<CreditNote>.from(
+      widget.initialNotes,
+    ); // Represent initial list useful
 
-
-        _crnController.addListener(() => setState(() {}));
+    _crnController.addListener(() => setState(() {}));
     _amountController.addListener(() => setState(() {}));
   }
 
-    bool _areListsEqual(List<CreditNote> listA, List<CreditNote> listB) {
+  bool _areListsEqual(List<CreditNote> listA, List<CreditNote> listB) {
     if (listA.length != listB.length) return false;
     return const DeepCollectionEquality.unordered().equals(listA, listB);
   }
 
-    void _addNoteToList() {
+  void _addNoteToList() {
     // 3. Validate the form before proceeding
     if (_formKey.currentState!.validate()) {
       final crn = _crnController.text;
@@ -64,8 +64,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
       _crnController.clear();
       _amountController.clear();
       FocusScope.of(context).unfocus(); // Dismiss keyboard
-    }
-    else {
+    } else {
       showSnackBar(
         context: context,
         message: 'Please enter a valid CRN and amount.',
@@ -102,7 +101,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   }
 
   Widget _buildCRNList() {
-    return FilterableListView<CreditNote>(
+    return AppDataGrid<CreditNote>(
       items: _addedCreditNotes,
       searchHintText: 'Search by Credit Number',
       filterableFields: ['crnNumber'],
@@ -133,7 +132,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
 
   @override
   void dispose() {
-        _crnController.removeListener(() => setState(() {}));
+    _crnController.removeListener(() => setState(() {}));
     _amountController.removeListener(() => setState(() {}));
     _crnController.dispose();
     _amountController.dispose();
@@ -143,60 +142,61 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   @override
   Widget build(BuildContext context) {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
-    final isAddButtonDisabled = _crnController.text.isEmpty || _amountController.text.isEmpty ||!isFormValid;
+    final isAddButtonDisabled =
+        _crnController.text.isEmpty ||
+        _amountController.text.isEmpty ||
+        !isFormValid;
     final bool hasMadeChange = _areListsEqual(_addedCreditNotes, _initialNotes);
     return Column(
-        children: [
-          Expanded(
-            child:Form(
+      children: [
+        Expanded(
+          child: Form(
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-          AppTextField(controller: _crnController, labelText: 'CRN No'),
-          const SizedBox(height: 16),
+                AppTextField(controller: _crnController, labelText: 'CRN No'),
+                const SizedBox(height: 16),
 
-          AppTextField(
-            controller: _amountController,
-            labelText: 'CRN Amount',
-            keyboardType: TextInputType.number,
-            isFinanceNum: true,
+                AppTextField(
+                  controller: _amountController,
+                  labelText: 'CRN Amount',
+                  keyboardType: TextInputType.number,
+                  isFinanceNum: true,
+                ),
+                const SizedBox(height: 24),
+
+                // Add Button
+                ActionButton(
+                  label: 'Add Credit Note',
+                  icon: Icons.add_card, // Example icon
+                  onPressed: _addNoteToList,
+                  color: AppColors.success,
+                  disabled: isAddButtonDisabled,
+                ),
+                const SizedBox(height: 24),
+
+                SizedBox(height: 300.0, child: _buildCRNList()),
+              ],
+            ),
           ),
-          const SizedBox(height: 24),
-
-          // Add Button
-          ActionButton(
-            label: 'Add Credit Note',
-            icon: Icons.add_card, // Example icon
-            onPressed: _addNoteToList,
-            color: AppColors.success,
-            disabled:isAddButtonDisabled
-          ),
-          const SizedBox(height: 24),
-
-          SizedBox(
-                height: 300.0,
-                child: _buildCRNList(),
-              )
-              ]
-
-           ))),
-                  Padding(
+        ),
+        Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-          const SizedBox(height: 16),
-          ActionButton(
-            label: 'Submit',
-            onPressed: () => widget.onSubmit(_addedCreditNotes),
-            disabled: hasMadeChange
-          ),
+              const SizedBox(height: 16),
+              ActionButton(
+                label: 'Submit',
+                onPressed: () => widget.onSubmit(_addedCreditNotes),
+                disabled: hasMadeChange,
+              ),
             ],
           ),
         ),
-        ]
+      ],
     );
   }
 }

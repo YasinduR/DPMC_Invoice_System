@@ -7,19 +7,19 @@ import 'package:myapp/models/region_model.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/util/api_util.dart';
-import 'package:myapp/util/snack_bar.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
-import 'package:myapp/widgets/action_button.dart';
+import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/app_table.dart';
-import 'package:myapp/widgets/dealer_info_card.dart';
-import 'package:myapp/widgets/quantity_selector.dart';
+import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/views/auth_dealer_view.dart';
-import 'package:myapp/widgets/tin_info_card.dart';
+import 'package:myapp/widgets/cards/tin_info_card.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -300,7 +300,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
     }
 
     // If there is no error and loading is complete, show the list.
-    return FilterableListView<Part>(
+    return AppDataGrid<Part>(
       //items: _parts,
       searchHintText: 'Search by Part No or ID',
       onFilterPressed: () {},
@@ -432,10 +432,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
               const SizedBox(height: 12),
               TinInfoDisplay(tinData: widget.tindata),
               const SizedBox(height: 12),
-              SizedBox(
-                height: 300.0,
-                child: _buildPartList(),
-              ),
+              SizedBox(height: 300.0, child: _buildPartList()),
             ],
           ),
         ),

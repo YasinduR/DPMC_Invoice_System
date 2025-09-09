@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/region_model.dart';
-import 'package:myapp/widgets/action_button.dart';
-import 'package:myapp/widgets/app_help_text_field.dart';
+import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_helper_field.dart';
 
 class SelectRegionView extends StatefulWidget {
   //final List<Region> Regions;

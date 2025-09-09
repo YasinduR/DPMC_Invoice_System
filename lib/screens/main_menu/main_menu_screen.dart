@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:myapp/providers/auth_provider_old.dart';
 import 'package:myapp/theme/app_theme.dart'; // Import theme
-import 'package:myapp/util/dialog_box.dart';
+import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_footer.dart'; // Import footer
 import 'package:myapp/app_routes.dart';
 //import 'package:provider/provider.dart';
@@ -118,7 +118,7 @@ class MainMenuScreen extends ConsumerWidget {
                         );
                         // Act based on the user's choice
                         if (confirmed) {
-                          ref.read(authProvider.notifier).logout();
+                          ref.read(authProvider.notifier).logout(context);
                         }
                       },
                     ),

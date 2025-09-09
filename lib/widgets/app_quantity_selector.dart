@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Common Quantity Selector for the app
+
 class QuantitySelector extends StatelessWidget {
-  /// The current quantity to display.
-  final int value;
-  final ValueChanged<int>? onChanged;
-  final bool enabled;
-  final String dialogTitle;
-  final int? maxQuantity; // <-- ADD THIS
+
+  final int value;                  // The current quantity to display.
+  final ValueChanged<int>? onChanged; // Callback when the quantity is updated.
+  final bool enabled;               // Toggles if the selector is interactive.
+  final String dialogTitle;         // The title for the pop-up edit dialog.
+  final int? maxQuantity;           // Optional maximum value allowed in the dialog.
 
 
   const QuantitySelector({

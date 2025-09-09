@@ -9,15 +9,16 @@ import 'package:myapp/providers/region_provider.dart';
 // import 'package:myapp/theme/app_theme.dart';
 // import 'package:myapp/models/invoic_model.dart';
 import 'package:myapp/models/dealer_model.dart';
+import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/util/api_util.dart';
-import 'package:myapp/util/snack_bar.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/views/select_dealer_view.dart';
-import 'package:myapp/widgets/action_button.dart';
+import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/app_table.dart';
-import 'package:myapp/widgets/dealer_info_card.dart';
+import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/cards/dealer_info_card.dart';
 
 // --- MAIN WIDGET: Manages the flow state ---
 class PrintInvoiceScreen extends ConsumerStatefulWidget {
@@ -156,19 +157,12 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
   }
 }
 
-
-
-
-
-
-
 class PrintInvoiceMainScreen extends StatefulWidget {
   final Dealer dealer;
   const PrintInvoiceMainScreen({super.key, required this.dealer});
 
   @override
-  State<PrintInvoiceMainScreen> createState() =>
-      _PrintInvoiceMainScreenState();
+  State<PrintInvoiceMainScreen> createState() => _PrintInvoiceMainScreenState();
 }
 
 class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
@@ -183,8 +177,7 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
     loadTinInvoices();
   }
 
-
-Future<void> loadTinInvoices() async {
+  Future<void> loadTinInvoices() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -222,6 +215,7 @@ Future<void> loadTinInvoices() async {
       },
     );
   }
+
   /// Toggles the selection state of a given TIN invoice.
   void _onTinToggle(TinInvoice invoice) {
     setState(() {
@@ -276,24 +270,14 @@ Future<void> loadTinInvoices() async {
   /// Builds the TIN invoice list area.
   Widget _buildTinInvoiceArea() {
     if (_isLoading) {
+      return const Center(child: Text('Loading Invoices for the Dealer...'));
+    }
+    if (_availableTins.isEmpty || _errorMessage != null) {
       return const Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading Invoices for the Dealer...'),
-        ],
-      ));
+        child: Text('No outstanding TINs found for this dealer.'),
+      );
     }
-    if (_errorMessage != null) {
-      return Center(child: Text('Error: $_errorMessage'));
-    }
-    if (_availableTins.isEmpty) {
-      return const Center(
-          child: Text('No outstanding TINs found for this dealer.'));
-    }
-    return FilterableListView<TinInvoice>(
+    return AppDataGrid<TinInvoice>(
       hasFilter: false, // <-- Hides the filter/search bar
       items: _availableTins,
       // filterableFields are still required, even if the UI is hidden
@@ -309,22 +293,27 @@ Future<void> loadTinInvoices() async {
         DynamicColumn<TinInvoice>(
           label: 'Amount',
           flex: 3,
-          cellBuilder: (context, invoice) => Text(
-              invoice.invAmount.toStringAsFixed(2),
-              textAlign: TextAlign.right),
+          cellBuilder:
+              (context, invoice) => Text(
+                invoice.invAmount.toStringAsFixed(2),
+                textAlign: TextAlign.right,
+              ),
         ),
         // Column 3: Selection Checkbox
         DynamicColumn<TinInvoice>(
           label: 'Confirm',
           flex: 2,
-          cellBuilder: (context, invoice) => Center(
-            child: Checkbox(
-              value: _selectedTins.contains(invoice),
-              onChanged: (bool? value) {
-                _onTinToggle(invoice);
-              },
-            ),
-          ),
+          cellBuilder:
+              (context, invoice) => Center(
+                child: Checkbox(
+                  value: _selectedTins.contains(invoice),
+                  activeColor: AppColors.primary,
+                  checkColor: AppColors.white,
+                  onChanged: (bool? value) {
+                    _onTinToggle(invoice);
+                  },
+                ),
+              ),
         ),
       ],
     );
@@ -341,8 +330,7 @@ Future<void> loadTinInvoices() async {
       ),
       child: const Text(
         'Above all items were received in good condition',
-        style: TextStyle(
-            color: Colors.green, fontWeight: FontWeight.w500),
+        style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
       ),
     );
   }

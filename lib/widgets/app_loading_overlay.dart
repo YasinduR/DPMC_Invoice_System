@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Common Loading Screen of the application On API calls
+
 class AppLoadingOverlay {
   OverlayEntry? _overlayEntry;
   final Color indicatorColor;

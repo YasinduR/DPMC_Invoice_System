@@ -5,35 +5,41 @@ import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree i
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/theme/app_theme.dart';
-import 'package:myapp/util/snack_bar.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
-//typedef DisplayStringCallback<T> = String Function(T item);
+
+
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
 
+// Common Helper of the Application
+
 class AppSelectionField<T extends Mappable> extends StatefulWidget {
-  final T? initialValue; // <<< ADD THIS NEW PROPERTY
 
-  final TextEditingController controller;
-  final String labelText;
-  final IconData icon;
-  //final List<T> items;
-  final void Function(T) onSelected;
-  //final DisplayStringCallback<T> displayString;
-  final CommitStateChangedCallback? onCommitStateChanged;
-  final String selectionSheetTitle;
-  final List<String> displayNames;
-  final List<String> valueFields;
-  final String mainField;
-  final String dataUrl;
-  final FilterConditions? filterConditions;
-  final Future<bool> Function()? preRequest;
+  final TextEditingController controller; // The controller for the text field to manage its content. 
+  final String labelText; // The text that appears as the label for the input field.
+  final IconData icon;   // The icon displayed on the button next to the text field. Defaults to a question mark.
+  final String dataUrl;   // The API endpoint URL from where to fetch the list of selectable items.
+  final void Function(T) onSelected;   // Callback function that is triggered when an item is selected from the list.
+  final CommitStateChangedCallback? onCommitStateChanged; // Callback to notify the parent widget whether the current value is a valid, selected item.
+  // This is useful for enabling/disabling buttons based on a committed selection.
 
-  final String? Function(String?)? validator;
-  final void Function(String)? onChanged;
-  final void Function(String)? onFieldSubmitted;
-  final TextInputAction? textInputAction;
+  final String selectionSheetTitle;  // The title displayed at the top of the modal bottom sheet.
+  final List<String> displayNames;   // The list of column headers to show in the data table on the selection sheet.
+  final List<String> valueFields; // The list of field names from the data model (T) to get the values for the columns.  
+  // The order must correspond to `displayNames`.
+
+  final String mainField; // The specific field name from the data model (T) whose value should be displayed in the text field.
+  final T? initialValue; // The initial value to populate the field with when the widget is first built.
+  final FilterConditions? filterConditions; // Optional list of filters to be sent with the API request to narrow down the data.
+  // Example: [['status', '=', 'active'], ['department', '=', 'sales']]
+  
+  final Future<bool> Function()? preRequest;/// An optional asynchronous function to run before fetching data.If it returns `false`, the data fetching process is cancelled.
+  final String? Function(String?)? validator; // A standard validator function for the underlying TextFormField.
+  final void Function(String)? onChanged; /// A standard onChanged callback for the underlying TextFormField.
+  final void Function(String)? onFieldSubmitted; // A standard onFieldSubmitted callback for the underlying TextFormField.
+  final TextInputAction? textInputAction; /// The type of action button to display on the keyboard (e.g., next, done).
 
   const AppSelectionField({
     super.key,
@@ -41,9 +47,7 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     required this.labelText,
     this.icon = Icons.question_mark,
     required this.dataUrl,
-    //required this.items,
     required this.onSelected,
-    //required this.displayString,
     this.onCommitStateChanged, // Make it optional
     required this.selectionSheetTitle,
     required this.displayNames,
@@ -51,11 +55,11 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     required this.mainField,
     this.initialValue,
     this.filterConditions,
-    this.preRequest, // <<< ADD THIS
-    this.validator, // Added
-    this.onChanged, // Added
-    this.onFieldSubmitted, // Added
-    this.textInputAction, // Added
+    this.preRequest, 
+    this.validator, 
+    this.onChanged, 
+    this.onFieldSubmitted, 
+    this.textInputAction,
   });
 
   @override
@@ -236,9 +240,6 @@ class _AppSelectionFieldState<T extends Mappable>
       validator: widget.validator,
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
-      // The onChanged from the parent is passed directly,
-      // while our internal _handleTextChange continues to work
-      // via the listener added in initState.
       onChanged: widget.onChanged,
     );
   }
@@ -248,10 +249,8 @@ class AppHelpTextField extends StatelessWidget {
   final TextEditingController controller;
 
   final String labelText;
-  final IconData icon; // Make the icon customizable
+  final IconData icon;
   final VoidCallback? onIconPressed;
-
-  // --- 3. STANDARD TEXTFIELD PARAMETERS ---
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final bool hideBorder;
@@ -281,7 +280,7 @@ class AppHelpTextField extends StatelessWidget {
     return Row(
       crossAxisAlignment:
           CrossAxisAlignment
-              .start, // Align items correctly with validation errors
+              .start,
       children: [
         Expanded(
           child: TextFormField(
@@ -365,11 +364,8 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
   final String title;
   final List<T> items;
   final String? initialSearchQuery;
-
-  /// The header titles for the table (e.g., ['Account Code', 'Surname']).
   final List<String> displayNames;
 
-  /// The property keys to look up in the map (e.g., ['accountCode', 'surname']).
   final List<String> valueFields;
 
   const SelectionSheet({
@@ -468,10 +464,10 @@ class _SelectionSheetState<T extends Mappable>
               Expanded(
                 child: SingleChildScrollView(
                   controller:
-                      scrollController, // This handles VERTICAL scrolling
+                      scrollController, 
                   child: SingleChildScrollView(
                     scrollDirection:
-                        Axis.horizontal, // This handles HORIZONTAL scrolling
+                        Axis.horizontal, 
                     child: DataTable(
                       columns:
                           widget.displayNames.map((name) {

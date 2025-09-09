@@ -6,24 +6,20 @@ import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/util/api_util.dart';
-import 'package:myapp/util/snack_bar.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
-import 'package:myapp/widgets/action_button.dart';
-//import 'package:myapp/widgets/action_button.dart';
+import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/app_table.dart';
-import 'package:myapp/widgets/dealer_info_card.dart';
-import 'package:myapp/widgets/option_picker_dialog.dart';
-import 'package:myapp/widgets/option_picker_field.dart';
-//import 'package:myapp/widgets/custom_selection_form_field.dart';
+import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/app_option_picker.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
-//import 'package:myapp/widgets/selection_sheet.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/views/auth_dealer_view.dart';
-import 'package:myapp/widgets/tin_info_card.dart';
-import 'package:myapp/widgets/titled_radio_group.dart';
+import 'package:myapp/widgets/cards/tin_info_card.dart';
+import 'package:myapp/widgets/app_radio_group.dart';
 
 class ReturnScreen extends ConsumerStatefulWidget {
   const ReturnScreen({super.key});
@@ -217,11 +213,7 @@ class ReturnsView extends StatefulWidget {
 }
 
 class _ReturnsViewState extends State<ReturnsView> {
-  // final List<ReturnItem> _items = [
-  //   ReturnItem(partNo: 'AC2000123230', requestQty: 5),
-  //   ReturnItem(partNo: 'AC2000123266', requestQty: 8),
-  //   ReturnItem(partNo: 'AC2000123267', requestQty: 7),
-  // ];
+  
   List<ReturnItem> _items = []; // Initialize with an empty list
   bool _isLoading = true; // Flag to manage loading state
   String? _errorMessage; // To store any potential error message
@@ -323,7 +315,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     }
 
     // If there is no error and loading is complete, show the list.
-    return FilterableListView<ReturnItem>(
+    return AppDataGrid<ReturnItem>(
       searchHintText: 'Search by Part No or Quantity',
       onFilterPressed: () {},
       filterableFields: const ['partNo', 'requestQty'],

@@ -19,7 +19,7 @@ import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/add_credit_note_view.dart';
 //import 'package:myapp/views/cheque_details_view.dart'; // Adjust path
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/util/snack_bar.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 
 class RecieptScreen extends ConsumerStatefulWidget {
   const RecieptScreen({super.key});

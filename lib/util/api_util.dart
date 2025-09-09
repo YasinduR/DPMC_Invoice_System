@@ -52,6 +52,54 @@ Future<void> inquire<T extends Mappable>({
   }
 }
 
+/// Authenticates a dealer and handles its own loading overlay.
+Future<void> dealerLogin({
+  required BuildContext context,
+  required String dealerCode,
+  required String pin,
+  required VoidCallback onSuccess, // Callback for successful authentication
+  required Function(String errorMessage) onError, // Callback for failures
+}) async {
+  // Initialize the loading overlay for this specific operation.
+  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+
+  // Check if the widget is still in the tree before proceeding.
+  if (!context.mounted) return;
+
+  try {
+    // Show the overlay before starting the async operation.
+    loadingOverlay.show(context);
+
+    // Simulate a 1-second network delay for the API call.
+    await Future.delayed(const Duration(seconds: 1));
+
+    // --- MOCK LOGIC ---
+    // In a real app, you would check the result from the API call.
+    // For now, we'll assume it's always successful.
+    final bool isAuthenticated = true;
+
+    if (isAuthenticated) {
+      // If successful, call the onSuccess callback.
+      onSuccess();
+    // ignore: dead_code
+    } else {
+      // If the API returned a failure (e.g., wrong PIN), call onError.
+      onError('Invalid PIN. Please try again.');
+    }
+
+  } catch (e) {
+    // If an error/exception occurs, call the onError callback.
+    onError('An unexpected error occurred: $e');
+
+  } finally {
+    // IMPORTANT: This block guarantees the overlay is always hidden
+    // after the operation completes (either success or failure).
+    if (loadingOverlay.isShowing) {
+      loadingOverlay.hide();
+    }
+  }
+}
+
 /// A generic function to save Mappable data to a specified endpoint.
 Future<void> save<T extends Mappable>({
   required BuildContext context,

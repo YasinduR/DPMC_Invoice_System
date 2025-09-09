@@ -11,13 +11,13 @@ import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/util/api_util.dart';
 //import 'package:myapp/theme/app_theme.dart';
-import 'package:myapp/util/dialog_box.dart';
-import 'package:myapp/widgets/action_button.dart';
-import 'package:myapp/widgets/app_help_text_field.dart';
-import 'package:myapp/widgets/app_table.dart';
-import 'package:myapp/widgets/date_picker_field.dart';
-import 'package:myapp/widgets/dealer_info_card.dart';
-import 'package:myapp/widgets/text_form_field.dart';
+import 'package:myapp/widgets/app_dialog_boxes.dart';
+import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_helper_field.dart';
+import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/app_date_picker.dart';
+import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/app_text_form_field.dart';
 
 class RecieptDetailsView extends StatefulWidget {
   final Dealer dealer;
@@ -196,7 +196,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
     }
     return SizedBox(
       height: 250, // Constrain the height of the list
-      child: FilterableListView<TinInvoice>(
+      child: AppDataGrid<TinInvoice>(
         // Updated search hint to include more fields
         searchHintText: 'Search by TIN, Mobile Inv, or Amount',
         onFilterPressed: () {},
@@ -276,7 +276,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                   child: Checkbox(
                     value: widget.selectedTins.contains(invoice),
                     activeColor: AppColors.primary,
-                    checkColor: Colors.white,
+                    checkColor: AppColors.white,
                     onChanged: (bool? value) {
                       widget.onTinToggle(invoice);
                     },
@@ -289,7 +289,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
     // --- WIDGET LOGIC WITH UPDATED COLUMNS ---
     // return SizedBox(
     //   height: 250, // Constrain the height of the list
-    //   child: FilterableListView<TinInvoice>(
+    //   child: AppDataGrid<TinInvoice>(
     //     // Updated search hint to include more fields
     //     searchHintText: 'Search by TIN, Mobile Inv, or Amount',
     //     onFilterPressed: () {},

@@ -49,11 +49,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Initialize with the initial state
   AuthNotifier(this._authService) : super(const AuthState.initial());
 
-  Future<void> login(String username, String password) async {
+  Future<void> login(BuildContext context,String username, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final user = await _authService.login(username, password);
+            final user = await _authService.login(
+        context: context,
+        username: username,
+        password: password,
+      );
 
       if (user != null) {
         state = state.copyWith(
@@ -79,8 +83,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> logout() async {
-    await _authService.logout();
+  Future<void> logout(BuildContext context) async {
+    await _authService.logout(context:context);
     // Reset to the initial state on logout
     state = const AuthState.initial();
   }

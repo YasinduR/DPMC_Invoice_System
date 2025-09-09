@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Common Action Button for the app
+
 class ActionButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final IconData? icon;
-  final Color? color;
-  final bool disabled; // 1. Added the new property
+  final String label;   // Label
+  final VoidCallback onPressed; // OnPress Call Back fn
+  final IconData? icon;  // Icon is optional
+  final Color? color;    // By default Primary Color
+  final bool disabled;  // Disabled state
 
   const ActionButton({
     super.key,

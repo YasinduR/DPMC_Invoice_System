@@ -964,13 +964,11 @@ class DummyData {
   ];
 
     static final List<TinInvoice> _tinInvoices = [
-    // --- Invoices for Madapatha Car Mart (AC2000123306) ---
     const TinInvoice(
       tinNo: 'TINBDM2025011500101',
       mobileInvNo: 'MIN0020512201400010',
       invAmount: 45200.50,
       paymentOnDeliveryStatus: 'Y',
-      //receiptStatus: true, // Example of an already processed receipt
       dealerAccCode: 'AC2000123306',
     ),
     const TinInvoice(
@@ -978,22 +976,100 @@ class DummyData {
       mobileInvNo: 'MIN0020512201400014',
       invAmount: 18750.0,
       paymentOnDeliveryStatus: 'N',
-      dealerAccCode: 'AC2000123306', // receiptStatus defaults to false
+      dealerAccCode: 'AC2000123306', 
     ),
     const TinInvoice(
       tinNo: 'TINBDM2025012500119',
       mobileInvNo: 'MIN0020512201400028',
       invAmount: 33400.0,
       paymentOnDeliveryStatus: 'Y',
-      dealerAccCode: 'AC2000123306', // receiptStatus defaults to false
+      dealerAccCode: 'AC2000123306',
     ),
     const TinInvoice(
       tinNo: 'TINBDM2025012800122',
       mobileInvNo: 'MIN0020512201400031',
       invAmount: 9800.25,
       paymentOnDeliveryStatus: 'N',
-      dealerAccCode: 'AC2000123306', // receiptStatus defaults to false
+      dealerAccCode: 'AC2000123306',
     ),
+
+      const TinInvoice(
+    tinNo: 'TINBDM2025020200130',
+    mobileInvNo: 'MIN0020512201400039',
+    invAmount: 5120.75,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025020500135',
+    mobileInvNo: 'MIN0020512201400044',
+    invAmount: 22450.00,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025021100142',
+    mobileInvNo: 'MIN0020512201400051',
+    invAmount: 7650.50,
+    paymentOnDeliveryStatus: 'N',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025021400148',
+    mobileInvNo: 'MIN0020512201400057',
+    invAmount: 19990.00,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025021900153',
+    mobileInvNo: 'MIN0020512201400062',
+    invAmount: 31200.00,
+    paymentOnDeliveryStatus: 'N',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025022500160',
+    mobileInvNo: 'MIN0020512201400069',
+    invAmount: 8430.20,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025030100165',
+    mobileInvNo: 'MIN0020512201400074',
+    invAmount: 65400.00,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025030400171',
+    mobileInvNo: 'MIN0020512201400080',
+    invAmount: 12300.75,
+    paymentOnDeliveryStatus: 'N',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025030900178',
+    mobileInvNo: 'MIN0020512201400087',
+    invAmount: 25800.00,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
+    const TinInvoice(
+    tinNo: 'TINBDM2025031200183',
+    mobileInvNo: 'MIN0020512201400092',
+    invAmount: 4150.50,
+    paymentOnDeliveryStatus: 'N',
+    dealerAccCode: 'AC2000123306',
+  ),
+  const TinInvoice(
+    tinNo: 'TINBDM2025031500190',
+    mobileInvNo: 'MIN0020512201400099',
+    invAmount: 15000.00,
+    paymentOnDeliveryStatus: 'Y',
+    dealerAccCode: 'AC2000123306',
+  ),
 
 
     // --- Invoices for Jayalath Enterprises (AC2000123307) ---

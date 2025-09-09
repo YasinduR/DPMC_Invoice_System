@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Common Text field
 class AppTextField extends StatelessWidget {
-  final TextEditingController? controller;
-  final String? labelText;
-  final String? hintText;
-  final TextInputType keyboardType;
-  final bool obscureText;
-  final bool isPin;
-  final bool isFinanceNum; // for money
-  final bool hideBorder;
-  final EdgeInsetsGeometry? contentPadding;
-  final String? Function(String?)? validator;
-  final void Function(String)? onFieldSubmitted; // 1. ADD THIS LINE
-
-    // --- ADDITIONS ---
-  final void Function(String)? onChanged; // 1. ADD this for real-time validation
-  final TextInputAction? textInputAction;   // 2. ADD this for better keyboard UX
+  final TextEditingController? controller;    // Manages the text field's content.
+  final String? labelText;                  // The label that floats above the field.
+  final String? hintText;                   // Placeholder text inside the field.
+  final TextInputType keyboardType;         // Type of keyboard to show (e.g., text, number).
+  final bool obscureText;                   // Hides text, typically for passwords.
+  final bool isPin;                         // A flag for PIN-specific behavior (numeric, obscure).
+  final bool isFinanceNum;                  // A flag for financial number validation.
+  final bool hideBorder;                    // Toggles the visibility of the field's border.
+  final EdgeInsetsGeometry? contentPadding;   // Custom padding inside the text field.
+  final String? Function(String?)? validator; // Custom validation logic.
+  final void Function(String)? onFieldSubmitted; // Callback when the user submits the field.
+  final void Function(String)? onChanged;        // Callback on every character change.
+  final TextInputAction? textInputAction;       // The action button on the keyboard (e.g., next, done).
 
   const AppTextField({
     super.key,

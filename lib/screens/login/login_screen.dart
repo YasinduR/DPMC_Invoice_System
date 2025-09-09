@@ -5,8 +5,8 @@ import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_footer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // 1. Import Riverpod
 import 'package:myapp/providers/auth_provider.dart'; // 2. Import the new Riverpod provider
-import 'package:myapp/widgets/action_button.dart';
-import 'package:myapp/widgets/text_form_field.dart';
+import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_text_form_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -32,7 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
     final username = _usernameController.text;
     final password = _passwordController.text;
-    ref.read(authProvider.notifier).login(username, password);
+    ref.read(authProvider.notifier).login(context,username, password);
   }
 
   void _handleClear() {
@@ -160,9 +160,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  authState.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ActionButton(
+                  // authState.isLoading
+                  //     ? const Center(child: CircularProgressIndicator())
+                  //     :
+                       ActionButton(
                         // Replaced here
                         icon: Icons.check_circle_outline,
                         label: 'Login',

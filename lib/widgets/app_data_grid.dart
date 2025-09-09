@@ -2,11 +2,11 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/column_model.dart';
-//import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/theme/app_theme.dart';
-//import 'package:myapp/widgets/app_loading_overlay.dart';
 
-class FilterableListView<T extends Mappable> extends StatefulWidget {
+// Common Data Grid of the Application
+
+class AppDataGrid<T extends Mappable> extends StatefulWidget {
   /// The list of items to display.
   final List<T> items;
 
@@ -22,24 +22,24 @@ class FilterableListView<T extends Mappable> extends StatefulWidget {
   /// The hint text to display in the search input field.
   final String searchHintText;
 
+  // Visibilty of filter bar over the table by Default true
   final bool hasFilter;
 
-  const FilterableListView({
+  const AppDataGrid({
     super.key,
     required this.items,
     required this.columns,
     required this.filterableFields,
     this.onFilterPressed,
-    this.hasFilter =true,
+    this.hasFilter = true,
     this.searchHintText = 'Search...',
   });
 
   @override
-  State<FilterableListView<T>> createState() => _FilterableListViewState<T>();
+  State<AppDataGrid<T>> createState() => _AppDataGridState<T>();
 }
 
-class _FilterableListViewState<T extends Mappable>
-    extends State<FilterableListView<T>> {
+class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
   final TextEditingController _searchController = TextEditingController();
 
   List<T> _filteredItems = [];
@@ -52,11 +52,10 @@ class _FilterableListViewState<T extends Mappable>
   }
 
   @override
-  void didUpdateWidget(FilterableListView<T> oldWidget) {
+  void didUpdateWidget(AppDataGrid<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.items != oldWidget.items) {
       _filteredItems = widget.items;
-      // After updating the list, re-apply the current filter
       _performFilter();
     }
   }
@@ -91,7 +90,7 @@ class _FilterableListViewState<T extends Mappable>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if(widget.hasFilter) _buildFilterAndSearch(),
+        if (widget.hasFilter) _buildFilterAndSearch(),
         const SizedBox(height: 1),
         _buildHeader(),
         Container(height: 1, color: Colors.grey.shade300),
@@ -100,7 +99,6 @@ class _FilterableListViewState<T extends Mappable>
     );
   }
 
-  /// Builds the main body content based on the current state.
   Widget _buildBody() {
     if (_filteredItems.isEmpty) {
       return const Center(child: Text('No items found.'));
@@ -114,7 +112,6 @@ class _FilterableListViewState<T extends Mappable>
     );
   }
 
-  /// Builds the top bar containing the filter button and search field.
   Widget _buildFilterAndSearch() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -173,14 +170,6 @@ class _FilterableListViewState<T extends Mappable>
                   ),
                 ),
               );
-              // return Expanded(
-              //   flex: column.flex,
-              //   child: Text(
-              //     column.label,
-              //     style: const TextStyle(fontWeight: FontWeight.bold),
-              //     textAlign: TextAlign.center,
-              //   ),
-              // );
             }).toList(),
       ),
     );

@@ -14,7 +14,7 @@ void showSnackBar({
   required String message,
   required MessageType type,
   Duration duration = const Duration(seconds: 4),
-  SnackBarAction? action,
+  SnackBarAction? action, required BuildContext context,
 }) {
   // 2. Use a switch statement to determine the background color
   Color backgroundColor;
