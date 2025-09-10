@@ -36,4 +36,5 @@ class Receipt implements Mappable {
       'creditNotes': creditNotes.map((note) => note.toMap()).toList()
     };
   }
+
 }

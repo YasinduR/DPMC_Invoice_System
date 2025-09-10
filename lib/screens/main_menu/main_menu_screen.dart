@@ -95,7 +95,10 @@ class MainMenuScreen extends ConsumerWidget {
                     _MenuCard(
                       icon: Icons.lock_reset,
                       label: 'Change Password',
-                      onTap: () {},
+                      onTap: () {
+
+                        Navigator.pushNamed(context, AppRoutes.changePassword);
+                      },
                     ),
                     _MenuCard(icon: Icons.info, label: 'About', onTap: () {}),
                     _MenuCard(

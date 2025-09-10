@@ -10,7 +10,7 @@ import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/providers/region_provider.dart';
-import 'package:myapp/util/api_util.dart';
+import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/views/reciept_detail_view.dart';
 import 'package:myapp/views/region_selection_view.dart';

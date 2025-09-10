@@ -5,7 +5,7 @@ import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/theme/app_theme.dart';
-import 'package:myapp/util/api_util.dart';
+import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/widgets/app_action_button.dart';

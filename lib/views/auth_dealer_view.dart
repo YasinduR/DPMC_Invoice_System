@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/util/api_util.dart';
+import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -86,15 +86,15 @@ class _AuthenticateDealerViewState extends State<AuthenticateDealerView> {
             widget.onAuthenticated();
           }
         },
-        onError: (errorMessage) {
+        onError: (e) {
           // Check if the widget is still mounted before showing a SnackBar.
           if (mounted) {
-            showSnackBar(
-              context: context,
-              message: errorMessage, // Show the actual error
-              type: MessageType.error,
-            );
-
+          String errorMessage = e.toString().replaceFirst('Exception: ', '');
+          showSnackBar(
+            context: context,
+            message: errorMessage,
+            type: MessageType.error,
+          );
             // CRITICAL: Re-enable the button if an error occurs so the user can try again.
             setState(() {
               _isAuthenticating = false;

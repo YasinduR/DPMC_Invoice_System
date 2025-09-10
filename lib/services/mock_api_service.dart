@@ -4,63 +4,27 @@ import 'dart:convert';
 
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 
+import 'package:bcrypt/bcrypt.dart'; 
+
+
+//// IMPORTANT :  This works as the Back-End remove later 
+
 class MockApiService {
-  static final List<Receipt> _sessionReceipts = [];
 
-  static Future<void> postData<T extends Mappable>(
-    String dataUrl,
-    T data,
-  ) async {
-    await Future.delayed(
-      const Duration(seconds: 1),
-    ); // Simulate network latency
-
-    switch (dataUrl) {
-      case 'api/receipts/save':
-        // Specific logic for saving receipts
-        if (data is Receipt) {
-          final isDuplicate = _sessionReceipts.any(
-            (existingReceipt) =>
-                existingReceipt.dealerCode == data.dealerCode &&
-                existingReceipt.bankCode == data.bankCode &&
-                existingReceipt.chequeNumber == data.chequeNumber,
-          );
-
-          if (isDuplicate) {
-            throw Exception(
-              'This cheque number already exists for the selected dealer and bank.',
-            );
-          } else {
-            _sessionReceipts.add(data);
-            // print('Receipt saved successfully to session. Total receipts: ${_sessionReceipts.length}');
-          }
-        } else {
-          throw Exception(
-            'Data for receipts/save endpoint must be a Receipt type.',
-          );
-        }
-        break;
-      default:
-        // Default behavior for other URLs (e.g., just log and pretend to save)
-        //print('Generic save for $dataUrl: ${data.toMap()}');
-        // If you need to actually store other types generically, you'd need
-        // more generic session storage (e.g., Map<String, List<Mappable>>)
-        break;
-    }
-  }
-
-  static Future<List<T>> fetchData<T extends Mappable>(String url) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+  static Future<List<T>> get<T extends Mappable>(String url) async {
+    await Future.delayed(const Duration(milliseconds: 800)); 
 
     final uri = Uri.parse(url);
-    final path = uri.path;
-    final params = uri.queryParameters;
+    if (!uri.path.endsWith('/list')) {
+      throw Exception('Invalid GET URL. Must end with "/list".');
+    }
 
-    List<Mappable> sourceData; // Use Mappable to access .toMap()
-
-    switch (path) {
+    List<Mappable> sourceData;
+    
+    switch (uri.path) {
       case 'api/dealers/list':
         sourceData = DummyData.dealers;
         break;
@@ -88,26 +52,23 @@ class MockApiService {
       case 'api/bank/list':
         sourceData = DummyData.banks;
         break;
-      case 'api/tin-invoices/list': // New API path for TinInvoice data
+      case 'api/tin-invoices/list': 
         sourceData = DummyData.tinInvoices;
         break;
-      // If the path doesn't match any known endpoint, throw an exception
       default:
-        throw Exception('Invalid API URL Path: $path');
+        throw Exception('Invalid API URL Path: $uri.path');
     }
 
-    // --- NEW GENERIC FILTERING LOGIC ---
-    if (params.containsKey('filters')) {
-      final filterJson = params['filters']!;
+    if (uri.queryParameters.containsKey('filters')) {
+      final filterJson = uri.queryParameters['filters']!;
       final conditions = (jsonDecode(filterJson) as List).cast<List<dynamic>>();
 
       sourceData =
           sourceData.where((item) {
             final itemMap = item.toMap();
 
-            // The item must satisfy ALL conditions (.every)
             return conditions.every((condition) {
-              if (condition.length != 3) return false; // Malformed condition
+              if (condition.length != 3) return false; 
 
               final String field = condition[0];
               final String operator = condition[1];
@@ -117,7 +78,6 @@ class MockApiService {
 
               final itemValue = itemMap[field];
 
-              // Compare values as strings for simplicity and type safety
               switch (operator) {
                 case '=':
                   return itemValue.toString().toLowerCase() ==
@@ -125,9 +85,8 @@ class MockApiService {
                 case '!=':
                   return itemValue.toString().toLowerCase() !=
                       value.toString().toLowerCase();
-                // add more operators here
                 default:
-                  return false; // Unsupported operator
+                  return false; 
               }
             });
           }).toList();
@@ -139,28 +98,100 @@ class MockApiService {
     return sourceData.cast<T>();
   }
 
-  // THIS IS SIMILAR TO SP CALL
-  static Future<void> postReceipt(Receipt dataToSave) async {
-    await Future.delayed(
-      const Duration(seconds: 1),
-    ); // Simulate network latency
+ static Future<dynamic> post(String url, {dynamic body}) async {
 
-    // 2. DUPLICATE CHECK
-    final isDuplicate = _sessionReceipts.any(
-      (existingReceipt) =>
-          existingReceipt.dealerCode == dataToSave.dealerCode &&
-          existingReceipt.bankCode == dataToSave.bankCode &&
-          existingReceipt.chequeNumber == dataToSave.chequeNumber,
-    );
+    await Future.delayed(const Duration(seconds: 1)); 
 
-    if (isDuplicate) {
-      // 3. Deny the save and throw an error if a duplicate is found
-      throw Exception(
-        'Duplicate Error: This cheque number already exists for the selected dealer and bank.',
-      );
-    } else {
-      // 4. Otherwise, save the data to the session
-      _sessionReceipts.add(dataToSave);
+    switch (url) {
+            case 'api/dealer/login':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid payload for dealer login.');
+        }
+        final dealerCode = body['dealerCode'];
+        final pin = body['pin'];
+        final dealerExists = DummyData.dealers.any((d) => d.accountCode == dealerCode);
+        
+        if (dealerExists && pin == '123') {
+          return true;
+        } else {
+          throw Exception('Invalid Dealer Code or PIN.');
+        }
+      case 'api/user/login':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for login. Expected a Map.');
+        }
+        final username = body['username'];
+        final password = body['password'];
+        try {
+          final user = DummyData.users.firstWhere(
+            (u) => u.username == username,
+          );
+          final isPasswordCorrect = BCrypt.checkpw(password, user.password);
+
+          if (isPasswordCorrect) {
+            return user;
+          } 
+          else {
+            throw Exception('Invalid username or password.');
+          }
+        } catch (e) {
+          throw Exception('Invalid username or password.');
+        }
+
+      case 'api/user/changepassword':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for changePassword. Expected a Map.');
+        }
+        final username = body['username'];
+        final oldPassword = body['oldPassword'];
+        final newPassword = body['newPassword'];
+        try {
+          final oldUser = DummyData.users.firstWhere(
+            (u) => u.username == username,
+          );
+          if (!BCrypt.checkpw(oldPassword, oldUser.password)) {
+            throw Exception('Invalid old password provided.');
+          }
+          final String newHashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+          final userIndex = DummyData.users.indexOf(oldUser);
+
+          final updatedUser =
+           User(
+              id: oldUser.id,
+              username: oldUser.username,
+              email: oldUser.email,
+              password: newHashedPassword,
+            );
+          DummyData.users[userIndex] = updatedUser;
+          return true;
+        } catch (e) {
+          throw Exception('Invalid username or old password provided.');
+        }
+
+      case 'api/receipts/save':
+        if (body is! Receipt) {
+          throw Exception('Invalid type for saving a receipt. Expected a Receipt object.');
+        }
+        
+        final receipt = body;
+        
+        final isDuplicate = DummyData.receipts.any(
+          (existingReceipt) =>
+              existingReceipt.dealerCode == receipt.dealerCode &&
+              existingReceipt.bankCode == receipt.bankCode &&
+              existingReceipt.chequeNumber == receipt.chequeNumber,
+        );
+
+        if (isDuplicate) {
+          throw Exception('This cheque number already exists for the selected dealer and bank.');
+        }
+        
+         DummyData.receipts.add(receipt);
+        return true;
+
+      default:
+        throw Exception('Invalid POST API URL: $url');
     }
   }
 }

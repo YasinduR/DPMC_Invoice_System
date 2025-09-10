@@ -12,4 +12,5 @@ class AppRoutes {
   static const String returns = '/returns';
   static const String reprint = '/reprint';
   static const String region = '/region';
+  static const String changePassword = '/changePassword';
 }

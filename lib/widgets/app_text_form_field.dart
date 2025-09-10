@@ -3,19 +3,24 @@ import 'package:myapp/theme/app_theme.dart';
 
 // Common Text field
 class AppTextField extends StatelessWidget {
-  final TextEditingController? controller;    // Manages the text field's content.
-  final String? labelText;                  // The label that floats above the field.
-  final String? hintText;                   // Placeholder text inside the field.
-  final TextInputType keyboardType;         // Type of keyboard to show (e.g., text, number).
-  final bool obscureText;                   // Hides text, typically for passwords.
-  final bool isPin;                         // A flag for PIN-specific behavior (numeric, obscure).
-  final bool isFinanceNum;                  // A flag for financial number validation.
-  final bool hideBorder;                    // Toggles the visibility of the field's border.
-  final EdgeInsetsGeometry? contentPadding;   // Custom padding inside the text field.
+  final TextEditingController? controller; // Manages the text field's content.
+  final String? labelText; // The label that floats above the field.
+  final String? hintText; // Placeholder text inside the field.
+  final TextInputType
+  keyboardType; // Type of keyboard to show (e.g., text, number).
+  final bool obscureText; // Hides text, typically for passwords.
+  final bool isPin; // A flag for PIN-specific behavior (numeric, obscure).
+  final bool isPassword; // Flag for Password
+  final bool isFinanceNum; // A flag for financial number validation.
+  final bool hideBorder; // Toggles the visibility of the field's border.
+  final EdgeInsetsGeometry?
+  contentPadding; // Custom padding inside the text field.
   final String? Function(String?)? validator; // Custom validation logic.
-  final void Function(String)? onFieldSubmitted; // Callback when the user submits the field.
-  final void Function(String)? onChanged;        // Callback on every character change.
-  final TextInputAction? textInputAction;       // The action button on the keyboard (e.g., next, done).
+  final void Function(String)?
+  onFieldSubmitted; // Callback when the user submits the field.
+  final void Function(String)? onChanged; // Callback on every character change.
+  final TextInputAction?
+  textInputAction; // The action button on the keyboard (e.g., next, done).
 
   const AppTextField({
     super.key,
@@ -25,21 +30,31 @@ class AppTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.isPin = false,
+     this.isPassword = false,
     this.isFinanceNum = false, // For money
     this.hideBorder =
         false, // NEW: Default to false to not break existing fields
     this.contentPadding, // NEW
     this.validator,
     this.onFieldSubmitted,
-        this.onChanged, // 3. ADD to constructor
+    this.onChanged, // 3. ADD to constructor
     this.textInputAction, // 4. ADD to constructor
   });
 
   String? _internalValidator(String? value) {
+    if (validator != null) return validator!(value); // Use the provided validator as priority
+
     if (isPin) {
       if (value == null || value.isEmpty) return 'PIN cannot be empty';
       final isDigitsOnly = RegExp(r'^[0-9]+$').hasMatch(value);
       if (!isDigitsOnly) return 'PIN must contain only numbers';
+    }
+
+    if (isPassword) {
+      if (value == null || value.isEmpty) {
+        return null; // For now no error upon empty values
+      }
+        else if (value.length < 4) return 'Password must be at least 4 characters';
     }
 
     if (isFinanceNum) {
@@ -51,8 +66,6 @@ class AppTextField extends StatelessWidget {
         return 'Please enter a valid value in Rupees';
       }
     }
-
-    if (validator != null) return validator!(value);
     return null;
   }
 
@@ -69,7 +82,9 @@ class AppTextField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted, // 3. PASS THE CALLBACK HERE
       //textInputAction: TextInputAction.done, // 4. SET THE KEYBOARD ACTION
       onChanged: onChanged, // 5. PASS the onChanged callback here
-      textInputAction: textInputAction ?? TextInputAction.done, // Use provided action or default to 'done'
+      textInputAction:
+          textInputAction ??
+          TextInputAction.done, // Use provided action or default to 'done'
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         labelText: labelText,

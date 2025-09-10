@@ -1,16 +1,42 @@
-// Dummy Data File
+import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/invoic_model.dart';
 import 'package:myapp/models/part_model.dart';
+import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/tin_model.dart';
+import 'package:myapp/models/user_model.dart';
+
+
+//// IMPORTANT :  This works as the DataBase remove later 
 
 class DummyData {
+     static final List<Receipt> _sessionReceipts = [];
+    static final List<User> _users = [
+    User(
+      id: '2619',
+      username: 'yasindu',
+      email: 'yasindu@example.com',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+    ),
+    User(
+      id: '8108',
+      username: 'nimesh',
+      email: 'test@example.com',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+    ),
+    User(
+      id: '1111',
+      username: 'admin',
+      email: 'admin@example.com',
+      password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
+    ),
+  ];
   static final List<Dealer> _dealers = [
     // COLOMBO REGION
     Dealer(
@@ -1137,4 +1163,6 @@ class DummyData {
   static List<ReturnItem> get returnItems => _returnItems;
   static List<Part> get parts => _parts;
   static List<TinInvoice> get tinInvoices => _tinInvoices;
+  static List<User> get users => _users;
+  static List<Receipt> get receipts => _sessionReceipts;
 }

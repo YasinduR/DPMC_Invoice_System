@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/screens/change_password/change_pwd_screen.dart';
 import 'package:myapp/screens/login/login_screen.dart';
 import 'package:myapp/screens/main_menu/main_menu_screen.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
@@ -82,6 +83,7 @@ class MyApp extends ConsumerWidget {
         AppRoutes.returns: (context) => const ReturnScreen(),
         AppRoutes.reprint: (context) => const ReprintScreen(),
         AppRoutes.region: (context) => const RouteSelectionScreen(),
+        AppRoutes.changePassword: (context) => const ChangePasswordScreen()
 
       },
       scaffoldMessengerKey: scaffoldMessengerKey,

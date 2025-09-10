@@ -144,7 +144,7 @@ class _AppSelectionFieldState<T extends Mappable>
         fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
       }
       // --- End of URL building ---
-      final items = await MockApiService.fetchData<T>(fullUrl);
+      final items = await MockApiService.get<T>(fullUrl);
 
       _loadingOverlay.hide();
 
