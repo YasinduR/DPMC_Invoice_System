@@ -119,13 +119,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           _currentStep--;
         });
       });
-      // setState(() {
-      //   _currentStep--;
-      // });
     } else {
       Navigator.of(context).pop();
-      // In a real app, you might use Navigator.of(context).pop();
-      //print("Already at the first step.");
     }
   }
 

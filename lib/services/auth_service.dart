@@ -1,8 +1,7 @@
-// lib/services/auth_service.dart
 import 'package:flutter/material.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/mock_api_service.dart';
-import 'package:myapp/widgets/app_loading_overlay.dart'; // Import the new model
+import 'package:myapp/widgets/app_loading_overlay.dart';
 
 class AuthService {
 
@@ -38,7 +37,9 @@ class AuthService {
     } catch (e) {
       return null;
     } finally {
-      loadingOverlay.hide();
+            if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
     }
   }
 
@@ -63,7 +64,61 @@ class AuthService {
     } catch (e) {
       return false;
     } finally {
-      loadingOverlay.hide();
+            if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
     }
   }
+
+  
+
+  Future<String?> requestPasswordReset({
+    required BuildContext context,
+    required String username,
+    required String email,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      return await MockApiService.post(
+        'api/user/request-password-reset',
+        body: {'username': username, 'email': email},
+      ) as String?;
+    } catch (e) {
+      return null;
+    } finally {
+            if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
+  Future<bool> resetPassword({
+    required BuildContext context,
+    required String username,
+    required String token,
+    required String newPassword,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      return await MockApiService.post(
+        'api/user/reset-password',
+        body: {
+          'username': username,
+          'token': token,
+          'newPassword': newPassword,
+        },
+      ) as bool;
+    } catch (e) {
+      return false;
+    } finally {
+            if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
+
+
 }

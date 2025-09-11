@@ -1,7 +1,4 @@
-// Dummy API for Now
-
 import 'dart:convert';
-
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/user_model.dart';
@@ -168,7 +165,52 @@ class MockApiService {
         } catch (e) {
           throw Exception('Invalid username or old password provided.');
         }
+      case 'api/user/request-password-reset':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for password reset request.');
+        }
+        final username = body['username'];
+        final email = body['email'];
+        try {
+          DummyData.users.firstWhere(
+            (u) => u.username == username && u.email == email,
+          );
+          return '12345';
+        } catch (e) {
+          throw Exception('User not found or email does not match.');
+        }
 
+      case 'api/user/reset-password':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for password reset.');
+        }
+        final username = body['username'];
+        final token = body['token'];
+        final newPassword = body['newPassword'];
+        if (token != '12345') { 
+          throw Exception('Invalid or expired password reset token.');
+        }
+
+        try {
+          final oldUser = DummyData.users.firstWhere(
+            (u) => u.username == username,
+          );
+
+          final String newHashedPassword =
+              BCrypt.hashpw(newPassword, BCrypt.gensalt());
+          final userIndex = DummyData.users.indexOf(oldUser);
+          final updatedUser = User(
+            id: oldUser.id,
+            username: oldUser.username,
+            email: oldUser.email,
+            password: newHashedPassword,
+          );
+          DummyData.users[userIndex] = updatedUser;
+          return true;
+        } catch (e) {
+          throw Exception('User not found.');
+        }
+        
       case 'api/receipts/save':
         if (body is! Receipt) {
           throw Exception('Invalid type for saving a receipt. Expected a Receipt object.');

@@ -11,6 +11,7 @@ class AppTextField extends StatelessWidget {
   final bool obscureText; // Hides text, typically for passwords.
   final bool isPin; // A flag for PIN-specific behavior (numeric, obscure).
   final bool isPassword; // Flag for Password
+  final bool isEmail; // Flag for Email
   final bool isFinanceNum; // A flag for financial number validation.
   final bool hideBorder; // Toggles the visibility of the field's border.
   final EdgeInsetsGeometry?
@@ -30,20 +31,27 @@ class AppTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.isPin = false,
-     this.isPassword = false,
-    this.isFinanceNum = false, // For money
-    this.hideBorder =
-        false, // NEW: Default to false to not break existing fields
-    this.contentPadding, // NEW
+    this.isPassword = false,
+    this.isFinanceNum = false,
+    this.isEmail =false, 
+    this.hideBorder =false, 
+    this.contentPadding,
     this.validator,
     this.onFieldSubmitted,
-    this.onChanged, // 3. ADD to constructor
-    this.textInputAction, // 4. ADD to constructor
+    this.onChanged,
+    this.textInputAction,
   });
 
   String? _internalValidator(String? value) {
-    if (validator != null) return validator!(value); // Use the provided validator as priority
+    if (validator != null)
+      return validator!(value); // Use the provided validator as priority
 
+    if(isEmail){
+      if (value?.isEmpty ?? true) return null;
+      if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value!)) {
+        return 'Please enter a valid email address';
+      }
+    }
     if (isPin) {
       if (value == null || value.isEmpty) return 'PIN cannot be empty';
       final isDigitsOnly = RegExp(r'^[0-9]+$').hasMatch(value);
@@ -53,16 +61,16 @@ class AppTextField extends StatelessWidget {
     if (isPassword) {
       if (value == null || value.isEmpty) {
         return null; // For now no error upon empty values
-      }
-        else if (value.length < 4) return 'Password must be at least 4 characters';
+      } else if (value.length < 4)
+        return 'Password must be at least 4 characters';
     }
 
     if (isFinanceNum) {
       if (value == null || value.isEmpty) {
         return null; // For now no error upon empty values
       }
-      final isFinanceNum = RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value);
-      if (!isFinanceNum) {
+      final isFinanceNum_ = RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value);
+      if (!isFinanceNum_) {
         return 'Please enter a valid value in Rupees';
       }
     }
@@ -71,7 +79,7 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool shouldObscure = obscureText || isPin;
+    final bool shouldObscure = obscureText || isPin || isPassword;
     final TextInputType effectiveKeyboardType =
         isPin ? TextInputType.number : keyboardType;
 

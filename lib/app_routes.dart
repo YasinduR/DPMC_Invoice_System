@@ -13,4 +13,7 @@ class AppRoutes {
   static const String reprint = '/reprint';
   static const String region = '/region';
   static const String changePassword = '/changePassword';
+  static const String forgetPassword = '/forgetPassword';
+
+  
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'package:provider/provider.dart'; replced with river pod
-// import 'package:myapp/providers/auth_provider_old.dart'; // Import the AuthProvider
+import 'package:myapp/app_routes.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_footer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // 1. Import Riverpod
@@ -16,8 +15,17 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _usernameController = TextEditingController(text: 'yasindu');
+  final _usernameController = TextEditingController(text: 'yasindu'); //
   final _passwordController = TextEditingController(text: '12345');
+
+  @override
+  void initState() {
+    super.initState();
+        _usernameController.addListener(() => setState(() {}));
+    _passwordController.addListener(() => setState(() {}));
+    _usernameController.addListener(_clearError);
+    _passwordController.addListener(_clearError);
+  }
 
   @override
   void dispose() {
@@ -26,13 +34,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  // Handles the login logic by calling the AuthProvider.
+  void _clearError() {
+    if (ref.read(authProvider).errorMessage != null) {
+      ref.read(authProvider.notifier).clearError();
+    }
+  }
+
   void _handleLogin() {
-    // Hide the keyboard
     FocusScope.of(context).unfocus();
     final username = _usernameController.text;
     final password = _passwordController.text;
-    ref.read(authProvider.notifier).login(context,username, password);
+    ref.read(authProvider.notifier).login(context, username, password);
+  }
+
+  void _handleForgetPassword() {
+    FocusScope.of(context).unfocus();
+    Navigator.pushNamed(context, AppRoutes.forgetPassword);
   }
 
   void _handleClear() {
@@ -42,13 +59,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Use a Consumer to rebuild the UI based on AuthProvider changes.
     final authState = ref.watch(authProvider);
-
+    final bool isdisabled = _usernameController.text.isEmpty || _passwordController.text.isEmpty ;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        // Disable user interaction while loading.
         child: AbsorbPointer(
           absorbing: authState.isLoading,
           child: SingleChildScrollView(
@@ -61,7 +76,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  // Header section (no changes needed)
                   Row(
                     children: [
                       SizedBox(
@@ -120,36 +134,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ),
-                  // _buildTextField(
-                  //   controller: _usernameController,
-                  //   hintText: 'Username',
-                  // ),
-                  // const SizedBox(height: 20),
-                  // _buildTextField(
-                  //   controller: _passwordController,
-                  //   hintText: 'Password',
-                  //   obscureText: true,
-                  // ),
-                                    // Replace _buildTextField with the newly configured AppTextField
                   AppTextField(
                     controller: _usernameController,
                     hintText: 'Username',
-                    hideBorder: true, // Use the new "no border" style
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    hideBorder: true, // Use "no border" style
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 20,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   AppTextField(
                     controller: _passwordController,
                     hintText: 'Password',
-                    obscureText: true,
-                    hideBorder: true, // Use the new "no border" style
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    isPassword: true,
+                    hideBorder: true, // Use "no border" style
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 20,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: _handleForgetPassword,
                       child: const Text(
                         'Forgot password?',
                         style: TextStyle(
@@ -163,15 +172,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // authState.isLoading
                   //     ? const Center(child: CircularProgressIndicator())
                   //     :
-                       ActionButton(
-                        // Replaced here
-                        icon: Icons.check_circle_outline,
-                        label: 'Login',
-                        onPressed: _handleLogin,
-                      ),
+                  ActionButton(
+                    disabled: isdisabled,
+                    icon: Icons.check_circle_outline,
+                    label: 'Login',
+                    onPressed: _handleLogin,
+                  ),
                   const SizedBox(height: 16),
                   ActionButton(
-                    // Replaced here
                     icon: Icons.refresh,
                     label: 'Refresh',
                     color: AppColors.success,
@@ -179,7 +187,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   ActionButton(
-                    // Replaced here
                     icon: Icons.cancel_outlined,
                     label: 'Cancel',
                     color: AppColors.danger,
@@ -195,29 +202,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
-
-  // // Helper method for text fields (no changes needed)
-  // Widget _buildTextField({
-  //   required TextEditingController controller,
-  //   required String hintText,
-  //   bool obscureText = false,
-  // }) {
-  //   return TextField(
-  //     controller: controller,
-  //     obscureText: obscureText,
-  //     decoration: InputDecoration(
-  //       hintText: hintText,
-  //       filled: true,
-  //       fillColor: AppColors.white,
-  //       border: OutlineInputBorder(
-  //         borderRadius: BorderRadius.circular(12),
-  //         borderSide: BorderSide.none,
-  //       ),
-  //       contentPadding: const EdgeInsets.symmetric(
-  //         vertical: 16,
-  //         horizontal: 20,
-  //       ),
-  //     ),
-  //   );
-  // }
 }
