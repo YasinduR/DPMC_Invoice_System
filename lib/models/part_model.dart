@@ -6,7 +6,7 @@ class Part implements Mappable {
   final double price; // The price for a single unit of this part.
   
   // These fields represent the state manipulated by the user in the UI.
-  bool isSelected;
+  //bool isSelected;
   int receivedQty;
 
   Part({
@@ -14,7 +14,7 @@ class Part implements Mappable {
     required this.partNo,
     required this.requestQty,
     required this.price,
-    this.isSelected = false, // Defaults to not selected
+    //this.isSelected = false, // Defaults to not selected
     this.receivedQty = 0,    // Defaults to 0 received
   });
   
@@ -27,6 +27,23 @@ class Part implements Mappable {
       'price': price,
       'receivedQty': receivedQty,
       };
+  }
+
+// This creates a new `Part` instance with same properties if not replaced
+    Part copyWith({
+    String? id,
+    String? partNo,
+    double? price,
+    int? requestQty,
+    int? receivedQty,
+  }) {
+    return Part(
+      id: id ?? this.id,
+      partNo: partNo ?? this.partNo,
+      price: price ?? this.price,
+      requestQty: requestQty ?? this.requestQty,
+      receivedQty: receivedQty ?? this.receivedQty,
+    );
   }
 }
 

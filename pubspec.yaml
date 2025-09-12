@@ -45,6 +45,8 @@ dependencies:
   decimal: ^2.3.3 # for financial calculations
   equatable: ^2.0.5 # For comparison of two object list used in credit note
   bcrypt: ^1.1.3 # For Hashing PWD in Mock Back end and data base can be removed later
+  collection: ^1.18.0 # For using firstornullmthod
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

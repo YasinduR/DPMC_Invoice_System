@@ -7,33 +7,27 @@ import 'package:myapp/services/auth_service.dart';
 class AuthState {
   final bool isLoggedIn;
   final bool isLoading;
-  final String? errorMessage;
   final User? currentUser;
 
   const AuthState({
     required this.isLoggedIn,
     required this.isLoading,
-    this.errorMessage,
     this.currentUser,
   });
 
-  // Create an initial state
   const AuthState.initial()
     : isLoggedIn = false,
       isLoading = false,
-      errorMessage = null,
       currentUser = null;
 
   AuthState copyWith({
     bool? isLoggedIn,
     bool? isLoading,
-    String? errorMessage,
     User? currentUser,
   }) {
     return AuthState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
       currentUser: currentUser ?? this.currentUser,
     );
   }
@@ -49,8 +43,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     String username,
     String password,
   ) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
+    state = state.copyWith(isLoading: true);
     try {
       final user = await _authService.login(
         context: context,
@@ -62,66 +55,36 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           isLoggedIn: true,
           currentUser: user,
-          isLoading: false,
         );
-      } else {
-        state = state.copyWith(
-          errorMessage: 'Invalid username or password.',
-          isLoggedIn: false,
-          currentUser: null,
-          isLoading: false,
-        );
-      }
+      } 
     } catch (e) {
-      state = state.copyWith(
-        errorMessage: 'An unexpected error occurred.',
-        isLoggedIn: false,
-        currentUser: null,
-        isLoading: false,
-      );
+      rethrow;
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
-  void clearError() {
-    state = state.copyWith(errorMessage: null);
-  }
-
-  Future<bool> changePassword(
+Future<void> changePassword(
     BuildContext context, {
     required String oldPassword,
     required String newPassword,
   }) async {
-    if (state.currentUser == null) {
-      return false;
-    }
 
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true);
 
     try {
-      final success = await _authService.changePassword(
+      await _authService.changePassword(
         context: context,
         username: state.currentUser!.username,
         oldPassword: oldPassword,
         newPassword: newPassword,
       );
+      await logout(context);
 
-      if (success) {
-        await logout(context);
-        return true;
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage:
-              'Failed to change password. Please check your old password.',
-        );
-        return false;
-      }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'An unexpected error occurred.',
-      );
-      return false;
+      rethrow;
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 

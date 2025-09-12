@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
 class AuthService {
-
   Future<void> logout({required BuildContext context}) async {
     final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
       await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
-      return null; 
+      return null;
     } finally {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
@@ -32,19 +32,28 @@ class AuthService {
                 'api/user/login',
                 body: {'username': username, 'password': password},
               )
-              as User; 
+              as User;
       return user;
+    } on UnauthorisedException {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      rethrow;
     } catch (e) {
-      return null;
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      throw FetchDataException(
+        "Could not connect to the server. Please check your internet connection and try again.",
+      );
     } finally {
-            if (loadingOverlay.isShowing) {
+      if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
     }
   }
 
-
-  Future<bool> changePassword({
+  Future<void> changePassword({
     required BuildContext context,
     required String username,
     required String oldPassword,
@@ -53,24 +62,32 @@ class AuthService {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
-      return await MockApiService.post(
+      await MockApiService.post(
         'api/user/changepassword',
         body: {
           'username': username,
           'oldPassword': oldPassword,
           'newPassword': newPassword,
         },
-      ) as bool;
+      );
+    } on UnauthorisedException {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      rethrow;
     } catch (e) {
-      return false;
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      throw FetchDataException(
+        "Could not connect to the server. Please try again.",
+      );
     } finally {
-            if (loadingOverlay.isShowing) {
+      if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
     }
   }
-
-  
 
   Future<String?> requestPasswordReset({
     required BuildContext context,
@@ -81,13 +98,17 @@ class AuthService {
     try {
       loadingOverlay.show(context);
       return await MockApiService.post(
-        'api/user/request-password-reset',
-        body: {'username': username, 'email': email},
-      ) as String?;
+            'api/user/request-password-reset',
+            body: {'username': username, 'email': email},
+          )
+          as String?;
     } catch (e) {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
       return null;
     } finally {
-            if (loadingOverlay.isShowing) {
+      if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
     }
@@ -103,22 +124,20 @@ class AuthService {
     try {
       loadingOverlay.show(context);
       return await MockApiService.post(
-        'api/user/reset-password',
-        body: {
-          'username': username,
-          'token': token,
-          'newPassword': newPassword,
-        },
-      ) as bool;
+            'api/user/reset-password',
+            body: {
+              'username': username,
+              'token': token,
+              'newPassword': newPassword,
+            },
+          )
+          as bool;
     } catch (e) {
       return false;
     } finally {
-            if (loadingOverlay.isShowing) {
+      if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
     }
   }
-
-
-
 }

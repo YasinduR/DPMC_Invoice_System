@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/views/change_password_view.dart';
@@ -20,44 +21,62 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     String oldPassword,
     String newPassword,
   ) async {
-
-    if(oldPassword==newPassword){
+    if (oldPassword == newPassword) {
       showSnackBar(
         context: context,
         message: 'New password cannot be the same as the old password.',
         type: MessageType.error,
-        );
+      );
       return;
     }
 
-    final bool haschanged = await ref
-        .read(authProvider.notifier)
-        .changePassword(
-          context,
-          oldPassword: oldPassword,
-          newPassword: newPassword,
-        );
+    FocusScope.of(context).unfocus();
 
-         if (!mounted) return;
-
-    if (haschanged) {
-      showInfoDialog(
-          context: context,
-          title: 'Password Changed !',
-          content: 'Your Password has been changed successfully. Please log in again.',
+    try {
+      await ref
+          .read(authProvider.notifier)
+          .changePassword(
+            context,
+            oldPassword: oldPassword,
+            newPassword: newPassword,
           );
-    
+
+      if (!mounted) return;
+      await showInfoDialog(
+        context: context,
+        title: 'Password Changed!',
+        content:
+            'Your password has been changed successfully. Please log in again.',
+      );
+      if (mounted) {
+        Navigator.of(context).pop();
       }
-    else{
-      final errorMessage = ref.read(authProvider).errorMessage;
+    } on UnauthorisedException catch (e) {
+
+      if (!mounted) return;
       showSnackBar(
         context: context,
-        message: errorMessage!,
+        message:
+            e.getMessage(),
         type: MessageType.error,
-        );
+      );
+    } on FetchDataException catch (e) {
 
+      if (!mounted) return;
+      showSnackBar(
+        context: context,
+        message: e.getMessage(), 
+        type: MessageType.error,
+      );
+    } catch (e) {
+
+      if (!mounted) return;
+      showSnackBar(
+        context: context,
+        message: 'An unexpected error occurred. Please try again.',
+        type: MessageType.error,
+      );
     }
-    
   }
 
   void _goBack() {
@@ -72,7 +91,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     if (currentUser == null) {
       return const AppPage(
         title: '',
-        child: Center(child: Text('No user is logged in. Please log in again.')),
+        child: Center(
+          child: Text('No user is logged in. Please log in again.'),
+        ),
       );
     }
     return AppPage(

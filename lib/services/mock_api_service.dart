@@ -1,18 +1,17 @@
 import 'dart:convert';
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 
-import 'package:bcrypt/bcrypt.dart'; 
+import 'package:bcrypt/bcrypt.dart';
 
-
-//// IMPORTANT :  This works as the Back-End remove later 
+//// IMPORTANT :  This works as the Back-End remove later
 
 class MockApiService {
-
   static Future<List<T>> get<T extends Mappable>(String url) async {
-    await Future.delayed(const Duration(milliseconds: 800)); 
+    await Future.delayed(const Duration(milliseconds: 800));
 
     final uri = Uri.parse(url);
     if (!uri.path.endsWith('/list')) {
@@ -20,7 +19,7 @@ class MockApiService {
     }
 
     List<Mappable> sourceData;
-    
+
     switch (uri.path) {
       case 'api/dealers/list':
         sourceData = DummyData.dealers;
@@ -49,7 +48,7 @@ class MockApiService {
       case 'api/bank/list':
         sourceData = DummyData.banks;
         break;
-      case 'api/tin-invoices/list': 
+      case 'api/tin-invoices/list':
         sourceData = DummyData.tinInvoices;
         break;
       default:
@@ -65,7 +64,7 @@ class MockApiService {
             final itemMap = item.toMap();
 
             return conditions.every((condition) {
-              if (condition.length != 3) return false; 
+              if (condition.length != 3) return false;
 
               final String field = condition[0];
               final String operator = condition[1];
@@ -83,7 +82,7 @@ class MockApiService {
                   return itemValue.toString().toLowerCase() !=
                       value.toString().toLowerCase();
                 default:
-                  return false; 
+                  return false;
               }
             });
           }).toList();
@@ -95,19 +94,20 @@ class MockApiService {
     return sourceData.cast<T>();
   }
 
- static Future<dynamic> post(String url, {dynamic body}) async {
-
-    await Future.delayed(const Duration(seconds: 1)); 
+  static Future<dynamic> post(String url, {dynamic body}) async {
+    await Future.delayed(const Duration(seconds: 1));
 
     switch (url) {
-            case 'api/dealer/login':
+      case 'api/dealer/login':
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid payload for dealer login.');
         }
         final dealerCode = body['dealerCode'];
         final pin = body['pin'];
-        final dealerExists = DummyData.dealers.any((d) => d.accountCode == dealerCode);
-        
+        final dealerExists = DummyData.dealers.any(
+          (d) => d.accountCode == dealerCode,
+        );
+
         if (dealerExists && pin == '123') {
           return true;
         } else {
@@ -115,9 +115,9 @@ class MockApiService {
         }
       case 'api/user/login':
         if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for login. Expected a Map.');
+          throw Exception('Invalid body type for login.');
         }
-        final username = body['username'];
+        final username = (body['username'] as String?)?.toLowerCase();
         final password = body['password'];
         try {
           final user = DummyData.users.firstWhere(
@@ -127,50 +127,58 @@ class MockApiService {
 
           if (isPasswordCorrect) {
             return user;
-          } 
-          else {
-            throw Exception('Invalid username or password.');
+          } else {
+            throw UnauthorisedException('Invalid username or password.');
           }
         } catch (e) {
-          throw Exception('Invalid username or password.');
+          throw UnauthorisedException('Invalid username or password.');
         }
 
       case 'api/user/changepassword':
         if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for changePassword. Expected a Map.');
+          throw Exception(
+            'Invalid body type for changePassword. Expected a Map.',
+          );
         }
-        final username = body['username'];
+        final username = (body['username'] as String?)?.toLowerCase();
         final oldPassword = body['oldPassword'];
         final newPassword = body['newPassword'];
+
+        User oldUser;
         try {
-          final oldUser = DummyData.users.firstWhere(
-            (u) => u.username == username,
+          oldUser = DummyData.users.firstWhere((u) => u.username == username);
+        } catch (e) {
+          throw UnauthorisedException('Could not find a user to update.');
+        }
+        if (!BCrypt.checkpw(oldPassword, oldUser.password)) {
+          throw UnauthorisedException(
+            'The old password you entered is incorrect.',
           );
-          if (!BCrypt.checkpw(oldPassword, oldUser.password)) {
-            throw Exception('Invalid old password provided.');
-          }
-          final String newHashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-
+        }
+        final String newHashedPassword = BCrypt.hashpw(
+          newPassword,
+          BCrypt.gensalt(),
+        );
+        try {
           final userIndex = DummyData.users.indexOf(oldUser);
-
-          final updatedUser =
-           User(
-              id: oldUser.id,
-              username: oldUser.username,
-              email: oldUser.email,
-              password: newHashedPassword,
-            );
+          final updatedUser = User(
+            id: oldUser.id,
+            username: oldUser.username,
+            email: oldUser.email,
+            password: newHashedPassword,
+          );
           DummyData.users[userIndex] = updatedUser;
           return true;
         } catch (e) {
-          throw Exception('Invalid username or old password provided.');
+          throw UnauthorisedException('Could update the user.'); // chnage later
         }
+
       case 'api/user/request-password-reset':
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid body type for password reset request.');
         }
-        final username = body['username'];
-        final email = body['email'];
+        final username = (body['username'] as String?)?.toLowerCase();
+        final email = (body['email'] as String?)?.toLowerCase();
         try {
           DummyData.users.firstWhere(
             (u) => u.username == username && u.email == email,
@@ -184,10 +192,10 @@ class MockApiService {
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid body type for password reset.');
         }
-        final username = body['username'];
+        final username = (body['username'] as String?)?.toLowerCase();
         final token = body['token'];
         final newPassword = body['newPassword'];
-        if (token != '12345') { 
+        if (token != '12345') {
           throw Exception('Invalid or expired password reset token.');
         }
 
@@ -196,8 +204,10 @@ class MockApiService {
             (u) => u.username == username,
           );
 
-          final String newHashedPassword =
-              BCrypt.hashpw(newPassword, BCrypt.gensalt());
+          final String newHashedPassword = BCrypt.hashpw(
+            newPassword,
+            BCrypt.gensalt(),
+          );
           final userIndex = DummyData.users.indexOf(oldUser);
           final updatedUser = User(
             id: oldUser.id,
@@ -210,14 +220,16 @@ class MockApiService {
         } catch (e) {
           throw Exception('User not found.');
         }
-        
+
       case 'api/receipts/save':
         if (body is! Receipt) {
-          throw Exception('Invalid type for saving a receipt. Expected a Receipt object.');
+          throw Exception(
+            'Invalid type for saving a receipt. Expected a Receipt object.',
+          );
         }
-        
+
         final receipt = body;
-        
+
         final isDuplicate = DummyData.receipts.any(
           (existingReceipt) =>
               existingReceipt.dealerCode == receipt.dealerCode &&
@@ -226,10 +238,38 @@ class MockApiService {
         );
 
         if (isDuplicate) {
-          throw Exception('This cheque number already exists for the selected dealer and bank.');
+          throw Exception(
+            'This cheque number already exists for the selected dealer and bank.',
+          );
         }
-        
-         DummyData.receipts.add(receipt);
+
+        DummyData.receipts.add(receipt);
+        return true;
+
+
+         case 'api/invoice/save':
+        if (body is! Receipt) {
+          throw Exception(
+            'Invalid type for saving a receipt. Expected a Receipt object.',
+          );
+        }
+
+        final receipt = body;
+
+        final isDuplicate = DummyData.receipts.any(
+          (existingReceipt) =>
+              existingReceipt.dealerCode == receipt.dealerCode &&
+              existingReceipt.bankCode == receipt.bankCode &&
+              existingReceipt.chequeNumber == receipt.chequeNumber,
+        );
+
+        if (isDuplicate) {
+          throw Exception(
+            'This cheque number already exists for the selected dealer and bank.',
+          );
+        }
+
+        DummyData.receipts.add(receipt);
         return true;
 
       default:
