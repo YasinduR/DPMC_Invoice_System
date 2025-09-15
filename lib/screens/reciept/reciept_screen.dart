@@ -181,13 +181,12 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       0.0,
       (sum, note) => sum + note.amount,
     );
-    // MODIFIED: Calculate total due by summing up all selected invoice amounts.
+
     final totalDue = _selectedTins.fold(
       Decimal.zero,
       (sum, tin) => sum + Decimal.parse(tin.invAmount.toString()),
     );
 
-    //final totalDue = Decimal.parse(_selectedTin!.totalValue.toString());  by Due by single tin
 
     final totalPayment = Decimal.parse(
       (totalCreditNoteAmount + chequeAmount).toString(),

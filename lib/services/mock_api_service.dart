@@ -51,6 +51,9 @@ class MockApiService {
       case 'api/tin-invoices/list':
         sourceData = DummyData.tinInvoices;
         break;
+      case 'api/roles/list':
+        sourceData = DummyData.roles;
+        break;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
     }
@@ -125,8 +128,40 @@ class MockApiService {
           );
           final isPasswordCorrect = BCrypt.checkpw(password, user.password);
 
+          // if (isPasswordCorrect) {
+          //   return user;
+
           if (isPasswordCorrect) {
-            return user;
+            // Step 1: Get the user's roles
+            final userRoles = user.roles;
+
+            // Step 2: Find all permitted ScreenIds for the user's roles
+            // We use a Set to automatically handle duplicate ScreenIds
+            final permittedScreenIds =
+                DummyData.perms
+                    .where((perm) => userRoles.contains(perm.RoleId))
+                    .map((perm) => perm.ScreenId)
+                    .toSet();
+
+            // Step 3: Filter the master list of screens to get the accessible ones
+            final accessibleScreens =
+                DummyData.screens
+                    .where(
+                      (screen) => permittedScreenIds.contains(screen.screenId),
+                    )
+                    .toList();
+
+                  // Step 2: Find the corresponding role names from the master list
+          final userRoleNames = DummyData.roles
+              .where((role) => userRoles.contains(role.roleId)) // Filter by ID
+              .map((role) => role.roleName) // Extract just the name
+              .toList(); // Convert to a List<String>
+
+            // Step 4 & 5: Create a new User object with the accessible screens and return it
+            return user.copyWith(
+              accessibleScreen: accessibleScreens,
+              rolenames: userRoleNames, 
+              );
           } else {
             throw UnauthorisedException('Invalid username or password.');
           }
@@ -166,6 +201,7 @@ class MockApiService {
             username: oldUser.username,
             email: oldUser.email,
             password: newHashedPassword,
+            roles: oldUser.roles,
           );
           DummyData.users[userIndex] = updatedUser;
           return true;
@@ -214,6 +250,7 @@ class MockApiService {
             username: oldUser.username,
             email: oldUser.email,
             password: newHashedPassword,
+            roles: oldUser.roles,
           );
           DummyData.users[userIndex] = updatedUser;
           return true;
@@ -246,8 +283,7 @@ class MockApiService {
         DummyData.receipts.add(receipt);
         return true;
 
-
-         case 'api/invoice/save':
+      case 'api/invoice/save':
         if (body is! Receipt) {
           throw Exception(
             'Invalid type for saving a receipt. Expected a Receipt object.',

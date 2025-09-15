@@ -18,6 +18,8 @@ class ProfileScreen extends ConsumerWidget {
     final regionState = ref.watch(regionProvider);
     final selectedRegion = regionState.selectedRegion;
 
+    final roleNames = currentUser?.rolenames.join(', ') ?? 'No roles assigned';
+
     return AppPage(
       title: 'User Profile',
       child: SingleChildScrollView(
@@ -70,6 +72,12 @@ class ProfileScreen extends ConsumerWidget {
                         label: 'User ID',
                         value: currentUser?.id ?? 'N/A',
                       ),
+                       const Divider(),
+                       _buildInfoTile(
+                            icon: Icons.security,
+                            label: 'Roles',
+                            value: roleNames,
+                        ),
                       if (selectedRegion != null) ...[
                         const Divider(),
                         _buildInfoTile(

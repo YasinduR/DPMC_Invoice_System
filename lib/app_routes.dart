@@ -14,6 +14,27 @@ class AppRoutes {
   static const String region = '/region';
   static const String changePassword = '/changePassword';
   static const String forgetPassword = '/forgetPassword';
+  static const String attendence = '/attendence';
+
+
+    static final Map<String, String> routes = {
+      // Non menu screens
+    'login': login,
+    'mainMenu': mainMenu,
+    'forgetPassword': forgetPassword,
+    // Menu 
+    'setupPrint': setupPrint,
+    'invoice': invoice,
+    'printInvoice': printInvoice,
+    'profile': profile,
+    'testNotify': testNotify,
+    'reciept': reciept,
+    'returns': returns,
+    'reprint': reprint,
+    'region': region,
+    'changePassword': changePassword,
+    'attendence' : attendence
+  };
 
   
 }
