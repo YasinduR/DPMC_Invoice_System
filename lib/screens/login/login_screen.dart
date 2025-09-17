@@ -229,7 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   icon: Icons.cancel_outlined,
                   label: 'Cancel',
                   color: AppColors.danger,
-                  onPressed: () {},
+                  onPressed: () {Navigator.pushNamed(context, AppRoutes.fraudMenu);},
                 ),
                 const SizedBox(height: 30),
                 const AppFooter(),

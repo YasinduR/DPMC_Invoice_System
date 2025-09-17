@@ -1,5 +1,7 @@
 
-class Screen {
+import 'package:myapp/contracts/mappable.dart';
+
+class Screen implements Mappable {
   final String screenId;
   final String screenName; // e.g., 'setupPrint', used for routing
   final String menuId;
@@ -13,4 +15,9 @@ class Screen {
     required this.title,
     required this.iconName,
   });
+  
+  @override
+  Map<String, dynamic> toMap() {
+    return {'screenId': screenId, 'screenName': screenName,'menuId': menuId, 'title': title,'iconName': iconName};
+  }
 }

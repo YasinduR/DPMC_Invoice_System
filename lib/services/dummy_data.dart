@@ -52,6 +52,17 @@ class DummyData {
       iconName: 'lock_open',
     ),
 
+        Screen(
+      screenId: '015',
+      screenName: 'forgetPassword',
+      menuId: 'N/A',
+      title: 'Main Menu',
+      iconName: 'apps',
+    ),
+
+    
+
+
     // Menu screens
     Screen(
       screenId: '003',

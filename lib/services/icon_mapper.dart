@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-
 // Define Icons for the Screen menus here 
+
 class IconMapper {
   static const Map<String, IconData> _iconMap = {
     'login': Icons.login,
@@ -20,6 +20,7 @@ class IconMapper {
     'info': Icons.info,
     'logout': Icons.logout,
     'checklist': Icons.checklist
+    // add icon name defined : Icon files
   };
 
   static IconData getIcon(String iconName) {

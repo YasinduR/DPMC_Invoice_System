@@ -31,7 +31,6 @@ class MainMenuScreen extends ConsumerWidget {
       '006', // Profile
       '007', // Test
     ];
-
     final List<Screen> menuItems = List.from(accessibleScreens);
 
     // --- NEW MULTI-LEVEL SORTING LOGIC ---
@@ -48,12 +47,10 @@ class MainMenuScreen extends ConsumerWidget {
       return sortA.compareTo(sortB);
     });
 
-
-
     // Dynamically build the list of menu cards
     final List<Widget> menuCards =
         menuItems.map((screen) {
-          final route = AppRoutes.routes[screen.screenName];
+          final route = AppRoutes.screenNameToRouteMap[screen.screenName];
           if (route == null)
             return const SizedBox.shrink(); 
 
@@ -73,7 +70,7 @@ class MainMenuScreen extends ConsumerWidget {
             () => showInfoDialog(
               context: context,
               title: 'DPMC Invoice System',
-              content: 'Developed By DP Infotech Pvt Ltd.',
+              content: 'Developed By DP Infotech',
             ),
         //onTap: () => showAboutDialog(context: context, applicationName: 'Invoice App'),
       ),
@@ -95,6 +92,32 @@ class MainMenuScreen extends ConsumerWidget {
         },
       ),
     );
+
+
+
+
+    // =======================================================================
+    // --- FOR TESTING PURPOSES ONLY ---
+    // This section adds Invoice and Attendance screens for any user,
+    // regardless of their role. REMOVE THIS SECTION after testing is complete.
+
+    menuCards.add(
+      _MenuCard(
+        icon: IconMapper.getIcon('invoice'),
+        label: 'Invoice',
+        onTap: () => Navigator.pushNamed(context, '/invoice'),
+      ),
+    );
+    menuCards.add(
+      _MenuCard(
+        icon: IconMapper.getIcon('attendence'),
+        label: 'Attendance',
+        onTap: () => Navigator.pushNamed(context, '/attendence'),
+      ),
+    );
+
+    // --- END OF TESTING SECTION ---
+    // =======================================================================
 
     return Scaffold(
       backgroundColor: AppColors.background,

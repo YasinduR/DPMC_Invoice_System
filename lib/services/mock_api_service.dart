@@ -53,6 +53,8 @@ class MockApiService {
         break;
       case 'api/roles/list':
         sourceData = DummyData.roles;
+      case 'api/screens/list':
+        sourceData = DummyData.screens;
         break;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
@@ -101,6 +103,25 @@ class MockApiService {
     await Future.delayed(const Duration(seconds: 1));
 
     switch (url) {
+
+      case 'api/permission/check':
+      final String screenId = body['screenId'] as String;
+      final List<String> roleIds = (body['roleIds'] as List).cast<String>();
+      final hasPermission = DummyData.perms.any((perm) {
+        final isScreenMatch = perm.ScreenId == screenId;
+        final isRoleMatch = roleIds.contains(perm.RoleId);
+        return isScreenMatch && isRoleMatch;
+      });
+      return hasPermission;
+
+      // case 'api/permission/check':
+      //   final String screenId = body['screenId'] as String;
+      //   final List<String> roleIds = (body['roleIds'] as List).cast<String>();
+
+      //   // Check if any of the user's roles have permission for the given screen.
+      //   return DummyData.perms.any((perm) =>
+      //       perm.ScreenId == screenId && roleIds.contains(perm.RoleId));
+
       case 'api/dealer/login':
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid payload for dealer login.');
