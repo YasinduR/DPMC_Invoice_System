@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
-// Options Picker field and releated show model  ( ie: used in reasons for returns)
+// Options Picker field and releated show model  ( note: used in reasons for returns and attendence)
 
 class SelectionModal extends StatefulWidget {
-  final String title;           // Text displayed at the top of the modal.
-  final List<String> options;   // List of choices for the user.
-  final String? initialValue;   // The option to pre-select.
+  final String title; // Text displayed at the top of the modal.
+  final List<String> options; // List of choices for the user.
+  final String? initialValue; // The option to pre-select.
 
   const SelectionModal({
     super.key,
@@ -90,55 +90,72 @@ class _SelectionModalState extends State<SelectionModal> {
   }
 }
 
-
 class PickerFormField extends StatelessWidget {
-  final String labelText;       // The label displayed above the field.
-  final String displayValue;    // The current value shown in the field.
-  final VoidCallback onTap;     // The function to call when the field is tapped.
+  final String? headerLabelText; // Optional label text displayed above the field.
+  final String? inputFieldLabelText; // Optional label text for the InputDecorator.
+  final String? selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
+  final VoidCallback onTap; // The function to call when the field is tapped.
 
   const PickerFormField({
     super.key,
-    required this.labelText,
-    required this.displayValue,
+    this.headerLabelText,
+    this.inputFieldLabelText,
+    required this.selectedOption,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final borderColor =  AppColors.borderDark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. The centered, styled label.
-        Center(
-          child: Text(
-            labelText,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: AppColors.primary,
-            ),
+        // Optional header label above the field
+        if (headerLabelText != null && headerLabelText!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0), // Spacing between header label and input
+            child: Center(
+              child:Text(
+              headerLabelText!,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: AppColors.primary, // Using primary color for header label
+              ),
+            )),
           ),
-        ),
-        const SizedBox(height: 2),
         InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+          child: InputDecorator(
+            isEmpty: selectedOption == null,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.white,
+              labelText: inputFieldLabelText, // Use the optional input field label
+              labelStyle: const TextStyle(color: AppColors.borderDark),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: borderColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: borderColor),
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  displayValue,
-                  style: TextStyle(fontSize: 14, color: AppColors.borderDark),
-                ),
-                const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    selectedOption == null ? '':selectedOption!,
+                    style: const TextStyle(fontSize: 16, color: AppColors.text),
+                  ),
+                  const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                ],
+              ),
             ),
           ),
         ),

@@ -18,7 +18,14 @@ class ProfileScreen extends ConsumerWidget {
     final regionState = ref.watch(regionProvider);
     final selectedRegion = regionState.selectedRegion;
 
-    final roleNames = currentUser?.rolenames.join(', ') ?? 'No roles assigned';
+    String? _capitalize(String? text) {
+    if (text == null || text.isEmpty) {
+    return null; 
+    }
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+    //final roleNames = currentUser?.rolenames.join(', ') ?? 'No roles assigned';
 
     return AppPage(
       title: 'User Profile',
@@ -39,7 +46,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Hello, ${currentUser?.username ?? 'Guest'}!',
+                'Hello, ${_capitalize(currentUser?.username.toUpperCase())?? 'Guest'}!', // Capitalized username
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -58,7 +65,7 @@ class ProfileScreen extends ConsumerWidget {
                       _buildInfoTile(
                         icon: Icons.account_circle,
                         label: 'Username',
-                        value: currentUser?.username ?? 'N/A',
+                        value: _capitalize(currentUser?.username.toUpperCase()) ?? 'N/A', // Capitalized username
                       ),
                       const Divider(),
                       _buildInfoTile(
@@ -75,15 +82,18 @@ class ProfileScreen extends ConsumerWidget {
                        const Divider(),
                        _buildInfoTile(
                             icon: Icons.security,
-                            label: 'Roles',
-                            value: roleNames,
+                            label: (currentUser?.rolenames.length == 1) ? 'Role' : 'Roles',
+                            maxLinesValue:currentUser?.rolenames.length ?? 1 ,
+                            value:  currentUser?.rolenames.join('\n')?? 'No Roles assigned',
                         ),
+                      if(currentUser !=null)
+                      if(currentUser.roles.contains('001')) // Region Info Tile is only for Salesman
                       if (selectedRegion != null) ...[
                         const Divider(),
                         _buildInfoTile(
-                          icon: Icons.map, // Or any suitable icon
+                          icon: Icons.map, 
                           label: 'Selected Region',
-                          value: selectedRegion.region,
+                          value: _capitalize(selectedRegion.region) ?? '' ,
                         ),
                       ] else ...[
                         const Divider(),
@@ -109,6 +119,8 @@ class ProfileScreen extends ConsumerWidget {
     required IconData icon,
     required String label,
     required String value,
+        int? maxLinesValue, // New optional parameter
+
   }) {
     return ListTile(
       leading: Icon(icon, color: AppColors.primary),
@@ -122,7 +134,7 @@ class ProfileScreen extends ConsumerWidget {
       subtitle: AutoSizeText(
         value,
         minFontSize: 8,
-        maxLines: 1,
+        maxLines: maxLinesValue ?? 1,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(
           fontSize: 16,

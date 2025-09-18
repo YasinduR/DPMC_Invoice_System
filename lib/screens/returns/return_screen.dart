@@ -137,7 +137,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           selectedRegion: selectedRegion,
           selectedDealer: _selectedDealer,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer, // Pass submit callback
+          onSubmit: _submitDealer,
         );
         break;
       case 1:
@@ -167,7 +167,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     final String currentTitle;
     switch (_currentStep) {
       case -1:
-        currentTitle = 'Select Region'; // New title
+        currentTitle = 'Select Region';
         break;
       case 0:
         currentTitle = 'Select Dealer';
@@ -193,8 +193,6 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     );
   }
 }
-
-// NOTE: Make sure to import your 'Dealer', 'TinData', and 'ReturnItem' models here.
 
 class ReturnsView extends StatefulWidget {
   final Dealer dealer;
@@ -357,15 +355,9 @@ class _ReturnsViewState extends State<ReturnsView> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. The root widget is now a Column, which allows us to stack a
-    //    scrolling area on top of a fixed area.
-
     return Column(
       children: [
-        // 2. The main content area is wrapped in Expanded. This tells it to
-        //    take up all available vertical space, pushing the button to the bottom.
         Expanded(
-          // 3. The ListView now handles the scrolling for the form content.
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
@@ -389,8 +381,9 @@ class _ReturnsViewState extends State<ReturnsView> {
               ),
               const SizedBox(height: 24),
               PickerFormField(
-                labelText: 'Reason',
-                displayValue: _selectedReason ?? 'Select a reason',
+                headerLabelText: 'Reason',
+                inputFieldLabelText: 'Select a reason',
+                selectedOption: _selectedReason,
                 onTap: _showReasonPicker,
               ),
             ],

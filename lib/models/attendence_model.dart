@@ -1,12 +1,12 @@
 import 'package:myapp/contracts/mappable.dart';
 
-class Attendance implements Mappable {
+class Attendence implements Mappable {
   final String userID;
   final DateTime date;
-  final bool attendance;
+  final String attendance;
   final String? remark;
 
-  Attendance({
+  Attendence({
     required this.userID,
     required this.date,
     required this.attendance,

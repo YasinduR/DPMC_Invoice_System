@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/models/attendence_model.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
@@ -328,6 +329,32 @@ class MockApiService {
 
         DummyData.receipts.add(receipt);
         return true;
+      
+      case 'api/attendence/save': 
+      if (body is! Attendence) {
+        throw Exception(
+          'Invalid type for saving attendance. Expected an Attendence object.',
+        );
+      }
+
+      final newAttendance = body;
+
+      int existingIndex = DummyData.attendences.indexWhere(
+        (existingAttendance) =>
+            existingAttendance.userID == newAttendance.userID &&
+            existingAttendance.date.year == newAttendance.date.year &&
+            existingAttendance.date.month == newAttendance.date.month &&
+            existingAttendance.date.day == newAttendance.date.day,
+      );
+
+      if (existingIndex != -1) {
+        // Record exists, replace it
+        DummyData.attendences[existingIndex] = newAttendance;
+      } else {
+        // No existing record, add as new
+        DummyData.attendences.add(newAttendance);
+      }
+      return true;
 
       default:
         throw Exception('Invalid POST API URL: $url');

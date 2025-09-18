@@ -1,5 +1,6 @@
 import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
+import 'package:myapp/models/attendence_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -21,6 +22,7 @@ import 'package:myapp/models/user_model.dart';
 
 class DummyData {
   static final List<Receipt> _sessionReceipts = [];
+  static final List<Attendence> _attendence = [];
 
   static final List<Menu> _menus = [
     Menu(MenuId: '01', MenuName: 'Sales'),
@@ -52,16 +54,13 @@ class DummyData {
       iconName: 'lock_open',
     ),
 
-        Screen(
+    Screen(
       screenId: '015',
       screenName: 'forgetPassword',
       menuId: 'N/A',
       title: 'Main Menu',
       iconName: 'apps',
     ),
-
-    
-
 
     // Menu screens
     Screen(
@@ -139,7 +138,7 @@ class DummyData {
       screenId: '014',
       screenName: 'attendence',
       menuId: '02',
-      title: 'Attendance',
+      title: 'Attendence',
       iconName: 'checklist',
     ),
   ];
@@ -1438,4 +1437,5 @@ class DummyData {
   static List<Screen> get screens => _screens;
   static List<Role> get roles => _roles;
   static List<Perm> get perms => _perms;
+  static List<Attendence> get attendences => _attendence;
 }
