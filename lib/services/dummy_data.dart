@@ -1,6 +1,6 @@
 import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
-import 'package:myapp/models/attendence_model.dart';
+import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -22,7 +22,7 @@ import 'package:myapp/models/user_model.dart';
 
 class DummyData {
   static final List<Receipt> _sessionReceipts = [];
-  static final List<Attendence> _attendence = [];
+  static final List<Attendance> _attendance = [];
 
   static final List<Menu> _menus = [
     Menu(MenuId: '01', MenuName: 'Sales'),
@@ -136,9 +136,9 @@ class DummyData {
 
     Screen(
       screenId: '014',
-      screenName: 'attendence',
+      screenName: 'attendance',
       menuId: '02',
-      title: 'Attendence',
+      title: 'Attendance',
       iconName: 'checklist',
     ),
   ];
@@ -166,8 +166,8 @@ class DummyData {
     Perm(RoleId: '002', ScreenId: '012'), // changePassword
     Perm(RoleId: '003', ScreenId: '012'), // changePassword
     Perm(RoleId: '002', ScreenId: '012'), // changePassword
-    Perm(RoleId: '002', ScreenId: '014'), // Attendence
-    Perm(RoleId: '003', ScreenId: '014'), // Attendence
+    Perm(RoleId: '002', ScreenId: '014'), // Attendance
+    Perm(RoleId: '003', ScreenId: '014'), // Attendance
   ];
 
   static final List<User> _users = [
@@ -1437,5 +1437,5 @@ class DummyData {
   static List<Screen> get screens => _screens;
   static List<Role> get roles => _roles;
   static List<Perm> get perms => _perms;
-  static List<Attendence> get attendences => _attendence;
+  static List<Attendance> get attendances => _attendance;
 }

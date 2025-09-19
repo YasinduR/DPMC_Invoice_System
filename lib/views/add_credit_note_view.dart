@@ -10,8 +10,8 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 import 'package:equatable/equatable.dart';
 import 'package:collection/collection.dart'; // Import the collection package for list comparison
 
+// Add Credit Notes to the Reciept ( Used in Reciept Screen)
 class AddCreditNotesView extends StatefulWidget {
-  // Callback to pass the final list of notes up to the parent
   final Function(List<CreditNote>) onSubmit;
   final List<CreditNote> initialNotes;
 
@@ -29,15 +29,12 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   final _formKey = GlobalKey<FormState>(); // 1. Add a GlobalKey for the Form
   final _crnController = TextEditingController();
   final _amountController = TextEditingController();
-  // final List<CreditNote> _addedCreditNotes = [];
   late final List<CreditNote> _addedCreditNotes;
   late final List<CreditNote> _initialNotes;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the local list with a *copy* of the list passed from the parent.
-    // This is important so that changes are only saved when the user hits 'Submit'.
     _addedCreditNotes = List<CreditNote>.from(widget.initialNotes);
     _initialNotes = List<CreditNote>.from(
       widget.initialNotes,
@@ -53,7 +50,6 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   }
 
   void _addNoteToList() {
-    // 3. Validate the form before proceeding
     if (_formKey.currentState!.validate()) {
       final crn = _crnController.text;
       final amount = double.parse(_amountController.text);
@@ -72,27 +68,6 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
       );
     }
   }
-
-  // void _addNoteToList() {
-  //   final crn = _crnController.text;
-  //   final amount = double.tryParse(_amountController.text);
-
-  //   if (crn.isNotEmpty && amount != null && amount > 0) {
-  //     setState(() {
-  //       _addedCreditNotes.add(CreditNote(crnNumber: crn, amount: amount));
-  //     });
-  //     _crnController.clear();
-  //     _amountController.clear();
-  //     FocusScope.of(context).unfocus(); // Dismiss keyboard
-  //   } else {
-  //     showSnackBar(
-  //       context: context,
-  //       message: 'Please enter a valid CRN and amount.',
-  //       type: MessageType.warning,
-  //     );
-
-  //   }
-  // }
 
   void _removeNoteFromList(CreditNote note) {
     setState(() {

@@ -5,7 +5,6 @@ import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
 // API Calls with Generic Types
-
 Future<void> inquire<T extends Mappable>({
   required BuildContext context,
   required String dataUrl,

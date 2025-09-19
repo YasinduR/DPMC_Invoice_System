@@ -1,10 +1,8 @@
-
-// View for Step 1 of Forget Password : User Info Request
-
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
+// View for Step 1 of Forget Password : User Info Request
 class UserInfoRequestView extends StatefulWidget {
 final Future<void> Function(String username, String email) onSubmit;
   const UserInfoRequestView({

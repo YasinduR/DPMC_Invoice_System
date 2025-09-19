@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
-//import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 
+
+// Dealer Selection View
 class SelectDealerView extends StatefulWidget {
-  //final List<Dealer> dealers;
   final Function(Dealer) onDealerSelected;
   final VoidCallback onSubmit;
   final Dealer? selectedDealer;
@@ -16,7 +16,6 @@ class SelectDealerView extends StatefulWidget {
 
   const SelectDealerView({
     super.key,
-    //required this.dealers,
     required this.onDealerSelected,
     required this.onSubmit,
     this.selectedDealer,
@@ -30,15 +29,10 @@ class SelectDealerView extends StatefulWidget {
 
 class _SelectDealerViewState extends State<SelectDealerView> {
   final TextEditingController _dealerController = TextEditingController();
-  // 1. This is the only state we need to track now.
   bool _isDealerSelectionCommitted = false;
-
-  
-
   @override
   void initState() {
     super.initState();
-    // If a dealer is pre-selected, the state is initially valid.
     if (widget.selectedDealer != null) {
       _dealerController.text = widget.selectedDealer!.name;
       _isDealerSelectionCommitted = true;
@@ -51,7 +45,6 @@ class _SelectDealerViewState extends State<SelectDealerView> {
     super.dispose();
   }
 
-  // MODIFIED: This function no longer navigates. It just calls the callback.
   Future<bool> _handlePreRequest() async {
     if (widget.selectedRegion == null) {
       final bool wantsToSelectRegion = await showConfirmationDialog(
@@ -62,15 +55,12 @@ class _SelectDealerViewState extends State<SelectDealerView> {
         cancelButtonText: 'Cancel',
       );
 
-      // --- If user says yes, notify the parent widget ---
       if (wantsToSelectRegion) {
         widget.onRegionSelectionRequested();
       }
 
-      // Prevent the selection sheet from opening
       return false;
     }
-    // Proceed if region is selected
     return true;
   }
 
@@ -87,10 +77,7 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             selectionSheetTitle: 'Select a Dealer',
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
-
-            //items: widget.dealers,
             onSelected: widget.onDealerSelected,
-            //displayString: (dealer) => dealer.name,
             onCommitStateChanged: (isCommitted) {
               setState(() {
                 _isDealerSelectionCommitted = isCommitted;

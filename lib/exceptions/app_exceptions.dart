@@ -1,4 +1,6 @@
 /// Exceptions
+/// NEW Exception Types are currently used in only login page other types of exceptions later and used them too
+/// or Remove this and Go with Default Exception
 class AppException implements Exception {
   final String _message;
   final String _prefix;
@@ -11,11 +13,9 @@ class AppException implements Exception {
   }
 
   String getMessage() => _message;
-
-  
 }
 
-
+// Invalid Login Credential
 class UnauthorisedException extends AppException {
   UnauthorisedException(String message) : super(message, "Unauthorised: ");
 }
@@ -23,5 +23,5 @@ class UnauthorisedException extends AppException {
 // Invalid api request or network issue
 class FetchDataException extends AppException {
   FetchDataException(String message)
-      : super(message, "Error During Communication: ");
+    : super(message, "Error During Communication: ");
 }

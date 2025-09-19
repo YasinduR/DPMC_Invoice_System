@@ -7,8 +7,7 @@ class CreditNote extends Equatable implements Mappable {
 
   CreditNote({required this.crnNumber, required this.amount});
     @override
-  // This tells Equatable that two CreditNote objects are the same if
-  // their crnNumber AND amount are the same.
+ 
   @override
   List<Object?> get props => [crnNumber, amount];
 

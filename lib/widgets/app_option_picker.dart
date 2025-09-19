@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
-// Options Picker field and releated show model  ( note: used in reasons for returns and attendence)
+// Options Picker field and releated show model  ( note: used in reasons for returns and attendance)
 
 class SelectionModal extends StatefulWidget {
   final String title; // Text displayed at the top of the modal.
@@ -91,9 +91,12 @@ class _SelectionModalState extends State<SelectionModal> {
 }
 
 class PickerFormField extends StatelessWidget {
-  final String? headerLabelText; // Optional label text displayed above the field.
-  final String? inputFieldLabelText; // Optional label text for the InputDecorator.
-  final String? selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
+  final String?
+  headerLabelText; // Optional label text displayed above the field.
+  final String?
+  inputFieldLabelText; // Optional label text for the InputDecorator.
+  final String?
+  selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
   final VoidCallback onTap; // The function to call when the field is tapped.
 
   const PickerFormField({
@@ -106,7 +109,7 @@ class PickerFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =  AppColors.borderDark;
+    final borderColor = AppColors.borderDark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,16 +117,20 @@ class PickerFormField extends StatelessWidget {
         // Optional header label above the field
         if (headerLabelText != null && headerLabelText!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0), // Spacing between header label and input
+            padding: const EdgeInsets.only(
+              bottom: 8.0,
+            ), // Spacing between header label and input
             child: Center(
-              child:Text(
-              headerLabelText!,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppColors.primary, // Using primary color for header label
+              child: Text(
+                headerLabelText!,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color:
+                      AppColors.primary, // Using primary color for header label
+                ),
               ),
-            )),
+            ),
           ),
         InkWell(
           onTap: onTap,
@@ -133,7 +140,8 @@ class PickerFormField extends StatelessWidget {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.white,
-              labelText: inputFieldLabelText, // Use the optional input field label
+              labelText:
+                  inputFieldLabelText, // Use the optional input field label
               labelStyle: const TextStyle(color: AppColors.borderDark),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -150,7 +158,7 @@ class PickerFormField extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    selectedOption == null ? '':selectedOption!,
+                    selectedOption == null ? '' : selectedOption!,
                     style: const TextStyle(fontSize: 16, color: AppColors.text),
                   ),
                   const Icon(Icons.keyboard_arrow_down, color: Colors.black54),

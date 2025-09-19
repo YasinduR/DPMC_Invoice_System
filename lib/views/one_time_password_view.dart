@@ -3,7 +3,6 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
 // View for Step 2 of Forget Password : One-time Password Request
-
 class OnetimePasswordRequestView extends StatefulWidget {
   final void Function(String token) onSubmit;
 

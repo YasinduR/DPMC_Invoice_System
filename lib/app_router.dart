@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/providers/auth_provider.dart';
-import 'package:myapp/screens/attendence/attendence_screen.dart';
+import 'package:myapp/screens/attendance/attendance_screen.dart';
 import 'package:myapp/screens/change_password/change_pwd_screen.dart';
 import 'package:myapp/screens/error_screen/error_screen.dart';
 import 'package:myapp/screens/forget_password/forget_pwd_screen.dart';
@@ -20,19 +20,17 @@ import 'package:myapp/screens/setup_print/setup_print_screen.dart';
 import 'package:myapp/screens/test_screens/fraud_menu.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 
-
 // This will link main.dart with the approutes with handling permission
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, WidgetRef ref) {
-    
     final String? routeName = settings.name;
-    
+
     //---- IMPORTANT  SECTION----//
     // Enable this Section Later
 
     // This SECTION to Check whether the user has logged in before routing to non public routes
-    
+
     final authState = ref.read(authProvider);
     final publicRoutes = [
       AppRoutes.login,
@@ -41,7 +39,13 @@ class AppRouter {
     ];
     if (publicRoutes.contains(routeName)) {
     } else if (!authState.isLoggedIn) {
-      return MaterialPageRoute(builder: (_) =>  const ErrorScreen(title:'Access Denied',message: 'No User has logged in'));
+      return MaterialPageRoute(
+        builder:
+            (_) => const ErrorScreen(
+              title: 'Access Denied',
+              message: 'No User has logged in',
+            ),
+      );
     }
     //---- END OF THE SECTION----//
 
@@ -52,11 +56,15 @@ class AppRouter {
 
     if (builder == null) {
       return MaterialPageRoute(
-        builder: (_) => const ErrorScreen(message: 'Oops! The page you are looking for does not exist.'),
+        builder:
+            (_) => const ErrorScreen(
+              message: 'Oops! The page you are looking for does not exist.',
+            ),
       );
       // --------------------------
     }
-    if (screenId != null) {  // Screen Id will be assign to all menu-screens
+    if (screenId != null) {
+      // Screen Id will be assign to all menu-screens
       return MaterialPageRoute(
         builder:
             (_) => PermissionCheckScreen(
@@ -68,7 +76,10 @@ class AppRouter {
       );
     }
 
-    return MaterialPageRoute(builder: builder, settings: settings); //For Main Menu, Login Page  and Forget Password
+    return MaterialPageRoute(
+      builder: builder,
+      settings: settings,
+    ); //For Main Menu, Login Page  and Forget Password
   }
 
   static WidgetBuilder? _getRouteBuilder(String? routeName) {
@@ -103,9 +114,9 @@ class AppRouter {
         return (context) => const RouteSelectionScreen();
       case '/changePassword':
         return (context) => const ChangePasswordScreen();
-      case '/attendence':
-        return (context) => const AttendenceScreen();
-        
+      case '/attendance':
+        return (context) => const AttendanceScreen();
+
       default:
         return null; // Return Null for the invalid routes
     }

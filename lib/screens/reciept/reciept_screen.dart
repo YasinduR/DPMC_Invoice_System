@@ -253,7 +253,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           message: 'Receipt saved successfully!',
           type: MessageType.success,
         );
-        //_onAuthenticated();
         _clearReceiptDetails();
         _receiptDetailsKey.currentState?.loadTinInvoices();
       },
@@ -269,7 +268,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   }
 
   // --- Other navigation and state update methods ---
-
   void _onDealerSelected(Dealer dealer) =>
       setState(() => _selectedDealer = dealer);
   void _submitDealer() {
@@ -317,7 +315,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         type: MessageType.success,
       );
       setState(() {
-        _currentStep = 0; // Move to the inital
+        _currentStep = 0; 
       });
     }
   }
@@ -355,7 +353,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
 
   Widget _buildCurrentView() {
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
-    //final selectedRegion = _selectedRegion; // Using local state for example
 
     switch (_currentStep) {
       case -1:
@@ -384,8 +381,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           dealer: _selectedDealer!,
           onSubmit: _onSubmit,
           addCreditnote: _gotoaddCreditNotes,
-
-          // --- Pass down the CONTROLLERS ---
           chequeNoController: _chequeNoController,
           amountController: _amountController,
           tinController: _tinController,
@@ -394,25 +389,14 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
 
           selectedTins: _selectedTins,
           onTinToggle: _toggleTinSelection,
-          // Pass down the data objects and flags
           selectedTin: _selectedTin,
           selectedBank: _selectedBank,
           selectedBranch: _selectedBranch,
           selectedChequeDate: _selectedChequeDate,
           isFormValid: _isReceiptFormValid,
 
-          // --- Pass down callbacks to update parent's state ---
           onBankTextChanged: _onBankTextChanged,
-          // onTinTextChanged: _onTinTextChanged,
           onBranchTextChanged: _onBranchTextChanged,
-
-          // onTinSelected: (tin) {
-          //   setState(() {
-          //     _selectedTin = tin;
-          //     _tinController.text = tin.tinNumber; // Sync controller text
-          //   });
-          //   _validateReceiptForm();
-          // },
           onBankSelected: (bank) {
             setState(() {
               if (_selectedBank != bank) {
@@ -437,10 +421,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
             setState(() => _selectedChequeDate = date);
             _validateReceiptForm();
           },
-          // onTinCommitChanged: (isCommitted) {
-          //   setState(() => _isTinSelectionCommitted = isCommitted);
-          //   _validateReceiptForm();
-          // },
           onBankCommitChanged: (isCommitted) {
             setState(() => _isBankSelectionCommitted = isCommitted);
             _validateReceiptForm();

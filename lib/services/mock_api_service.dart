@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
-import 'package:myapp/models/attendence_model.dart';
+import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
@@ -104,16 +104,15 @@ class MockApiService {
     await Future.delayed(const Duration(seconds: 1));
 
     switch (url) {
-
       case 'api/permission/check':
-      final String screenId = body['screenId'] as String;
-      final List<String> roleIds = (body['roleIds'] as List).cast<String>();
-      final hasPermission = DummyData.perms.any((perm) {
-        final isScreenMatch = perm.ScreenId == screenId;
-        final isRoleMatch = roleIds.contains(perm.RoleId);
-        return isScreenMatch && isRoleMatch;
-      });
-      return hasPermission;
+        final String screenId = body['screenId'] as String;
+        final List<String> roleIds = (body['roleIds'] as List).cast<String>();
+        final hasPermission = DummyData.perms.any((perm) {
+          final isScreenMatch = perm.ScreenId == screenId;
+          final isRoleMatch = roleIds.contains(perm.RoleId);
+          return isScreenMatch && isRoleMatch;
+        });
+        return hasPermission;
 
       // case 'api/permission/check':
       //   final String screenId = body['screenId'] as String;
@@ -173,17 +172,20 @@ class MockApiService {
                     )
                     .toList();
 
-                  // Step 2: Find the corresponding role names from the master list
-          final userRoleNames = DummyData.roles
-              .where((role) => userRoles.contains(role.roleId)) // Filter by ID
-              .map((role) => role.roleName) // Extract just the name
-              .toList(); // Convert to a List<String>
+            // Step 2: Find the corresponding role names from the master list
+            final userRoleNames =
+                DummyData.roles
+                    .where(
+                      (role) => userRoles.contains(role.roleId),
+                    ) // Filter by ID
+                    .map((role) => role.roleName) // Extract just the name
+                    .toList(); // Convert to a List<String>
 
             // Step 4 & 5: Create a new User object with the accessible screens and return it
             return user.copyWith(
               accessibleScreen: accessibleScreens,
-              rolenames: userRoleNames, 
-              );
+              rolenames: userRoleNames,
+            );
           } else {
             throw UnauthorisedException('Invalid username or password.');
           }
@@ -329,32 +331,32 @@ class MockApiService {
 
         DummyData.receipts.add(receipt);
         return true;
-      
-      case 'api/attendence/save': 
-      if (body is! Attendence) {
-        throw Exception(
-          'Invalid type for saving attendance. Expected an Attendence object.',
+
+      case 'api/attendance/save':
+        if (body is! Attendance) {
+          throw Exception(
+            'Invalid type for saving attendance. Expected an Attendance object.',
+          );
+        }
+
+        final newAttendance = body;
+
+        int existingIndex = DummyData.attendances.indexWhere(
+          (existingAttendance) =>
+              existingAttendance.userID == newAttendance.userID &&
+              existingAttendance.date.year == newAttendance.date.year &&
+              existingAttendance.date.month == newAttendance.date.month &&
+              existingAttendance.date.day == newAttendance.date.day,
         );
-      }
 
-      final newAttendance = body;
-
-      int existingIndex = DummyData.attendences.indexWhere(
-        (existingAttendance) =>
-            existingAttendance.userID == newAttendance.userID &&
-            existingAttendance.date.year == newAttendance.date.year &&
-            existingAttendance.date.month == newAttendance.date.month &&
-            existingAttendance.date.day == newAttendance.date.day,
-      );
-
-      if (existingIndex != -1) {
-        // Record exists, replace it
-        DummyData.attendences[existingIndex] = newAttendance;
-      } else {
-        // No existing record, add as new
-        DummyData.attendences.add(newAttendance);
-      }
-      return true;
+        if (existingIndex != -1) {
+          // Record exists, replace it
+          DummyData.attendances[existingIndex] = newAttendance;
+        } else {
+          // No existing record, add as new
+          DummyData.attendances.add(newAttendance);
+        }
+        return true;
 
       default:
         throw Exception('Invalid POST API URL: $url');

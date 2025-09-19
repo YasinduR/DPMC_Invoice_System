@@ -3,7 +3,7 @@ import 'package:myapp/models/user_model.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
-
+// View of Change Password Screen
 class ChangePasswordView extends StatefulWidget {
   final Future<void> Function(String oldPassword, String newPassword) onSubmit;
   final User user;

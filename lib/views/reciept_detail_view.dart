@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
@@ -10,7 +9,6 @@ import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/services/api_util_service.dart';
-//import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
@@ -19,6 +17,8 @@ import 'package:myapp/widgets/app_date_picker.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
+
+// Main View of Reciept Screen 
 class RecieptDetailsView extends StatefulWidget {
   final Dealer dealer;
   final VoidCallback onSubmit;
@@ -44,13 +44,10 @@ class RecieptDetailsView extends StatefulWidget {
 
   // Callbacks
   final ValueChanged<String> onBankTextChanged;
-  //final ValueChanged<String> onTinTextChanged;
   final ValueChanged<String> onBranchTextChanged;
-  //final ValueChanged<TinData> onTinSelected;
   final ValueChanged<Bank> onBankSelected;
   final ValueChanged<BankBranch> onBranchSelected;
   final ValueChanged<DateTime?> onDateSelected;
-  // final ValueChanged<bool> onTinCommitChanged;
   final ValueChanged<bool> onBankCommitChanged;
   final ValueChanged<bool> onBranchCommitChanged;
 
@@ -91,11 +88,8 @@ class RecieptDetailsView extends StatefulWidget {
 }
 
 class RecieptDetailsViewState extends State<RecieptDetailsView> {
-  // --- The child's state is now ONLY for things purely related to the child's UI ---
   final _formKey = GlobalKey<FormState>();
   bool _isChildFormValid = false;
-
-  // --- State for loading TIN invoices ---
   bool _isLoading = true;
   String? _errorMessage;
   List<TinInvoice> _availableTins = [];
@@ -104,22 +98,15 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
   void initState() {
     super.initState();
     loadTinInvoices();
-    // Schedule a validation check to run immediately after the widget is built.
-    // This ensures that when a user navigates back to this screen with
-    // pre-filled data, the form's validity and the submit button's state
-    // are correctly evaluated right away.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // Good practice to check if the widget is still in the tree
         _validateChildForm();
       }
     });
   }
 
-  // NO CONTROLLERS, NO INITSTATE, NO DISPOSE, NO DIDUPDATEWIDGET NEEDED FOR STATE SYNC
 
   void _validateChildForm() {
-    // We still need local validation for fields like amount format
     final isValid = _formKey.currentState?.validate() ?? false;
     if (isValid != _isChildFormValid) {
       setState(() {
@@ -134,12 +121,9 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
       _isLoading = true;
       _errorMessage = null;
     });
-
-    // Create the filter condition
     final filters = [
       ['dealerAccCode', '=', widget.dealer.accountCode],
     ];
-    // Encode the filter to be URL-safe
     final encodedFilters = Uri.encodeComponent(jsonEncode(filters));
     final dataUrl = 'api/tin-invoices/list?filters=$encodedFilters';
 
@@ -149,9 +133,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
       onSuccess: (List<TinInvoice> data) {
         if (mounted) {
           setState(() {
-            // CORRECTED: No longer filtering by receiptStatus here.
-            // All TINs for the dealer will be shown. The checkbox in the UI
-            // will handle the current selection state.
             _availableTins = data;
             _isLoading = false;
           });
@@ -169,7 +150,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
   }
 
   Future<bool> _handlePreRequestBank() async {
-    // This now reads directly from the parent's state object via the widget property
     if (widget.selectedBank == null) {
       showInfoDialog(
         context: context,
@@ -195,36 +175,31 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
       );
     }
     return SizedBox(
-      height: 250, // Constrain the height of the list
+      height: 250,
       child: AppDataGrid<TinInvoice>(
-        // Updated search hint to include more fields
         searchHintText: 'Search by TIN, Mobile Inv, or Amount',
         onFilterPressed: () {},
-        // Added mobileInvNo to the searchable fields
         filterableFields: const ['tinNo', 'mobileInvNo', 'invAmount'],
         items: _availableTins,
         columns: [
-          // Column 1: TIN No
           DynamicColumn<TinInvoice>(
             label: 'TIN No',
-            flex: 1, // Flex set to 1 for even distribution
+            flex: 1,
             cellBuilder:
                 (context, invoice) => Padding(
-                  // Use EdgeInsets.only to specify a single side
-                  padding: const EdgeInsets.only(right: 3.0), // Right padding
+                  padding: const EdgeInsets.only(right: 3.0),
                   child: AutoSizeText(
                     invoice.tinNo,
                     style: const TextStyle(fontSize: 12),
-                    minFontSize: 8, // Prevent text from becoming too small
+                    minFontSize: 8,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
           ),
-          // Column 2: Mobile Inv No
           DynamicColumn<TinInvoice>(
             label: 'Mobile Inv No',
-            flex: 1, // Flex set to 1 for even distribution
+            flex: 1,
             cellBuilder:
                 (context, invoice) => Padding(
                   padding: const EdgeInsets.only(left: 3.0),
@@ -237,10 +212,9 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                   ),
                 ),
           ),
-          // Column 3: Inv. Amount
           DynamicColumn<TinInvoice>(
             label: 'Inv. Amount',
-            flex: 1, // Flex set to 1 for even distribution
+            flex: 1,
             cellBuilder:
                 (context, invoice) => Center(
                   child: AutoSizeText(
@@ -252,10 +226,9 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                   ),
                 ),
           ),
-          // Column 4: Payment On Delivery Status
           DynamicColumn<TinInvoice>(
             label: 'POD Status',
-            flex: 1, // Flex set to 1 for even distribution
+            flex: 1,
             cellBuilder:
                 (context, invoice) => Center(
                   child: Text(
@@ -267,10 +240,9 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                   ),
                 ),
           ),
-          // Column 5: Receipt Status (Checkbox)
           DynamicColumn<TinInvoice>(
             label: 'Receipt Status',
-            flex: 1, // Flex set to 1 for even distribution
+            flex: 1,
             cellBuilder:
                 (context, invoice) => Center(
                   child: Checkbox(
@@ -286,85 +258,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
         ],
       ),
     );
-    // --- WIDGET LOGIC WITH UPDATED COLUMNS ---
-    // return SizedBox(
-    //   height: 250, // Constrain the height of the list
-    //   child: AppDataGrid<TinInvoice>(
-    //     // Updated search hint to include more fields
-    //     searchHintText: 'Search by TIN, Mobile Inv, or Amount',
-    //     onFilterPressed: () {},
-    //     // Added mobileInvNo to the searchable fields
-    //     filterableFields: const ['tinNo', 'mobileInvNo', 'invAmount'],
-    //     items: _availableTins,
-    //     columns: [
-    //       // Column 1: TIN No
-    //       DynamicColumn<TinInvoice>(
-    //         label: 'TIN No',
-    //         flex: 4,
-    //         cellBuilder:
-    //             (context, invoice) => Text(
-    //               invoice.tinNo,
-    //               style: const TextStyle(fontSize: 12),
-    //               overflow: TextOverflow.ellipsis,
-    //             ),
-    //       ),
-    //       // Column 2: Mobile Inv No (NEW)
-    //       DynamicColumn<TinInvoice>(
-    //         label: 'Mobile Inv No',
-    //         flex: 4,
-    //         cellBuilder:
-    //             (context, invoice) => Text(
-    //               invoice.mobileInvNo,
-    //               style: const TextStyle(fontSize: 12),
-    //               overflow: TextOverflow.ellipsis,
-    //             ),
-    //       ),
-    //       // Column 3: Inv. Amount
-    //       DynamicColumn<TinInvoice>(
-    //         label: 'Inv. Amount',
-    //         flex: 3,
-    //         cellBuilder:
-    //             (context, invoice) => Center(
-    //               child: Text(
-    //                 invoice.invAmount.toStringAsFixed(2),
-    //                 style: const TextStyle(fontSize: 12),
-    //               ),
-    //             ),
-    //       ),
-    //       // Column 4: Payment On Delivery Status (NEW)
-    //       DynamicColumn<TinInvoice>(
-    //         label: 'POD Status', // Shortened for space
-    //         flex: 4,
-    //         cellBuilder:
-    //             (context, invoice) => Center(
-    //               child: Text(
-    //                 invoice.paymentOnDeliveryStatus,
-    //                 style: const TextStyle(
-    //                   fontSize: 12,
-    //                   fontWeight: FontWeight.bold,
-    //                 ),
-    //               ),
-    //             ),
-    //       ),
-    //       // Column 5: Receipt Status (Checkbox)
-    //       DynamicColumn<TinInvoice>(
-    //         label: 'Receipt Status', // Renamed from "Select"
-    //         flex: 2,
-    //         cellBuilder:
-    //             (context, invoice) => Center(
-    //               child: Checkbox(
-    //                 value: widget.selectedTins.contains(invoice),
-    //                 activeColor: AppColors.primary,
-    //                 checkColor: Colors.white,
-    //                 onChanged: (bool? value) {
-    //                   widget.onTinToggle(invoice);
-    //                 },
-    //               ),
-    //             ),
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 
   @override
@@ -381,23 +274,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
               const SizedBox(height: 16),
               _buildTinInvoiceArea(),
               const SizedBox(height: 16),
-
-              // AppSelectionField<TinData>(  // Removed Temporary This was for selecting single App
-              //   // USE THE PASSED-IN CONTROLLER
-              //   controller: widget.tinController,
-              //   labelText: 'Select TIN Number',
-              //   selectionSheetTitle: 'Select a TIN Number',
-              //   initialValue: widget.selectedTin,
-              //   onChanged: widget.onTinTextChanged,
-              //   onSelected: widget.onTinSelected,
-              //   onCommitStateChanged: widget.onTinCommitChanged,
-              //   displayNames: const ['TIN Number', 'Total Value'],
-              //   valueFields: const ['tinNumber', 'totalValue'],
-              //   mainField: 'tinNumber',
-              //   dataUrl: 'api/tins/list',
-              //   // ...
-              // ),
-              //const SizedBox(height: 16),
               ActionButton(
                 label: 'Add Credit Note',
                 icon: Icons.add_card,
@@ -407,7 +283,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
               ),
               const SizedBox(height: 16),
               AppTextField(
-                // USE THE PASSED-IN CONTROLLER
                 controller: widget.chequeNoController,
                 labelText: 'Cheque No.',
               ),
@@ -419,7 +294,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
               ),
               const SizedBox(height: 16),
               AppSelectionField<Bank>(
-                // USE THE PASSED-IN CONTROLLER
                 controller: widget.bankController,
                 labelText: 'Select Bank',
                 selectionSheetTitle: 'Select a Bank',
@@ -434,7 +308,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
               ),
               const SizedBox(height: 16),
               AppSelectionField<BankBranch>(
-                // USE THE PASSED-IN CONTROLLER
                 controller: widget.branchController,
                 labelText: 'Select Branch',
                 selectionSheetTitle: 'Select a Branch',
@@ -457,15 +330,12 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
               ),
               const SizedBox(height: 16),
               AppTextField(
-                // USE THE PASSED-IN CONTROLLER
                 controller: widget.amountController,
                 labelText: 'Amount',
                 keyboardType: TextInputType.number,
                 isFinanceNum: true,
-                // The amount controller needs a listener in the parent to trigger validation
-                // or just pass a generic onChanged callback if you don't have one
                 onChanged: (value) {
-                  _validateChildForm(); // Local form validation still happens
+                  _validateChildForm();
                 },
               ),
               const SizedBox(height: 48),
@@ -473,7 +343,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                 label: 'Submit',
                 icon: Icons.check_circle_outline,
                 onPressed: widget.onSubmit,
-                // The parent's validation flag + the child's local validation flag
                 disabled: !widget.isFormValid || !_isChildFormValid,
               ),
             ],

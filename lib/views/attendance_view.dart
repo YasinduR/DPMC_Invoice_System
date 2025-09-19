@@ -3,29 +3,30 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_date_picker.dart';
 import 'package:myapp/widgets/app_option_picker.dart';
 
-class AttendenceView extends StatefulWidget {
-  final List<String> attendenceOptions;
-  final void Function(String attendence, DateTime date) onSubmit;
+// View of Attendance Screen
+class AttendanceView extends StatefulWidget {
+  final List<String> attendanceOptions;
+  final void Function(String attendance, DateTime date) onSubmit;
 
-  const AttendenceView({
+  const AttendanceView({
     super.key,
     required this.onSubmit,
-    required this.attendenceOptions,
+    required this.attendanceOptions,
   });
 
   @override
-  State<AttendenceView> createState() => _AttendenceViewState();
+  State<AttendanceView> createState() => _AttendanceViewState();
 }
 
-class _AttendenceViewState extends State<AttendenceView> {
-  String? _selectedAttendence;
+class _AttendanceViewState extends State<AttendanceView> {
+  String? _selectedAttendance;
   DateTime? _selectedDate;
-  late List<String> _AttendenceOptions;
+  late List<String> _AttendanceOptions;
 
   @override
   void initState() {
     super.initState();
-    _AttendenceOptions = widget.attendenceOptions;
+    _AttendanceOptions = widget.attendanceOptions;
   }
 
   void onDateSelected(date) {
@@ -37,14 +38,14 @@ class _AttendenceViewState extends State<AttendenceView> {
       context: context,
       builder:
           (context) => SelectionModal(
-            title: 'Attendence',
-            options: _AttendenceOptions,
-            initialValue: _selectedAttendence,
+            title: 'Attendance',
+            options: _AttendanceOptions,
+            initialValue: _selectedAttendance,
           ),
     );
     if (result != null) {
       setState(() {
-        _selectedAttendence = result;
+        _selectedAttendance = result;
       });
     }
   }
@@ -64,8 +65,8 @@ class _AttendenceViewState extends State<AttendenceView> {
               ),
               const SizedBox(height: 24),
               PickerFormField(
-                inputFieldLabelText: 'Select Attendence',
-                selectedOption: _selectedAttendence,
+                inputFieldLabelText: 'Select Attendance',
+                selectedOption: _selectedAttendance,
                 onTap: _showReasonPicker,
               ),
             ],
@@ -77,10 +78,10 @@ class _AttendenceViewState extends State<AttendenceView> {
           child: ActionButton(
             icon: Icons.check_circle_outline,
             label: 'Save',
-            disabled: _selectedAttendence == null || _selectedDate == null,
+            disabled: _selectedAttendance == null || _selectedDate == null,
             onPressed: () {
-              if (_selectedAttendence != null && _selectedDate != null) {
-                widget.onSubmit(_selectedAttendence!, _selectedDate!);
+              if (_selectedAttendance != null && _selectedDate != null) {
+                widget.onSubmit(_selectedAttendance!, _selectedDate!);
               }
             },
           ),

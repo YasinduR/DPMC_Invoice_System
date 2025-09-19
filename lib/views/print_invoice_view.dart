@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
@@ -12,6 +11,7 @@ import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 
+// Print Invoice Screen final view after dealer selection
 class PrintInvoiceMainScreen extends StatefulWidget {
   final Dealer dealer;
   const PrintInvoiceMainScreen({super.key, required this.dealer});
@@ -38,15 +38,10 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-      print("DEBUG: Starting 2-second delay before loading invoices...");
-    await Future.delayed(const Duration(seconds: 1)); // 1 sec delay rendering of the page before loading invoices
-    print("DEBUG: Delay finished. Proceeding to load invoices for dealer: '${widget.dealer.accountCode}'");
-
-    // Create the filter condition
+   
     final filters = [
       ['dealerAccCode', '=', widget.dealer.accountCode],
     ];
-    // Encode the filter to be URL-safe
     final encodedFilters = Uri.encodeComponent(jsonEncode(filters));
     final dataUrl = 'api/tin-invoices/list?filters=$encodedFilters';
 
@@ -56,9 +51,6 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
       onSuccess: (List<TinInvoice> data) {
         if (mounted) {
           setState(() {
-            // CORRECTED: No longer filtering by receiptStatus here.
-            // All TINs for the dealer will be shown. The checkbox in the UI
-            // will handle the current selection state.
             _availableTins = data;
             _isLoading = false;
           });
@@ -75,7 +67,6 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
     );
   }
 
-  /// Toggles the selection state of a given TIN invoice.
   void _onTinToggle(TinInvoice invoice) {
     setState(() {
       if (_selectedTins.contains(invoice)) {
@@ -87,7 +78,6 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
   }
 
   void _onsubmit(){
-              // Only proceed if at least one item is selected
               if (_selectedTins.isEmpty) {
                 showSnackBar(
                   context: context,

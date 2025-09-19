@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart'; // FOR THERMAL PRINTER TEST PRINT
 import 'package:esc_pos_utils_plus/src/capability_profile.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:myapp/theme/app_theme.dart';

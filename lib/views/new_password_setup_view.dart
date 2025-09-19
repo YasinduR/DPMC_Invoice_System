@@ -3,7 +3,6 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
 // View for Step 3 of Forget Password : New Password Setup
-
 class NewPasswordSetupView extends StatefulWidget {
   final Future<void> Function(String newPassword) onSubmit;
   const NewPasswordSetupView({super.key, required this.onSubmit});

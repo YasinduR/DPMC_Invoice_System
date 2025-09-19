@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/models/attendence_model.dart';
+import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
-import 'package:myapp/views/attendence_view.dart';
+import 'package:myapp/views/attendance_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
-// --- Attendece Screen: Attendence For Admin ROLES----//
-class AttendenceScreen extends ConsumerStatefulWidget {
-  const AttendenceScreen({super.key});
+// --- Attendece Screen: Attendance For Admin ROLES----//
+class AttendanceScreen extends ConsumerStatefulWidget {
+  const AttendanceScreen({super.key});
 
   @override
-  ConsumerState<AttendenceScreen> createState() => _AttendenceScreenState();
+  ConsumerState<AttendanceScreen> createState() => _AttendanceScreenState();
 }
 
-class _AttendenceScreenState extends ConsumerState<AttendenceScreen> {
-
-    final Map<String, String> _attendance = {  // Attendence Types with Desc
+class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
+  final Map<String, String> _attendance = {
+    // Attendance Types with Desc
     'P': 'Present',
     'E': 'Exam',
     'A': 'Absent',
@@ -30,31 +30,32 @@ class _AttendenceScreenState extends ConsumerState<AttendenceScreen> {
     'L2': 'Leave on 2nd Half',
   };
 
-
-  void _onSubmit(String attendenceCode, DateTime date) async {
+  void _onSubmit(String attendanceCode, DateTime date) async {
     final authState = ref.watch(authProvider);
     final User? currentUser = authState.currentUser;
     if (currentUser != null) {
-      final attendeceData = Attendence(
+      final attendeceData = Attendance(
         userID: currentUser.id,
         date: date,
-        attendance: attendenceCode,
-      );      
-    
-    final String attendanceDescription = _attendance[attendenceCode] ?? attendenceCode;
-    final formattedDate = DateFormat('dd MMM yyyy').format(date); 
+        attendance: attendanceCode,
+      );
+
+      final String attendanceDescription =
+          _attendance[attendanceCode] ?? attendanceCode;
+      final formattedDate = DateFormat('dd MMM yyyy').format(date);
 
       await save(
         context: context,
-        dataUrl: 'api/attendence/save',
+        dataUrl: 'api/attendance/save',
         dataToSave: attendeceData,
         onSuccess: () {
           showSnackBar(
             context: context,
-            message: 'Attendance on $formattedDate saved as "$attendanceDescription" successfully!',
+            message:
+                'Attendance on $formattedDate saved as "$attendanceDescription" successfully!',
             type: MessageType.success,
           );
-           Navigator.of(context).pop();
+          Navigator.of(context).pop();
         },
         onError: (e) {
           String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -92,10 +93,12 @@ class _AttendenceScreenState extends ConsumerState<AttendenceScreen> {
       );
     }
     return AppPage(
-      title: 'Attendence',
+      title: 'Attendance',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
-      child: AttendenceView(onSubmit: _onSubmit,    attendenceOptions: _attendance.keys.toList(),
+      child: AttendanceView(
+        onSubmit: _onSubmit,
+        attendanceOptions: _attendance.keys.toList(),
       ),
     );
   }

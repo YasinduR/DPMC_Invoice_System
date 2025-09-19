@@ -6,7 +6,6 @@ class TinData implements Mappable {
 
   const TinData({required this.tinNumber, required this.totalValue});
 
-
   @override
   Map<String, dynamic> toMap() {
     return {

@@ -1,6 +1,3 @@
-// lib/models/user_model.dart
-
-// A simple model class to represent the authenticated user.
 import 'package:myapp/models/screen_model.dart';
 
 class User {
@@ -29,7 +26,7 @@ class User {
     String? password,
     List<String>? roles,
     List<Screen>? accessibleScreen,
-        List<String>? rolenames, // <-- Add this parameter
+    List<String>? rolenames,
 
   }) {
     return User(
@@ -39,8 +36,7 @@ class User {
       password: password ?? this.password,
       roles: roles ?? this.roles,
       accessibleScreen: accessibleScreen ?? this.accessibleScreen,
-      rolenames: rolenames ?? this.rolenames, // <-- Use the new parameter here
-
+      rolenames: rolenames ?? this.rolenames, 
     );
   }
 }

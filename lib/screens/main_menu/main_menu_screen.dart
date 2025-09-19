@@ -18,8 +18,7 @@ class MainMenuScreen extends ConsumerWidget {
     final accessibleScreens = user?.accessibleScreen ?? [];
 
     // Modify this with screen IDs othat need to priortize
-    const prioritizeOrder = 
-    [  
+    const prioritizeOrder = [
       '004', // Invoice
       '005', // Print Invoice
       '008', // Receipt
@@ -42,7 +41,8 @@ class MainMenuScreen extends ConsumerWidget {
 
       final indexA = prioritizeOrder.indexOf(a.screenId);
       final indexB = prioritizeOrder.indexOf(b.screenId);
-      final sortA = indexA == -1 ? 999 : indexA; // Push non-prioritized items to the end
+      final sortA =
+          indexA == -1 ? 999 : indexA; // Push non-prioritized items to the end
       final sortB = indexB == -1 ? 999 : indexB;
       return sortA.compareTo(sortB);
     });
@@ -51,8 +51,7 @@ class MainMenuScreen extends ConsumerWidget {
     final List<Widget> menuCards =
         menuItems.map((screen) {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];
-          if (route == null)
-            return const SizedBox.shrink(); 
+          if (route == null) return const SizedBox.shrink();
 
           return _MenuCard(
             icon: IconMapper.getIcon(screen.iconName),
@@ -93,9 +92,6 @@ class MainMenuScreen extends ConsumerWidget {
       ),
     );
 
-
-
-
     // =======================================================================
     // --- FOR TESTING PURPOSES ONLY ---
     // This section adds Invoice and Attendance screens for any user,
@@ -110,9 +106,9 @@ class MainMenuScreen extends ConsumerWidget {
     );
     menuCards.add(
       _MenuCard(
-        icon: IconMapper.getIcon('attendence'),
+        icon: IconMapper.getIcon('attendance'),
         label: 'Attendance',
-        onTap: () => Navigator.pushNamed(context, '/attendence'),
+        onTap: () => Navigator.pushNamed(context, '/attendance'),
       ),
     );
 
