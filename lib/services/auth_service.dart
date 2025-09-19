@@ -1,51 +1,143 @@
-// lib/services/auth_service.dart
-import 'package:myapp/models/user_model.dart'; // Import the new model
+import 'package:flutter/material.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/services/mock_api_service.dart';
+import 'package:myapp/widgets/app_loading_overlay.dart';
 
 class AuthService {
-
-  static final List<User> _users = [
-    User(
-      id: '2619',
-      username: 'yasindu',
-      email: 'yasindu@example.com',
-      password: '12345',
-    ),
-    User(
-      id: '8108',
-      username: 'nimesh',
-      email: 'test@example.com',
-      password: '12345',
-    ),
-    User(
-      id: '1111',
-      username: 'admin',
-      email: 'admin@example.com',
-      password: 'admin123',
-    ),
-  ];
-  // The login method now returns a Future<User?>.
-  Future<User?> login(String username, String password) async {
-    // Simulate a network delay.
-    await Future.delayed(const Duration(seconds: 1));
-
-    // In a real app, you would make an API call.
-    // Here, we'll mock a successful login.
-    // Find a user in the list that matches the credentials.
+  Future<void> logout({required BuildContext context}) async {
+    final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
     try {
-      final user = _users.firstWhere(
-        (user) => user.username == username && user.password == password,
-      );
-      return user;
+      loadingOverlay.show(context);
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
-      // firstWhere throws a StateError if no element is found.
-      // We catch it and return null, indicating a failed login.
       return null;
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
     }
   }
 
-  // The logout method is simpler now, as there's no stored data to clear.
-  Future<void> logout() async {
-    // In a real app, you might notify a server. For now, it does nothing.
-    await Future.delayed(const Duration(milliseconds: 200));
+  Future<User?> login({
+    required BuildContext context,
+    required String username,
+    required String password,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      final user =
+          await MockApiService.post(
+                'api/user/login',
+                body: {'username': username, 'password': password},
+              )
+              as User;
+      return user;
+    } on UnauthorisedException {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      rethrow;
+    } catch (e) {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      throw FetchDataException(
+        "Could not connect to the server. Please check your internet connection and try again.",
+      );
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
+  Future<void> changePassword({
+    required BuildContext context,
+    required String username,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      await MockApiService.post(
+        'api/user/changepassword',
+        body: {
+          'username': username,
+          'oldPassword': oldPassword,
+          'newPassword': newPassword,
+        },
+      );
+    } on UnauthorisedException {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      rethrow;
+    } catch (e) {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      throw FetchDataException(
+        "Could not connect to the server. Please try again.",
+      );
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
+  Future<String?> requestPasswordReset({
+    required BuildContext context,
+    required String username,
+    required String email,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      return await MockApiService.post(
+            'api/user/request-password-reset',
+            body: {'username': username, 'email': email},
+          )
+          as String?;
+    } catch (e) {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      return null;
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
+  Future<bool> resetPassword({
+    required BuildContext context,
+    required String username,
+    required String token,
+    required String newPassword,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      return await MockApiService.post(
+            'api/user/reset-password',
+            body: {
+              'username': username,
+              'token': token,
+              'newPassword': newPassword,
+            },
+          )
+          as bool;
+    } catch (e) {
+      return false;
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
   }
 }

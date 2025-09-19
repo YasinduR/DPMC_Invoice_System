@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Tin Information card
+
 class TinInfoDisplay extends StatelessWidget {
   final TinData tinData;
   final VoidCallback? onInfoPressed;

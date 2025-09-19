@@ -1,12 +1,12 @@
+import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/column_model.dart';
-//import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/theme/app_theme.dart';
-//import 'package:myapp/widgets/app_loading_overlay.dart';
 
+// Common Data Grid of the Application
 
-class FilterableListView<T extends Mappable> extends StatefulWidget {
+class AppDataGrid<T extends Mappable> extends StatefulWidget {
   /// The list of items to display.
   final List<T> items;
 
@@ -22,20 +22,24 @@ class FilterableListView<T extends Mappable> extends StatefulWidget {
   /// The hint text to display in the search input field.
   final String searchHintText;
 
-  const FilterableListView({
+  // Visibilty of filter bar over the table by Default true
+  final bool hasFilter;
+
+  const AppDataGrid({
     super.key,
     required this.items,
     required this.columns,
     required this.filterableFields,
     this.onFilterPressed,
+    this.hasFilter = true,
     this.searchHintText = 'Search...',
   });
 
   @override
-  State<FilterableListView<T>> createState() => _FilterableListViewState<T>();
+  State<AppDataGrid<T>> createState() => _AppDataGridState<T>();
 }
 
-class _FilterableListViewState<T extends Mappable> extends State<FilterableListView<T>> {
+class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
   final TextEditingController _searchController = TextEditingController();
 
   List<T> _filteredItems = [];
@@ -48,11 +52,10 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
   }
 
   @override
-  void didUpdateWidget(FilterableListView<T> oldWidget) {
+  void didUpdateWidget(AppDataGrid<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.items != oldWidget.items) {
       _filteredItems = widget.items;
-      // After updating the list, re-apply the current filter
       _performFilter();
     }
   }
@@ -63,13 +66,15 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
       if (query.isEmpty) {
         _filteredItems = widget.items;
       } else {
-        _filteredItems = widget.items.where((item) {
-          final itemMap = item.toMap();
-          return widget.filterableFields.any((field) {
-            final value = itemMap[field];
-            return value != null && value.toString().toLowerCase().contains(query);
-          });
-        }).toList();
+        _filteredItems =
+            widget.items.where((item) {
+              final itemMap = item.toMap();
+              return widget.filterableFields.any((field) {
+                final value = itemMap[field];
+                return value != null &&
+                    value.toString().toLowerCase().contains(query);
+              });
+            }).toList();
       }
     });
   }
@@ -85,18 +90,15 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildFilterAndSearch(),
+        if (widget.hasFilter) _buildFilterAndSearch(),
         const SizedBox(height: 1),
         _buildHeader(),
         Container(height: 1, color: Colors.grey.shade300),
-        Expanded(
-          child: _buildBody(),
-        ),
+        Expanded(child: _buildBody()),
       ],
     );
   }
 
-  /// Builds the main body content based on the current state.
   Widget _buildBody() {
     if (_filteredItems.isEmpty) {
       return const Center(child: Text('No items found.'));
@@ -110,7 +112,6 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
     );
   }
 
-  /// Builds the top bar containing the filter button and search field.
   Widget _buildFilterAndSearch() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -125,9 +126,7 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
             onPressed: widget.onFilterPressed,
             icon: const Icon(Icons.filter_alt_outlined),
             label: const Text('Filter'),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.primary,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
           ),
           const VerticalDivider(width: 1, indent: 8, endIndent: 8),
           Expanded(
@@ -148,18 +147,30 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-      color:  AppColors.white,
+      color: AppColors.white,
       child: Row(
-        children: widget.columns.map((column) {
-          return Expanded(
-            flex: column.flex,
-            child: Text(
-              column.label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          );
-        }).toList(),
+        children:
+            widget.columns.map((column) {
+              return Expanded(
+                flex: column.flex,
+                child: AutoSizeText(
+                  column.label,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  maxLines: 2, // allow up to 2 lines
+                  minFontSize:
+                      10, // optional: shrink font instead of overflowing
+                  overflowReplacement: Text(
+                    column.label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            }).toList(),
       ),
     );
   }
@@ -173,12 +184,13 @@ class _FilterableListViewState<T extends Mappable> extends State<FilterableListV
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: widget.columns.map((column) {
-          return Expanded(
-            flex: column.flex,
-            child: column.cellBuilder(context, item),
-          );
-        }).toList(),
+        children:
+            widget.columns.map((column) {
+              return Expanded(
+                flex: column.flex,
+                child: column.cellBuilder(context, item),
+              );
+            }).toList(),
       ),
     );
   }

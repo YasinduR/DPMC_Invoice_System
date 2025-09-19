@@ -1,93 +1,27 @@
-// Dummy API for Now
-
 import 'dart:convert';
-
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/models/attendence_model.dart';
 import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 
-// class MockApiService {
-//   static Future<List<T>> fetchData<T extends Mappable>(String url) async {
-//     // Simulate network delay
-//     await Future.delayed(const Duration(milliseconds: 2000));
+import 'package:bcrypt/bcrypt.dart';
 
-//     List<T> data;
+//// IMPORTANT :  This works as the Back-End remove later
 
-//     if (url == 'api/dealers/list') {
-//       data = DummyData.dealers as List<T>;
-//     } else if (url == 'api/references/list') {
-//       data = DummyData.references as List<T>;
-//     } else if (url == 'api/invoices/list') {
-//       data = DummyData.invoices as List<T>;
-//     } else if (url == 'api/tins/list') {
-//       data = DummyData.tins as List<T>;
-//     } else if (url == 'api/regions/list') {
-//       data = DummyData.regions as List<T>;
-//     } 
-//     else if (url == 'api/parts/list') {
-//       data = DummyData.parts as List<T>;
-//     } else if (url == 'api/return-items/list') {
-//       data = DummyData.returnItems as List<T>;
-//     }
-//     else {
-//       // If the URL is not recognized, throw an exception
-//       throw Exception('Invalid API URL: $url');
-//     }
-
-//     // If data is empty after checking all valid URLs, throw an exception
-//     if (data.isEmpty) {
-//       throw Exception('No data found for URL: $url');
-//     }
-
-//     return data;
-//   }
-// }
 class MockApiService {
-  static final List<Receipt> _sessionReceipts = [];
-
-  static Future<void> postData<T extends Mappable>(String dataUrl, T data) async {
-    
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network latency
-
-    switch (dataUrl) {
-      case 'api/receipts/save':
-        // Specific logic for saving receipts
-        if (data is Receipt) {
-          final isDuplicate = _sessionReceipts.any((existingReceipt) =>
-              existingReceipt.dealerCode == data.dealerCode &&
-              existingReceipt.bankCode == data.bankCode &&
-              existingReceipt.chequeNumber == data.chequeNumber);
-
-          if (isDuplicate) {
-            throw Exception(
-                'This cheque number already exists for the selected dealer and bank.');
-          } else {
-            _sessionReceipts.add(data);
-           // print('Receipt saved successfully to session. Total receipts: ${_sessionReceipts.length}');
-          }
-        } else {
-          throw Exception('Data for receipts/save endpoint must be a Receipt type.');
-        }
-        break;
-      default:
-        // Default behavior for other URLs (e.g., just log and pretend to save)
-        //print('Generic save for $dataUrl: ${data.toMap()}');
-        // If you need to actually store other types generically, you'd need
-        // more generic session storage (e.g., Map<String, List<Mappable>>)
-        break;
-    }
-  }
-
-  static Future<List<T>> fetchData<T extends Mappable>(String url) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+  static Future<List<T>> get<T extends Mappable>(String url) async {
+    await Future.delayed(const Duration(milliseconds: 800));
 
     final uri = Uri.parse(url);
-    final path = uri.path;
-    final params = uri.queryParameters;
+    if (!uri.path.endsWith('/list')) {
+      throw Exception('Invalid GET URL. Must end with "/list".');
+    }
 
-    List<Mappable> sourceData; // Use Mappable to access .toMap()
+    List<Mappable> sourceData;
 
-   switch (path) {
+    switch (uri.path) {
       case 'api/dealers/list':
         sourceData = DummyData.dealers;
         break;
@@ -115,43 +49,49 @@ class MockApiService {
       case 'api/bank/list':
         sourceData = DummyData.banks;
         break;
-      // If the path doesn't match any known endpoint, throw an exception
+      case 'api/tin-invoices/list':
+        sourceData = DummyData.tinInvoices;
+        break;
+      case 'api/roles/list':
+        sourceData = DummyData.roles;
+      case 'api/screens/list':
+        sourceData = DummyData.screens;
+        break;
       default:
-        throw Exception('Invalid API URL Path: $path');
+        throw Exception('Invalid API URL Path: $uri.path');
     }
 
-    // --- NEW GENERIC FILTERING LOGIC ---
-    if (params.containsKey('filters')) {
-      final filterJson = params['filters']!;
+    if (uri.queryParameters.containsKey('filters')) {
+      final filterJson = uri.queryParameters['filters']!;
       final conditions = (jsonDecode(filterJson) as List).cast<List<dynamic>>();
 
-      sourceData = sourceData.where((item) {
-        final itemMap = item.toMap();
+      sourceData =
+          sourceData.where((item) {
+            final itemMap = item.toMap();
 
-        // The item must satisfy ALL conditions (.every)
-        return conditions.every((condition) {
-          if (condition.length != 3) return false; // Malformed condition
+            return conditions.every((condition) {
+              if (condition.length != 3) return false;
 
-          final String field = condition[0];
-          final String operator = condition[1];
-          final dynamic value = condition[2];
+              final String field = condition[0];
+              final String operator = condition[1];
+              final dynamic value = condition[2];
 
-          if (!itemMap.containsKey(field)) return false;
+              if (!itemMap.containsKey(field)) return false;
 
-          final itemValue = itemMap[field];
+              final itemValue = itemMap[field];
 
-          // Compare values as strings for simplicity and type safety
-          switch (operator) {
-            case '=':
-              return itemValue.toString().toLowerCase() == value.toString().toLowerCase();
-            case '!=':
-              return itemValue.toString().toLowerCase() != value.toString().toLowerCase();
-            // add more operators here 
-            default:
-              return false; // Unsupported operator
-          }
-        });
-      }).toList();
+              switch (operator) {
+                case '=':
+                  return itemValue.toString().toLowerCase() ==
+                      value.toString().toLowerCase();
+                case '!=':
+                  return itemValue.toString().toLowerCase() !=
+                      value.toString().toLowerCase();
+                default:
+                  return false;
+              }
+            });
+          }).toList();
     }
 
     if (sourceData.isEmpty) {
@@ -160,26 +100,264 @@ class MockApiService {
     return sourceData.cast<T>();
   }
 
+  static Future<dynamic> post(String url, {dynamic body}) async {
+    await Future.delayed(const Duration(seconds: 1));
 
-  // THIS IS SIMILAR TO SP CALL 
-  static Future<void> postReceipt(Receipt dataToSave) async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network latency
+    switch (url) {
 
-    // 2. DUPLICATE CHECK
-    final isDuplicate = _sessionReceipts.any((existingReceipt) =>
-        existingReceipt.dealerCode == dataToSave.dealerCode &&
-        existingReceipt.bankCode == dataToSave.bankCode &&
-        existingReceipt.chequeNumber == dataToSave.chequeNumber);
+      case 'api/permission/check':
+      final String screenId = body['screenId'] as String;
+      final List<String> roleIds = (body['roleIds'] as List).cast<String>();
+      final hasPermission = DummyData.perms.any((perm) {
+        final isScreenMatch = perm.ScreenId == screenId;
+        final isRoleMatch = roleIds.contains(perm.RoleId);
+        return isScreenMatch && isRoleMatch;
+      });
+      return hasPermission;
 
-    if (isDuplicate) {
-      // 3. Deny the save and throw an error if a duplicate is found
-      throw Exception(
-          'Duplicate Error: This cheque number already exists for the selected dealer and bank.');
-    } else {
-      // 4. Otherwise, save the data to the session
-      _sessionReceipts.add(dataToSave);
+      // case 'api/permission/check':
+      //   final String screenId = body['screenId'] as String;
+      //   final List<String> roleIds = (body['roleIds'] as List).cast<String>();
+
+      //   // Check if any of the user's roles have permission for the given screen.
+      //   return DummyData.perms.any((perm) =>
+      //       perm.ScreenId == screenId && roleIds.contains(perm.RoleId));
+
+      case 'api/dealer/login':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid payload for dealer login.');
+        }
+        final dealerCode = body['dealerCode'];
+        final pin = body['pin'];
+        final dealerExists = DummyData.dealers.any(
+          (d) => d.accountCode == dealerCode,
+        );
+
+        if (dealerExists && pin == '123') {
+          return true;
+        } else {
+          throw Exception('Invalid Dealer Code or PIN.');
+        }
+      case 'api/user/login':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for login.');
+        }
+        final username = (body['username'] as String?)?.toLowerCase();
+        final password = body['password'];
+        try {
+          final user = DummyData.users.firstWhere(
+            (u) => u.username == username,
+          );
+          final isPasswordCorrect = BCrypt.checkpw(password, user.password);
+
+          // if (isPasswordCorrect) {
+          //   return user;
+
+          if (isPasswordCorrect) {
+            // Step 1: Get the user's roles
+            final userRoles = user.roles;
+
+            // Step 2: Find all permitted ScreenIds for the user's roles
+            // We use a Set to automatically handle duplicate ScreenIds
+            final permittedScreenIds =
+                DummyData.perms
+                    .where((perm) => userRoles.contains(perm.RoleId))
+                    .map((perm) => perm.ScreenId)
+                    .toSet();
+
+            // Step 3: Filter the master list of screens to get the accessible ones
+            final accessibleScreens =
+                DummyData.screens
+                    .where(
+                      (screen) => permittedScreenIds.contains(screen.screenId),
+                    )
+                    .toList();
+
+                  // Step 2: Find the corresponding role names from the master list
+          final userRoleNames = DummyData.roles
+              .where((role) => userRoles.contains(role.roleId)) // Filter by ID
+              .map((role) => role.roleName) // Extract just the name
+              .toList(); // Convert to a List<String>
+
+            // Step 4 & 5: Create a new User object with the accessible screens and return it
+            return user.copyWith(
+              accessibleScreen: accessibleScreens,
+              rolenames: userRoleNames, 
+              );
+          } else {
+            throw UnauthorisedException('Invalid username or password.');
+          }
+        } catch (e) {
+          throw UnauthorisedException('Invalid username or password.');
+        }
+
+      case 'api/user/changepassword':
+        if (body is! Map<String, dynamic>) {
+          throw Exception(
+            'Invalid body type for changePassword. Expected a Map.',
+          );
+        }
+        final username = (body['username'] as String?)?.toLowerCase();
+        final oldPassword = body['oldPassword'];
+        final newPassword = body['newPassword'];
+
+        User oldUser;
+        try {
+          oldUser = DummyData.users.firstWhere((u) => u.username == username);
+        } catch (e) {
+          throw UnauthorisedException('Could not find a user to update.');
+        }
+        if (!BCrypt.checkpw(oldPassword, oldUser.password)) {
+          throw UnauthorisedException(
+            'The old password you entered is incorrect.',
+          );
+        }
+        final String newHashedPassword = BCrypt.hashpw(
+          newPassword,
+          BCrypt.gensalt(),
+        );
+        try {
+          final userIndex = DummyData.users.indexOf(oldUser);
+          final updatedUser = User(
+            id: oldUser.id,
+            username: oldUser.username,
+            email: oldUser.email,
+            password: newHashedPassword,
+            roles: oldUser.roles,
+          );
+          DummyData.users[userIndex] = updatedUser;
+          return true;
+        } catch (e) {
+          throw UnauthorisedException('Could update the user.'); // chnage later
+        }
+
+      case 'api/user/request-password-reset':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for password reset request.');
+        }
+        final username = (body['username'] as String?)?.toLowerCase();
+        final email = (body['email'] as String?)?.toLowerCase();
+        try {
+          DummyData.users.firstWhere(
+            (u) => u.username == username && u.email == email,
+          );
+          return '12345';
+        } catch (e) {
+          throw Exception('User not found or email does not match.');
+        }
+
+      case 'api/user/reset-password':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for password reset.');
+        }
+        final username = (body['username'] as String?)?.toLowerCase();
+        final token = body['token'];
+        final newPassword = body['newPassword'];
+        if (token != '12345') {
+          throw Exception('Invalid or expired password reset token.');
+        }
+
+        try {
+          final oldUser = DummyData.users.firstWhere(
+            (u) => u.username == username,
+          );
+
+          final String newHashedPassword = BCrypt.hashpw(
+            newPassword,
+            BCrypt.gensalt(),
+          );
+          final userIndex = DummyData.users.indexOf(oldUser);
+          final updatedUser = User(
+            id: oldUser.id,
+            username: oldUser.username,
+            email: oldUser.email,
+            password: newHashedPassword,
+            roles: oldUser.roles,
+          );
+          DummyData.users[userIndex] = updatedUser;
+          return true;
+        } catch (e) {
+          throw Exception('User not found.');
+        }
+
+      case 'api/receipts/save':
+        if (body is! Receipt) {
+          throw Exception(
+            'Invalid type for saving a receipt. Expected a Receipt object.',
+          );
+        }
+
+        final receipt = body;
+
+        final isDuplicate = DummyData.receipts.any(
+          (existingReceipt) =>
+              existingReceipt.dealerCode == receipt.dealerCode &&
+              existingReceipt.bankCode == receipt.bankCode &&
+              existingReceipt.chequeNumber == receipt.chequeNumber,
+        );
+
+        if (isDuplicate) {
+          throw Exception(
+            'This cheque number already exists for the selected dealer and bank.',
+          );
+        }
+
+        DummyData.receipts.add(receipt);
+        return true;
+
+      case 'api/invoice/save':
+        if (body is! Receipt) {
+          throw Exception(
+            'Invalid type for saving a receipt. Expected a Receipt object.',
+          );
+        }
+
+        final receipt = body;
+
+        final isDuplicate = DummyData.receipts.any(
+          (existingReceipt) =>
+              existingReceipt.dealerCode == receipt.dealerCode &&
+              existingReceipt.bankCode == receipt.bankCode &&
+              existingReceipt.chequeNumber == receipt.chequeNumber,
+        );
+
+        if (isDuplicate) {
+          throw Exception(
+            'This cheque number already exists for the selected dealer and bank.',
+          );
+        }
+
+        DummyData.receipts.add(receipt);
+        return true;
+      
+      case 'api/attendence/save': 
+      if (body is! Attendence) {
+        throw Exception(
+          'Invalid type for saving attendance. Expected an Attendence object.',
+        );
+      }
+
+      final newAttendance = body;
+
+      int existingIndex = DummyData.attendences.indexWhere(
+        (existingAttendance) =>
+            existingAttendance.userID == newAttendance.userID &&
+            existingAttendance.date.year == newAttendance.date.year &&
+            existingAttendance.date.month == newAttendance.date.month &&
+            existingAttendance.date.day == newAttendance.date.day,
+      );
+
+      if (existingIndex != -1) {
+        // Record exists, replace it
+        DummyData.attendences[existingIndex] = newAttendance;
+      } else {
+        // No existing record, add as new
+        DummyData.attendences.add(newAttendance);
+      }
+      return true;
+
+      default:
+        throw Exception('Invalid POST API URL: $url');
     }
   }
-
-  
 }

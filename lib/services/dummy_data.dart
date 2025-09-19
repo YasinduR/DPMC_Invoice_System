@@ -1,15 +1,212 @@
-// Dummy Data File
+import 'package:bcrypt/bcrypt.dart';
+import 'package:myapp/models/Tin_invoice_model.dart';
+import 'package:myapp/models/attendence_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/invoic_model.dart';
+import 'package:myapp/models/menu_model.dart';
 import 'package:myapp/models/part_model.dart';
+import 'package:myapp/models/permission_model.dart';
+import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/role_model.dart';
+import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/models/tin_model.dart';
+import 'package:myapp/models/user_model.dart';
+//import 'package:permission_handler/permission_handler.dart';
+
+//// IMPORTANT :  This works as the DataBase remove later
 
 class DummyData {
+  static final List<Receipt> _sessionReceipts = [];
+  static final List<Attendence> _attendence = [];
+
+  static final List<Menu> _menus = [
+    Menu(MenuId: '01', MenuName: 'Sales'),
+    Menu(MenuId: '02', MenuName: 'Admin'),
+    Menu(MenuId: '03', MenuName: 'General'),
+  ];
+
+  static final List<Screen> _screens = [
+    // Non-menu screens
+    Screen(
+      screenId: '001',
+      screenName: 'login',
+      menuId: 'N/A',
+      title: 'Login',
+      iconName: 'login',
+    ),
+    Screen(
+      screenId: '002',
+      screenName: 'mainMenu',
+      menuId: 'N/A',
+      title: 'Main Menu',
+      iconName: 'apps',
+    ),
+    Screen(
+      screenId: '013',
+      screenName: 'forgetPassword',
+      menuId: 'N/A',
+      title: 'Forget Password',
+      iconName: 'lock_open',
+    ),
+
+    Screen(
+      screenId: '015',
+      screenName: 'forgetPassword',
+      menuId: 'N/A',
+      title: 'Main Menu',
+      iconName: 'apps',
+    ),
+
+    // Menu screens
+    Screen(
+      screenId: '003',
+      screenName: 'setupPrint',
+      menuId: '01',
+      title: 'Setup Print',
+      iconName: 'settings',
+    ),
+    Screen(
+      screenId: '004',
+      screenName: 'invoice',
+      menuId: '01',
+      title: 'Invoice',
+      iconName: 'receipt_long',
+    ),
+    Screen(
+      screenId: '005',
+      screenName: 'printInvoice',
+      menuId: '01',
+      title: 'Print Invoice',
+      iconName: 'print',
+    ),
+    Screen(
+      screenId: '006',
+      screenName: 'profile',
+      menuId: '01',
+      title: 'Profile',
+      iconName: 'person',
+    ),
+    Screen(
+      screenId: '007',
+      screenName: 'testNotify',
+      menuId: '01',
+      title: 'Test',
+      iconName: 'alarm',
+    ),
+    Screen(
+      screenId: '008',
+      screenName: 'reciept',
+      menuId: '01',
+      title: 'Receipt',
+      iconName: 'article',
+    ),
+    Screen(
+      screenId: '009',
+      screenName: 'returns',
+      menuId: '01',
+      title: 'Returns',
+      iconName: 'assignment_return',
+    ),
+    Screen(
+      screenId: '010',
+      screenName: 'reprint',
+      menuId: '01',
+      title: 'Re-Print',
+      iconName: 'replay_circle_filled',
+    ),
+    Screen(
+      screenId: '011',
+      screenName: 'region',
+      menuId: '01',
+      title: 'Route Selection',
+      iconName: 'route',
+    ),
+    Screen(
+      screenId: '012',
+      screenName: 'changePassword',
+      menuId: '00', // availble under each menu
+      title: 'Change Password',
+      iconName: 'lock_reset',
+    ),
+
+    Screen(
+      screenId: '014',
+      screenName: 'attendence',
+      menuId: '02',
+      title: 'Attendence',
+      iconName: 'checklist',
+    ),
+  ];
+
+  static final List<Role> _roles = [
+    Role(roleId: '001', roleName: 'Sales-Man'),
+    Role(roleId: '002', roleName: 'Admin'),
+    Role(roleId: '003', roleName: 'Super-Admin'),
+  ];
+
+  static final List<Perm> _perms = [
+    Perm(RoleId: '001', ScreenId: '003'), // setupPrint
+    Perm(RoleId: '001', ScreenId: '004'), // invoice
+    Perm(RoleId: '001', ScreenId: '005'), // printInvoice
+    Perm(RoleId: '002', ScreenId: '006'), // profile
+    Perm(RoleId: '003', ScreenId: '006'), // profile
+    Perm(RoleId: '001', ScreenId: '006'), // profile
+    Perm(RoleId: '001', ScreenId: '007'), // testNotify
+    Perm(RoleId: '002', ScreenId: '007'), // testNotify
+    Perm(RoleId: '001', ScreenId: '008'), // reciept
+    Perm(RoleId: '001', ScreenId: '009'), // returns
+    Perm(RoleId: '001', ScreenId: '010'), // reprint
+    Perm(RoleId: '001', ScreenId: '011'), // region
+    Perm(RoleId: '001', ScreenId: '012'), // changePassword
+    Perm(RoleId: '002', ScreenId: '012'), // changePassword
+    Perm(RoleId: '003', ScreenId: '012'), // changePassword
+    Perm(RoleId: '002', ScreenId: '012'), // changePassword
+    Perm(RoleId: '002', ScreenId: '014'), // Attendence
+    Perm(RoleId: '003', ScreenId: '014'), // Attendence
+  ];
+
+  static final List<User> _users = [
+    User(
+      id: '2619',
+      username: 'yasindu',
+      email: 'yasindu@example.com',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['001'],
+    ),
+    User(
+      id: '8108',
+      username: 'nimesh',
+      email: 'nimesh@example.com',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['001', '002'],
+    ),
+    User(
+      id: '1122',
+      username: 'sachith',
+      email: 'sachith@example.com',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['002'],
+    ),
+    User(
+      id: '1111',
+      username: 'sameera',
+      email: 'sameera@example.com',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['002', '003'],
+    ),
+    User(
+      id: '1000',
+      username: 'admin',
+      email: 'admin@example.com',
+      password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
+      roles: ['001', '002', '003'],
+    ),
+  ];
   static final List<Dealer> _dealers = [
     // COLOMBO REGION
     Dealer(
@@ -61,7 +258,7 @@ class DummyData {
       address: '55, Main Street',
       city: 'Madapatha',
       region: 'MADAPATHA',
-      hasBankGuarantee: true
+      hasBankGuarantee: true,
     ),
     Dealer(
       accountCode: 'AC2000123307',
@@ -921,8 +1118,7 @@ class DummyData {
     Part(id: 'p11', partNo: 'XY-7766-WX', requestQty: 12, price: 6500.00),
     Part(id: 'p12', partNo: 'XY-9988-ZZ', requestQty: 7, price: 125.50),
   ];
-//
-   static final List<Bank> _banks = [
+  static final List<Bank> _banks = [
     Bank(bankCode: '7010', bankName: 'Bank of Ceylon'),
     Bank(bankCode: '7056', bankName: 'Commercial Bank of Ceylon'),
     Bank(bankCode: '7278', bankName: 'Sampath Bank'),
@@ -932,34 +1128,297 @@ class DummyData {
 
   static final List<BankBranch> _branches = [
     // Bank of Ceylon Branches
-    BankBranch(bankCode: '7010', bankName: 'Bank of Ceylon', branchCode: '001', branchName: 'Bank of Ceylon - Colombo'),
-    BankBranch(bankCode: '7010', bankName: 'Bank of Ceylon', branchCode: '002', branchName: 'Bank of Ceylon - Kandy'),
-    BankBranch(bankCode: '7010', bankName: 'Bank of Ceylon', branchCode: '003', branchName: 'Bank of Ceylon - Galle'),
-    BankBranch(bankCode: '7010', bankName: 'Bank of Ceylon', branchCode: '004', branchName: 'Bank of Ceylon - Jaffna'),
+    BankBranch(
+      bankCode: '7010',
+      bankName: 'Bank of Ceylon',
+      branchCode: '001',
+      branchName: 'Bank of Ceylon - Colombo',
+    ),
+    BankBranch(
+      bankCode: '7010',
+      bankName: 'Bank of Ceylon',
+      branchCode: '002',
+      branchName: 'Bank of Ceylon - Kandy',
+    ),
+    BankBranch(
+      bankCode: '7010',
+      bankName: 'Bank of Ceylon',
+      branchCode: '003',
+      branchName: 'Bank of Ceylon - Galle',
+    ),
+    BankBranch(
+      bankCode: '7010',
+      bankName: 'Bank of Ceylon',
+      branchCode: '004',
+      branchName: 'Bank of Ceylon - Jaffna',
+    ),
 
     // Commercial Bank of Ceylon Branches
-    BankBranch(bankCode: '7056', bankName: 'Commercial Bank of Ceylon', branchCode: '001', branchName: 'Commercial Bank - Colombo'),
-    BankBranch(bankCode: '7056', bankName: 'Commercial Bank of Ceylon', branchCode: '002', branchName: 'Commercial Bank - Kandy'),
-    BankBranch(bankCode: '7056', bankName: 'Commercial Bank of Ceylon', branchCode: '003', branchName: 'Commercial Bank - Galle'),
-    BankBranch(bankCode: '7056', bankName: 'Commercial Bank of Ceylon', branchCode: '004', branchName: 'Commercial Bank - Matara'),
+    BankBranch(
+      bankCode: '7056',
+      bankName: 'Commercial Bank of Ceylon',
+      branchCode: '001',
+      branchName: 'Commercial Bank - Colombo',
+    ),
+    BankBranch(
+      bankCode: '7056',
+      bankName: 'Commercial Bank of Ceylon',
+      branchCode: '002',
+      branchName: 'Commercial Bank - Kandy',
+    ),
+    BankBranch(
+      bankCode: '7056',
+      bankName: 'Commercial Bank of Ceylon',
+      branchCode: '003',
+      branchName: 'Commercial Bank - Galle',
+    ),
+    BankBranch(
+      bankCode: '7056',
+      bankName: 'Commercial Bank of Ceylon',
+      branchCode: '004',
+      branchName: 'Commercial Bank - Matara',
+    ),
 
     // Sampath Bank Branches
-    BankBranch(bankCode: '7278', bankName: 'Sampath Bank', branchCode: '001', branchName: 'Sampath Bank - Colombo'),
-    BankBranch(bankCode: '7278', bankName: 'Sampath Bank', branchCode: '002', branchName: 'Sampath Bank - Gampaha'),
-    BankBranch(bankCode: '7278', bankName: 'Sampath Bank', branchCode: '003', branchName: 'Sampath Bank - Kurunegala'),
-    BankBranch(bankCode: '7278', bankName: 'Sampath Bank', branchCode: '004', branchName: 'Sampath Bank - Panadura'),
+    BankBranch(
+      bankCode: '7278',
+      bankName: 'Sampath Bank',
+      branchCode: '001',
+      branchName: 'Sampath Bank - Colombo',
+    ),
+    BankBranch(
+      bankCode: '7278',
+      bankName: 'Sampath Bank',
+      branchCode: '002',
+      branchName: 'Sampath Bank - Gampaha',
+    ),
+    BankBranch(
+      bankCode: '7278',
+      bankName: 'Sampath Bank',
+      branchCode: '003',
+      branchName: 'Sampath Bank - Kurunegala',
+    ),
+    BankBranch(
+      bankCode: '7278',
+      bankName: 'Sampath Bank',
+      branchCode: '004',
+      branchName: 'Sampath Bank - Panadura',
+    ),
 
     // Hatton National Bank Branches
-    BankBranch(bankCode: '7083', bankName: 'Hatton National Bank', branchCode: '001', branchName: 'HNB - Colombo'),
-    BankBranch(bankCode: '7083', bankName: 'Hatton National Bank', branchCode: '002', branchName: 'HNB - Kandy'),
-    BankBranch(bankCode: '7083', bankName: 'Hatton National Bank', branchCode: '003', branchName: 'HNB - Galle'),
-    BankBranch(bankCode: '7083', bankName: 'Hatton National Bank', branchCode: '004', branchName: 'HNB - Negombo'),
+    BankBranch(
+      bankCode: '7083',
+      bankName: 'Hatton National Bank',
+      branchCode: '001',
+      branchName: 'HNB - Colombo',
+    ),
+    BankBranch(
+      bankCode: '7083',
+      bankName: 'Hatton National Bank',
+      branchCode: '002',
+      branchName: 'HNB - Kandy',
+    ),
+    BankBranch(
+      bankCode: '7083',
+      bankName: 'Hatton National Bank',
+      branchCode: '003',
+      branchName: 'HNB - Galle',
+    ),
+    BankBranch(
+      bankCode: '7083',
+      bankName: 'Hatton National Bank',
+      branchCode: '004',
+      branchName: 'HNB - Negombo',
+    ),
 
     // Peoples Bank Branches
-    BankBranch(bankCode: '7135', bankName: 'Peoples Bank', branchCode: '001', branchName: 'Peoples Bank - Colombo'),
-    BankBranch(bankCode: '7135', bankName: 'Peoples Bank', branchCode: '002', branchName: 'Peoples Bank - Nugegoda'),
-    BankBranch(bankCode: '7135', bankName: 'Peoples Bank', branchCode: '003', branchName: 'Peoples Bank - Gampaha'),
-    BankBranch(bankCode: '7135', bankName: 'Peoples Bank', branchCode: '004', branchName: 'Peoples Bank - Anuradhapura'),
+    BankBranch(
+      bankCode: '7135',
+      bankName: 'Peoples Bank',
+      branchCode: '001',
+      branchName: 'Peoples Bank - Colombo',
+    ),
+    BankBranch(
+      bankCode: '7135',
+      bankName: 'Peoples Bank',
+      branchCode: '002',
+      branchName: 'Peoples Bank - Nugegoda',
+    ),
+    BankBranch(
+      bankCode: '7135',
+      bankName: 'Peoples Bank',
+      branchCode: '003',
+      branchName: 'Peoples Bank - Gampaha',
+    ),
+    BankBranch(
+      bankCode: '7135',
+      bankName: 'Peoples Bank',
+      branchCode: '004',
+      branchName: 'Peoples Bank - Anuradhapura',
+    ),
+  ];
+
+  static final List<TinInvoice> _tinInvoices = [
+    const TinInvoice(
+      tinNo: 'TINBDM2025011500101',
+      mobileInvNo: 'MIN0020512201400010',
+      invAmount: 45200.50,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025011800105',
+      mobileInvNo: 'MIN0020512201400014',
+      invAmount: 18750.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025012500119',
+      mobileInvNo: 'MIN0020512201400028',
+      invAmount: 33400.0,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025012800122',
+      mobileInvNo: 'MIN0020512201400031',
+      invAmount: 9800.25,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306',
+    ),
+
+    const TinInvoice(
+      tinNo: 'TINBDM2025020200130',
+      mobileInvNo: 'MIN0020512201400039',
+      invAmount: 5120.75,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025020500135',
+      mobileInvNo: 'MIN0020512201400044',
+      invAmount: 22450.00,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021100142',
+      mobileInvNo: 'MIN0020512201400051',
+      invAmount: 7650.50,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021400148',
+      mobileInvNo: 'MIN0020512201400057',
+      invAmount: 19990.00,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021900153',
+      mobileInvNo: 'MIN0020512201400062',
+      invAmount: 31200.00,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025022500160',
+      mobileInvNo: 'MIN0020512201400069',
+      invAmount: 8430.20,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025030100165',
+      mobileInvNo: 'MIN0020512201400074',
+      invAmount: 65400.00,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025030400171',
+      mobileInvNo: 'MIN0020512201400080',
+      invAmount: 12300.75,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025030900178',
+      mobileInvNo: 'MIN0020512201400087',
+      invAmount: 25800.00,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025031200183',
+      mobileInvNo: 'MIN0020512201400092',
+      invAmount: 4150.50,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123306',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025031500190',
+      mobileInvNo: 'MIN0020512201400099',
+      invAmount: 15000.00,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123306',
+    ),
+
+    // --- Invoices for Jayalath Enterprises (AC2000123307) ---
+    const TinInvoice(
+      tinNo: 'TINBDM2025020300112',
+      mobileInvNo: 'MIN0020512201400021',
+      invAmount: 89300.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123307', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025020400113',
+      mobileInvNo: 'MIN0020512201400022',
+      invAmount: 32000.75,
+      paymentOnDeliveryStatus: 'Y',
+      //receiptStatus: true, // Example of an already processed receipt
+      dealerAccCode: 'AC2000123307',
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021500128',
+      mobileInvNo: 'MIN0020512201400039',
+      invAmount: 112000.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123307', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025021800131',
+      mobileInvNo: 'MIN0020512201400042',
+      invAmount: 6500.50,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123307', // receiptStatus defaults to false
+    ),
+
+    // --- Invoices for Kesbewa Auto Zone (AC2000123308) ---
+    const TinInvoice(
+      tinNo: 'TINBDM2025030100125',
+      mobileInvNo: 'MIN0020512201400035',
+      invAmount: 152500.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123308', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025030900142',
+      mobileInvNo: 'MIN0020512201400051',
+      invAmount: 25000.0,
+      paymentOnDeliveryStatus: 'Y',
+      dealerAccCode: 'AC2000123308', // receiptStatus defaults to false
+    ),
+    const TinInvoice(
+      tinNo: 'TINBDM2025031200148',
+      mobileInvNo: 'MIN0020512201400059',
+      invAmount: 48900.0,
+      paymentOnDeliveryStatus: 'N',
+      dealerAccCode: 'AC2000123308', // receiptStatus defaults to false
+    ),
   ];
 
   static List<Bank> get banks => _banks;
@@ -971,4 +1430,12 @@ class DummyData {
   static List<Region> get regions => _regions;
   static List<ReturnItem> get returnItems => _returnItems;
   static List<Part> get parts => _parts;
+  static List<TinInvoice> get tinInvoices => _tinInvoices;
+  static List<User> get users => _users;
+  static List<Receipt> get receipts => _sessionReceipts;
+  static List<Menu> get menus => _menus;
+  static List<Screen> get screens => _screens;
+  static List<Role> get roles => _roles;
+  static List<Perm> get perms => _perms;
+  static List<Attendence> get attendences => _attendence;
 }

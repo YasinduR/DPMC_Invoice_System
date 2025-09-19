@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Common Text field
 class AppTextField extends StatelessWidget {
-  final TextEditingController? controller;
-  final String? labelText;
-  final String? hintText;
-  final TextInputType keyboardType;
-  final bool obscureText;
-  final bool isPin;
-  final bool isFinanceNum; // for money
-  final bool hideBorder;
-  final EdgeInsetsGeometry? contentPadding;
-  final String? Function(String?)? validator;
-  final void Function(String)? onFieldSubmitted; // 1. ADD THIS LINE
-
-    // --- ADDITIONS ---
-  final void Function(String)? onChanged; // 1. ADD this for real-time validation
-  final TextInputAction? textInputAction;   // 2. ADD this for better keyboard UX
+  final TextEditingController? controller; // Manages the text field's content.
+  final String? labelText; // The label that floats above the field.
+  final String? hintText; // Placeholder text inside the field.
+  final TextInputType
+  keyboardType; // Type of keyboard to show (e.g., text, number).
+  final bool obscureText; // Hides text, typically for passwords.
+  final bool isPin; // A flag for PIN-specific behavior (numeric, obscure).
+  final bool isPassword; // Flag for Password
+  final bool isEmail; // Flag for Email
+  final bool isFinanceNum; // A flag for financial number validation.
+  final bool hideBorder; // Toggles the visibility of the field's border.
+  final EdgeInsetsGeometry?
+  contentPadding; // Custom padding inside the text field.
+  final String? Function(String?)? validator; // Custom validation logic.
+  final void Function(String)?
+  onFieldSubmitted; // Callback when the user submits the field.
+  final void Function(String)? onChanged; // Callback on every character change.
+  final TextInputAction?
+  textInputAction; // The action button on the keyboard (e.g., next, done).
 
   const AppTextField({
     super.key,
@@ -26,40 +31,55 @@ class AppTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.isPin = false,
-    this.isFinanceNum = false, // For money
-    this.hideBorder =
-        false, // NEW: Default to false to not break existing fields
-    this.contentPadding, // NEW
+    this.isPassword = false,
+    this.isFinanceNum = false,
+    this.isEmail =false, 
+    this.hideBorder =false, 
+    this.contentPadding,
     this.validator,
     this.onFieldSubmitted,
-        this.onChanged, // 3. ADD to constructor
-    this.textInputAction, // 4. ADD to constructor
+    this.onChanged,
+    this.textInputAction,
   });
 
   String? _internalValidator(String? value) {
+    if (validator != null)
+      return validator!(value); // Use the provided validator as priority
+
+    if(isEmail){
+      if (value?.isEmpty ?? true) return null;
+      if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value!)) {
+        return 'Please enter a valid email address';
+      }
+    }
     if (isPin) {
       if (value == null || value.isEmpty) return 'PIN cannot be empty';
       final isDigitsOnly = RegExp(r'^[0-9]+$').hasMatch(value);
       if (!isDigitsOnly) return 'PIN must contain only numbers';
     }
 
+    if (isPassword) {
+      if (value == null || value.isEmpty) {
+        return null; // For now no error upon empty values
+      } else if (value.length < 4)
+        return 'Password must be at least 4 characters';
+    }
+
     if (isFinanceNum) {
       if (value == null || value.isEmpty) {
         return null; // For now no error upon empty values
       }
-      final isFinanceNum = RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value);
-      if (!isFinanceNum) {
+      final isFinanceNum_ = RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value);
+      if (!isFinanceNum_) {
         return 'Please enter a valid value in Rupees';
       }
     }
-
-    if (validator != null) return validator!(value);
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool shouldObscure = obscureText || isPin;
+    final bool shouldObscure = obscureText || isPin || isPassword;
     final TextInputType effectiveKeyboardType =
         isPin ? TextInputType.number : keyboardType;
 
@@ -70,7 +90,9 @@ class AppTextField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted, // 3. PASS THE CALLBACK HERE
       //textInputAction: TextInputAction.done, // 4. SET THE KEYBOARD ACTION
       onChanged: onChanged, // 5. PASS the onChanged callback here
-      textInputAction: textInputAction ?? TextInputAction.done, // Use provided action or default to 'done'
+      textInputAction:
+          textInputAction ??
+          TextInputAction.done, // Use provided action or default to 'done'
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         labelText: labelText,

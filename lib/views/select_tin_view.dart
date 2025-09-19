@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/tin_model.dart';
-import 'package:myapp/widgets/action_button.dart';
-import 'package:myapp/widgets/app_help_text_field.dart';
+import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_helper_field.dart';
 //import 'package:myapp/widgets/old/custom_selection_form_field.dart';
-import 'package:myapp/widgets/dealer_info_card.dart';
+import 'package:myapp/widgets/cards/dealer_info_card.dart';
 //import 'package:myapp/widgets/selection_sheet.dart';
 
 class SelectTinNumberView extends StatefulWidget {

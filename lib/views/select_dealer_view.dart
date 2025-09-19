@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
-import 'package:myapp/util/dialog_box.dart';
+import 'package:myapp/widgets/app_dialog_boxes.dart';
 //import 'package:myapp/views/region_selection_view.dart';
-import 'package:myapp/widgets/action_button.dart';
-import 'package:myapp/widgets/app_help_text_field.dart';
+import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_helper_field.dart';
 
 class SelectDealerView extends StatefulWidget {
   //final List<Dealer> dealers;

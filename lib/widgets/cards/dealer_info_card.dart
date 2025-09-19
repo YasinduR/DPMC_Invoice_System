@@ -3,6 +3,8 @@ import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
+// Dealer Information Card Element 
+
 class DealerInfoCard extends StatelessWidget {
   final Dealer dealer;
   const DealerInfoCard({super.key, required this.dealer});

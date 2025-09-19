@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
+// Common Radio Option Group
 class TitledRadioGroup extends StatelessWidget {
   final String title;
   final List<String> options;

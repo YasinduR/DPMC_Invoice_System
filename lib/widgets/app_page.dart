@@ -3,14 +3,16 @@ import 'app_header.dart';
 import 'app_footer.dart';
 import 'package:myapp/theme/app_theme.dart';
 
-class AppPage extends StatelessWidget {
-  final String title;
-  final Widget child;
-  final VoidCallback? onBack;
-  final List<Widget>? actions;
-  final bool showFooter;
-  final EdgeInsets contentPadding;
 
+// Common Setup of an app page 
+
+class AppPage extends StatelessWidget {
+  final String title;             // The text for the app bar title.
+  final Widget child;             // The main content of the page.
+  final VoidCallback? onBack;     // Custom action for the back button.
+  final List<Widget>? actions;    // Icons/buttons on the right of the app bar.(For Future Integrations)
+  final bool showFooter;          // Toggles the footer visibility.
+  final EdgeInsets contentPadding;  // Padding around the main content.
   const AppPage({
     super.key,
     required this.title,

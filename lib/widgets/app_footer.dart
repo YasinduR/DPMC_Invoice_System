@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+
+// Common footer for all views
+
 class AppFooter extends StatelessWidget {
   final double height;
   const AppFooter({

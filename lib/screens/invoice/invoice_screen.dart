@@ -1,25 +1,25 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/region_model.dart';
-//import 'package:myapp/models/region_model.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/theme/app_theme.dart';
-import 'package:myapp/util/api_util.dart';
-import 'package:myapp/util/snack_bar.dart';
+import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
-import 'package:myapp/widgets/action_button.dart';
+import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/app_table.dart';
-import 'package:myapp/widgets/dealer_info_card.dart';
-import 'package:myapp/widgets/quantity_selector.dart';
+import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/views/auth_dealer_view.dart';
-import 'package:myapp/widgets/tin_info_card.dart';
+import 'package:myapp/widgets/cards/tin_info_card.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -30,7 +30,6 @@ class InvoiceScreen extends ConsumerStatefulWidget {
 
 class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   int _currentStep = 0;
-  //Dealer? _selectedDealer;
   TinData? _selectedTin;
 
   // Regional settings
@@ -86,7 +85,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   }
   //--- Dealer Selection
 
-  // MODIFIED: Added callbacks for TIN selection
   void _onTinSelected(TinData tin) {
     setState(() {
       _selectedTin = tin;
@@ -119,13 +117,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           _currentStep--;
         });
       });
-      // setState(() {
-      //   _currentStep--;
-      // });
     } else {
       Navigator.of(context).pop();
-      // In a real app, you might use Navigator.of(context).pop();
-      //print("Already at the first step.");
     }
   }
 
@@ -143,11 +136,10 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         break;
       case 0:
         currentView = SelectDealerView(
-          //dealers: _dealers,
           selectedRegion: selectedRegion,
           selectedDealer: _selectedDealer,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer, // Pass submit callback
+          onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
@@ -160,7 +152,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 2:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
-          //tins: _tins,
           selectedTin: _selectedTin,
           onTinNumberSelected: _onTinSelected,
           onSubmit: _submitTin,
@@ -179,7 +170,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     final String currentTitle;
     switch (_currentStep) {
       case -1:
-        currentTitle = 'Select Region'; // New title
+        currentTitle = 'Select Region';
         break;
       case 0:
         currentTitle = 'Select Dealer';
@@ -199,9 +190,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
 
     return AppPage(
       title: currentTitle,
-      onBack: _goBack, // Pass our custom back logic for the multi-step flow.
-      // Since the child views likely manage their own padding,
-      // we set the AppPage's contentPadding to zero to avoid double padding.
+      onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,
     );
@@ -224,46 +213,35 @@ class CreateInvoiceView extends StatefulWidget {
   State<CreateInvoiceView> createState() => _CreateInvoiceViewState();
 }
 
-// 2. Create the State class. This is where all state and logic will live.
 class _CreateInvoiceViewState extends State<CreateInvoiceView> {
-  // --- STATE VARIABLES ---
   List<Part> _parts = [];
-  bool _isLoading = true; // Flag to manage loading state
-  String? _errorMessage; // To store any potential error message
+  List<Part> _selectedParts = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   double get totalAmount {
-    double total = 0.0;
-    for (var part in _parts) {
-      if (part.isSelected) {
-        total += part.price * part.receivedQty;
-      }
-    }
-    return total;
+    return _selectedParts.fold(
+      0.0,
+      (sum, part) => sum + (part.price * part.receivedQty),
+    );
   }
-  // -----------------------
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadParts());
-    //_loadParts(); // API integration later
   }
 
-  // --- LOGIC METHODS ---
-  /// Fetches the list of returnable items using the reusable 'inquire' function.
   Future<void> _loadParts() async {
-    // Set the initial loading state before making the API call
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    // Use the generic data loading function
     await inquire<Part>(
       context: context,
-      dataUrl: 'api/parts/list', // The API endpoint for return items
+      dataUrl: 'api/parts/list',
       onSuccess: (List<Part> data) {
-        // If the widget is still mounted, update the state with the fetched data.
         if (mounted) {
           setState(() {
             _parts = data;
@@ -272,7 +250,6 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
         }
       },
       onError: (String message) {
-        // If the widget is still mounted, update the state with the error message.
         if (mounted) {
           setState(() {
             _errorMessage = message;
@@ -289,22 +266,17 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
   }
 
   Widget _buildPartList() {
-    // First, check if the data is still loading.
     if (_isLoading) {
       return const Center(child: Text("Loading parts..."));
     }
 
-    // Next, check if an error has occurred.
     if (_errorMessage != null) {
       return const Center(child: Text("No data Found"));
     }
 
-    // If there is no error and loading is complete, show the list.
-    return FilterableListView<Part>(
-      //items: _parts,
+    return AppDataGrid<Part>(
       searchHintText: 'Search by Part No or ID',
       onFilterPressed: () {},
-      //dataUrl: 'api/parts/list',
       filterableFields: ['partNo', 'id'],
       columns: [
         DynamicColumn<Part>(
@@ -330,7 +302,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           cellBuilder:
               (context, part) => Center(
                 child: Checkbox(
-                  value: part.isSelected,
+                  value: _selectedParts.any((p) => p.id == part.id),
                   activeColor: AppColors.primary,
                   checkColor: Colors.white,
                   onChanged: (value) => _togglePartSelection(part.id),
@@ -340,107 +312,79 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
         DynamicColumn<Part>(
           label: 'Receive Qty',
           flex: 3,
-          cellBuilder:
-              (context, part) => QuantitySelector(
-                value: part.receivedQty,
-                enabled: part.isSelected,
-                dialogTitle: 'Delivered Quantity',
-                maxQuantity: part.requestQty,
-                onChanged: (newValue) {
-                  setState(() => part.receivedQty = newValue);
-                },
-              ),
+          cellBuilder: (context, part) {
+            final selectedPart = _selectedParts.firstWhereOrNull(
+              (p) => p.id == part.id,
+            );
+            return QuantitySelector(
+              value: selectedPart?.receivedQty ?? 0,
+              enabled:
+                  selectedPart != null, 
+              dialogTitle: 'Delivered Quantity',
+              maxQuantity: part.requestQty,
+              onChanged: (newValue) {
+                setState(() => selectedPart!.receivedQty = newValue);
+              },
+            );
+          },
         ),
       ],
       items: _parts,
     );
   }
-  // Simulates loading parts data.
-  // void _loadParts() {
-  //   _parts = [
-  //     Part(id: 'p1', partNo: 'AC2000123230', requestQty: 2, price: 12000.00),
-  //     Part(id: 'p2', partNo: 'AC2000123231', requestQty: 5, price: 5500.50),
-  //     Part(id: 'p3', partNo: 'AC2000123232', requestQty: 1, price: 8000.00),
-  //     Part(id: 'p4', partNo: 'AC2000123342', requestQty: 1, price: 1000.00),
-  //     Part(id: 'p5', partNo: 'AC2000123932', requestQty: 6, price: 3000.00),
-  //     Part(id: 'p6', partNo: 'AC2000123937', requestQty: 6, price: 300.00),
-  //   ];
-  // }
 
-  Future<void> _showQuantityDialog(Part part) async {
-    // Use your existing, separate QuantityEditDialog class
+  Future<void> _togglePartSelection(String partId) async {
+    final sourcePart = _parts.firstWhere((p) => p.id == partId);
+    final isCurrentlySelected = _selectedParts.any((p) => p.id == partId);
+
+    if (isCurrentlySelected) {
+      setState(() {
+        _selectedParts.removeWhere((p) => p.id == partId);
+      });
+    } else {
+      final newSelectedPart = sourcePart.copyWith(receivedQty: 1);
+      setState(() {
+        _selectedParts.add(newSelectedPart);
+      });
+      await _showQuantityDialog(newSelectedPart);
+    }
+  }
+
+  Future<void> _showQuantityDialog(Part selectedPart) async {
     final newQuantity = await showDialog<int>(
       context: context,
       builder:
           (context) => QuantityEditDialog(
-            initialQuantity: part.receivedQty,
+            initialQuantity: selectedPart.receivedQty,
             title: 'Delivered Quantity',
-            maxQuantity: part.requestQty, // Or any custom title
+            maxQuantity: selectedPart.requestQty,
           ),
     );
 
-    // If the dialog returned a new value, update the state.
-    // The 'mounted' check is a best practice for async operations in stateful widgets.
     if (newQuantity != null && mounted) {
       setState(() {
-        part.receivedQty = newQuantity;
+        selectedPart.receivedQty = newQuantity;
       });
     }
   }
-  // Toggles the selection of a part.
-  // void _togglePartSelection(String partId) {
-  //   setState(() {
-  //     final part = _parts.firstWhere((p) => p.id == partId);
-  //     part.isSelected = !part.isSelected;
-  //     if (!part.isSelected) {
-  //       part.receivedQty = 0;
-  //     }
-  //   });
-  // }
 
-  Future<void> _togglePartSelection(String partId) async {
-    final part = _parts.firstWhere((p) => p.id == partId);
-
-    setState(() {
-      part.isSelected = !part.isSelected;
-      if (!part.isSelected) {
-        part.receivedQty = 0;
-      } else {
-        // Selected
-        part.receivedQty = 1;
-      }
-    });
-    if (part.isSelected) {
-      await _showQuantityDialog(part);
-    }
-  }
-
-  // ---------------------
   @override
   Widget build(BuildContext context) {
-    // 1. The root is a Column to separate the body and the fixed footer.
     return Column(
       children: [
-        // 2. The body is wrapped in Expanded so it takes up the available space.
         Expanded(
-          // 3. A single ListView makes all the content scrollable.
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              // Your info cards at the top.
               DealerInfoCard(dealer: widget.dealer),
               const SizedBox(height: 12),
               TinInfoDisplay(tinData: widget.tindata),
               const SizedBox(height: 12),
-              SizedBox(
-                height: 300.0,
-                child: _buildPartList(),
-              ),
+              SizedBox(height: 300.0, child: _buildPartList()),
             ],
           ),
         ),
 
-        // 5. The fixed footer section remains outside the Expanded widget.
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Column(
