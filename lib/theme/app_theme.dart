@@ -10,11 +10,12 @@ class AppColors {
   static const Color disabled = Colors.grey;
   static const Color white = Colors.white;
   static const Color text = Colors.black87;
+  static const Color textSelection = Color(0xFFBBDEFB);
   static const Color textFaded = Colors.black54;
   static const Color textSecondary = Colors.black54;
 
   // Border Colors
-  
+
   static const Color border = Color(0xFFE0E0E0); // Light Gray
   static const Color borderDark = Color(0xFFBDBDBD); // Dark Gray
 

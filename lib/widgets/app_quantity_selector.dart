@@ -144,11 +144,6 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
             onPressed: canDecrement
                 ? () => setState(() => _currentQuantity--)
                 : null,
-            // onPressed: () {
-            //   if (_currentQuantity > 0) {
-            //     setState(() => _currentQuantity--);
-            //   }
-            // },
           ),
           Text(
             _currentQuantity.toString(),

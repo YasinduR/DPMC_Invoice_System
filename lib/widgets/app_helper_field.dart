@@ -286,6 +286,8 @@ class AppHelpTextField extends StatelessWidget {
           child: TextFormField(
             onChanged: onChanged,
             textInputAction: textInputAction,
+            cursorColor: AppColors.primary, // Add this line
+
             //autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
             onFieldSubmitted: (_) => onIconPressed!(),
@@ -442,6 +444,7 @@ class _SelectionSheetState<T extends Mappable>
                 child: TextField(
                   controller: _searchController,
                   autofocus: true,
+                  cursorColor: AppColors.primary,
                   decoration: InputDecoration(
                     hintText: 'Search by any field...',
                     prefixIcon: const Icon(Icons.search),
@@ -453,7 +456,7 @@ class _SelectionSheetState<T extends Mappable>
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor,
+                        color: AppColors.primary,
                         width: 2.0,
                       ),
                     ),

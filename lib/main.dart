@@ -4,6 +4,7 @@ import 'package:myapp/app_router.dart';
 import 'package:myapp/screens/login/login_screen.dart';
 import 'package:myapp/screens/main_menu/main_menu_screen.dart';
 import 'package:myapp/services/notification_services.dart';
+import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/providers/auth_provider.dart';
@@ -26,7 +27,13 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Invoice App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        //primarySwatch: Colors.blue,
+        textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: AppColors.primary,             // Color of the blinking cursor
+            selectionColor: AppColors.textSelection,    // Color of the selected text background
+            selectionHandleColor:  AppColors.primary,   // Color of the draggable selection handles
+            
+        ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: authState.isLoggedIn ? const MainMenuScreen() : const LoginScreen(),

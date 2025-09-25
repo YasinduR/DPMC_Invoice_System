@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/invoic_model.dart';
+import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/views/reprint_invoice_view.dart';
 import 'package:myapp/views/reprint_reference_view.dart';
 import 'package:myapp/widgets/app_page.dart';

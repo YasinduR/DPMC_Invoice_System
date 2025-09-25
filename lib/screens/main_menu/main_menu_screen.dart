@@ -6,8 +6,8 @@ import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_footer.dart'; // Import footer
 import 'package:myapp/app_routes.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // 1. Import Riverpod
-import 'package:myapp/providers/auth_provider.dart'; // 2. Import the new Riverpod provider
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:myapp/providers/auth_provider.dart'; // Import Riverpod provider
 
 class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
@@ -71,7 +71,6 @@ class MainMenuScreen extends ConsumerWidget {
               title: 'DPMC Invoice System',
               content: 'Developed By DP Infotech',
             ),
-        //onTap: () => showAboutDialog(context: context, applicationName: 'Invoice App'),
       ),
     );
     menuCards.add(
@@ -148,9 +147,10 @@ class MainMenuScreen extends ConsumerWidget {
   }
 }
 
+// Old Menu Created manually without collecting records from DB  
+
 // class MainMenuScreen extends ConsumerWidget {
 //   const MainMenuScreen({super.key});
-
 //   @override
 //   Widget build(BuildContext context, WidgetRef ref) {
 //     return Scaffold(
@@ -170,7 +170,6 @@ class MainMenuScreen extends ConsumerWidget {
 //                 ),
 //               ),
 //               const SizedBox(height: 30),
-
 //               // 2. Menu Grid
 //               Expanded(
 //                 child: GridView.count(

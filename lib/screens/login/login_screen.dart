@@ -85,23 +85,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   //   final password = _passwordController.text;
   //   ref.read(authProvider.notifier).login(context, username, password);
   // }
-
   void _handleForgetPassword() {
     FocusScope.of(context).unfocus();
     Navigator.pushNamed(context, AppRoutes.forgetPassword);
   }
-
   void _handleClear() {
     _usernameController.clear();
     _passwordController.clear();
   }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final bool isdisabled =
         _usernameController.text.isEmpty || _passwordController.text.isEmpty;
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -229,7 +225,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   icon: Icons.cancel_outlined,
                   label: 'Cancel',
                   color: AppColors.danger,
-                  onPressed: () {Navigator.pushNamed(context, AppRoutes.fraudMenu);},
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.fraudMenu); // Remove this Later
+                  },
                 ),
                 const SizedBox(height: 30),
                 const AppFooter(),

@@ -126,8 +126,7 @@ class PickerFormField extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color:
-                      AppColors.primary, // Using primary color for header label
+                  color:  AppColors.primary, // Using primary color for header label
                 ),
               ),
             ),
@@ -140,8 +139,7 @@ class PickerFormField extends StatelessWidget {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.white,
-              labelText:
-                  inputFieldLabelText, // Use the optional input field label
+              labelText: inputFieldLabelText, // Use the optional input field label
               labelStyle: const TextStyle(color: AppColors.borderDark),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

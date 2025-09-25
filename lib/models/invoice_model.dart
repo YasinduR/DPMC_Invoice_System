@@ -1,12 +1,4 @@
-
 import 'package:myapp/contracts/mappable.dart';
-
-class InvoiceItem {
-  final String invoiceNumber;
-  final String invoiceAmount;
-
-  const InvoiceItem({required this.invoiceNumber, required this.invoiceAmount});
-}
 
 class Invoice implements Mappable {
   final String date;

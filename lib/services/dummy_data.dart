@@ -4,7 +4,7 @@ import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/models/invoic_model.dart';
+import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/menu_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/permission_model.dart';
