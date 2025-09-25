@@ -22,7 +22,8 @@ class AppColors {
   // Button/Snack Colors
   static const Color success = Color(0xFF2E7D32); // Dark Green
   static const Color danger = Color(0xFFC62828); // Dark Red
-  static const Color warning = Color(0xFFFFA500); // Gold
+  static const Color warning = Color(0xFFFFA500);
+
 
   // Other Colors
 }

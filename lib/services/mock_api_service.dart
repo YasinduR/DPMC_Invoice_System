@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
@@ -122,21 +123,56 @@ class MockApiService {
       //   return DummyData.perms.any((perm) =>
       //       perm.ScreenId == screenId && roleIds.contains(perm.RoleId));
 
-      case 'api/dealer/login':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid payload for dealer login.');
-        }
-        final dealerCode = body['dealerCode'];
-        final pin = body['pin'];
-        final dealerExists = DummyData.dealers.any(
-          (d) => d.accountCode == dealerCode,
-        );
+      // case 'api/dealer/login':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid payload for dealer login.');
+      //   }
+      //   final dealerCode = body['dealerCode'];
+      //   final pin = body['pin'];
+      //   final dealerExists = DummyData.dealers.any(
+      //     (d) => d.accountCode == dealerCode,
+      //   );
 
-        if (dealerExists && pin == '123') {
-          return true;
-        } else {
-          throw Exception('Invalid Dealer Code or PIN.');
-        }
+      //   if (dealerExists && pin == '123') {
+      //     return true;
+      //   } else {
+      //     throw Exception('Invalid Dealer Code or PIN.');
+      //   }
+
+      case 'api/dealer/login':
+  if (body is! Map<String, dynamic>) {
+    throw Exception('Invalid payload for dealer login.');
+  }
+  final dealerCode = body['dealerCode'];
+  final pin = body['pin'];
+
+  // Find the dealer
+  final dealer = DummyData.dealers.firstWhereOrNull(
+    (d) => d.accountCode == dealerCode,
+  );
+
+  if (dealer == null) {
+    throw Exception('Invalid Dealer Code or PIN.');
+  }
+
+  if (dealer.isLocked) {
+    throw Exception('Dealer account is locked. Please contact support.');
+  }
+
+  if (dealer.pin == pin) {
+    dealer.incPins = 0;
+    dealer.isLocked = false;
+    return true;
+  } else {
+    dealer.incPins++;
+
+    if (dealer.incPins >= 3) {
+      dealer.isLocked = true;
+      throw Exception('Invalid Dealer Code or PIN. Account has been locked due to too many incorrect attempts.');
+    } else {
+      throw Exception('Invalid Dealer Code or PIN. You have ${3 - dealer.incPins} attempt(s) remaining before your account is locked.');
+    }
+  }
       case 'api/user/login':
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid body type for login.');

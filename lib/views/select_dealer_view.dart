@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
-
+import 'package:myapp/widgets/app_snack_bars.dart';
 
 // Dealer Selection View
 class SelectDealerView extends StatefulWidget {
@@ -20,7 +21,7 @@ class SelectDealerView extends StatefulWidget {
     required this.onSubmit,
     this.selectedDealer,
     this.selectedRegion,
-    required this.onRegionSelectionRequested
+    required this.onRegionSelectionRequested,
   });
 
   @override
@@ -30,6 +31,8 @@ class SelectDealerView extends StatefulWidget {
 class _SelectDealerViewState extends State<SelectDealerView> {
   final TextEditingController _dealerController = TextEditingController();
   bool _isDealerSelectionCommitted = false;
+  Dealer? _currentSelectedDealer; // Track the currently selected dealer
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +53,8 @@ class _SelectDealerViewState extends State<SelectDealerView> {
       final bool wantsToSelectRegion = await showConfirmationDialog(
         context: context,
         title: 'No Region Selected',
-        content: 'You must select a region before choosing a dealer. Navigate to the region selection page?',
+        content:
+            'You must select a region before choosing a dealer. Navigate to the region selection page?',
         confirmButtonText: 'Yes, Select Region',
         cancelButtonText: 'Cancel',
       );
@@ -62,6 +66,48 @@ class _SelectDealerViewState extends State<SelectDealerView> {
       return false;
     }
     return true;
+  }
+
+  void _handleAuthentication() async {
+    if (_currentSelectedDealer == null) {
+      return;
+    }
+    if (_currentSelectedDealer!.isLocked == true) {
+      return;
+    }
+    
+    final String? pin = await showPinVerificationDialog(
+      context: context,
+      title: 'Authenticate Dealer',
+    );
+    if (pin == null) {
+      return;
+    } else {
+      dealerLogin(
+        context: context,
+        dealerCode: _currentSelectedDealer?.accountCode ?? ' ',
+        pin: pin,
+        onSuccess: () async {
+          await Future.delayed(const Duration(milliseconds: 200));
+          if (mounted) {
+            widget.onSubmit();
+          }
+        },
+        onError: (e) {
+          if (mounted) {
+            String errorMessage = e.toString().replaceFirst('Exception: ', '');
+            
+            showSnackBar(
+              context: context,
+              message: errorMessage,
+              type: MessageType.error,
+            );
+            // Integrate Mechanism to Reload dealer later because dealer.islocked might be changed.
+
+          }
+        },
+      );
+    }
   }
 
   @override
@@ -77,12 +123,22 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             selectionSheetTitle: 'Select a Dealer',
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
-            onSelected: widget.onDealerSelected,
+            onSelected: (dealer) {
+              FocusManager.instance.primaryFocus?.unfocus();
+              setState(() {
+                _currentSelectedDealer =
+                    dealer; 
+              });
+              widget.onDealerSelected(dealer);
+              _handleAuthentication();
+            },
             onCommitStateChanged: (isCommitted) {
+              FocusManager.instance.primaryFocus?.unfocus();
               setState(() {
                 _isDealerSelectionCommitted = isCommitted;
               });
             },
+            showHelperOnInitialization: true,
             displayNames: const ['Account Code', 'Name', 'Address', 'City'],
             valueFields: const ['accountCode', 'name', 'address', 'city'],
             mainField: 'name',
@@ -97,11 +153,10 @@ class _SelectDealerViewState extends State<SelectDealerView> {
           const Spacer(),
           ActionButton(
             icon: Icons.check_circle_outline,
-            label: 'Submit',
-            onPressed: widget.onSubmit,
-            disabled: !_isDealerSelectionCommitted,
+            label: 'Authenticate',
+            onPressed: _handleAuthentication,
+            disabled: !_isDealerSelectionCommitted || _currentSelectedDealer!.isLocked,
           ),
-        // 
         ],
       ),
     );

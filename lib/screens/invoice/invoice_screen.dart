@@ -10,7 +10,7 @@ import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
+//import 'package:myapp/views/auth_dealer_view.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -64,16 +64,16 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   void _submitDealer() {
     if (_selectedDealer != null) {
       setState(() {
-        _currentStep = 1; // Move to Authenticate step
+        _currentStep = 1; // Move to Tin selection
       });
     }
   }
 
-  void _onAuthenticated() {
-    setState(() {
-      _currentStep = 2; // Move to Create Invoice step
-    });
-  }
+  // void _onAuthenticated() {
+  //   setState(() {
+  //     _currentStep = 2; // Move to Create Invoice step
+  //   });
+  // }
   //--- Dealer Selection
 
   void _onTinSelected(TinData tin) {
@@ -85,14 +85,14 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   void _submitTin() {
     if (_selectedTin != null) {
       setState(() {
-        _currentStep = 3; // Move to Create Invoice step
+        _currentStep = 2; // Move to Create Invoice step
       });
     }
   }
 
   void _saveinvoice() {
     setState(() {
-      _currentStep = 2; // Move to the initial page
+      _currentStep = 1; // Move to the initial page
     });
     showSnackBar(
       context: context,
@@ -128,19 +128,19 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer: null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
           onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
+      // case 1:
+      //   currentView = AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
+      //   break;
       case 1:
-        currentView = AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-        break;
-      case 2:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
           selectedTin: _selectedTin,
@@ -148,7 +148,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           onSubmit: _submitTin,
         );
         break;
-      case 3:
+      case 2:
         currentView = CreateInvoiceView(
           dealer: _selectedDealer!,
           tindata: _selectedTin!,
@@ -166,13 +166,13 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
+      // case 1:
+      //   currentTitle = 'Authenticate Dealer';
+      //   break;
       case 1:
-        currentTitle = 'Authenticate Dealer';
-        break;
-      case 2:
         currentTitle = 'Select TIN';
         break;
-      case 3:
+      case 2:
         currentTitle = 'Invoice';
         break;
       default:

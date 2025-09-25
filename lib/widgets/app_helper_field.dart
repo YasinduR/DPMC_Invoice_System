@@ -41,6 +41,9 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
   final void Function(String)? onFieldSubmitted; // A standard onFieldSubmitted callback for the underlying TextFormField.
   final TextInputAction? textInputAction; /// The type of action button to display on the keyboard (e.g., next, done).
 
+  final bool showHelperOnInitialization; // Optional flag to show selection sheet on initialization. automate ? press
+
+
   const AppSelectionField({
     super.key,
     required this.controller,
@@ -60,6 +63,7 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.onChanged, 
     this.onFieldSubmitted, 
     this.textInputAction,
+    this.showHelperOnInitialization = false
   });
 
   @override
@@ -86,14 +90,30 @@ class _AppSelectionFieldState<T extends Mappable>
 
       // Defer the callbacks that trigger state changes in parent widgets.
       SchedulerBinding.instance.addPostFrameCallback((_) {
+
         // This code will run after the first frame is rendered.
         if (mounted) {
           // Always check if the widget is still in the tree
           widget.onSelected(widget.initialValue as T);
           widget.onCommitStateChanged?.call(true);
         }
+          // //  Optionally show the selection sheet on initialization even if value selected 
+          // Consider enablaling this later
+
+          // if (widget.showHelperOnInitialization == true) {
+          //   _showSelectionSheet(context);
+          // }
+          //---------
       });
+    } else if (widget.showHelperOnInitialization == true) { // If no initialValue and helper on init required sheet should still show
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _showSelectionSheet(context);
+          }
+        });
     }
+
+
   }
 
   @override

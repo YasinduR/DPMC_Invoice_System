@@ -57,6 +57,7 @@ class _SelectRegionViewState extends State<SelectRegionView> {
                 _isRegionSelectionCommitted = isCommitted;
               });
             },
+            showHelperOnInitialization: true,
             displayNames: const ['Region'],
             valueFields: const ['region'],
             mainField: 'region',
