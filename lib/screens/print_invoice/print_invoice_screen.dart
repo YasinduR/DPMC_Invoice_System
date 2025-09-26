@@ -8,7 +8,6 @@ import 'package:myapp/views/print_invoice_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/views/select_dealer_view.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 
 
@@ -58,22 +57,25 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
   void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
     });
   }
 
-  void _submitDealer() {
-    if (_selectedDealer != null) {
-      setState(() {
-        _currentStep = 1; // Move to Authenticate step
-      });
-    }
-  }
+  // void _submitDealer() {
+  //   if (_selectedDealer != null) {
+  //     setState(() {
+  //       _currentStep = 1; // Move to Authenticate step
+  //     });
+  //   }
+  // }
 
-  void _onAuthenticated() {
-    setState(() {
-      _currentStep = 2; // Move to Create Invoice step
-    });
-  }
+  // void _onAuthenticated() {
+  //   setState(() {
+  //     _currentStep = 2; // Move to Create Invoice step
+  //   });
+  // }
   //--- Dealer Selection
 
   void _goBack() {
@@ -103,19 +105,19 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
         currentView = SelectDealerView(
           //dealers: _dealers,
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer: null,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer, // Pass submit callback
+          //onSubmit: _submitDealer, // Pass submit callback
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
+      // case 1:
+      //   currentView = AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
+      //   break;
       case 1:
-        currentView = AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-        break;
-      case 2:
         currentView = PrintInvoiceMainScreen(dealer: _selectedDealer!);
         break;
       default:
@@ -130,10 +132,10 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
+      // case 1:
+      //   currentTitle = 'Authenticate Dealer';
+      //   break;
       case 1:
-        currentTitle = 'Authenticate Dealer';
-        break;
-      case 2:
         currentTitle = 'Print Invoice';
         break;
       default:

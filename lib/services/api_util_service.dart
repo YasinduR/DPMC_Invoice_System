@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
@@ -32,7 +33,7 @@ Future<void> dealerLogin({
   required String dealerCode,
   required String pin,
   required VoidCallback onSuccess,
-  required Function(String errorMessage) onError,
+  required Function(Exception e) onError, // MODIFIED: Changed to accept Exception
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
   if (!context.mounted) return;
@@ -49,10 +50,14 @@ Future<void> dealerLogin({
     if (isAuthenticated) {
       onSuccess();
     } else {
-      onError('Authentication failed.');
+      onError(UnauthorisedException('Authentication failed.')); 
     }
   } catch (e) {
-    onError(e.toString());
+    if (e is Exception) { 
+      onError(e);
+    } else {
+      onError(Exception(e.toString()));
+    }
   } finally {
     if (loadingOverlay.isShowing) {
       loadingOverlay.hide();

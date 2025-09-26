@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/services/api_util_service.dart';
@@ -10,7 +11,7 @@ import 'package:myapp/widgets/app_snack_bars.dart';
 // Dealer Selection View
 class SelectDealerView extends StatefulWidget {
   final Function(Dealer) onDealerSelected;
-  final VoidCallback onSubmit;
+  // final VoidCallback onSubmit;
   final Dealer? selectedDealer;
   final Region? selectedRegion;
   final VoidCallback onRegionSelectionRequested;
@@ -18,7 +19,7 @@ class SelectDealerView extends StatefulWidget {
   const SelectDealerView({
     super.key,
     required this.onDealerSelected,
-    required this.onSubmit,
+    //required this.onSubmit,
     this.selectedDealer,
     this.selectedRegion,
     required this.onRegionSelectionRequested,
@@ -31,6 +32,7 @@ class SelectDealerView extends StatefulWidget {
 class _SelectDealerViewState extends State<SelectDealerView> {
   final TextEditingController _dealerController = TextEditingController();
   bool _isDealerSelectionCommitted = false;
+  bool _isDealerAccountLocked = false;
   Dealer? _currentSelectedDealer; // Track the currently selected dealer
 
   @override
@@ -69,18 +71,24 @@ class _SelectDealerViewState extends State<SelectDealerView> {
   }
 
   void _handleAuthentication() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isDealerAccountLocked = false;
+    });
+
     if (_currentSelectedDealer == null) {
       return;
     }
     if (_currentSelectedDealer!.isLocked == true) {
       return;
     }
-    
+
     final String? pin = await showPinVerificationDialog(
       context: context,
       title: 'Authenticate Dealer',
     );
     if (pin == null) {
+      FocusScope.of(context).unfocus();
       return;
     } else {
       dealerLogin(
@@ -90,20 +98,29 @@ class _SelectDealerViewState extends State<SelectDealerView> {
         onSuccess: () async {
           await Future.delayed(const Duration(milliseconds: 200));
           if (mounted) {
-            widget.onSubmit();
+            FocusScope.of(context).unfocus();
+            widget.onDealerSelected(_currentSelectedDealer!);
           }
         },
         onError: (e) {
           if (mounted) {
-            String errorMessage = e.toString().replaceFirst('Exception: ', '');
-            
+            FocusScope.of(context).unfocus();
+            String errorMessage;
+            if (e is AccountLockedException) {
+              errorMessage = e.getMessage();
+              setState(() {
+                _isDealerAccountLocked = true;
+              });
+            } else if (e is AppException) {
+              errorMessage = e.getMessage();
+            } else {
+              errorMessage = e.toString().replaceFirst('Exception: ', '');
+            }
             showSnackBar(
               context: context,
               message: errorMessage,
               type: MessageType.error,
             );
-            // Integrate Mechanism to Reload dealer later because dealer.islocked might be changed.
-
           }
         },
       );
@@ -124,12 +141,10 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
             onSelected: (dealer) {
-              FocusManager.instance.primaryFocus?.unfocus();
               setState(() {
-                _currentSelectedDealer =
-                    dealer; 
+                _currentSelectedDealer = dealer;
               });
-              widget.onDealerSelected(dealer);
+              //widget.onDealerSelected(dealer);
               _handleAuthentication();
             },
             onCommitStateChanged: (isCommitted) {
@@ -155,7 +170,10 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             icon: Icons.check_circle_outline,
             label: 'Authenticate',
             onPressed: _handleAuthentication,
-            disabled: !_isDealerSelectionCommitted || _currentSelectedDealer!.isLocked,
+            disabled:
+                  _isDealerAccountLocked ||
+                !_isDealerSelectionCommitted ||
+                _currentSelectedDealer!.isLocked,
           ),
         ],
       ),

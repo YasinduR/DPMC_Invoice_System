@@ -17,17 +17,25 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  // Declare FocusNodes for each text field
+  late FocusNode _usernameFocusNode;
+  late FocusNode _passwordFocusNode;
+
   final _usernameController = TextEditingController(text: 'yasindu');
   final _passwordController = TextEditingController(text: '12345');
 
-  // Local state for the error message, controlled ONLY by this widget.
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _usernameFocusNode = FocusNode();
+    _passwordFocusNode = FocusNode();
+
     _usernameController.addListener(_onTextChanged);
     _passwordController.addListener(_onTextChanged);
+    _usernameFocusNode.requestFocus();
+
   }
 
   @override
@@ -36,63 +44,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _passwordController.removeListener(_onTextChanged);
     _usernameController.dispose();
     _passwordController.dispose();
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
-  /// Clears the local error message as soon as the user types.
   void _onTextChanged() {
     if (_errorMessage != null) {
       setState(() {
         _errorMessage = null;
       });
-    } else {
-      // Also call setState to update the button's disabled state in real-time.
+    }
+     else {
       setState(() {});
     }
   }
 
-  /// Handles the login button press using the robust try/catch flow.
   void _handleLogin() async {
     FocusScope.of(context).unfocus();
     final username = _usernameController.text;
     final password = _passwordController.text;
 
-    try {
-      await ref.read(authProvider.notifier).login(context, username, password);
-    } on UnauthorisedException catch (e) {
-      setState(() {
-        _errorMessage = e.getMessage().toString();
-      });
-    } on FetchDataException catch (e) {
-      showSnackBar(
-        context: context,
-        message: e.toString(),
-        type: MessageType.error,
-      );
-      setState(() {
-        _errorMessage = 'Could not connect. Please try again later.';
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    }
+    await ref.read(authProvider.notifier).login(context, username, password, (
+      e,
+    ) {
+      _usernameFocusNode.requestFocus();
+      if (e is UnauthorisedException) {
+        setState(() {
+          _errorMessage = e.getMessage().toString();
+        });
+      } else if (e is FetchDataException) {
+        showSnackBar(
+          context: context,
+          message: e.toString(),
+          type: MessageType.error,
+        );
+        setState(() {
+          _errorMessage = 'Could not connect. Please try again later.';
+        });
+      } else {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
+    });
   }
 
-  // void _handleLogin() {
-  //   FocusScope.of(context).unfocus();
-  //   final username = _usernameController.text;
-  //   final password = _passwordController.text;
-  //   ref.read(authProvider.notifier).login(context, username, password);
-  // }
   void _handleForgetPassword() {
     FocusScope.of(context).unfocus();
     Navigator.pushNamed(context, AppRoutes.forgetPassword);
   }
+
   void _handleClear() {
     _usernameController.clear();
     _passwordController.clear();
   }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -156,8 +163,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Display a error message if one exists.
-                // Display the error message from the LOCAL state variable.
                 if (_errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
@@ -174,19 +179,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 AppTextField(
                   controller: _usernameController,
+                  focusNode: _usernameFocusNode, // Assign focus node
                   hintText: 'Username',
                   hideBorder: true, // Use "no border" style
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 16,
                     horizontal: 20,
                   ),
+                  onFieldSubmitted: (_) {
+                    _passwordFocusNode.requestFocus();
+                  },
                 ),
                 const SizedBox(height: 20),
                 AppTextField(
                   controller: _passwordController,
+                  focusNode: _passwordFocusNode,
                   hintText: 'Password',
+                  onFieldSubmitted: (value) => _handleLogin(),
                   isPassword: true,
-                  hideBorder: true, // Use "no border" style
+                  hideBorder: true,
+
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 16,
                     horizontal: 20,
@@ -226,7 +238,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   label: 'Cancel',
                   color: AppColors.danger,
                   onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.fraudMenu); // Remove this Later
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.fraudMenu,
+                    ); // Remove this Later
                   },
                 ),
                 const SizedBox(height: 30),

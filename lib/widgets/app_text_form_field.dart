@@ -22,7 +22,7 @@ class AppTextField extends StatelessWidget {
   final void Function(String)? onChanged; // Callback on every character change.
   final TextInputAction?
   textInputAction; // The action button on the keyboard (e.g., next, done).
-
+  final FocusNode? focusNode;
   const AppTextField({
     super.key,
     this.controller,
@@ -33,20 +33,21 @@ class AppTextField extends StatelessWidget {
     this.isPin = false,
     this.isPassword = false,
     this.isFinanceNum = false,
-    this.isEmail =false, 
-    this.hideBorder =false, 
+    this.isEmail = false,
+    this.hideBorder = false,
     this.contentPadding,
     this.validator,
     this.onFieldSubmitted,
     this.onChanged,
     this.textInputAction,
+    this.focusNode
   });
 
   String? _internalValidator(String? value) {
     if (validator != null)
       return validator!(value); // Use the provided validator as priority
 
-    if(isEmail){
+    if (isEmail) {
       if (value?.isEmpty ?? true) return null;
       if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value!)) {
         return 'Please enter a valid email address';
@@ -85,6 +86,7 @@ class AppTextField extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
+      focusNode: focusNode, // Pass the optional focusNode here
       keyboardType: effectiveKeyboardType,
       obscureText: shouldObscure,
       onFieldSubmitted: onFieldSubmitted, // 3. PASS THE CALLBACK HERE

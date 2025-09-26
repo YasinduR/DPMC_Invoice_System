@@ -10,7 +10,7 @@ import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
+//import 'package:myapp/views/auth_dealer_view.dart';
 
 
 class ReturnScreen extends ConsumerStatefulWidget {
@@ -55,25 +55,34 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   }
   //--- Regional Settings
 
-  void _onDealerSelected(Dealer dealer) {
+  // void _onDealerSelected(Dealer dealer) {
+  //   setState(() {
+  //     _selectedDealer = dealer;
+  //   });
+  // }
+
+    void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
     });
   }
 
-  void _submitDealer() {
-    if (_selectedDealer != null) {
-      setState(() {
-        _currentStep = 1; // Move to Authenticate step
-      });
-    }
-  }
+  // void _submitDealer() {
+  //   if (_selectedDealer != null) {
+  //     setState(() {
+  //       _currentStep = 1; // Move to Authenticate step
+  //     });
+  //   }
+  // }
 
-  void _onAuthenticated() {
-    setState(() {
-      _currentStep = 2; // Move selct tin
-    });
-  }
+  // void _onAuthenticated() {
+  //   setState(() {
+  //     _currentStep = 2; // Move selct tin
+  //   });
+  // }
 
   // MODIFIED: Added callbacks for TIN selection
   void _onTinSelected(TinData tin) {
@@ -85,14 +94,14 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   void _submitTin() {
     if (_selectedTin != null) {
       setState(() {
-        _currentStep = 3; // Move to Create Invoice step
+        _currentStep = 2; // Move to Create Invoice step
       });
     }
   }
 
   void _saveReturn() {
     setState(() {
-      _currentStep = 2; // Move to the tinselaction
+      _currentStep = 1; // Move to the tinselaction
     });
     showSnackBar(
       context: context,
@@ -127,18 +136,18 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
         currentView = SelectDealerView(
           onRegionSelectionRequested: _onRegionSelectionRequested,
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer: null,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer,
+          //onSubmit: _submitDealer,
         );
         break;
+      // case 1:
+      //   currentView = AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
+      //   break;
       case 1:
-        currentView = AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-        break;
-      case 2:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
           selectedTin: _selectedTin,
@@ -146,7 +155,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           onSubmit: _submitTin,
         );
         break;
-      case 3:
+      case 2:
         currentView = ReturnsView(
           dealer: _selectedDealer!,
           tinData: _selectedTin!,
@@ -164,13 +173,13 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
+      // case 1:
+      //   currentTitle = 'Authenticate Dealer';
+      //   break;
       case 1:
-        currentTitle = 'Authenticate Dealer';
-        break;
-      case 2:
         currentTitle = 'Select TIN';
         break;
-      case 3:
+      case 2:
         currentTitle = 'Returns';
         break;
       default:

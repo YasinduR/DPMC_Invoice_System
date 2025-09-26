@@ -11,7 +11,7 @@ import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
+//import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/views/reciept_detail_view.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/views/select_dealer_view.dart';
@@ -268,18 +268,29 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   }
 
   // --- Other navigation and state update methods ---
-  void _onDealerSelected(Dealer dealer) =>
-      setState(() => _selectedDealer = dealer);
-  void _submitDealer() {
-    if (_selectedDealer != null) setState(() => _currentStep = 1);
+  // void _onDealerSelected(Dealer dealer) =>
+  //     setState(() => _selectedDealer = dealer);
+
+  void _onDealerSelected(Dealer dealer) {
+    setState(() {
+      _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
+    });
   }
 
-  void _onAuthenticated() => {
-    _clearReceiptDetails(),
-    setState(() => _currentStep = 2),
-  };
 
-  void _gotoaddCreditNotes() => setState(() => _currentStep = 3);
+  // void _submitDealer() {
+  //   if (_selectedDealer != null) setState(() => _currentStep = 1);
+  // }
+
+  // void _onAuthenticated() => {
+  //   _clearReceiptDetails(),
+  //   setState(() => _currentStep = 2),
+  // };
+
+  void _gotoaddCreditNotes() => setState(() => _currentStep = 2);
 
   void _onback() {
     if (_currentStep > 0) {
@@ -294,7 +305,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   void _updateAndSaveCreditNotes(List<CreditNote> updatedNotes) {
     setState(() {
       _creditNotes = updatedNotes;
-      _currentStep = 2; // Move back
+      _currentStep = 1; // Move back
     });
     showSnackBar(
       context: context,
@@ -328,13 +339,13 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         return 'Select Region';
       case 0:
         return 'Select Dealer';
+      // case 1:
+      //   return 'Authenticate Dealer';
       case 1:
-        return 'Authenticate Dealer';
-      case 2:
         return 'Reciept Details';
-      case 3:
+      case 2:
         return 'Add Credit Notes';
-      case 4:
+      case 3:
         return 'Success';
       default:
         return 'Error';
@@ -365,16 +376,16 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         return SelectDealerView(
           onRegionSelectionRequested: _onRegionSelectionRequested,
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer: null,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer,
+          //onSubmit: _submitDealer,
         );
+      // case 1:
+      //   return AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
       case 1:
-        return AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-      case 2:
         return RecieptDetailsView(
           key: _receiptDetailsKey, // Refresh Tin Data on succussful cheque save
 
@@ -430,12 +441,12 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
             _validateReceiptForm();
           },
         );
-      case 3:
+      case 2:
         return AddCreditNotesView(
           initialNotes: _creditNotes,
           onSubmit: _updateAndSaveCreditNotes,
         );
-      case 4:
+      case 3:
         return const Center(child: Text("Success View"));
       default:
         return const Center(child: Text("Error: Invalid Step"));

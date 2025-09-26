@@ -58,16 +58,19 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
     });
   }
 
-  void _submitDealer() {
-    if (_selectedDealer != null) {
-      setState(() {
-        _currentStep = 1; // Move to Tin selection
-      });
-    }
-  }
+  // void _submitDealer(Dealer dealer) {
+  //   if (_selectedDealer != null) {
+  //     setState(() {
+  //       _currentStep = 1; // Move to Tin selection
+  //     });
+  //   }
+  // }
 
   // void _onAuthenticated() {
   //   setState(() {
@@ -128,9 +131,10 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer: null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer:
+              null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer,
+          //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
@@ -187,5 +191,3 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     );
   }
 }
-
-

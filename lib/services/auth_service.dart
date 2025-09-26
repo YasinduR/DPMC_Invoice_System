@@ -23,32 +23,29 @@ class AuthService {
     required BuildContext context,
     required String username,
     required String password,
+    required Function(Exception e) onError,
   }) async {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
-      final user =
-          await MockApiService.post(
-                'api/user/login',
-                body: {'username': username, 'password': password},
-              )
-              as User;
+      final user = await MockApiService.post(
+        'api/user/login',
+        body: {'username': username, 'password': password},
+      ) as User;
       return user;
-    } on UnauthorisedException {
-      if (loadingOverlay.isShowing) {
-        loadingOverlay.hide();
-      }
-      rethrow;
     } catch (e) {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
-      throw FetchDataException(
-        "Could not connect to the server. Please check your internet connection and try again.",
-      );
+      if (e is Exception) {
+        onError(e);
+      } else {
+        onError(Exception(e.toString()));
+      }
+      return null; 
     } finally {
       if (loadingOverlay.isShowing) {
-        loadingOverlay.hide();
+        loadingOverlay.hide(); 
       }
     }
   }

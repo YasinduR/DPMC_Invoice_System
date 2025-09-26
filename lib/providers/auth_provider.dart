@@ -42,13 +42,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     BuildContext context,
     String username,
     String password,
+    Function(Exception e) onError, 
   ) async {
     state = state.copyWith(isLoading: true);
-    try {
       final user = await _authService.login(
         context: context,
         username: username,
         password: password,
+        onError: onError
       );
 
       if (user != null) {
@@ -57,11 +58,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           currentUser: user,
         );
       } 
-    } catch (e) {
-      rethrow;
-    } finally {
       state = state.copyWith(isLoading: false);
-    }
+    
   }
 
 Future<void> changePassword(

@@ -20,6 +20,11 @@ class UnauthorisedException extends AppException {
   UnauthorisedException(String message) : super(message, "Unauthorised: ");
 }
 
+// Exception Type: Account Locked (used in dealer selection)
+class AccountLockedException extends AppException {
+  AccountLockedException(String message) : super(message, "Account Locked: ");
+}
+
 // Invalid api request or network issue
 class FetchDataException extends AppException {
   FetchDataException(String message)
