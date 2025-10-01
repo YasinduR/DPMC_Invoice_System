@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/auth_service.dart';
 
@@ -126,6 +127,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> setPassword( // Kept name as per your prompt
     BuildContext context, {
     required String newPassword,
+    required SecurityQuestionAnswer securityQandA, // <--- NEW PARAMETER
   }) async {
     state = state.copyWith(isLoading: true);
 
@@ -136,6 +138,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final updatedUser = await _authService.setPassword( // Call the AuthService.setPassword
         context: context,
         username: state.currentUser!.username,
+        securityQandA: securityQandA, // <--- Pass to authProvider
+
         //oldPassword: oldPassword,
         newPassword: newPassword,
       );

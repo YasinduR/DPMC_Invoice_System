@@ -4,11 +4,8 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 
 // View for Step 1 of Forget Password : User Info Request
 class UserInfoRequestView extends StatefulWidget {
-final Future<void> Function(String username, String email) onSubmit;
-  const UserInfoRequestView({
-    super.key,
-    required this.onSubmit,
-  });
+  final Future<void> Function(String username) onSubmit;
+  const UserInfoRequestView({super.key, required this.onSubmit});
 
   @override
   State<UserInfoRequestView> createState() => _UserInfoRequestViewState();
@@ -17,35 +14,35 @@ final Future<void> Function(String username, String email) onSubmit;
 class _UserInfoRequestViewState extends State<UserInfoRequestView> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
+  //final _emailController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _usernameController.addListener(() => setState(() {}));
-    _emailController.addListener(() => setState(() {}));
+    //  _emailController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
-    _emailController.dispose();
+    // _emailController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
-            await widget.onSubmit(
+      await widget.onSubmit(
         _usernameController.text,
-        _emailController.text,
+        //_emailController.text,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isButtonDisabled =
-        _usernameController.text.isEmpty || _emailController.text.isEmpty;
+    final bool isButtonDisabled = _usernameController.text.isEmpty;
+    //|| _emailController.text.isEmpty;
 
     return Column(
       children: [
@@ -59,15 +56,18 @@ class _UserInfoRequestViewState extends State<UserInfoRequestView> {
                 AppTextField(
                   controller: _usernameController,
                   labelText: 'Username',
-                  validator: (value) =>
-                      (value?.isEmpty ?? true) ? 'Username is required' : null,
+                  validator:
+                      (value) =>
+                          (value?.isEmpty ?? true)
+                              ? 'Username is required'
+                              : null,
                 ),
-                const SizedBox(height: 20),
-                AppTextField(
-                  controller: _emailController,
-                  labelText: 'Email',
-                  isEmail: true,
-                ),
+                // const SizedBox(height: 20),
+                // AppTextField(
+                //   controller: _emailController,
+                //   labelText: 'Email',
+                //   isEmail: true,
+                // ),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme.dart';
 
@@ -52,11 +53,19 @@ class _SelectionModalState extends State<SelectionModal> {
                 itemBuilder: (context, index) {
                   final option = widget.options[index];
                   return RadioListTile<String>(
-                    title: Text(
+                    // title: Text(
+                    //   option,
+                    //   style: const TextStyle(fontSize: 14),
+                    //   maxLines: 1,
+                    //   overflow: TextOverflow.ellipsis,
+                    // ),
+                                        // Replace Text with AutoSizeText here
+                    title: AutoSizeText( // <--- AutoSizeText
                       option,
                       style: const TextStyle(fontSize: 14),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1, // Restrict to one line
+                      minFontSize: 8, // Minimum font size before overflow
+                      overflow: TextOverflow.ellipsis, // Show ellipsis if it still overflows
                     ),
                     value: option,
                     groupValue: _selectedValue,
@@ -126,7 +135,8 @@ class PickerFormField extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color:  AppColors.primary, // Using primary color for header label
+                  color:
+                      AppColors.primary, // Using primary color for header label
                 ),
               ),
             ),
@@ -139,7 +149,8 @@ class PickerFormField extends StatelessWidget {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.white,
-              labelText: inputFieldLabelText, // Use the optional input field label
+              labelText:
+                  inputFieldLabelText, // Use the optional input field label
               labelStyle: const TextStyle(color: AppColors.borderDark),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -155,9 +166,26 @@ class PickerFormField extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    selectedOption == null ? '' : selectedOption!,
-                    style: const TextStyle(fontSize: 16, color: AppColors.text),
+                  // Text(
+                  //   selectedOption == null ? '' : selectedOption!,
+                  //   style: const TextStyle(fontSize: 16, color: AppColors.text),
+                  // ),
+                  // const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                  Expanded(
+                    // Use Expanded to give AutoSizeText available space
+                    child: AutoSizeText(
+                      // <--- AutoSizeText here
+                      selectedOption == null ? '' : selectedOption!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: AppColors.text,
+                      ),
+                      maxLines: 1, // Ensure it stays on one line
+                      minFontSize: 8, // Minimum font size before truncation
+                      overflow:
+                          TextOverflow
+                              .ellipsis, // Add ellipsis if it still overflows
+                    ),
                   ),
                   const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
                 ],

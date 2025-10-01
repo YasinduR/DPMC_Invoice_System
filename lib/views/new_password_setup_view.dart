@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
-// View for Step 3 of Forget Password : New Password Setup
+// last step of Forget Password : New Password Setup
 class NewPasswordSetupView extends StatefulWidget {
-  final Future<void> Function(String newPassword) onSubmit;
+  final Future<void> Function(String token,String newPassword) onSubmit;
   const NewPasswordSetupView({super.key, required this.onSubmit});
 
   @override
@@ -15,24 +15,30 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
   final _formKey = GlobalKey<FormState>();
   final _newPwdController = TextEditingController();
   final _confirmPwdController = TextEditingController();
+    final _otpController = TextEditingController();
+
 
   @override
   void initState() {
     super.initState();
     _newPwdController.addListener(() => setState(() {}));
     _confirmPwdController.addListener(() => setState(() {}));
+        _otpController.addListener(() => setState(() {}));
+
   }
 
   @override
   void dispose() {
     _newPwdController.dispose();
     _confirmPwdController.dispose();
+        _otpController.dispose();
+
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await widget.onSubmit(_newPwdController.text);
+      await widget.onSubmit(_otpController.text,_newPwdController.text);
     }
   }
 
@@ -41,6 +47,7 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
     final bool isPwdSame = _newPwdController.text == _confirmPwdController.text;
     final bool isButtonDisabled =
+        _otpController.text.isEmpty||
         _newPwdController.text.isEmpty ||
         _confirmPwdController.text.isEmpty ||
         !isFormValid ||
@@ -56,6 +63,18 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
               padding: const EdgeInsets.all(16.0),
               children: [
                 AppTextField(
+                  controller: _otpController,
+                  labelText: 'Password Reset Code',
+                  isPassword: true,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'The Reset Code is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                AppTextField(
                   controller: _newPwdController,
                   labelText: 'New Password',
                   obscureText: true,
@@ -66,7 +85,7 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
                               ? 'New password is required'
                               : null,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
                 AppTextField(
                   controller: _confirmPwdController,
                   labelText: 'Confirm New Password',

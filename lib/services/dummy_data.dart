@@ -175,6 +175,7 @@ class DummyData {
       id: '2619',
       username: 'yasindu',
       email: 'yasindu@example.com',
+      telephone: '+94771234567', 
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001'],
       isTemporaryPassword: true,
@@ -184,6 +185,8 @@ class DummyData {
       id: '8108',
       username: 'nimesh',
       email: 'nimesh@example.com',
+            telephone: '+94761234566',
+
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001', '002'],
     ),
@@ -191,6 +194,7 @@ class DummyData {
       id: '1122',
       username: 'sachith',
       email: 'sachith@example.com',
+            telephone: '+94711234567', 
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002'],
     ),
@@ -198,6 +202,8 @@ class DummyData {
       id: '1111',
       username: 'sameera',
       email: 'sameera@example.com',
+            telephone: '+94771234568',
+
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002', '003'],
     ),
@@ -205,6 +211,8 @@ class DummyData {
       id: '1000',
       username: 'admin',
       email: 'admin@example.com',
+            telephone: '+94771234555',
+
       password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
       roles: ['001', '002', '003'],
     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
@@ -89,14 +90,16 @@ class AuthService {
   Future<String?> requestPasswordReset({
     required BuildContext context,
     required String username,
-    required String email,
+    //required String email,
   }) async {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
       return await MockApiService.post(
             'api/user/request-password-reset',
-            body: {'username': username, 'email': email},
+            body: {'username': username, 
+            //'email': email
+            },
           )
           as String?;
     } catch (e) {
@@ -143,16 +146,19 @@ class AuthService {
     required BuildContext context,
     required String username,
     required String newPassword,
+    required SecurityQuestionAnswer securityQandA, 
   }) async {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
       final updatedUser = await MockApiService.post(
-        'api/user/set-password', // This endpoint will be handled by MockApiService
+        'api/user/set-password', 
         body: 
         {
           'username': username,
           'newPassword': newPassword,
+          'securityQuestion': securityQandA.question,
+          'securityAnswer': securityQandA.answer,
         },
       ) as User;
       return updatedUser;

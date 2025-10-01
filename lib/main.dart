@@ -7,7 +7,7 @@ import 'package:myapp/services/notification_services.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/app_routes.dart';
-import 'package:myapp/providers/auth_provider.dart';
+//import 'package:myapp/providers/auth_provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 Future<void> main() async {
   // Ensure that Flutter bindings are initialized before calling native code
@@ -23,7 +23,7 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    //final authState = ref.watch(authProvider);
     return MaterialApp(
       title: 'Invoice App',
       theme: ThemeData(

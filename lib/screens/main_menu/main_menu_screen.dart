@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/services/icon_mapper.dart';
-import 'package:myapp/theme/app_theme.dart'; // Import theme
+import 'package:myapp/theme/app_theme.dart'; 
 import 'package:myapp/widgets/app_dialog_boxes.dart';
-import 'package:myapp/widgets/app_footer.dart'; // Import footer
 import 'package:myapp/app_routes.dart';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
-import 'package:myapp/providers/auth_provider.dart'; // Import Riverpod provider
+import 'package:flutter_riverpod/flutter_riverpod.dart'; 
+import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/widgets/app_page.dart'; 
 
 class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
@@ -32,7 +31,7 @@ class MainMenuScreen extends ConsumerWidget {
     ];
     final List<Screen> menuItems = List.from(accessibleScreens);
 
-    // --- NEW MULTI-LEVEL SORTING LOGIC ---
+    // --- NEW MULTI-LEVEL SORTING LOGIC  PRIORITITY LIST + ROLE_ID ORDER
     menuItems.sort((a, b) {
       int menuIdCompare = b.menuId.compareTo(a.menuId);
       if (menuIdCompare != 0) {
@@ -42,7 +41,7 @@ class MainMenuScreen extends ConsumerWidget {
       final indexA = prioritizeOrder.indexOf(a.screenId);
       final indexB = prioritizeOrder.indexOf(b.screenId);
       final sortA =
-          indexA == -1 ? 999 : indexA; // Push non-prioritized items to the end
+          indexA == -1 ? 999 : indexA; 
       final sortB = indexB == -1 ? 999 : indexB;
       return sortA.compareTo(sortB);
     });
@@ -87,7 +86,7 @@ class MainMenuScreen extends ConsumerWidget {
           if (confirmed) {
             ref.read(authProvider.notifier).logout(context);
             Navigator.of(context).pushNamedAndRemoveUntil(
-              AppRoutes.login, // The route name for your LoginScreen
+              AppRoutes.login, 
               (Route<dynamic> route) =>
                   false, // Predicate to remove all previous routes
             );
@@ -96,34 +95,11 @@ class MainMenuScreen extends ConsumerWidget {
       ),
     );
 
-    // =======================================================================
-    // --- FOR TESTING PURPOSES ONLY ---
-    // This section adds Invoice and Attendance screens for any user,
-    // regardless of their role. REMOVE THIS SECTION after testing is complete.
-
-    menuCards.add(
-      _MenuCard(
-        icon: IconMapper.getIcon('invoice'),
-        label: 'Invoice',
-        onTap: () => Navigator.pushNamed(context, '/invoice'),
-      ),
-    );
-    menuCards.add(
-      _MenuCard(
-        icon: IconMapper.getIcon('attendance'),
-        label: 'Attendance',
-        onTap: () => Navigator.pushNamed(context, '/attendance'),
-      ),
-    );
-
-    // --- END OF TESTING SECTION ---
-    // =======================================================================
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+    return AppPage(
+      title: 'Main Menu', 
+      showAppBar: false,
+      canPop: false, // Prevent default pop behavior
+      contentPadding: const EdgeInsets.fromLTRB(24,60,24,20),
           child: Column(
             children: [
               const Text(
@@ -143,149 +119,12 @@ class MainMenuScreen extends ConsumerWidget {
                   children: menuCards,
                 ),
               ),
-              const AppFooter(),
+              //const AppFooter(),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 }
-
-// Old Menu Created manually without collecting records from DB
-
-// class MainMenuScreen extends ConsumerWidget {
-//   const MainMenuScreen({super.key});
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return Scaffold(
-//       backgroundColor: AppColors.background,
-//       body: SafeArea(
-//         child: Padding(
-//           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-//           child: Column(
-//             children: [
-//               // 1. Main Menu Title
-//               const Text(
-//                 'Main Menu',
-//                 style: TextStyle(
-//                   fontSize: 28,
-//                   fontWeight: FontWeight.bold,
-//                   color: AppColors.primary,
-//                 ),
-//               ),
-//               const SizedBox(height: 30),
-//               // 2. Menu Grid
-//               Expanded(
-//                 child: GridView.count(
-//                   crossAxisCount: 3, // 3 items per row
-//                   crossAxisSpacing: 16,
-//                   mainAxisSpacing: 16,
-//                   children: [
-//                     // Use a custom widget for each menu item
-//                     _MenuCard(
-//                       icon: Icons.receipt_long,
-//                       label: 'Invoice',
-//                       onTap: () {
-//                         // Navigate using the named route
-//                         Navigator.pushNamed(context, AppRoutes.invoice);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.print,
-//                       label: 'Print Invoice',
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.printInvoice);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.article,
-//                       label: 'Receipt',
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.reciept);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon:
-//                           Icons.assignment_return, // Suitable icon for returns
-//                       label: 'Returns',
-//                       onTap: () {
-//                         // You will need to define AppRoutes.returns in your router
-//                         Navigator.pushNamed(context, AppRoutes.returns);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.route,
-//                       label: 'Route Selection',
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.region);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.replay_circle_filled,
-//                       label: 'Re-Print',
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.reprint);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.settings,
-//                       label: 'Setup Print',
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.setupPrint);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.lock_reset,
-//                       label: 'Change Password',
-//                       onTap: () {
-
-//                         Navigator.pushNamed(context, AppRoutes.changePassword);
-//                       },
-//                     ),
-//                     _MenuCard(icon: Icons.info, label: 'About', onTap: () {}),
-//                     _MenuCard(
-//                       icon: Icons.person,
-//                       label: 'Profile',
-//                       onTap: () {
-//                         // Navigate to the new profile route
-//                         Navigator.pushNamed(context, AppRoutes.profile);
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.logout,
-//                       label: 'Logout',
-//                       onTap: () async {
-//                         final confirmed = await showConfirmationDialog(
-//                           context: context,
-//                           title: 'Are You Sure You Want to Leave?',
-//                           confirmButtonText: 'Yes, Log out',
-//                           cancelButtonText: 'No, I\'m Staying',
-//                         );
-//                         // Act based on the user's choice
-//                         if (confirmed) {
-//                           ref.read(authProvider.notifier).logout(context);
-//                         }
-//                       },
-//                     ),
-//                     _MenuCard(
-//                       icon: Icons.alarm,
-//                       label: 'Test',
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.testNotify);
-//                       },
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               const AppFooter(),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 // Helper widget for creating each card in the menu grid
 class _MenuCard extends StatelessWidget {
