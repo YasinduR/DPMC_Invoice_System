@@ -208,6 +208,67 @@ class MockApiService {
         } catch (e) {
           throw UnauthorisedException('Invalid username or password.');
         }
+      
+      case 'api/user/set-password':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for password update.');
+        }
+        final username = (body['username'] as String?)?.toLowerCase();
+       // final oldPassword = body['oldPassword'];
+        final newPassword = body['newPassword'];
+        try {
+          final userIndex = DummyData.users.indexWhere(
+            (u) => u.username == username,
+          );
+          if (userIndex == -1) {
+            throw UnauthorisedException('User not found.');
+          }
+          final userToUpdate = DummyData.users[userIndex];
+          //final isPasswordCorrect = BCrypt.checkpw(oldPassword, userToUpdate.password);
+            final hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            final updatedUser = userToUpdate.copyWith(
+              password: hashedPassword,
+              isTemporaryPassword: false, // Mark as no longer temporary
+              passwordUpdatedAt: DateTime.now(), // Update the date
+            );
+            DummyData.users[userIndex] = updatedUser;
+
+                        // Step 1: Get the user's roles
+            final userRoles = updatedUser.roles;
+
+            // Step 2: Find all permitted ScreenIds for the user's roles
+            // We use a Set to automatically handle duplicate ScreenIds
+            final permittedScreenIds =
+                DummyData.perms
+                    .where((perm) => userRoles.contains(perm.RoleId))
+                    .map((perm) => perm.ScreenId)
+                    .toSet();
+
+            // Step 3: Filter the master list of screens to get the accessible ones
+            final accessibleScreens =
+                DummyData.screens
+                    .where(
+                      (screen) => permittedScreenIds.contains(screen.screenId),
+                    )
+                    .toList();
+
+            // Step 2: Find the corresponding role names from the master list
+            final userRoleNames =
+                DummyData.roles
+                    .where(
+                      (role) => userRoles.contains(role.roleId),
+                    ) // Filter by ID
+                    .map((role) => role.roleName) // Extract just the name
+                    .toList(); // Convert to a List<String>
+
+            // Step 4 & 5: Create a new User object with the accessible screens and return it
+            return updatedUser.copyWith(
+              accessibleScreen: accessibleScreens,
+              rolenames: userRoleNames,
+            );
+        } catch (e) {
+          rethrow;
+        }
 
       case 'api/user/changepassword':
         if (body is! Map<String, dynamic>) {

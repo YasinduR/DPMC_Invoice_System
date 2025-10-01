@@ -86,6 +86,11 @@ class MainMenuScreen extends ConsumerWidget {
           );
           if (confirmed) {
             ref.read(authProvider.notifier).logout(context);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              AppRoutes.login, // The route name for your LoginScreen
+              (Route<dynamic> route) =>
+                  false, // Predicate to remove all previous routes
+            );
           }
         },
       ),
@@ -147,7 +152,7 @@ class MainMenuScreen extends ConsumerWidget {
   }
 }
 
-// Old Menu Created manually without collecting records from DB  
+// Old Menu Created manually without collecting records from DB
 
 // class MainMenuScreen extends ConsumerWidget {
 //   const MainMenuScreen({super.key});

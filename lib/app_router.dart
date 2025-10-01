@@ -37,16 +37,44 @@ class AppRouter {
       AppRoutes.forgetPassword,
       AppRoutes.fraudMenu,
     ];
-    if (publicRoutes.contains(routeName)) {
-    } else if (!authState.isLoggedIn) {
+
+
+    // if (publicRoutes.contains(routeName)) {
+    // } else if (!authState.isLoggedIn) {
+    //   return MaterialPageRoute(
+    //     builder:
+    //         (_) => const ErrorScreen(
+    //           title: 'Access Denied',
+    //           message: 'No User has logged in',
+    //         ),
+    //   );
+    // }
+    // 1. If not logged in AND trying to access a non-public route
+    if (!authState.isLoggedIn && !publicRoutes.contains(routeName)) {
       return MaterialPageRoute(
-        builder:
-            (_) => const ErrorScreen(
-              title: 'Access Denied',
-              message: 'No User has logged in',
-            ),
+        builder: (_) => const ErrorScreen(
+          title: 'Access Denied',
+          message: 'No user has logged in.',
+        ),
+        settings: const RouteSettings(name: AppRoutes.login), // Redirect to login
       );
     }
+
+    // 2. If logged in but requires password change AND trying to access ANY route other than login
+    if (authState.isLoggedIn && authState.requiresPasswordChange && routeName != AppRoutes.login) {
+      return MaterialPageRoute(
+        builder: (_) => const LoginScreen(), // Redirect to LoginScreen, which will show set password form
+        settings: const RouteSettings(name: AppRoutes.login), // Keep route name as login
+      );
+    }
+
+    // // 3. If it's the login route and the user is already logged in (and doesn't need password change),
+    // //    redirect them to the main menu. This prevents logged-in users from seeing the login screen.
+    // if (routeName == AppRoutes.login && authState.isLoggedIn && !authState.requiresPasswordChange) {
+    //   return MaterialPageRoute(builder: (_) => const MainMenuScreen(), settings: const RouteSettings(name: AppRoutes.mainMenu));
+    // }
+
+
     //---- END OF THE SECTION----//
 
     final String? screenId = AppRoutes.routeToScreenIdMap[routeName];

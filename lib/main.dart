@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_router.dart';
-import 'package:myapp/screens/login/login_screen.dart';
-import 'package:myapp/screens/main_menu/main_menu_screen.dart';
+// import 'package:myapp/screens/login/login_screen.dart';
+// import 'package:myapp/screens/main_menu/main_menu_screen.dart';
 import 'package:myapp/services/notification_services.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
@@ -32,11 +32,12 @@ class MyApp extends ConsumerWidget {
             cursorColor: AppColors.primary,             // Color of the blinking cursor
             selectionColor: AppColors.textSelection,    // Color of the selected text background
             selectionHandleColor:  AppColors.primary,   // Color of the draggable selection handles
-            
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: authState.isLoggedIn ? const MainMenuScreen() : const LoginScreen(),
+    //  home: authState.isLoggedIn && !authState.requiresPasswordChange ? const MainMenuScreen() : const LoginScreen(),
+      //home: authState.isLoggedIn ? const MainMenuScreen() : const LoginScreen(),
+      initialRoute: AppRoutes.login,       
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, ref),
       scaffoldMessengerKey: scaffoldMessengerKey,
     );

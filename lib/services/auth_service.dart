@@ -137,4 +137,39 @@ class AuthService {
       }
     }
   }
+
+  // This is the setPassword for first-time login as per your prompt
+  Future<User> setPassword({ // Renamed from setInitialPassword to match your prompt
+    required BuildContext context,
+    required String username,
+    required String newPassword,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      final updatedUser = await MockApiService.post(
+        'api/user/set-password', // This endpoint will be handled by MockApiService
+        body: 
+        {
+          'username': username,
+          'newPassword': newPassword,
+        },
+      ) as User;
+      return updatedUser;
+    } catch (e) {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      if (e is Exception) {
+        throw e;
+      } else {
+        throw Exception('An unknown error occurred during password change: $e');
+      }
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
 }

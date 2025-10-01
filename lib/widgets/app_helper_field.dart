@@ -152,22 +152,15 @@ class _AppSelectionFieldState<T extends Mappable>
 
     _loadingOverlay.show(context); // Use the common overlay
     try {
-      // --- Build the full URL with filters ---
       String fullUrl = widget.dataUrl;
       if (widget.filterConditions != null &&
           widget.filterConditions!.isNotEmpty) {
-        // 1. Encode the filter list into a JSON string
         final String filterJson = jsonEncode(widget.filterConditions);
-        // 2. URL-encode the JSON string to make it safe for a URL
         final String encodedFilters = Uri.encodeComponent(filterJson);
-        // 3. Append it as a query parameter
         fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
       }
-      // --- End of URL building ---
       final items = await MockApiService.get<T>(fullUrl);
-
       _loadingOverlay.hide();
-
       if (mounted) {
         setState(() {
           _fetchedItems = items;
@@ -177,10 +170,7 @@ class _AppSelectionFieldState<T extends Mappable>
     } catch (e) {
       _loadingOverlay.hide();
       if (mounted) {
-        // Convert the exception to a string.
         String errorMessage = e.toString();
-
-        // Remove the "Exception: " prefix, if it exists, for a cleaner message.
         if (errorMessage.startsWith('Exception: ')) {
           errorMessage = errorMessage.substring('Exception: '.length);
         }
@@ -230,7 +220,7 @@ class _AppSelectionFieldState<T extends Mappable>
       builder: (_) {
         return SelectionSheet<T>(
           title: widget.selectionSheetTitle,
-          items: items, // Pass the fetched items
+          items: items, 
           initialSearchQuery: initialQuery,
           displayNames: widget.displayNames,
           valueFields: widget.valueFields,
@@ -250,7 +240,6 @@ class _AppSelectionFieldState<T extends Mappable>
 
   @override
   Widget build(BuildContext context) {
-    // Remove the Stack and Positioned.fill loading indicator
     return AppHelpTextField(
       controller: widget.controller,
       labelText: widget.labelText,

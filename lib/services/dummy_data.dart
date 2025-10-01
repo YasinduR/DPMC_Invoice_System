@@ -177,6 +177,8 @@ class DummyData {
       email: 'yasindu@example.com',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001'],
+      isTemporaryPassword: true,
+      passwordUpdatedAt: DateTime.now()
     ),
     User(
       id: '8108',
@@ -207,6 +209,7 @@ class DummyData {
       roles: ['001', '002', '003'],
     ),
   ];
+  
   static final List<Dealer> _dealers = [
     // COLOMBO REGION
     Dealer(
@@ -1103,6 +1106,7 @@ class DummyData {
     ReturnItem(partNo: 'AC2000125556', requestQty: 20),
     ReturnItem(partNo: 'HW-6600-JK', requestQty: 8),
   ];
+  
   static final List<Part> _parts = [
     Part(id: 'p1', partNo: 'AC2000123230', requestQty: 2, price: 12000.00),
     Part(id: 'p2', partNo: 'AC2000123231', requestQty: 5, price: 5500.50),
@@ -1118,6 +1122,7 @@ class DummyData {
     Part(id: 'p11', partNo: 'XY-7766-WX', requestQty: 12, price: 6500.00),
     Part(id: 'p12', partNo: 'XY-9988-ZZ', requestQty: 7, price: 125.50),
   ];
+  
   static final List<Bank> _banks = [
     Bank(bankCode: '7010', bankName: 'Bank of Ceylon'),
     Bank(bankCode: '7056', bankName: 'Commercial Bank of Ceylon'),

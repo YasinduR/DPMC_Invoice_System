@@ -381,7 +381,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           //onSubmit: _submitDealer,
         );
       // case 1:
-      //   return AuthenticateDealerView(
+      //   return AuthenticateDealerView
+      //  (
       //     dealer: _selectedDealer!,
       //     onAuthenticated: _onAuthenticated,
       //   );
