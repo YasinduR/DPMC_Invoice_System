@@ -66,7 +66,8 @@ final List<String> securityQuestions = [
       setState(() {
         _passwordChangeErrorMessage = null;
       });
-    } else {
+    }
+     else {
       setState(() {});
     }
   }
@@ -95,17 +96,17 @@ final List<String> securityQuestions = [
     }
 
     if (_newPwdController.text != _confirmPwdController.text) {
-      setState(() {
+      //setState(() {
         _passwordChangeErrorMessage =
             'New password and confirmation do not match.';
-      });
+      //});
       return;
     }
 
     if (_selectedSecurityQuestion == null || _answerController.text.isEmpty) {
-        setState(() {
+       // setState(() {
             _passwordChangeErrorMessage = 'Please select a security question and provide an answer.';
-        });
+        //});
         return;
     }
 
@@ -120,12 +121,12 @@ final List<String> securityQuestions = [
         securityQandA: securityQandA, 
       );
     } catch (e) {
-      setState(() {
+      //setState(() {
         _passwordChangeErrorMessage = e.toString().replaceFirst(
           'Exception: ',
           '',
         );
-      });
+     // });
     }
   }
 
@@ -184,17 +185,17 @@ final List<String> securityQuestions = [
             style: TextStyle(fontSize: 16, color: AppColors.textFaded),
           ),
           const SizedBox(height: 30),
-          if (_passwordChangeErrorMessage != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: Center(
-                child: Text(
-                  _passwordChangeErrorMessage!,
-                  style: const TextStyle(color: AppColors.danger, fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+          // if (_passwordChangeErrorMessage != null)
+          //   Padding(
+          //     padding: const EdgeInsets.only(bottom: 20.0),
+          //     child: Center(
+          //       child: Text(
+          //         _passwordChangeErrorMessage!,
+          //         style: const TextStyle(color: AppColors.danger, fontSize: 16),
+          //         textAlign: TextAlign.center,
+          //       ),
+          //     ),
+          //   ),
           Form(
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,

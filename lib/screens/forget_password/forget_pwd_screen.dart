@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/views/new_password_setup_view.dart';
 import 'package:myapp/views/user_info_request_view.dart';
@@ -10,8 +11,7 @@ class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
 
   @override
-  State<ForgetPasswordScreen> createState() =>
-      _ForgetPasswordScreenState();
+  State<ForgetPasswordScreen> createState() => _ForgetPasswordScreenState();
 }
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
@@ -30,17 +30,16 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       final resetTokenmsg = await _authService.requestPasswordReset(
         context: context,
         username: username,
-       // email: email,
+        // email: email,
       );
 
       if (resetTokenmsg != null) {
-
         if (mounted) {
           await showInfoDialog(
-          context: context,
-          title: 'Check Your Email',
-          content: resetTokenmsg,
-        );
+            context: context,
+            title: 'Check Your Email',
+            content: resetTokenmsg,
+          );
         }
         setState(() {
           _currentStep = 1;
@@ -56,10 +55,14 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = e.toString();
-        if (errorMessage.startsWith('Exception: ')) {
-          errorMessage = errorMessage.substring('Exception: '.length);
+        String errorMessage;
+        if (e is UnauthorisedException || e is AccountLockedException) {
+            errorMessage = (e as AppException).getMessage(); // Cast here
+        
+        }else{
+          errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
+
         showSnackBar(
           context: context,
           message: errorMessage,
@@ -67,8 +70,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         );
       }
     } finally {
-      if(mounted){
-         setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -80,7 +83,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   //   });
   // }
 
-  Future<void> _resetPassword(String token,String newPassword) async {
+  Future<void> _resetPassword(String token, String newPassword) async {
     setState(() => _isLoading = true);
 
     try {
@@ -108,7 +111,14 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = e.toString().replaceFirst('Exception: ', '');
+        String errorMessage;
+        if (e is UnauthorisedException || e is AccountLockedException) {
+            errorMessage = (e as AppException).getMessage(); // Cast here
+        
+        }else{
+          errorMessage = e.toString().replaceFirst('Exception: ', '');
+        }
+
         showSnackBar(
           context: context,
           message: errorMessage,

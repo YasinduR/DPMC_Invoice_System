@@ -162,25 +162,52 @@ class MockApiService {
         try {
           final user = DummyData.users.firstWhere(
             (u) => u.username == username,
+            orElse: () => throw UnauthorisedException('User not found.'),
           );
+
+          if (user.isLocked) {
+            throw AccountLockedException(
+              'Your account is locked. Please contact support.',
+            );
+          }
           final isPasswordCorrect = BCrypt.checkpw(password, user.password);
 
-          // if (isPasswordCorrect) {
-          //   return user;
-
           if (isPasswordCorrect) {
-            // Step 1: Get the user's roles
+            user.incPins = 0;
+            bool passwordIsExpired = false;
+            const Duration passwordExpiryDuration = Duration(
+              seconds: 30,
+            ); // For Testing Tme GAP IS 30 SEC
+
+            if (user.passwordUpdatedAt != null) {
+              final Duration timeSinceLastUpdate = DateTime.now().difference(
+                user.passwordUpdatedAt!,
+              );
+              if (timeSinceLastUpdate > passwordExpiryDuration) {
+                passwordIsExpired = true;
+                print(
+                  'DEBUG: Password for ${user.username} has expired (last updated: ${user.passwordUpdatedAt}, expired after $passwordExpiryDuration).',
+                );
+              } else {
+                print(
+                  'DEBUG: Password for ${user.username} is NOT expired (last updated: ${user.passwordUpdatedAt}, still valid for ${(passwordExpiryDuration - timeSinceLastUpdate).inSeconds} seconds).',
+                );
+              }
+            } else {
+              passwordIsExpired = true;
+              print(
+                'DEBUG: Password for ${user.username} has no update date, treating as expired.',
+              );
+            }
+
             final userRoles = user.roles;
 
-            // Step 2: Find all permitted ScreenIds for the user's roles
-            // We use a Set to automatically handle duplicate ScreenIds
             final permittedScreenIds =
                 DummyData.perms
                     .where((perm) => userRoles.contains(perm.RoleId))
                     .map((perm) => perm.ScreenId)
                     .toSet();
 
-            // Step 3: Filter the master list of screens to get the accessible ones
             final accessibleScreens =
                 DummyData.screens
                     .where(
@@ -188,7 +215,6 @@ class MockApiService {
                     )
                     .toList();
 
-            // Step 2: Find the corresponding role names from the master list
             final userRoleNames =
                 DummyData.roles
                     .where(
@@ -197,16 +223,29 @@ class MockApiService {
                     .map((role) => role.roleName) // Extract just the name
                     .toList(); // Convert to a List<String>
 
-            // Step 4 & 5: Create a new User object with the accessible screens and return it
+            //user.isLocked = false;
+
             return user.copyWith(
               accessibleScreen: accessibleScreens,
               rolenames: userRoleNames,
+              isPasswordExpired: passwordIsExpired,
             );
           } else {
-            throw UnauthorisedException('Invalid username or password.');
+            user.incPins++;
+            if (user.incPins >= 3) {
+              user.isLocked = true;
+              throw AccountLockedException(
+                'Your Account has been locked due to too many incorrect attempts.',
+              );
+            } else {
+              throw UnauthorisedException(
+                'Invalid Password. You have ${3 - user.incPins} attempt(s) remaining before your account is locked.',
+              ); // Use specific exception
+            }
           }
         } catch (e) {
-          throw UnauthorisedException('Invalid username or password.');
+          //throw UnauthorisedException('Invalid username or password.');
+          rethrow;
         }
 
       case 'api/user/set-password':
@@ -214,12 +253,12 @@ class MockApiService {
           throw Exception('Invalid body type for password update.');
         }
         final username = (body['username'] as String?)?.toLowerCase();
-        
+
         // final oldPassword = body['oldPassword'];
         final newPassword = body['newPassword'];
 
-        final securityQuestion = body['securityQuestion'] as String?; 
-        final securityAnswer = body['securityAnswer'] as String?;    
+        final securityQuestion = body['securityQuestion'] as String?;
+        final securityAnswer = body['securityAnswer'] as String?;
 
         if (securityQuestion == null || securityQuestion.isEmpty) {
           throw Exception('Security question is required.');
@@ -241,6 +280,68 @@ class MockApiService {
           final updatedUser = userToUpdate.copyWith(
             password: hashedPassword,
             isTemporaryPassword: false, // Mark as no longer temporary
+            passwordUpdatedAt: DateTime.now(), // Update the date
+          );
+          DummyData.users[userIndex] = updatedUser;
+
+          // Step 1: Get the user's roles
+          final userRoles = updatedUser.roles;
+
+          // Step 2: Find all permitted ScreenIds for the user's roles
+          // We use a Set to automatically handle duplicate ScreenIds
+          final permittedScreenIds =
+              DummyData.perms
+                  .where((perm) => userRoles.contains(perm.RoleId))
+                  .map((perm) => perm.ScreenId)
+                  .toSet();
+
+          // Step 3: Filter the master list of screens to get the accessible ones
+          final accessibleScreens =
+              DummyData.screens
+                  .where(
+                    (screen) => permittedScreenIds.contains(screen.screenId),
+                  )
+                  .toList();
+
+          // Step 2: Find the corresponding role names from the master list
+          final userRoleNames =
+              DummyData.roles
+                  .where(
+                    (role) => userRoles.contains(role.roleId),
+                  ) // Filter by ID
+                  .map((role) => role.roleName) // Extract just the name
+                  .toList(); // Convert to a List<String>
+
+          // Step 4 & 5: Create a new User object with the accessible screens and return it
+          return updatedUser.copyWith(
+            accessibleScreen: accessibleScreens,
+            rolenames: userRoleNames,
+          );
+        } catch (e) {
+          rethrow;
+        }
+
+      case 'api/user/renew-password':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body type for password update.');
+        }
+        final username = (body['username'] as String?)?.toLowerCase();
+        final newPassword = body['newPassword'];
+
+        try {
+          final userIndex = DummyData.users.indexWhere(
+            (u) => u.username == username,
+          );
+          if (userIndex == -1) {
+            throw UnauthorisedException('User not found.');
+          }
+          final userToUpdate = DummyData.users[userIndex];
+          final hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+          final updatedUser = userToUpdate.copyWith(
+            password: hashedPassword,
+            isTemporaryPassword: false, // Mark as no longer temporary
+            isPasswordExpired:
+                false, // IMPORTANT: Password is no longer expired
             passwordUpdatedAt: DateTime.now(), // Update the date
           );
           DummyData.users[userIndex] = updatedUser;
@@ -309,15 +410,16 @@ class MockApiService {
         );
         try {
           final userIndex = DummyData.users.indexOf(oldUser);
-          final updatedUser = User(
-            id: oldUser.id,
-            username: oldUser.username,
-            email: oldUser.email,
-            telephone: oldUser.telephone,
+
+          final updatedUser = oldUser.copyWith(
+            // Use copyWith
             password: newHashedPassword,
-            roles: oldUser.roles,
+            passwordUpdatedAt: DateTime.now(),
+            isTemporaryPassword: false, // No longer a temporary password
+            isPasswordExpired: false, // Password is now current and not expired
           );
           DummyData.users[userIndex] = updatedUser;
+
           return true;
         } catch (e) {
           throw UnauthorisedException('Could update the user.'); // chnage later
@@ -333,9 +435,15 @@ class MockApiService {
 
           final user = DummyData.users.firstWhere(
             (u) => u.username == username,
+            orElse: () => throw UnauthorisedException('User not found.'),
           );
+          if (user.isLocked) {
+            throw AccountLockedException(
+              'Your account is locked. Please contact support.',
+            );
+          }
           if (user.telephone.isEmpty) {
-            throw Exception(
+            throw UnauthorisedException(
               'User\'s telephone number not available for password reset.',
             );
           }
@@ -353,7 +461,7 @@ class MockApiService {
           // Construct the message
           return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
         } catch (e) {
-          throw Exception('User not found.');
+          rethrow;
         }
 
       case 'api/user/reset-password':
@@ -364,31 +472,41 @@ class MockApiService {
         final token = body['token'];
         final newPassword = body['newPassword'];
         if (token != '12345') {
-          throw Exception('Invalid or expired password reset token.');
+          throw UnauthorisedException(
+            'Invalid or expired password reset token.',
+          );
         }
 
         try {
+
           final oldUser = DummyData.users.firstWhere(
             (u) => u.username == username,
+            orElse: () => throw UnauthorisedException('User not found.'),
           );
+
+          if (oldUser.isLocked) {
+            throw AccountLockedException(
+              'Your account is locked. Please contact support.',
+            );
+          }
 
           final String newHashedPassword = BCrypt.hashpw(
             newPassword,
             BCrypt.gensalt(),
           );
+
           final userIndex = DummyData.users.indexOf(oldUser);
-          final updatedUser = User(
-            id: oldUser.id,
-            username: oldUser.username,
-            email: oldUser.email,
-            telephone: oldUser.telephone,
+          final updatedUser = oldUser.copyWith(
+            // Use copyWith
             password: newHashedPassword,
-            roles: oldUser.roles,
+            passwordUpdatedAt: DateTime.now(),
+            isTemporaryPassword: false, // No longer a temporary password
+            isPasswordExpired: false, // Password is now current and not expired
           );
           DummyData.users[userIndex] = updatedUser;
           return true;
         } catch (e) {
-          throw Exception('User not found.');
+          rethrow;
         }
 
       case 'api/receipts/save':

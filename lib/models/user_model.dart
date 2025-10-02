@@ -10,11 +10,15 @@ class User {
   final List<Screen> accessibleScreen;
   final List<String> rolenames;
 
-  // New fields for password management
-  final bool isLocked;
+  // Fields for password management
+  bool isLocked;
+  int incPins; // Changed to mutable
+  
   final DateTime? passwordUpdatedAt;
   final bool isTemporaryPassword;
-  final bool isTemporaryPasswordExpired;
+  final bool isPasswordExpired;
+
+
 
   User({
     required this.id,
@@ -28,7 +32,8 @@ class User {
     this.isLocked = false, // Default to not locked
     this.passwordUpdatedAt, // Nullable, set when password is updated
     this.isTemporaryPassword = false, // Default to not a temporary password
-    this.isTemporaryPasswordExpired = false, // Default to not expired
+    this.isPasswordExpired = false, // Default to not expired
+    this.incPins=0
   });
 
   User copyWith({
@@ -43,7 +48,7 @@ class User {
     bool? isLocked,
     DateTime? passwordUpdatedAt,
     bool? isTemporaryPassword,
-    bool? isTemporaryPasswordExpired,
+    bool? isPasswordExpired,
   }) {
     return User(
       id: id ?? this.id,
@@ -57,7 +62,7 @@ class User {
       isLocked: isLocked ?? this.isLocked,
       passwordUpdatedAt: passwordUpdatedAt ?? this.passwordUpdatedAt,
       isTemporaryPassword: isTemporaryPassword ?? this.isTemporaryPassword,
-      isTemporaryPasswordExpired: isTemporaryPasswordExpired ?? this.isTemporaryPasswordExpired,
+      isPasswordExpired: isPasswordExpired ?? this.isPasswordExpired,
     );
   }
 }

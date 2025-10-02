@@ -29,10 +29,12 @@ class AuthService {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
-      final user = await MockApiService.post(
-        'api/user/login',
-        body: {'username': username, 'password': password},
-      ) as User;
+      final user =
+          await MockApiService.post(
+                'api/user/login',
+                body: {'username': username, 'password': password},
+              )
+              as User;
       return user;
     } catch (e) {
       if (loadingOverlay.isShowing) {
@@ -43,10 +45,10 @@ class AuthService {
       } else {
         onError(Exception(e.toString()));
       }
-      return null; 
+      return null;
     } finally {
       if (loadingOverlay.isShowing) {
-        loadingOverlay.hide(); 
+        loadingOverlay.hide();
       }
     }
   }
@@ -87,6 +89,7 @@ class AuthService {
     }
   }
 
+  // forget password --> req pwd change
   Future<String?> requestPasswordReset({
     required BuildContext context,
     required String username,
@@ -97,8 +100,9 @@ class AuthService {
       loadingOverlay.show(context);
       return await MockApiService.post(
             'api/user/request-password-reset',
-            body: {'username': username, 
-            //'email': email
+            body: {
+              'username': username,
+              //'email': email
             },
           )
           as String?;
@@ -106,7 +110,8 @@ class AuthService {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
-      return null;
+      rethrow;
+     // return null;
     } finally {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
@@ -114,6 +119,7 @@ class AuthService {
     }
   }
 
+  // forget password --> reset
   Future<bool> resetPassword({
     required BuildContext context,
     required String username,
@@ -141,26 +147,27 @@ class AuthService {
     }
   }
 
-  // This is the setPassword for first-time login as per your prompt
-  Future<User> setPassword({ // Renamed from setInitialPassword to match your prompt
+  // This is the setPassword for first-time login
+  Future<User> setPassword({
     required BuildContext context,
     required String username,
     required String newPassword,
-    required SecurityQuestionAnswer securityQandA, 
+    required SecurityQuestionAnswer securityQandA,
   }) async {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
-      final updatedUser = await MockApiService.post(
-        'api/user/set-password', 
-        body: 
-        {
-          'username': username,
-          'newPassword': newPassword,
-          'securityQuestion': securityQandA.question,
-          'securityAnswer': securityQandA.answer,
-        },
-      ) as User;
+      final updatedUser =
+          await MockApiService.post(
+                'api/user/set-password',
+                body: {
+                  'username': username,
+                  'newPassword': newPassword,
+                  'securityQuestion': securityQandA.question,
+                  'securityAnswer': securityQandA.answer,
+                },
+              )
+              as User;
       return updatedUser;
     } catch (e) {
       if (loadingOverlay.isShowing) {
@@ -178,4 +185,35 @@ class AuthService {
     }
   }
 
+  // This is the setPassword for first-time login
+  Future<User> renewPassword({
+    required BuildContext context,
+    required String username,
+    required String newPassword,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      final updatedUser =
+          await MockApiService.post(
+                'api/user/renew-password',
+                body: {'username': username, 'newPassword': newPassword},
+              )
+              as User;
+      return updatedUser;
+    } catch (e) {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+      if (e is Exception) {
+        throw e;
+      } else {
+        throw Exception('An unknown error occurred during password change: $e');
+      }
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
 }
