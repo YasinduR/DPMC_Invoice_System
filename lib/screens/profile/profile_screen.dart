@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/user_model.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';

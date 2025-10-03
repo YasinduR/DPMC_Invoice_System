@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/providers/auth_provider.dart';
-import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
@@ -15,7 +14,7 @@ class LoginFormView extends ConsumerStatefulWidget {
 
   const LoginFormView({
     super.key,
-   //this.loginErrorMessage,
+    //this.loginErrorMessage,
     required this.onLogin,
     required this.onForgetPassword,
     required this.onClear,
@@ -32,6 +31,8 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
 
   final _usernameController = TextEditingController(text: 'yasindu');
   final _passwordController = TextEditingController(text: '12345');
+
+
 
   @override
   void initState() {
@@ -87,34 +88,25 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
                           (context, error, stackTrace) => const Icon(
                             Icons.business,
                             size: 50,
-                            color: AppColors.danger,
                           ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'Invoice System',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                    style:  Theme.of(context).textTheme.headlineLarge,
                   ),
                 ],
               ),
               const SizedBox(height: 40),
-              const Text(
+              Text(
                 'Welcome back.',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text,
-                ),
+                    style:  Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Log in to your account',
-                style: TextStyle(fontSize: 16, color: AppColors.textFaded),
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 30),
 
@@ -170,9 +162,9 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: widget.onForgetPassword,
-                  child: const Text(
+                  child: Text(
                     'Forgot password?',
-                    style: TextStyle(color: AppColors.primary, fontSize: 14),
+                    // style: Theme.of(context).textTheme.labelSmall
                   ),
                 ),
               ),
@@ -199,14 +191,6 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
         //     widget.onClear(); // Inform parent to clear its error message
         //   },
         // ),
-        // const SizedBox(height: 16),
-        // ActionButton(
-        //   icon: Icons.cancel_outlined,
-        //   label: 'Cancel',
-        //   color: AppColors.danger,
-        //   onPressed: widget.onCancel,
-        // ),
-        // const SizedBox(height: 30),
       ],
     );
   }

@@ -50,7 +50,7 @@ class TestPage extends StatelessWidget {
             const SizedBox(height: 16),
             ActionButton(
               label: 'Test Snack Error',
-              color: Colors.red, // Example of overriding color
+             // color: Colors.red, // Example of overriding color
               onPressed: () {
                 showSnackBar(
                   context: context,
@@ -62,7 +62,7 @@ class TestPage extends StatelessWidget {
             const SizedBox(height: 16),
             ActionButton(
               label: 'Test Snack Success',
-              color: Colors.green, // Example of overriding color
+            //  color: Colors.green, // Example of overriding color
               onPressed: () {
                 showSnackBar(
                   context: context,
@@ -74,7 +74,7 @@ class TestPage extends StatelessWidget {
             const SizedBox(height: 16),
             ActionButton(
               label: 'Test Snack Warning',
-              color: Colors.orange, // Example of overriding color
+              //color: Colors.orange, // Example of overriding color
               onPressed: () {
                 showSnackBar(
                   context: context,

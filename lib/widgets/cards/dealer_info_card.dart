@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 // Dealer Information Card Element 

@@ -7,7 +7,7 @@ import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/tin_model.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_action_button.dart';
@@ -278,7 +278,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                 label: 'Add Credit Note',
                 icon: Icons.add_card,
                 onPressed: widget.addCreditnote,
-                color: AppColors.success,
+                type:ActionButtonType.tertiary,
                 disabled: !widget.dealer.hasBankGuarantee,
               ),
               const SizedBox(height: 16),

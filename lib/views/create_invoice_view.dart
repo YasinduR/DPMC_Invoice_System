@@ -5,7 +5,7 @@ import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/services/api_util_service.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';

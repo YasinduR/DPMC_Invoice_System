@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/services/icon_mapper.dart';
-import 'package:myapp/theme/app_theme.dart'; 
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:myapp/providers/auth_provider.dart';
-import 'package:myapp/widgets/app_page.dart'; 
+import 'package:myapp/widgets/app_page.dart';
+import 'package:myapp/widgets/cards/menu_card.dart'; 
 
 class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
@@ -52,7 +52,7 @@ class MainMenuScreen extends ConsumerWidget {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];
           if (route == null) return const SizedBox.shrink();
 
-          return _MenuCard(
+          return MenuCard(
             icon: IconMapper.getIcon(screen.iconName),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
@@ -61,7 +61,7 @@ class MainMenuScreen extends ConsumerWidget {
 
     // Manually add static cards like 'About' and 'Logout'
     menuCards.add(
-      _MenuCard(
+      MenuCard(
         icon: IconMapper.getIcon('info'),
         label: 'About',
         onTap:
@@ -73,7 +73,7 @@ class MainMenuScreen extends ConsumerWidget {
       ),
     );
     menuCards.add(
-      _MenuCard(
+      MenuCard(
         icon: IconMapper.getIcon('logout'),
         label: 'Logout',
         onTap: () async {
@@ -102,13 +102,9 @@ class MainMenuScreen extends ConsumerWidget {
       contentPadding: const EdgeInsets.fromLTRB(24,60,24,20),
           child: Column(
             children: [
-              const Text(
+              Text(
                 'Main Menu',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
+                style: Theme.of(context).textTheme.headlineLarge
               ),
               const SizedBox(height: 30),
               Expanded(
@@ -126,52 +122,3 @@ class MainMenuScreen extends ConsumerWidget {
   }
 }
 
-// Helper widget for creating each card in the menu grid
-class _MenuCard extends StatelessWidget {
-  const _MenuCard({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: AppColors.primary),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.text,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

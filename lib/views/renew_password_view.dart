@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Assuming Riverpod
 import 'package:myapp/providers/auth_provider.dart';
-import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
@@ -106,18 +105,11 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
           child: ListView(
             children: [
               // const SizedBox(height: 30),
-              const Text(
-                'Set New Password',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text,
-                ),
-              ),
+              Text('Set New Password',style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Your Password has been expiered You are required to change your password.',
-                style: TextStyle(fontSize: 16, color: AppColors.textFaded),
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 30),
               // if (_passwordChangeErrorMessage != null)
@@ -183,7 +175,7 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
         ActionButton(
           icon: Icons.cancel_outlined,
           label: 'Cancel',
-          color: AppColors.danger,
+          type:ActionButtonType.secondary,
           onPressed: widget.onCancel,
         ),
       ],

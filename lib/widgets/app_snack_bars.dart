@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 enum MessageType { success, error, warning }
 

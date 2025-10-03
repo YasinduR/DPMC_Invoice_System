@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/theme/app_theme.dart'; 
+import 'package:myapp/theme/app_colors.dart'; 
 
 
 // --- App DATE PICKER FIELD ---
@@ -31,7 +31,7 @@ class DatePickerField extends StatelessWidget {
       child: InputDecorator(
         isEmpty: selectedDate == null,
         decoration: InputDecoration(
-                    filled: true,                 // This enables the background color.
+          filled: true,                 // This enables the background color.
           fillColor: AppColors.white,   // This sets the color to white.
           labelText: labelText,
           labelStyle: const TextStyle(color: AppColors.borderDark), 
@@ -107,20 +107,12 @@ Future<DateTime?> selectDate(BuildContext context, DateTime? initialDate) {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor:
-                          AppColors.primary, // Use your primary color for OK
-                    ),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                     child: const Text('Cancel'),
                   ),
                   TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor:
-                          AppColors.primary, // Use your primary color for OK
-                    ),
                     onPressed: () {
                       Navigator.of(context).pop(selectedDate);
                     },

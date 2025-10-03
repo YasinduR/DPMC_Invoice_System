@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/widgets/app_action_button.dart';
 
 // Common Quantity Selector for the app
 
@@ -162,21 +163,9 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(), // Pop without a value
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: AppColors.danger),
-          ),
-        ),
-        ElevatedButton(
-          onPressed:
-              () => Navigator.of(
-                context,
-              ).pop(_currentQuantity), // Pop with the new value
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-          child: const Text('Ok', style: TextStyle(color: AppColors.white)),
-        ),
+        ActionButton(minsize:true, label: 'Ok', onPressed: () => Navigator.of(context).pop(_currentQuantity)),
+
+        ActionButton(minsize:true, label: 'Cancel', onPressed: () => Navigator.of(context).pop(),),
       ],
     );
   }

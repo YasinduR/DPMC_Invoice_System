@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Assuming Riverpod
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
-import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_option_picker.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
@@ -171,18 +170,11 @@ final List<String> securityQuestions = [
             ListView(
               children:[
          // const SizedBox(height: 30),
-          const Text(
-            'Set New Password',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: AppColors.text,
-            ),
-          ),
+          Text('Set New Password', style:  Theme.of(context).textTheme.headlineMedium,),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'You are required to change your temporary password.',
-            style: TextStyle(fontSize: 16, color: AppColors.textFaded),
+              style:  Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 30),
           // if (_passwordChangeErrorMessage != null)
@@ -260,7 +252,7 @@ final List<String> securityQuestions = [
           ActionButton(
             icon: Icons.cancel_outlined,
             label: 'Cancel',
-            color: AppColors.danger,
+            type:ActionButtonType.secondary,
             onPressed: widget.onCancel,
           ),
         ],

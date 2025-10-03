@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'app_header.dart';
 import 'app_footer.dart';
-import 'package:myapp/theme/app_theme.dart';
+//import 'package:myapp/theme/app_theme.dart';
 
 // Common Setup of an app page
 class AppPage extends StatelessWidget {
@@ -59,7 +59,7 @@ class AppPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        //backgroundColor: AppColors.background,
         appBar:
             showAppBar
                 ? AppHeader(title: title, onBack: onBack, actions: actions)

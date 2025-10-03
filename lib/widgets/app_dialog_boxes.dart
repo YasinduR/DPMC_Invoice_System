@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myapp/theme/app_theme.dart'; // Make sure the path is correct
+import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/widgets/app_action_button.dart'; // Make sure the path is correct
 
 
 /// A helper widget to create the styled, full-width dialog buttons.
-Widget buildDialogButton({
-  required String text,
-  required VoidCallback onPressed,
-  required Color backgroundColor,
-  Color textColor = AppColors.white,
-  bool disabled = false, // Added disabled parameter
-}) {
-  return SizedBox(
-    width: double.infinity, // Make button take full width
-    child: ElevatedButton(
-      onPressed: disabled ? null : onPressed, // Disable if 'disabled' is true
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: textColor,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50), // Fully rounded corners
-        ),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-    ),
-  );
-}
+// Widget buildDialogButton({
+//   required String text,
+//   required VoidCallback onPressed,
+//   required Color backgroundColor,
+//   Color textColor = AppColors.white,
+//   bool disabled = false, // Added disabled parameter
+// }) {
+//   return SizedBox(
+//     width: double.infinity, // Make button take full width
+//     child: ElevatedButton(
+//       onPressed: disabled ? null : onPressed, // Disable if 'disabled' is true
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: backgroundColor,
+//         foregroundColor: textColor,
+//         padding: const EdgeInsets.symmetric(vertical: 12),
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(50), // Fully rounded corners
+//         ),
+//       ),
+//       child: Text(
+//         text,
+//         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//       ),
+//     ),
+//   );
+//}
 
 /// A generic dialog function. All other dialogs are based on this.
 Future<T?> showAppDialog<T>({
@@ -94,22 +95,37 @@ Future<bool> showConfirmationDialog({
     content:
         content != null ? Text(content, textAlign: TextAlign.center) : null,
     actions: [
-      // The "Confirm" button (e.g., "Yes, Log out")
-      buildDialogButton(
-        text: confirmButtonText,
-        backgroundColor: AppColors.danger,
+      ActionButton(
+        label: confirmButtonText, 
         onPressed: () {
           Navigator.of(context).pop(true); // Return true
         },
-      ),
-      // The "Cancel" button (e.g., "No, I'm Staying")
-      buildDialogButton(
-        text: cancelButtonText,
-        backgroundColor: AppColors.primary,
+        type: ActionButtonType.secondary,
+        ),
+
+        ActionButton(
+        label: cancelButtonText, 
         onPressed: () {
-          Navigator.of(context).pop(false); // Return false
+          Navigator.of(context).pop(false); // Return true
         },
-      ),
+        ),
+
+      // // The "Confirm" button (e.g., "Yes, Log out")
+      // buildDialogButton(
+      //   text: confirmButtonText,
+      //   backgroundColor: AppColors.danger,
+      //   onPressed: () {
+      //     Navigator.of(context).pop(true); // Return true
+      //   },
+      // ),
+      // // The "Cancel" button (e.g., "No, I'm Staying")
+      // buildDialogButton(
+      //   text: cancelButtonText,
+      //   backgroundColor: AppColors.primary,
+      //   onPressed: () {
+      //     Navigator.of(context).pop(false); // Return false
+      //   },
+      // ),
     ],
   );
   // Return false if dialog is dismissed by other means (e.g., back button)
@@ -129,11 +145,20 @@ Future<void> showInfoDialog({
     title: title,
     content: Text(content, textAlign: TextAlign.center),
     actions: [
-      buildDialogButton(
-        text: buttonText,
-        backgroundColor: isError ? AppColors.danger : AppColors.primary,
-        onPressed: () => Navigator.of(context).pop(),
-      ),
+      // buildDialogButton(
+      //   text: buttonText,
+      //   backgroundColor: isError ? AppColors.danger : AppColors.primary,
+      //   onPressed: () => Navigator.of(context).pop(),
+      // ),
+      ActionButton(
+        label: buttonText, 
+        onPressed: () {
+          Navigator.of(context).pop(false); // Return true
+        },
+        type: isError ? ActionButtonType.secondary :ActionButtonType.primary,
+        )
+
+
     ],
   );
 }
@@ -244,20 +269,23 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: buildDialogButton(
-                text: widget.verifyButtonText,
-                backgroundColor: AppColors.primary,
-                onPressed: _handleVerifyAction,
-                disabled: isVerifyButtonDisabled,
-              ),
+              child: ActionButton(label: widget.verifyButtonText, onPressed: _handleVerifyAction,disabled: isVerifyButtonDisabled)
+              // child: buildDialogButton(
+              //   text: widget.verifyButtonText,
+              //   backgroundColor: AppColors.primary,
+              //   onPressed: _handleVerifyAction,
+              //   disabled: isVerifyButtonDisabled,
+              // ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: buildDialogButton(
-                text: widget.cancelButtonText,
-                backgroundColor: AppColors.borderDark,
-                onPressed: _handleCancelAction,
-              ),
+              child: ActionButton(label: widget.cancelButtonText, onPressed: _handleCancelAction)
+
+              // child: buildDialogButton(
+              //   text: widget.cancelButtonText,
+              //   backgroundColor: AppColors.borderDark,
+              //   onPressed: _handleCancelAction,
+              // ),
             ),
           ],
         ),

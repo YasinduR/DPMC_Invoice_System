@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
@@ -147,7 +147,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
                   label: 'Add Credit Note',
                   icon: Icons.add_card, // Example icon
                   onPressed: _addNoteToList,
-                  color: AppColors.success,
+                  type:ActionButtonType.tertiary,
                   disabled: isAddButtonDisabled,
                 ),
                 const SizedBox(height: 24),

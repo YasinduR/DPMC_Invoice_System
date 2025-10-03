@@ -1,7 +1,7 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 // Common Loading Screen of the application On API calls
 

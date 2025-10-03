@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/services/icon_mapper.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_footer.dart'; // Your AppFooter
 
 // Made to demonstrate By PASSING Authentication Remove this Later

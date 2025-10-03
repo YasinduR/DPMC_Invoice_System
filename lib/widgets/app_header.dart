@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_theme.dart';
+//import 'package:myapp/theme/app_theme.dart';
 
 // Common AppHeader 
+
 
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title; // Title of the Current view
@@ -20,8 +21,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
           canPop
               ? IconButton(
                 icon: const Icon(
-                  Icons.arrow_back_ios,
-                  color: AppColors.primary,
+                  Icons.arrow_back,
                 ),
                 onPressed:
                     backCallback != null
@@ -29,18 +29,8 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                         : () => Navigator.of(context).pop(),
               )
               : null,
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppColors.primary,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      title: Text(title),
       actions: actions,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      centerTitle: true,
     );
   }
 
