@@ -4,34 +4,6 @@ import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart'; // Make sure the path is correct
 
 
-/// A helper widget to create the styled, full-width dialog buttons.
-// Widget buildDialogButton({
-//   required String text,
-//   required VoidCallback onPressed,
-//   required Color backgroundColor,
-//   Color textColor = AppColors.white,
-//   bool disabled = false, // Added disabled parameter
-// }) {
-//   return SizedBox(
-//     width: double.infinity, // Make button take full width
-//     child: ElevatedButton(
-//       onPressed: disabled ? null : onPressed, // Disable if 'disabled' is true
-//       style: ElevatedButton.styleFrom(
-//         backgroundColor: backgroundColor,
-//         foregroundColor: textColor,
-//         padding: const EdgeInsets.symmetric(vertical: 12),
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(50), // Fully rounded corners
-//         ),
-//       ),
-//       child: Text(
-//         text,
-//         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-//       ),
-//     ),
-//   );
-//}
-
 /// A generic dialog function. All other dialogs are based on this.
 Future<T?> showAppDialog<T>({
   required BuildContext context,
@@ -239,20 +211,20 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
         ],
         decoration: InputDecoration(
           hintText: 'Enter PIN',
-          hintStyle: TextStyle(color: AppColors.borderDark),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: AppColors.borderDark),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: AppColors.borderDark),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2.0),
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+          // hintStyle: TextStyle(color: AppColors.borderDark),
+          // border: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(10.0),
+          //   borderSide: BorderSide(color: AppColors.borderDark),
+          // ),
+          // enabledBorder: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(10.0),
+          //   borderSide: BorderSide(color: AppColors.borderDark),
+          // ),
+          // focusedBorder: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(10.0),
+          //   borderSide: const BorderSide(color: AppColors.primary, width: 2.0),
+          // ),
+          // contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
         ),
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
         autofocus: true, 
@@ -279,7 +251,7 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: ActionButton(label: widget.cancelButtonText, onPressed: _handleCancelAction)
+              child: ActionButton(label: widget.cancelButtonText, onPressed: _handleCancelAction,type: ActionButtonType.secondary)
 
               // child: buildDialogButton(
               //   text: widget.cancelButtonText,

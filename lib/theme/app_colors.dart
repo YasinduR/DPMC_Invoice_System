@@ -25,4 +25,7 @@ class AppColors {
 
   // Other Colors
   static const Color transparent = Colors.transparent;
+  static  Color dialogShadowColor = Colors.black.withOpacity(0.4); // 
+
+
 }

@@ -130,10 +130,11 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
                 focusNode: _usernameFocusNode,
                 hintText: 'Username',
                 hideBorder: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 20,
-                ),
+                
+                // contentPadding: const EdgeInsets.symmetric(
+                //   vertical: 16,
+                //   horizontal: 20,
+                // ),
                 onFieldSubmitted: (_) {
                   _passwordFocusNode.requestFocus();
                 },
@@ -152,10 +153,10 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
                 },
                 isPassword: true,
                 hideBorder: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 20,
-                ),
+                // contentPadding: const EdgeInsets.symmetric(
+                //   vertical: 16,
+                //   horizontal: 20,
+                // ),
               ),
               const SizedBox(height: 20),
               Align(

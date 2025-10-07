@@ -153,7 +153,7 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
           IconButton(
             icon: Icon(
               Icons.add_circle,
-              color: canIncrement ? AppColors.primary : Colors.grey,
+              color: canIncrement ? AppColors.primary : AppColors.disabled,
               size: 30,
             ),
               onPressed: canIncrement

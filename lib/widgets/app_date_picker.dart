@@ -31,18 +31,18 @@ class DatePickerField extends StatelessWidget {
       child: InputDecorator(
         isEmpty: selectedDate == null,
         decoration: InputDecoration(
-          filled: true,                 // This enables the background color.
-          fillColor: AppColors.white,   // This sets the color to white.
+        //  filled: true,                 // This enables the background color.
+       //   fillColor: AppColors.white,   // This sets the color to white.
           labelText: labelText,
-          labelStyle: const TextStyle(color: AppColors.borderDark), 
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.borderDark),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.borderDark),
-          ),
+          // labelStyle: const TextStyle(color: AppColors.borderDark), 
+          // border: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(12),
+          //   borderSide: const BorderSide(color: AppColors.borderDark),
+          // ),
+          // enabledBorder: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(12),
+          //   borderSide: const BorderSide(color: AppColors.borderDark),
+          // ),
         ),
         
         child: Padding(

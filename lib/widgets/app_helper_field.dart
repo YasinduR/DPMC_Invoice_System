@@ -1,10 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree is built and stable before any state updates are attempted. back button press
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/services/mock_api_service.dart';
-import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
@@ -286,6 +285,24 @@ class AppHelpTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    InputDecoration baseDecoration = InputDecoration(labelText: labelText);
+
+    // Apply specific border overrides if hideBorder is true
+    if (hideBorder) {
+      OutlineInputBorder baseOut = AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.none);
+
+      baseDecoration = baseDecoration.copyWith(
+        border: baseOut,
+        enabledBorder: baseOut,
+        focusedBorder: baseOut,
+        errorBorder: baseOut,
+        focusedErrorBorder: baseOut,
+        disabledBorder: baseOut,
+      );
+    }
+    InputDecoration effectiveDecoration = baseDecoration.applyDefaults(Theme.of(context).inputDecorationTheme);
+
     return Row(
       crossAxisAlignment:
           CrossAxisAlignment
@@ -295,64 +312,13 @@ class AppHelpTextField extends StatelessWidget {
           child: TextFormField(
             onChanged: onChanged,
             textInputAction: textInputAction,
-            cursorColor: AppColors.primary, // Add this line
-
+           // cursorColor: AppColors.primary, // Add this line
             //autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
             onFieldSubmitted: (_) => onIconPressed!(),
             keyboardType: keyboardType,
             validator: validator,
-            decoration: InputDecoration(
-              labelText: labelText,
-              labelStyle: const TextStyle(color: AppColors.borderDark),
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding: contentPadding,
-
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.borderDark),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(
-                          color: AppColors.primary,
-                          width: 2.0,
-                        ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.danger, width: 2.0),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.danger, width: 2.0),
-              ),
-              floatingLabelStyle: MaterialStateTextStyle.resolveWith((states) {
-                if (states.contains(MaterialState.error)) {
-                  return const TextStyle(color: AppColors.danger);
-                }
-                // Use primary color when the field is focused.
-                if (states.contains(MaterialState.focused)) {
-                  return const TextStyle(color: AppColors.primary);
-                }
-                // Use border color when unfocused (but has content, so it's floating).
-                return const TextStyle(color: AppColors.borderDark);
-              }),
-              errorStyle: const TextStyle(color: AppColors.danger),
-            ),
+            decoration: effectiveDecoration
           ),
         ),
         const SizedBox(width: 8),
@@ -360,11 +326,7 @@ class AppHelpTextField extends StatelessWidget {
         IconButton(
           onPressed: onIconPressed,
           icon: Icon(icon), // Use the customizable icon
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.white,
-            padding: const EdgeInsets.all(14),
-          ),
+          style: AppThemeHelpers.getHelperIconButtonStyle(),
         ),
       ],
     );
@@ -453,22 +415,11 @@ class _SelectionSheetState<T extends Mappable>
                 child: TextField(
                   controller: _searchController,
                   autofocus: true,
-                  cursorColor: AppColors.primary,
+                  //cursorColor: AppColors.primary,
                   decoration: InputDecoration(
                     hintText: 'Search by any field...',
                     prefixIcon: const Icon(Icons.search),
                     isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide(
-                        color: AppColors.primary,
-                        width: 2.0,
-                      ),
-                    ),
                   ),
                 ),
               ),

@@ -59,7 +59,7 @@ class _AttendanceViewState extends State<AttendanceView> {
             padding: const EdgeInsets.all(16.0),
             children: [
               DatePickerField(
-                labelText: 'Select Cheque Date',
+                labelText: 'Select Date',
                 selectedDate: _selectedDate,
                 onDateSelected: onDateSelected,
               ),

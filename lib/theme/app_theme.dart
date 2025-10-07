@@ -1,6 +1,7 @@
 // Function to get your Material 3 ThemeData
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/theme/app_theme_helper.dart';
 
 // Function intialize all Theme Data (Material 3 ThemeData)
 ThemeData appTheme(BuildContext context) {
@@ -14,10 +15,8 @@ ThemeData appTheme(BuildContext context) {
     onPrimary: AppColors.white,
     onSecondary: AppColors.white,
     onTertiary: AppColors.white,
-
     brightness: Brightness.light, // Or Brightness.dark for a dark theme
   );
-
   // TextTheme
   final TextTheme customTextTheme = TextTheme(
     // ex - 'Invoice System'
@@ -46,13 +45,11 @@ ThemeData appTheme(BuildContext context) {
           customColorScheme.primary, // Or onBackground, depending on contrast
     ),
 
-    
     labelLarge: TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.bold,
       color: customColorScheme.onPrimary, // Text/icon color on primary button
     ),
-
 
     labelSmall: TextStyle(fontSize: 14, color: customColorScheme.primary),
 
@@ -63,17 +60,15 @@ ThemeData appTheme(BuildContext context) {
       fontWeight: FontWeight.w500,
     ),
 
-    bodyMedium: TextStyle(
-      fontSize: 16,
-      color: customColorScheme.onSurfaceVariant,
-    ),
+    // bodyMedium: TextStyle(
+    //   fontSize: 16,
+    //   color: customColorScheme.onSurfaceVariant,
+    // ),
 
     // You can add more text styles as needed
   );
-
   // Selected Text On text fields
-  final TextSelectionThemeData customTextSelectionThemeData =
-      TextSelectionThemeData(
+  final TextSelectionThemeData customTextSelectionThemeData = TextSelectionThemeData(
         cursorColor: customColorScheme.primary,
         selectionColor: AppColors.textSelection,
         selectionHandleColor: customColorScheme.primary,
@@ -90,8 +85,8 @@ ThemeData appTheme(BuildContext context) {
     ),
   );
 
-  final ElevatedButtonThemeData
-  customElevatedButtonTheme = ElevatedButtonThemeData(
+// Ex-Submit buttn
+  final ElevatedButtonThemeData customElevatedButtonTheme = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: customColorScheme.primary, // Default background color
       foregroundColor: customColorScheme.onPrimary, // Default text/icon color
@@ -99,42 +94,58 @@ ThemeData appTheme(BuildContext context) {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
       ), // Default shape
-      textStyle:
-          TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-      color: customColorScheme.onPrimary, // Text/icon color on primary button
-    ), // Default text style for button labels
+      textStyle: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: customColorScheme.onPrimary, // Text/icon color on primary button
+      ), // Default text style for button labels
     ),
   );
-
   // EX- Forget pwd
   final TextButtonThemeData customTextButtonTheme = TextButtonThemeData(
     style: TextButton.styleFrom(
       foregroundColor: customColorScheme.primary,
-      textStyle: TextStyle(
-        fontSize: 14,
-        color: customColorScheme.primary,
-      ),
+      textStyle: TextStyle(fontSize: 14, color: customColorScheme.primary),
     ),
   );
 
   final DialogThemeData customDialogTheme = DialogThemeData(
-    backgroundColor: customColorScheme.surface,
-    surfaceTintColor: customColorScheme.primary.withOpacity(0.05),
+    backgroundColor: AppColors.white,
+    surfaceTintColor: AppColors.white,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12), // Rounded corners
     ),
-    titleTextStyle: customTextTheme.titleLarge?.copyWith(
-      color: customColorScheme.onSurface, // Ensure title text color is appropriate
+    titleTextStyle: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      color: customColorScheme.onSurface,
     ),
-    contentTextStyle: customTextTheme.bodyMedium?.copyWith(
-      color: customColorScheme.onSurface.withOpacity(0.8), // Slightly subdued content color
+    contentTextStyle: TextStyle(
+      fontSize: 14,
+      color: customColorScheme.onSurface,
     ),
     alignment: Alignment.center,
-    elevation: 8,
+    shadowColor: AppColors.dialogShadowColor,
+    elevation: 16,
   );
 
+  final InputDecorationTheme customInputDecorationTheme = InputDecorationTheme(
+
+    filled: true,
+    fillColor: AppColors.white, // Default fill color
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
+    labelStyle: const TextStyle(color: AppColors.borderDark), 
+    hintStyle: const TextStyle(color: AppColors.borderDark), 
+    errorStyle: const TextStyle(color: AppColors.danger), 
+
+    enabledBorder: AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.standard),
+    focusedBorder: AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.primaryFocused),
+    errorBorder: AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.error),
+    focusedErrorBorder: AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.error),
+    floatingLabelStyle: WidgetStateTextStyle.resolveWith(AppThemeHelpers.getFloatingLabelStyle),
+  );
+
+  
   return ThemeData(
     useMaterial3: true,
     colorScheme: customColorScheme,
@@ -145,7 +156,7 @@ ThemeData appTheme(BuildContext context) {
     elevatedButtonTheme: customElevatedButtonTheme,
     textButtonTheme: customTextButtonTheme,
     dialogTheme: customDialogTheme,
+    inputDecorationTheme: customInputDecorationTheme,
     // Add other theme properties as needed
-
   );
 }
