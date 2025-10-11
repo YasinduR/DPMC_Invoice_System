@@ -178,7 +178,7 @@ class DummyData {
       telephone: '+94771234567', 
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001'],
-      isTemporaryPassword: true,
+      isTemporaryPassword: false,
       passwordUpdatedAt: DateTime.now()
     ),
     User(
@@ -189,6 +189,8 @@ class DummyData {
 
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001', '002'],
+      isTemporaryPassword: true,
+      passwordUpdatedAt: DateTime.now()
     ),
     User(
       id: '1122',

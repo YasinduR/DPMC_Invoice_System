@@ -5,6 +5,7 @@ import 'package:myapp/services/api_util_service.dart';
 class AppRoutes {
   AppRoutes._();
   // Common Routes
+  // static const String authCheck = '/authCheck'; // NEW route
   static const String login = '/login';
   static const String fraudMenu = '/fraudMenu'; // Remove Later
   static const String mainMenu = '/mainMenu';

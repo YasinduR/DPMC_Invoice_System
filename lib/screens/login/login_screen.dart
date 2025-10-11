@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
+//import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/views/login_form_view.dart';
 import 'package:myapp/views/password_setup_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/views/renew_password_view.dart';
+import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
-enum LoginScreenView {
-   loginForm, 
-   passwordSetup,
-   renewPassword
-   }
+enum LoginScreenView { loginForm, passwordSetup, renewPassword }
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -24,14 +22,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-
-
   String? _loginErrorMessage;
+  late String? savedUserName;
   LoginScreenView _currentView = LoginScreenView.loginForm;
 
   @override
   void initState() {
     super.initState();
+    _performInitialAuthCheck();
   }
 
   @override
@@ -39,57 +37,99 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  // Start Of Bio-Metric Section
+
+  Future<void> _performInitialAuthCheck() async {
+    final authNotifier = ref.read(authProvider.notifier);
+    // await authNotifier.initAuth();
+    //final authState = ref.read(authProvider);
+    bool isBiometricEnabled = await authNotifier.isBioMetEnabled();
+    String savedUsername = await authNotifier.getCurrentSavedUsername();
+    if (isBiometricEnabled && savedUsername.isNotEmpty) {
+      bool biometricLoginSuccessful = await authNotifier.loginWithBiometrics(
+        context,
+        (e) {
+          _showSnackBarError(e);
+        },
+      );
+      final updatedAuthState = ref.read(authProvider);
+
+      if (biometricLoginSuccessful && updatedAuthState.isLoggedIn) {
+        if (!updatedAuthState.requiresPasswordChange) {
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
+          }
+        } else {
+          // Password Change Required => Clear Current Login Info
+          //await authNotifier.clearUserInfo();
+          setState(() {
+            _loginErrorMessage = null;
+            if (updatedAuthState.passwordChangeType == 'SET') {
+              _currentView = LoginScreenView.passwordSetup;
+            } else if (updatedAuthState.passwordChangeType == 'RESET') {
+              _currentView = LoginScreenView.renewPassword;
+            }
+          });
+        }
+        return;
+      }
+    }
+  }
+
+  void _showSnackBarError(Exception e) {
+    String message;
+    if (e is UnauthorisedException || e is AccountLockedException) {
+      message = (e as AppException).getMessage();
+    } else if (e is FetchDataException) {
+      message = 'Could not connect. Please try again later.';
+    } else {
+      message = e.toString();
+    }
+    showSnackBar(context: context, message: message, type: MessageType.error);
+  }
+
+  // End of BioMetric Section
+
   void _clearLoginErrorMessage() {
     if (_loginErrorMessage != null) {
       //setState(() {
-        _loginErrorMessage = null;
-     // });
+      _loginErrorMessage = null;
+      // });
     }
-    setState(() { });
+    setState(() {});
   }
 
   void _handleLogin(String username, String password) async {
     FocusScope.of(context).unfocus();
     _clearLoginErrorMessage();
 
-    await ref.read(authProvider.notifier).login(context, username, password, (e) {
-      if (e is UnauthorisedException || e is AccountLockedException) {
-       // setState(() {
-          //_loginErrorMessage = e.getMessage().toString();
-          _loginErrorMessage = (e as AppException).getMessage(); 
-
-       // });
-
-      } else if (e is FetchDataException) {
-
-        //setState(() {
-          _loginErrorMessage = 'Could not connect. Please try again later.';
-        //});
-      } else {
-        //setState(() {
-          _loginErrorMessage = e.toString();
-        //});
-      }
-        showSnackBar(
-          context: context,
-          message: _loginErrorMessage!,
-          type: MessageType.error,
-        );
-
+    await ref.read(authProvider.notifier).login(context, username, password, (
+      e,
+    ) {
+      _showSnackBarError(e);
     });
 
     final authState = ref.read(authProvider);
     if (authState.isLoggedIn) {
       if (authState.requiresPasswordChange) {
-          setState(() {
+        setState(() {
           _loginErrorMessage = null;
           if (authState.passwordChangeType == 'SET') {
             _currentView = LoginScreenView.passwordSetup;
           } else if (authState.passwordChangeType == 'RESET') {
-            _currentView = LoginScreenView.renewPassword; 
+            _currentView = LoginScreenView.renewPassword;
           }
         });
       } else {
+        savedUserName =
+            await ref.read(authProvider.notifier).getCurrentSavedUsername();
+        if (savedUserName != username) {
+          // If this is a new user replace/add info to local storage.
+          await _userInfoSaveOnDevice(password);
+        }
+        else{
+
+        }
         Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
       }
     }
@@ -100,12 +140,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     required SecurityQuestionAnswer securityQandA, // <--- NEW PARAMETER
   }) async {
     try {
-      await ref.read(authProvider.notifier).setPassword(
+      await ref
+          .read(authProvider.notifier)
+          .setPassword(
             context,
             newPassword: newPassword,
             securityQandA: securityQandA, // <--- Pass to authProvider
-
           );
+      await ref.read(authProvider.notifier).clearUserInfo();
+      await _userInfoSaveOnDevice(newPassword);
       showSnackBar(
         context: context,
         message: 'Password changed successfully! You are now logged in.',
@@ -120,22 +163,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-    // NEW: Handler for submitting the renewed password
+  // NEW: Handler for submitting the renewed password
   Future<void> _handleRenewPasswordSubmit({required String newPassword}) async {
     try {
       await ref.read(authProvider.notifier).renewPassword(
-            context,
-            newPassword,
-            (e) {
-              // This onError will be called if the auth service itself throws
-              // RenewPasswordView handles errors displayed on the form.
-              showSnackBar(
-                context: context,
-                message: e.toString(),
-                type: MessageType.error,
-              );
-            },
-          );
+        context,
+        newPassword,
+        (e) {
+          _showSnackBarError(e);
+        },
+      );
+      await ref.read(authProvider.notifier).clearUserInfo();
+      await _userInfoSaveOnDevice(newPassword);
       showSnackBar(
         context: context,
         message: 'Password renewed successfully! You are now logged in.',
@@ -143,14 +182,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
       setState(() {
-        _currentView = LoginScreenView.loginForm; // Reset view after successful login
+        _currentView =
+            LoginScreenView.loginForm; // Reset view after successful login
       });
     } catch (e) {
       rethrow; // Re-throw to be caught by the RenewPasswordView for form-specific error display
     }
   }
 
-   // Handler for canceling password renewal
+  // Handler for canceling password renewal
   void _handleCancelRenewPassword() {
     ref.read(authProvider.notifier).logout(context);
     setState(() {
@@ -165,6 +205,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _currentView = LoginScreenView.loginForm;
       //_loginErrorMessage = 'Password change cancelled. Please log in again.';
     });
+  }
+
+  Future<void> _userInfoSaveOnDevice(String password) async {
+    
+    // Save Username and Pwd on local storage
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Enable Biometric Login?',
+      content: 'Would you like to save your information and enable biometric authentication for easier logins in the future?',
+      confirmButtonText: 'Yes, Enable',
+      cancelButtonText: 'No, Thanks',
+    );
+    if (confirmed) {
+      await ref.read(authProvider.notifier).SaveUserInfo(context, password, (
+        e,
+      ) {
+        _showSnackBarError(e);
+      });
+    }
   }
 
   void _handleForgetPassword() {
@@ -185,6 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         currentContent = LoginFormView(
           onLogin: _handleLogin,
           onForgetPassword: _handleForgetPassword,
+          onBiometric: _performInitialAuthCheck,
           onClear: _clearLoginErrorMessage,
           onCancel: _handleLoginViewCancel,
         );
@@ -195,7 +255,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onCancel: _handleCancelPasswordChange,
         );
         break;
-      case LoginScreenView.renewPassword: 
+      case LoginScreenView.renewPassword:
         currentContent = RenewPasswordView(
           onSubmit: _handleRenewPasswordSubmit,
           onCancel: _handleCancelRenewPassword,
@@ -205,11 +265,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return AppPage(
       canPop: false,
-      title: _currentView == LoginScreenView.loginForm
-          ? 'Login'
-          : (_currentView == LoginScreenView.passwordSetup
-              ? 'Set Password'
-              : 'Renew Password'), // Update title for new view      
+      title:
+          _currentView == LoginScreenView.loginForm
+              ? 'Login'
+              : (_currentView == LoginScreenView.passwordSetup
+                  ? 'Set Password'
+                  : 'Renew Password'), // Update title for new view
       showAppBar: false, // No app bar for login pages
       showFooter: true, // Show the common footer
       contentPadding: const EdgeInsets.fromLTRB(18, 60, 18, 24),

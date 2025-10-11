@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/services/auth_service.dart';
+import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/views/new_password_setup_view.dart';
 import 'package:myapp/views/user_info_request_view.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
@@ -20,6 +21,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   // String _token = '';
 
   final AuthService _authService = AuthService();
+  final LocalStorageService _storageService = LocalStorageService();
   bool _isLoading = false;
 
   Future<void> _submitUserNameEmail(String username) async {
@@ -57,9 +59,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       if (mounted) {
         String errorMessage;
         if (e is UnauthorisedException || e is AccountLockedException) {
-            errorMessage = (e as AppException).getMessage(); // Cast here
-        
-        }else{
+          errorMessage = (e as AppException).getMessage(); // Cast here
+        } else {
           errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
 
@@ -94,6 +95,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         newPassword: newPassword,
       );
       if (success && mounted) {
+        await _storageService.clearSavedLoginInfo();
         await showInfoDialog(
           context: context,
           title: 'Password Changed!',
@@ -113,9 +115,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       if (mounted) {
         String errorMessage;
         if (e is UnauthorisedException || e is AccountLockedException) {
-            errorMessage = (e as AppException).getMessage(); // Cast here
-        
-        }else{
+          errorMessage = (e as AppException).getMessage(); // Cast here
+        } else {
           errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
 

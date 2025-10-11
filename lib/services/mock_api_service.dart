@@ -159,6 +159,8 @@ class MockApiService {
         }
         final username = (body['username'] as String?)?.toLowerCase();
         final password = body['password'];
+        final mode = body['mode']; // BioMetric
+
         try {
           final user = DummyData.users.firstWhere(
             (u) => u.username == username,
@@ -231,16 +233,20 @@ class MockApiService {
               isPasswordExpired: passwordIsExpired,
             );
           } else {
-            user.incPins++;
-            if (user.incPins >= 3) {
-              user.isLocked = true;
-              throw AccountLockedException(
-                'Your Account has been locked due to too many incorrect attempts.',
-              );
+            if (mode == 'BioMetric') {
+              throw UnauthorisedException('Biometric login failed. Please login using an another way.');
             } else {
-              throw UnauthorisedException(
-                'Invalid Password. You have ${3 - user.incPins} attempt(s) remaining before your account is locked.',
-              ); // Use specific exception
+              user.incPins++;
+              if (user.incPins >= 3) {
+                user.isLocked = true;
+                throw AccountLockedException(
+                  'Your Account has been locked due to too many incorrect attempts.',
+                );
+              } else {
+                throw UnauthorisedException(
+                  'Invalid Password. You have ${3 - user.incPins} attempt(s) remaining before your account is locked.',
+                ); // Use specific exception
+              }
             }
           }
         } catch (e) {
@@ -432,7 +438,6 @@ class MockApiService {
         final username = (body['username'] as String?)?.toLowerCase();
         //final email = (body['email'] as String?)?.toLowerCase();
         try {
-
           final user = DummyData.users.firstWhere(
             (u) => u.username == username,
             orElse: () => throw UnauthorisedException('User not found.'),
@@ -478,7 +483,6 @@ class MockApiService {
         }
 
         try {
-
           final oldUser = DummyData.users.firstWhere(
             (u) => u.username == username,
             orElse: () => throw UnauthorisedException('User not found.'),
@@ -577,10 +581,8 @@ class MockApiService {
         );
 
         if (existingIndex != -1) {
-          // Record exists, replace it
           DummyData.attendances[existingIndex] = newAttendance;
         } else {
-          // No existing record, add as new
           DummyData.attendances.add(newAttendance);
         }
         return true;

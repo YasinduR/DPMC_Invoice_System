@@ -17,7 +17,6 @@ import 'package:myapp/screens/reprint/reprint_screen.dart';
 import 'package:myapp/screens/returns/return_screen.dart';
 import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
-import 'package:myapp/screens/test_screens/fraud_menu.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 
 // This will link main.dart with the approutes with handling permission
@@ -33,9 +32,9 @@ class AppRouter {
 
     final authState = ref.read(authProvider);
     final publicRoutes = [
+     // AppRoutes.authCheck,
       AppRoutes.login,
       AppRoutes.forgetPassword,
-      AppRoutes.fraudMenu,
     ];
 
 
@@ -118,8 +117,10 @@ class AppRouter {
         return (context) => const MainMenuScreen();
       case AppRoutes.forgetPassword:
         return (context) => const ForgetPasswordScreen();
-      case AppRoutes.fraudMenu:
-        return (context) => const FraudMenuScreen();
+      // case AppRoutes.fraudMenu:
+      //   return (context) => const FraudMenuScreen();
+      // case AppRoutes.authCheck:
+      //   return (context) => const AuthCheckScreen();
 
       // Routes dynamically generated routes
       case '/setupPrint':

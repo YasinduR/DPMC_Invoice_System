@@ -24,6 +24,7 @@ class AuthService {
     required BuildContext context,
     required String username,
     required String password,
+    String mode ='',
     required Function(Exception e) onError,
   }) async {
     final loadingOverlay = AppLoadingOverlay();
@@ -32,7 +33,7 @@ class AuthService {
       final user =
           await MockApiService.post(
                 'api/user/login',
-                body: {'username': username, 'password': password},
+                body: {'username': username, 'password': password,'mode':mode},
               )
               as User;
       return user;
@@ -216,4 +217,10 @@ class AuthService {
       }
     }
   }
+
+    // --- NEW LOCAL STORAGE METHODS ---
+
+
+
+
 }

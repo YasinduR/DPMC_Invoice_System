@@ -8,6 +8,7 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 class LoginFormView extends ConsumerStatefulWidget {
   //final String? loginErrorMessage;
   final void Function(String username, String password) onLogin;
+  final VoidCallback onBiometric;
   final VoidCallback onForgetPassword;
   final VoidCallback onClear;
   final VoidCallback onCancel;
@@ -15,6 +16,7 @@ class LoginFormView extends ConsumerStatefulWidget {
   const LoginFormView({
     super.key,
     //this.loginErrorMessage,
+    required this.onBiometric,
     required this.onLogin,
     required this.onForgetPassword,
     required this.onClear,
@@ -29,8 +31,8 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
   late FocusNode _usernameFocusNode;
   late FocusNode _passwordFocusNode;
 
-  final _usernameController = TextEditingController(text: 'yasindu');
-  final _passwordController = TextEditingController(text: '12345');
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
 
 

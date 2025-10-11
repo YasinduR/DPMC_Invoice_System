@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/auth_service.dart';
+import 'package:myapp/services/local_auth_service.dart';
+import 'package:myapp/services/local_storage_service.dart';
 
 class AuthState {
   final bool isLoggedIn;
   final bool isLoading;
   final User? currentUser;
   final bool requiresPasswordChange;
-  final String? passwordChangeType; // RESET OR SET
+  final String? passwordChangeType;
 
   const AuthState({
     required this.isLoggedIn,
@@ -17,6 +20,7 @@ class AuthState {
     this.currentUser,
     this.requiresPasswordChange = false,
     this.passwordChangeType,
+
   });
 
   const AuthState.initial()
@@ -26,6 +30,7 @@ class AuthState {
       requiresPasswordChange = false,
       passwordChangeType = null;
 
+
   AuthState copyWith({
     bool? isLoggedIn,
     bool? isLoading,
@@ -33,6 +38,7 @@ class AuthState {
     User? Function()? currentUserUpdate, // Added for nulling out currentUser
     bool? requiresPasswordChange,
     String? passwordChangeType,
+
   }) {
     return AuthState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
@@ -44,13 +50,102 @@ class AuthState {
       requiresPasswordChange:
           requiresPasswordChange ?? this.requiresPasswordChange,
       passwordChangeType: passwordChangeType ?? this.passwordChangeType,
+
     );
   }
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
-  AuthNotifier(this._authService) : super(const AuthState.initial());
+  final LocalAuthService _localAuthService;
+  final LocalStorageService _localStorageService;
+
+  AuthNotifier(
+    this._authService,
+    this._localAuthService,
+    this._localStorageService,
+  ) : super(AuthState.initial());
+
+
+  //  Perform biometric login
+  Future<bool> loginWithBiometrics(
+    BuildContext context,
+    Function(Exception e) onError,
+  ) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final isBiometricEnabled =
+          await _localStorageService.getBiometricPreference();
+      final savedUsername =
+          await _localStorageService.getSavedUsernameForBiometric();
+
+      if (!isBiometricEnabled || savedUsername == null) {
+        throw Exception('Biometric login not enabled or username not saved.');
+      }
+
+      final bool authenticated = await _localAuthService.authenticateBiometrics(
+        'Authenticate to log in with your saved account',
+      );
+
+      if (authenticated) {
+        final savedPassword =
+            await _localStorageService.getSavedPasswordForBiometric();
+
+        final User? user = await _authService.login(
+          context: context,
+          username: savedUsername,
+          mode: 'BioMetric',
+          password: savedPassword ?? '', // This is a placeholder.//Saved token
+          onError: onError, // Pass a dummy onError if not handled by real login
+        );
+
+        if (user != null) {
+          state = state.copyWith(
+            isLoggedIn: true,
+            currentUser: user,
+            requiresPasswordChange:
+                user.isTemporaryPassword || user.isPasswordExpired,
+            passwordChangeType:
+                user.isTemporaryPassword
+                    ? 'SET'
+                    : (user.isPasswordExpired ? 'RESET' : null),
+          );
+
+
+          return true;
+        } else {
+
+          state = state.copyWith(
+            isLoggedIn: false,
+            currentUserUpdate: () => null,
+          );
+          onError(
+            UnauthorisedException(
+              'Failed to log in after biometric authentication.',
+            ),
+          );
+          return false;
+        }
+      } else {
+        onError(
+          UnauthorisedException(
+            'Biometric authentication failed or cancelled.',
+          ),
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        isLoggedIn: false, // Ensure logged out if biometric login fails
+        currentUserUpdate: () => null,
+      );
+      onError(e is Exception ? e : Exception(e.toString()));
+      return false;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
 
   Future<void> login(
     BuildContext context,
@@ -83,8 +178,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
               user.isTemporaryPassword || user.isPasswordExpired,
           passwordChangeType: _changeType,
         );
+
       } else {
-        // If login failed (user is null), ensure logged out state
         state = state.copyWith(
           isLoggedIn: false,
           currentUserUpdate: () => null,
@@ -92,18 +187,81 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
     } catch (e) {
       state = state.copyWith(isLoggedIn: false, currentUserUpdate: () => null);
-      onError(e is Exception ? e : Exception(e.toString())); // Exception types can be hndle from login screen
+      onError(
+        e is Exception ? e : Exception(e.toString()),
+      ); // Exception types can be hndle from login screen
     } finally {
       state = state.copyWith(isLoading: false);
     }
   }
 
-  // This method is for the *first-time* password change.
-  // It ensures the user remains logged in after the change.
+  Future<void> SaveUserInfo(
+    BuildContext context,
+    String password, // Password parameter
+    Function(Exception e) onError,
+  ) async {
+    state = state.copyWith(isLoading: true); // Start loading
+
+    try {
+      if (state.currentUser == null) {
+        throw Exception('No current user logged in to save information for.');
+      }
+      await _localStorageService.saveUsernameForBiometric(
+        state.currentUser!.username,
+        password,
+      );
+
+    } catch (e) {
+      print('Error saving user info: $e');
+      onError(e is Exception ? e : Exception(e.toString()));
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<String> getCurrentSavedUsername() async {
+    state = state.copyWith(isLoading: true); // Start loading
+    String? username;
+    try {
+      username = await _localStorageService.getSavedUsernameForBiometric();
+    } catch (e) {
+      print('Error getting saved username from local storage: $e');
+      username = null;
+    } finally {
+      state = state.copyWith(isLoading: false); // End loading
+    }
+    return username ?? '';
+  }
+
+  Future<bool> isBioMetEnabled() async {
+    state = state.copyWith(isLoading: true);
+
+    bool? loginMethod;
+    try {
+      loginMethod = await _localStorageService.getBiometricPreference();
+    } catch (e) {
+      loginMethod = false;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+    return loginMethod;
+  }
+
+  Future<void> clearUserInfo() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _localStorageService.clearSavedLoginInfo();
+    } catch (e) {
+      rethrow;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
   Future<void> setPassword(
     BuildContext context, {
     required String newPassword,
-    required SecurityQuestionAnswer securityQandA, 
+    required SecurityQuestionAnswer securityQandA,
   }) async {
     state = state.copyWith(isLoading: true);
 
@@ -114,7 +272,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final updatedUser = await _authService.setPassword(
         context: context,
         username: state.currentUser!.username,
-        securityQandA: securityQandA, 
+        securityQandA: securityQandA,
         newPassword: newPassword,
       );
 
@@ -130,49 +288,47 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
   // NEW: Method to handle renewing an expired password
-Future<void> renewPassword(
-  BuildContext context,
-  String newPassword,
-  Function(Exception e) onError,
-) async {
-  state = state.copyWith(isLoading: true);
+  Future<void> renewPassword(
+    BuildContext context,
+    String newPassword,
+    Function(Exception e) onError,
+  ) async {
+    state = state.copyWith(isLoading: true);
 
-  try {
-
-    final username = state.currentUser?.username;
-    if (username == null) {
-      throw Exception("Cannot renew password: current user information missing.");
-    }
-
-    final updatedUser = await _authService.renewPassword(
-      context: context,
-      username: username,
-      newPassword: newPassword,
-    );
-
-    // ignore: unnecessary_null_comparison
-    if (updatedUser != null) {
-      state = state.copyWith(
-        isLoggedIn: true,
-        currentUser: updatedUser,
-        requiresPasswordChange: false,
-        passwordChangeType: null, 
+    try {
+      final username = state.currentUser?.username;
+      if (username == null) {
+        throw Exception(
+          "Cannot renew password: current user information missing.",
+        );
+      }
+      final updatedUser = await _authService.renewPassword(
+        context: context,
+        username: username,
+        newPassword: newPassword,
       );
-    } else {
-      state = state.copyWith(
-        isLoggedIn: false,
-        currentUserUpdate: () => null,
-      );
-    onError(Exception('Password renewal failed.'));
+      // ignore: unnecessary_null_comparison
+      if (updatedUser != null) {
+        state = state.copyWith(
+          isLoggedIn: true,
+          currentUser: updatedUser,
+          requiresPasswordChange: false,
+          passwordChangeType: null,
+        );
+      } else {
+        state = state.copyWith(
+          isLoggedIn: false,
+          currentUserUpdate: () => null,
+        );
+        onError(Exception('Password renewal failed.'));
+      }
+    } catch (e) {
+      state = state.copyWith(isLoggedIn: false, currentUserUpdate: () => null);
+      onError(e is Exception ? e : Exception(e.toString()));
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
-  } catch (e) {
-    state = state.copyWith(isLoggedIn: false, currentUserUpdate: () => null);
-    onError(e is Exception ? e : Exception(e.toString()));
-  } finally {
-    state = state.copyWith(isLoading: false);
   }
-}
-
 
   Future<void> changePassword(
     BuildContext context, {
@@ -206,7 +362,60 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService();
 });
 
+// NEW: Provider for LocalAuthService
+final localAuthServiceProvider = Provider<LocalAuthService>((ref) {
+  return LocalAuthService();
+});
+
+final localStorageServiceProvider = Provider<LocalStorageService>((ref) {
+  return LocalStorageService();
+});
+
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = ref.read(authServiceProvider);
-  return AuthNotifier(authService);
+  final localAuthService = ref.read(localAuthServiceProvider); // Read the new service
+  final localStorageService =  ref.read(localStorageServiceProvider);
+  return AuthNotifier(authService, localAuthService,localStorageService); // Pass both services
 });
+
+
+
+  // // NEW: Toggle biometric authentication preference
+  // Future<void> toggleBiometricLogin(bool enable) async {
+  //   state = state.copyWith(isLoading: true);
+  //   try {
+  //     if (enable) {
+  //       // Check if device supports biometrics before enabling
+  //       final bool canCheck = await _authService.canCheckBiometrics();
+  //       if (!canCheck) {
+  //         throw Exception('Biometric authentication is not available on this device.');
+  //       }
+  //       // Optionally, prompt for biometric auth once to confirm setup
+  //       final bool authenticated = await _authService.authenticateBiometrics(
+  //         'Confirm your identity to enable biometric login',
+  //       );
+  //       if (!authenticated) {
+  //         throw Exception('Biometric authentication failed or was cancelled.');
+  //       }
+  //       await _authService.saveBiometricPreference(true);
+  //       // If enabling, and a user is logged in, save their username
+  //       if (state.currentUser != null) {
+  //         await _authService.saveUsernameForBiometric(state.currentUser!.username);
+  //         state = state.copyWith(savedUsername: state.currentUser!.username);
+  //       }
+  //       state = state.copyWith(isBiometricEnabled: true);
+  //     } else {
+  //       await _authService.saveBiometricPreference(false);
+  //       await _authService.clearSavedLoginInfo(); // Also clear saved username
+  //       state = state.copyWith(
+  //         isBiometricEnabled: false,
+  //         savedUsernameUpdate: () => null,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error toggling biometric login: $e');
+  //     // Optionally, revert the UI state or show an error message
+  //   } finally {
+  //     state = state.copyWith(isLoading: false);
+  //   }
+  // }
