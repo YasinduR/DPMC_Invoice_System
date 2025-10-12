@@ -16,6 +16,7 @@ import 'package:myapp/screens/reciept/reciept_screen.dart';
 import 'package:myapp/screens/reprint/reprint_screen.dart';
 import 'package:myapp/screens/returns/return_screen.dart';
 import 'package:myapp/screens/route_selection/route_selection.dart';
+import 'package:myapp/screens/security_setting/security_setting_screen.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 
@@ -32,11 +33,10 @@ class AppRouter {
 
     final authState = ref.read(authProvider);
     final publicRoutes = [
-     // AppRoutes.authCheck,
+      // AppRoutes.authCheck,
       AppRoutes.login,
       AppRoutes.forgetPassword,
     ];
-
 
     // if (publicRoutes.contains(routeName)) {
     // } else if (!authState.isLoggedIn) {
@@ -51,19 +51,28 @@ class AppRouter {
     // 1. If not logged in AND trying to access a non-public route
     if (!authState.isLoggedIn && !publicRoutes.contains(routeName)) {
       return MaterialPageRoute(
-        builder: (_) => const ErrorScreen(
-          title: 'Access Denied',
-          message: 'No user has logged in.',
-        ),
-        settings: const RouteSettings(name: AppRoutes.login), // Redirect to login
+        builder:
+            (_) => const ErrorScreen(
+              title: 'Access Denied',
+              message: 'No user has logged in.',
+            ),
+        settings: const RouteSettings(
+          name: AppRoutes.login,
+        ), // Redirect to login
       );
     }
 
     // 2. If logged in but requires password change AND trying to access ANY route other than login
-    if (authState.isLoggedIn && authState.requiresPasswordChange && routeName != AppRoutes.login) {
+    if (authState.isLoggedIn &&
+        authState.requiresPasswordChange &&
+        routeName != AppRoutes.login) {
       return MaterialPageRoute(
-        builder: (_) => const LoginScreen(), // Redirect to LoginScreen, which will show set password form
-        settings: const RouteSettings(name: AppRoutes.login), // Keep route name as login
+        builder:
+            (_) =>
+                const LoginScreen(), // Redirect to LoginScreen, which will show set password form
+        settings: const RouteSettings(
+          name: AppRoutes.login,
+        ), // Keep route name as login
       );
     }
 
@@ -72,7 +81,6 @@ class AppRouter {
     // if (routeName == AppRoutes.login && authState.isLoggedIn && !authState.requiresPasswordChange) {
     //   return MaterialPageRoute(builder: (_) => const MainMenuScreen(), settings: const RouteSettings(name: AppRoutes.mainMenu));
     // }
-
 
     //---- END OF THE SECTION----//
 
@@ -143,6 +151,8 @@ class AppRouter {
         return (context) => const RouteSelectionScreen();
       case '/changePassword':
         return (context) => const ChangePasswordScreen();
+      case '/securitySetting':
+        return (context) => const SecuritySettingScreen();
       case '/attendance':
         return (context) => const AttendanceScreen();
 

@@ -54,14 +54,6 @@ class DummyData {
       iconName: 'lock_open',
     ),
 
-    Screen(
-      screenId: '015',
-      screenName: 'forgetPassword',
-      menuId: 'N/A',
-      title: 'Main Menu',
-      iconName: 'apps',
-    ),
-
     // Menu screens
     Screen(
       screenId: '003',
@@ -126,13 +118,6 @@ class DummyData {
       title: 'Route Selection',
       iconName: 'route',
     ),
-    Screen(
-      screenId: '012',
-      screenName: 'changePassword',
-      menuId: '00', // availble under each menu
-      title: 'Change Password',
-      iconName: 'lock_reset',
-    ),
 
     Screen(
       screenId: '014',
@@ -140,6 +125,22 @@ class DummyData {
       menuId: '02',
       title: 'Attendance',
       iconName: 'checklist',
+    ),
+
+    Screen(
+      screenId: '015',
+      screenName: 'securitySetting',
+      menuId: '00', // availble under each menu
+      title: 'Security Setting',
+      iconName: 'security_settings',
+    ),
+
+        Screen(
+      screenId: '012',
+      screenName: 'changePassword',
+      menuId: '00', // availble under each menu
+      title: 'Change Password',
+      iconName: 'lock_reset',
     ),
   ];
 
@@ -168,6 +169,10 @@ class DummyData {
     Perm(RoleId: '002', ScreenId: '012'), // changePassword
     Perm(RoleId: '002', ScreenId: '014'), // Attendance
     Perm(RoleId: '003', ScreenId: '014'), // Attendance
+    Perm(RoleId: '001', ScreenId: '015'), // Security Settings
+    Perm(RoleId: '002', ScreenId: '015'), // Security Settings
+    Perm(RoleId: '003', ScreenId: '015'), // Security Settings
+
   ];
 
   static final List<User> _users = [
@@ -185,8 +190,7 @@ class DummyData {
       id: '8108',
       username: 'nimesh',
       email: 'nimesh@example.com',
-            telephone: '+94761234566',
-
+      telephone: '+94761234566',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001', '002'],
       isTemporaryPassword: true,
@@ -196,7 +200,7 @@ class DummyData {
       id: '1122',
       username: 'sachith',
       email: 'sachith@example.com',
-            telephone: '+94711234567', 
+      telephone: '+94711234567', 
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002'],
     ),
@@ -204,8 +208,7 @@ class DummyData {
       id: '1111',
       username: 'sameera',
       email: 'sameera@example.com',
-            telephone: '+94771234568',
-
+      telephone: '+94771234568',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002', '003'],
     ),
@@ -213,8 +216,7 @@ class DummyData {
       id: '1000',
       username: 'admin',
       email: 'admin@example.com',
-            telephone: '+94771234555',
-
+      telephone: '+94771234555',
       password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
       roles: ['001', '002', '003'],
     ),

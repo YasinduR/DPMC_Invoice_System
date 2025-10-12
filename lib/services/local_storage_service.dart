@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService {
@@ -10,10 +12,21 @@ class LocalStorageService {
     await prefs.setBool(_kBiometricEnabled, enabled);
   }
 
-  Future<bool> getBiometricPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_kBiometricEnabled) ?? false;
+  Future<bool> getBiometricPreference(BuildContext context) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_kBiometricEnabled) ?? false;
+    } catch (e) {
+      return false;
+    } finally{
+    if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
   }
+
 
   Future<void> saveUsernameForBiometric(
     String username,
@@ -23,6 +36,11 @@ class LocalStorageService {
     await prefs.setBool(_kBiometricEnabled, true);
     await prefs.setString(_kSavedUsername, username);
     await prefs.setString(_kSavedPwd, password);
+  }
+
+  Future<void> setBiometricPreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kBiometricEnabled, value);
   }
 
   Future<String?> getSavedUsernameForBiometric() async {

@@ -49,7 +49,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         content:
             'Your password has been changed successfully. Please log in again.',
       );
-      bool isBioMetEnabled = await ref.read(authProvider.notifier).isBioMetEnabled();
+      bool isBioMetEnabled = await ref.read(authProvider.notifier).isBioMetEnabled(context);
       if (isBioMetEnabled) {
         await ref.read(authProvider.notifier).clearUserInfo();
         await showInfoDialog(

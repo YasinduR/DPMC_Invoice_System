@@ -19,7 +19,8 @@ class IconMapper {
     'lock_reset': Icons.lock_reset,
     'info': Icons.info,
     'logout': Icons.logout,
-    'checklist': Icons.checklist
+    'checklist': Icons.checklist,
+    'security_settings': Icons.security, // Added for general security settings
     // add icon name defined : Icon files
   };
 

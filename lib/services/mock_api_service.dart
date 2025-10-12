@@ -178,7 +178,7 @@ class MockApiService {
             user.incPins = 0;
             bool passwordIsExpired = false;
             const Duration passwordExpiryDuration = Duration(
-              seconds: 30,
+              seconds: 60,
             ); // For Testing Tme GAP IS 30 SEC
 
             if (user.passwordUpdatedAt != null) {
@@ -234,7 +234,9 @@ class MockApiService {
             );
           } else {
             if (mode == 'BioMetric') {
-              throw UnauthorisedException('Biometric login failed. Please login using an another way.');
+              throw UnauthorisedException(
+                'Biometric login failed. Please login using an another way.',
+              );
             } else {
               user.incPins++;
               if (user.incPins >= 3) {

@@ -43,7 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authNotifier = ref.read(authProvider.notifier);
     // await authNotifier.initAuth();
     //final authState = ref.read(authProvider);
-    bool isBiometricEnabled = await authNotifier.isBioMetEnabled();
+    bool isBiometricEnabled = await authNotifier.isBioMetEnabled(context);
     String savedUsername = await authNotifier.getCurrentSavedUsername();
     if (isBiometricEnabled && savedUsername.isNotEmpty) {
       bool biometricLoginSuccessful = await authNotifier.loginWithBiometrics(
@@ -125,11 +125,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             await ref.read(authProvider.notifier).getCurrentSavedUsername();
         if (savedUserName != username) {
           // If this is a new user replace/add info to local storage.
-          await _userInfoSaveOnDevice(password);
-        }
-        else{
-
-        }
+          await _userInfoSaveOnDevice();
+        } else {}
         Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
       }
     }
@@ -148,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             securityQandA: securityQandA, // <--- Pass to authProvider
           );
       await ref.read(authProvider.notifier).clearUserInfo();
-      await _userInfoSaveOnDevice(newPassword);
+      await _userInfoSaveOnDevice();
       showSnackBar(
         context: context,
         message: 'Password changed successfully! You are now logged in.',
@@ -174,7 +171,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         },
       );
       await ref.read(authProvider.notifier).clearUserInfo();
-      await _userInfoSaveOnDevice(newPassword);
+      await _userInfoSaveOnDevice();
       showSnackBar(
         context: context,
         message: 'Password renewed successfully! You are now logged in.',
@@ -207,22 +204,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  Future<void> _userInfoSaveOnDevice(String password) async {
-    
+  Future<void> _userInfoSaveOnDevice() async {
     // Save Username and Pwd on local storage
     final confirmed = await showConfirmationDialog(
       context: context,
       title: 'Enable Biometric Login?',
-      content: 'Would you like to save your information and enable biometric authentication for easier logins in the future?',
+      content:
+          'Would you like to save your information and enable biometric authentication for easier logins in the future?',
       confirmButtonText: 'Yes, Enable',
       cancelButtonText: 'No, Thanks',
     );
     if (confirmed) {
-      await ref.read(authProvider.notifier).SaveUserInfo(context, password, (
-        e,
-      ) {
-        _showSnackBarError(e);
-      });
+      final verified = await ref.read(authProvider.notifier).confirmBiometrics(
+        context,
+        (e) {
+          _showSnackBarError(e);
+        },
+      );
+      if (verified) {
+        await ref.read(authProvider.notifier).saveUserInfo(context, (e) {
+          _showSnackBarError(e);
+        });
+      }
     }
   }
 

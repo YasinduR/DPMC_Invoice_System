@@ -380,16 +380,10 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
         );
-      // case 1:
-      //   return AuthenticateDealerView
-      //  (
-      //     dealer: _selectedDealer!,
-      //     onAuthenticated: _onAuthenticated,
-      //   );
+        
       case 1:
         return RecieptDetailsView(
           key: _receiptDetailsKey, // Refresh Tin Data on succussful cheque save
-
           dealer: _selectedDealer!,
           onSubmit: _onSubmit,
           addCreditnote: _gotoaddCreditNotes,

@@ -145,7 +145,46 @@ ThemeData appTheme(BuildContext context) {
     floatingLabelStyle: WidgetStateTextStyle.resolveWith(AppThemeHelpers.getFloatingLabelStyle),
   );
 
-  
+    // Add suitable themedata for switch here
+  final SwitchThemeData customSwitchTheme = SwitchThemeData(
+    thumbColor: MaterialStateProperty.resolveWith<Color?>(
+      (Set<MaterialState> states) {
+        if (states.contains(MaterialState.disabled)) {
+          return customColorScheme.onSurface.withOpacity(0.38); 
+        }
+        if (states.contains(MaterialState.selected)) {
+          return customColorScheme.primary; 
+        }
+        return customColorScheme.outline;
+      },
+    ),
+    trackColor: MaterialStateProperty.resolveWith<Color?>(
+      (Set<MaterialState> states) {
+        if (states.contains(MaterialState.disabled)) {
+          return customColorScheme.onSurface.withOpacity(0.12);
+        }
+        if (states.contains(MaterialState.selected)) {
+          return customColorScheme.primary.withOpacity(0.5);
+        }
+        return customColorScheme.surfaceContainerHigh; 
+      },
+    ),
+    overlayColor: MaterialStateProperty.resolveWith<Color?>(
+      (Set<MaterialState> states) {
+        if (states.contains(MaterialState.hovered)) {
+          return customColorScheme.primary.withOpacity(0.08);
+        }
+        if (states.contains(MaterialState.focused)) {
+          return customColorScheme.primary.withOpacity(0.12);
+        }
+        if (states.contains(MaterialState.pressed)) {
+          return customColorScheme.primary.withOpacity(0.12);
+        }
+        return null; // No overlay by default
+      },
+    ),
+  );
+
   return ThemeData(
     useMaterial3: true,
     colorScheme: customColorScheme,
@@ -157,6 +196,7 @@ ThemeData appTheme(BuildContext context) {
     textButtonTheme: customTextButtonTheme,
     dialogTheme: customDialogTheme,
     inputDecorationTheme: customInputDecorationTheme,
+    switchTheme: customSwitchTheme
     // Add other theme properties as needed
   );
 }
