@@ -8,11 +8,11 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 
 // Password Setup view for First-time login Users
 class PasswordSetupView extends ConsumerStatefulWidget {
-
   final Future<void> Function({
     required String newPassword,
-    required SecurityQuestionAnswer securityQandA, 
-  }) onSubmit;
+    required SecurityQuestionAnswer securityQandA,
+  })
+  onSubmit;
   final VoidCallback onCancel;
 
   const PasswordSetupView({
@@ -31,22 +31,33 @@ class _PasswordSetupViewState extends ConsumerState<PasswordSetupView> {
   final _confirmPwdController = TextEditingController();
   final _answerController = TextEditingController();
 
+  late FocusNode _newPwdFocusNode;
+  late FocusNode _confirmPwdFocusNode;
+  late FocusNode _answerFocusNode;
+
   String? _passwordChangeErrorMessage;
   String? _selectedSecurityQuestion;
-final List<String> securityQuestions = [
-  'First pet\'s name?',
-  'City of birth?',
-  'Mother\'s maiden name?',
-  'Elementary school name?',
-  'First car\'s make/model?'
-];
+  final List<String> securityQuestions = [
+    'First pet\'s name?',
+    'City of birth?',
+    'Mother\'s maiden name?',
+    'Elementary school name?',
+    'First car\'s make/model?',
+  ];
 
   @override
   void initState() {
     super.initState();
+    _newPwdFocusNode = FocusNode();
+    _confirmPwdFocusNode = FocusNode();
+    _answerFocusNode = FocusNode();
+
     _newPwdController.addListener(_onTextChanged);
     _confirmPwdController.addListener(_onTextChanged);
-     _answerController.addListener(_onTextChanged);
+    _answerController.addListener(_onTextChanged);
+    
+     _newPwdFocusNode.requestFocus(); // Set initial focus
+
   }
 
   @override
@@ -57,6 +68,11 @@ final List<String> securityQuestions = [
     _newPwdController.dispose();
     _confirmPwdController.dispose();
     _answerController.dispose();
+
+    _newPwdFocusNode.dispose();
+    _confirmPwdFocusNode.dispose();
+    _answerFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -65,13 +81,12 @@ final List<String> securityQuestions = [
       setState(() {
         _passwordChangeErrorMessage = null;
       });
-    }
-     else {
+    } else {
       setState(() {});
     }
   }
 
-    Future<void> _showReasonPicker() async {
+  Future<void> _showReasonPicker() async {
     final result = await showDialog<String>(
       context: context,
       builder:
@@ -86,27 +101,22 @@ final List<String> securityQuestions = [
       setState(() {
         _selectedSecurityQuestion = result;
       });
+      _answerFocusNode.requestFocus(); // Set initial focus
     }
   }
 
-    Future<void> _handleSubmit() async {
+  Future<void> _handleSubmit() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-
     if (_newPwdController.text != _confirmPwdController.text) {
-      //setState(() {
-        _passwordChangeErrorMessage =
-            'New password and confirmation do not match.';
-      //});
+      _passwordChangeErrorMessage = 'New password and confirmation do not match.';
       return;
     }
 
     if (_selectedSecurityQuestion == null || _answerController.text.isEmpty) {
-       // setState(() {
-            _passwordChangeErrorMessage = 'Please select a security question and provide an answer.';
-        //});
-        return;
+      _passwordChangeErrorMessage = 'Please select a security question and provide an answer.';
+      return;
     }
 
     try {
@@ -117,15 +127,11 @@ final List<String> securityQuestions = [
 
       await widget.onSubmit(
         newPassword: _newPwdController.text,
-        securityQandA: securityQandA, 
+        securityQandA: securityQandA,
       );
     } catch (e) {
-      //setState(() {
-        _passwordChangeErrorMessage = e.toString().replaceFirst(
-          'Exception: ',
-          '',
-        );
-     // });
+      _passwordChangeErrorMessage = e.toString().replaceFirst('Exception: ','',);
+      // });
     }
   }
 
@@ -157,105 +163,125 @@ final List<String> securityQuestions = [
   @override
   Widget build(BuildContext context) {
     final bool areControllersEmpty =
-        _newPwdController.text.isEmpty || _confirmPwdController.text.isEmpty || _answerController.text.isEmpty ||(_selectedSecurityQuestion==null);
+        _newPwdController.text.isEmpty ||
+        _confirmPwdController.text.isEmpty ||
+        _answerController.text.isEmpty ||
+        (_selectedSecurityQuestion == null);
     final bool passwordsMatch =
         _newPwdController.text == _confirmPwdController.text;
     final bool isFormValid = !areControllersEmpty && passwordsMatch;
 
-    return  Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child:
-            ListView(
-              children:[
-         // const SizedBox(height: 30),
-          Text('Set New Password', style:  Theme.of(context).textTheme.headlineMedium,),
-          const SizedBox(height: 8),
-          Text(
-            'You are required to change your temporary password.',
-              style:  Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 30),
-          // if (_passwordChangeErrorMessage != null)
-          //   Padding(
-          //     padding: const EdgeInsets.only(bottom: 20.0),
-          //     child: Center(
-          //       child: Text(
-          //         _passwordChangeErrorMessage!,
-          //         style: const TextStyle(color: AppColors.danger, fontSize: 16),
-          //         textAlign: TextAlign.center,
-          //       ),
-          //     ),
-          //   ),
-          Form(
-            key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Column(
-              children: [
-                AppTextField(
-                  controller: _newPwdController,
-                  labelText: 'New Password',
-                  isPassword: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'New password is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                AppTextField(
-                  controller: _confirmPwdController,
-                  labelText: 'Confirm New Password',
-                  isPassword: true,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ListView(
+            children: [
+              // const SizedBox(height: 30),
+              Text(
+                'Set New Password',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You are required to change your temporary password.',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 30),
+              // if (_passwordChangeErrorMessage != null)
+              //   Padding(
+              //     padding: const EdgeInsets.only(bottom: 20.0),
+              //     child: Center(
+              //       child: Text(
+              //         _passwordChangeErrorMessage!,
+              //         style: const TextStyle(color: AppColors.danger, fontSize: 16),
+              //         textAlign: TextAlign.center,
+              //       ),
+              //     ),
+              //   ),
+              Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    AppTextField(
+                      controller: _newPwdController,
+                      focusNode: _newPwdFocusNode,
+                      labelText: 'New Password',
+                      isPassword: true,
+                      onFieldSubmitted: (_) {
+                        _confirmPwdFocusNode.requestFocus();
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'New password is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    AppTextField(
+                      controller: _confirmPwdController,
+                      focusNode: _confirmPwdFocusNode,
+                      labelText: 'Confirm New Password',
+                      isPassword: true,
+                      onFieldSubmitted: (_) {
+                        _showReasonPicker();
+                      },
 
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return null;
-                    }
-                    if (value != _newPwdController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return null;
+                        }
+                        if (value != _newPwdController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    PickerFormField(
+                      inputFieldLabelText: 'Select a Security Question',
+                      selectedOption: _selectedSecurityQuestion,
+                      onTap: _showReasonPicker,
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    AppTextField(
+                      controller: _answerController,
+                      focusNode: _answerFocusNode,
+                      onFieldSubmitted: (_) {
+                        _handleSubmit;
+                      },
+                      labelText: 'Answer',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Answer is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                PickerFormField(
-                inputFieldLabelText: 'Select a Security Question',
-                selectedOption: _selectedSecurityQuestion,
-                onTap: _showReasonPicker,
-                ),
-                const SizedBox(height: 16),
-                AppTextField(
-                  controller: _answerController,
-                  labelText: 'Answer',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Answer is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
+              ),
+            ],
           ),
-      ])),
-          ActionButton(
-            disabled: !isFormValid || ref.watch(authProvider).isLoading,
-            icon: Icons.check_circle_outline,
-            label: 'Change Password',
-            onPressed: _handleSubmit,
-          ),
-          const SizedBox(height: 16),
-          ActionButton(
-            icon: Icons.cancel_outlined,
-            label: 'Cancel',
-            type:ActionButtonType.secondary,
-            onPressed: widget.onCancel,
-          ),
-        ],
-      );
+        ),
+        ActionButton(
+          disabled: !isFormValid || ref.watch(authProvider).isLoading,
+          icon: Icons.check_circle_outline,
+          label: 'Change Password',
+          onPressed: _handleSubmit,
+        ),
+        const SizedBox(height: 16),
+        ActionButton(
+          icon: Icons.cancel_outlined,
+          label: 'Cancel',
+          type: ActionButtonType.secondary,
+          onPressed: widget.onCancel,
+        ),
+      ],
+    );
   }
 }

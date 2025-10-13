@@ -131,11 +131,11 @@ class DummyData {
       screenId: '015',
       screenName: 'securitySetting',
       menuId: '00', // availble under each menu
-      title: 'Security Setting',
+      title: 'Security',
       iconName: 'security_settings',
     ),
 
-        Screen(
+    Screen(
       screenId: '012',
       screenName: 'changePassword',
       menuId: '00', // availble under each menu
@@ -172,7 +172,6 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '015'), // Security Settings
     Perm(RoleId: '002', ScreenId: '015'), // Security Settings
     Perm(RoleId: '003', ScreenId: '015'), // Security Settings
-
   ];
 
   static final List<User> _users = [
@@ -180,11 +179,11 @@ class DummyData {
       id: '2619',
       username: 'yasindu',
       email: 'yasindu@example.com',
-      telephone: '+94771234567', 
+      telephone: '+94771234567',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001'],
       isTemporaryPassword: false,
-      passwordUpdatedAt: DateTime.now()
+      passwordUpdatedAt: DateTime.now(),
     ),
     User(
       id: '8108',
@@ -194,13 +193,13 @@ class DummyData {
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001', '002'],
       isTemporaryPassword: true,
-      passwordUpdatedAt: DateTime.now()
+      passwordUpdatedAt: DateTime.now(),
     ),
     User(
       id: '1122',
       username: 'sachith',
       email: 'sachith@example.com',
-      telephone: '+94711234567', 
+      telephone: '+94711234567',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002'],
     ),
@@ -221,7 +220,7 @@ class DummyData {
       roles: ['001', '002', '003'],
     ),
   ];
-  
+
   static final List<Dealer> _dealers = [
     // COLOMBO REGION
     Dealer(
@@ -1118,7 +1117,7 @@ class DummyData {
     ReturnItem(partNo: 'AC2000125556', requestQty: 20),
     ReturnItem(partNo: 'HW-6600-JK', requestQty: 8),
   ];
-  
+
   static final List<Part> _parts = [
     Part(id: 'p1', partNo: 'AC2000123230', requestQty: 2, price: 12000.00),
     Part(id: 'p2', partNo: 'AC2000123231', requestQty: 5, price: 5500.50),
@@ -1134,7 +1133,7 @@ class DummyData {
     Part(id: 'p11', partNo: 'XY-7766-WX', requestQty: 12, price: 6500.00),
     Part(id: 'p12', partNo: 'XY-9988-ZZ', requestQty: 7, price: 125.50),
   ];
-  
+
   static final List<Bank> _banks = [
     Bank(bankCode: '7010', bankName: 'Bank of Ceylon'),
     Bank(bankCode: '7056', bankName: 'Commercial Bank of Ceylon'),

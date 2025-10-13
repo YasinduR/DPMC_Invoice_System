@@ -15,17 +15,21 @@ class _UserInfoRequestViewState extends State<UserInfoRequestView> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   //final _emailController = TextEditingController();
+  late FocusNode _usernameFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _usernameFocusNode = FocusNode();
     _usernameController.addListener(() => setState(() {}));
+    _usernameFocusNode.requestFocus();
     //  _emailController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
+    _usernameFocusNode.dispose();
     // _emailController.dispose();
     super.dispose();
   }
@@ -55,6 +59,10 @@ class _UserInfoRequestViewState extends State<UserInfoRequestView> {
               children: [
                 AppTextField(
                   controller: _usernameController,
+                  focusNode: _usernameFocusNode,
+                  onFieldSubmitted: (_) {
+                    _handleSubmit();
+                  },
                   labelText: 'Username',
                   validator:
                       (value) =>

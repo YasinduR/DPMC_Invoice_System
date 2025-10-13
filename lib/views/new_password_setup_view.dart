@@ -16,14 +16,24 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
   final _newPwdController = TextEditingController();
   final _confirmPwdController = TextEditingController();
     final _otpController = TextEditingController();
+  
+  late FocusNode _newPwdFocusNode;
+  late FocusNode _confirmPwdFocusNode;
+  late FocusNode _otpFocusNode;
 
 
   @override
   void initState() {
     super.initState();
+    _newPwdFocusNode = FocusNode();
+    _confirmPwdFocusNode = FocusNode();
+    _otpFocusNode = FocusNode();
+
     _newPwdController.addListener(() => setState(() {}));
     _confirmPwdController.addListener(() => setState(() {}));
-        _otpController.addListener(() => setState(() {}));
+    _otpController.addListener(() => setState(() {}));
+
+    _otpFocusNode.requestFocus(); // Set initial focus
 
   }
 
@@ -31,7 +41,11 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
   void dispose() {
     _newPwdController.dispose();
     _confirmPwdController.dispose();
-        _otpController.dispose();
+    _otpController.dispose();
+
+    _newPwdFocusNode.dispose();
+    _confirmPwdFocusNode.dispose();
+    _otpFocusNode.dispose();
 
     super.dispose();
   }
@@ -65,6 +79,10 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
                 AppTextField(
                   controller: _otpController,
                   labelText: 'Password Reset Code',
+                  focusNode: _otpFocusNode,
+                  onFieldSubmitted: (_) {
+                        _newPwdFocusNode.requestFocus();
+                      },
                   isPassword: true,
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
@@ -76,6 +94,10 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
                 const SizedBox(height: 24),
                 AppTextField(
                   controller: _newPwdController,
+                  focusNode: _newPwdFocusNode,
+                  onFieldSubmitted: (_) {
+                        _confirmPwdFocusNode.requestFocus();
+                      },
                   labelText: 'New Password',
                   obscureText: true,
                   isPassword: true,
@@ -88,6 +110,10 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
                 const SizedBox(height: 18),
                 AppTextField(
                   controller: _confirmPwdController,
+                  focusNode: _confirmPwdFocusNode,
+                  onFieldSubmitted: (_) {
+                     _handleSubmit(); 
+                  },
                   labelText: 'Confirm New Password',
                   obscureText: true,
                   isPassword: true,

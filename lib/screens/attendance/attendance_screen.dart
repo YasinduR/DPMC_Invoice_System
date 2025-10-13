@@ -18,62 +18,53 @@ class AttendanceScreen extends ConsumerStatefulWidget {
 }
 
 class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
-  final Map<String, String> _attendance = {
-    // Attendance Types with Desc
-    'P': 'Present',
-    'E': 'Exam',
-    'A': 'Absent',
-    'A1': 'Absent on 1st Half',
-    'A2': 'Absent on 2nd Half',
-    'L': 'Leave',
-    'L1': 'Leave on 1st Half',
-    'L2': 'Leave on 2nd Half',
-  };
+  // void _onSubmit(String attendanceCode, DateTime date) async {
+  //   final authState = ref.watch(authProvider);
+  //   final User? currentUser = authState.currentUser;
+  //   if (currentUser != null) {
+  //     final attendeceData = Attendance(
+  //       userID: currentUser.id,
+  //       date: date,
+  //       attendance: attendanceCode,
+  //     );
 
-  void _onSubmit(String attendanceCode, DateTime date) async {
-    final authState = ref.watch(authProvider);
-    final User? currentUser = authState.currentUser;
-    if (currentUser != null) {
-      final attendeceData = Attendance(
-        userID: currentUser.id,
-        date: date,
-        attendance: attendanceCode,
-      );
+  //     final String attendanceDescription =
+  //         _attendance[attendanceCode] ?? attendanceCode;
+  //     final formattedDate = DateFormat('dd MMM yyyy').format(date);
 
-      final String attendanceDescription =
-          _attendance[attendanceCode] ?? attendanceCode;
-      final formattedDate = DateFormat('dd MMM yyyy').format(date);
+  //     await save(
+  //       context: context,
+  //       dataUrl: 'api/attendance/save',
+  //       dataToSave: attendeceData,
+  //       onSuccess: () {
+  //         showSnackBar(
+  //           context: context,
+  //           message:
+  //               'Attendance on $formattedDate saved as "$attendanceDescription" successfully!',
+  //           type: MessageType.success,
+  //         );
+  //         Navigator.of(context).pop();
+  //       },
+  //       onError: (e) {
+  //         String errorMessage = e.toString().replaceFirst('Exception: ', '');
+  //         showSnackBar(
+  //           context: context,
+  //           message: errorMessage,
+  //           type: MessageType.error,
+  //         );
+  //       },
+  //     );
+  //   } else {
+  //     showSnackBar(
+  //       context: context,
+  //       message: 'No user has logged in.',
+  //       type: MessageType.error,
+  //     );
+  //   }
+  // }
+  void _onStart() async {}
+  void _onEnd() async {}
 
-      await save(
-        context: context,
-        dataUrl: 'api/attendance/save',
-        dataToSave: attendeceData,
-        onSuccess: () {
-          showSnackBar(
-            context: context,
-            message:
-                'Attendance on $formattedDate saved as "$attendanceDescription" successfully!',
-            type: MessageType.success,
-          );
-          Navigator.of(context).pop();
-        },
-        onError: (e) {
-          String errorMessage = e.toString().replaceFirst('Exception: ', '');
-          showSnackBar(
-            context: context,
-            message: errorMessage,
-            type: MessageType.error,
-          );
-        },
-      );
-    } else {
-      showSnackBar(
-        context: context,
-        message: 'No user has logged in.',
-        type: MessageType.error,
-      );
-    }
-  }
 
   void _goBack() {
     Navigator.of(context).pop();
@@ -96,10 +87,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       title: 'Attendance',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
-      child: AttendanceView(
-        onSubmit: _onSubmit,
-        attendanceOptions: _attendance.keys.toList(),
-      ),
+      child: AttendanceView(onStart: _onStart, onEnd: _onEnd),
     );
   }
 }

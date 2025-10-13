@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_date_picker.dart';
-import 'package:myapp/widgets/app_option_picker.dart';
 
 // View of Attendance Screen
 class AttendanceView extends StatefulWidget {
-  final List<String> attendanceOptions;
-  final void Function(String attendance, DateTime date) onSubmit;
-
-  const AttendanceView({
-    super.key,
-    required this.onSubmit,
-    required this.attendanceOptions,
-  });
+  final void Function() onStart;
+  final void Function() onEnd;
+  const AttendanceView({super.key, required this.onStart, required this.onEnd});
 
   @override
   State<AttendanceView> createState() => _AttendanceViewState();
@@ -21,33 +15,15 @@ class AttendanceView extends StatefulWidget {
 class _AttendanceViewState extends State<AttendanceView> {
   String? _selectedAttendance;
   DateTime? _selectedDate;
-  late List<String> _AttendanceOptions;
 
   @override
   void initState() {
     super.initState();
-    _AttendanceOptions = widget.attendanceOptions;
+    _selectedDate = DateTime.now();
   }
 
   void onDateSelected(date) {
     setState(() => _selectedDate = date);
-  }
-
-  Future<void> _showReasonPicker() async {
-    final result = await showDialog<String>(
-      context: context,
-      builder:
-          (context) => SelectionModal(
-            title: 'Attendance',
-            options: _AttendanceOptions,
-            initialValue: _selectedAttendance,
-          ),
-    );
-    if (result != null) {
-      setState(() {
-        _selectedAttendance = result;
-      });
-    }
   }
 
   @override
@@ -62,29 +38,38 @@ class _AttendanceViewState extends State<AttendanceView> {
                 labelText: 'Select Date',
                 selectedDate: _selectedDate,
                 onDateSelected: onDateSelected,
+                disabled: true,
               ),
               const SizedBox(height: 24),
-              PickerFormField(
-                inputFieldLabelText: 'Select Attendance',
-                selectedOption: _selectedAttendance,
-                onTap: _showReasonPicker,
-              ),
             ],
           ),
         ),
 
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          child: ActionButton(
+          child: Column(
+            children: [
+              ActionButton(
             icon: Icons.check_circle_outline,
-            label: 'Save',
-            disabled: _selectedAttendance == null || _selectedDate == null,
+            label: 'Start',
+            disabled: _selectedDate == null,
             onPressed: () {
-              if (_selectedAttendance != null && _selectedDate != null) {
-                widget.onSubmit(_selectedAttendance!, _selectedDate!);
-              }
+              widget.onStart();
             },
           ),
+          const SizedBox(height: 20),
+            ActionButton(
+            icon: Icons.close,
+            type: ActionButtonType.secondary,
+            label: 'End',
+            disabled: _selectedDate == null,
+            onPressed: () {
+              widget.onEnd();
+            },
+          )
+          
+          ],)
+
         ),
       ],
     );

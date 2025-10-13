@@ -24,6 +24,10 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   final _newPwdController = TextEditingController();
   final _confirmPwdController = TextEditingController();
 
+  late FocusNode _newPwdFocusNode;
+  late FocusNode _confirmPwdFocusNode;
+  late FocusNode _currentPwdFocusNode;
+
   Future<void> _handleSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
       await widget.onSubmit(
@@ -36,9 +40,14 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   @override
   void initState() {
     super.initState();
+    _newPwdFocusNode = FocusNode();
+    _confirmPwdFocusNode = FocusNode();
+    _currentPwdFocusNode  = FocusNode();
     _currentPwdController.addListener(() => setState(() {}));
     _newPwdController.addListener(() => setState(() {}));
     _confirmPwdController.addListener(() => setState(() {}));
+    _currentPwdFocusNode.requestFocus(); // Set initial focus
+
   }
 
   @override
@@ -74,6 +83,10 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                 AppTextField(
                   controller: _currentPwdController,
                   labelText: 'Current Password',
+                  focusNode:_currentPwdFocusNode,
+                  onFieldSubmitted: (_) {
+                        _newPwdFocusNode.requestFocus();
+                      },
                   obscureText: true,
                   isPassword: true,
                   validator: (value) => (value?.isEmpty ?? true) ? 'Current password is required' : null,
@@ -82,6 +95,10 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                 AppTextField(
                   controller: _newPwdController,
                   labelText: 'New Password',
+                  focusNode: _newPwdFocusNode,
+                  onFieldSubmitted: (_) {
+                        _confirmPwdFocusNode.requestFocus();
+                      },
                   obscureText: true,
                   isPassword: true,
                 ),
@@ -89,6 +106,10 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                 AppTextField(
                   controller: _confirmPwdController,
                   labelText: 'Confirm New Password',
+                  focusNode: _confirmPwdFocusNode,
+                  onFieldSubmitted: (_) {
+                     _handleSubmit(); 
+                  },
                   obscureText: true,
                   isPassword: true,
                   validator: (value) {

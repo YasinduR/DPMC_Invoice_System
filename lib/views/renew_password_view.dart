@@ -24,26 +24,33 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
   final _formKey = GlobalKey<FormState>();
   final _newPwdController = TextEditingController();
   final _confirmPwdController = TextEditingController();
-  //final _answerController = TextEditingController();
+  late FocusNode _newPwdFocusNode;
+  late FocusNode _confirmPwdFocusNode;
 
   String? _passwordChangeErrorMessage;
 
   @override
   void initState() {
     super.initState();
+    _newPwdFocusNode = FocusNode();
+    _confirmPwdFocusNode = FocusNode();
+
     _newPwdController.addListener(_onTextChanged);
     _confirmPwdController.addListener(_onTextChanged);
-    //  _answerController.addListener(_onTextChanged);
+    _newPwdFocusNode.requestFocus(); // Set initial focus
+
   }
 
   @override
   void dispose() {
     _newPwdController.removeListener(_onTextChanged);
     _confirmPwdController.removeListener(_onTextChanged);
-    // _answerController.removeListener(_onTextChanged);
     _newPwdController.dispose();
     _confirmPwdController.dispose();
-    //  _answerController.dispose();
+    
+    _newPwdFocusNode.dispose();
+    _confirmPwdFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -133,6 +140,10 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
                   children: [
                     AppTextField(
                       controller: _newPwdController,
+                      focusNode: _newPwdFocusNode,
+                      onFieldSubmitted: (_) {
+                        _confirmPwdFocusNode.requestFocus();
+                      },
                       labelText: 'New Password',
                       isPassword: true,
                       validator: (value) {
@@ -145,9 +156,12 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
                     const SizedBox(height: 16),
                     AppTextField(
                       controller: _confirmPwdController,
+                      focusNode: _confirmPwdFocusNode,
+                      onFieldSubmitted: (_) {
+                        _handleSubmit();
+                      },
                       labelText: 'Confirm New Password',
                       isPassword: true,
-
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return null;
