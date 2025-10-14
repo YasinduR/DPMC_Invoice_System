@@ -48,6 +48,8 @@ dependencies:
   collection: ^1.18.0 # For using firstornullmthod
   local_auth: ^2.1.8 # For biometric Authentication
   shared_preferences: ^2.2.2 # For local storage
+  az_notification_hub: ^1.1.0 
+
 
 dev_dependencies:
   flutter_test:
