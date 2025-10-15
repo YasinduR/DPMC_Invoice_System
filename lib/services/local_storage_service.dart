@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:intl/intl.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -59,4 +60,64 @@ class LocalStorageService {
     await prefs.remove(_kSavedUsername);
     await prefs.remove(_kSavedPwd);
   }
+
+  
+  // // --- New methods for Attendance Reminders --- THIS SECTION WAS TO MANAGE ATTENDANCE NOTIFICATION RELATED DATA
+  //   // Prefix for attendance reminder keys in SharedPreferences
+  // static const String _kScheduledAttendanceRemindersPrefix = 'scheduledAttendanceReminders_';
+  // /// Generates a unique key for storing attendance reminder IDs for a specific date.
+  // /// Format: 'scheduledAttendanceReminders_YYYY-MM-DD'
+  // String _getReminderKeyForDate(DateTime date) {
+  //   return '$_kScheduledAttendanceRemindersPrefix${DateFormat('yyyy-MM-dd').format(date)}';
+  // }
+
+  // /// Saves a list of scheduled notification IDs for attendance reminders on a given date.
+  // /// Converts the list of integers to a list of strings for SharedPreferences.
+  // Future<void> saveScheduledReminderIds(DateTime date, List<int> ids) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final String key = _getReminderKeyForDate(date);
+  //   await prefs.setStringList(key, ids.map((e) => e.toString()).toList());
+  //   print("Saved reminder IDs for ${DateFormat('yyyy-MM-dd').format(date)}: $ids");
+  // }
+
+  // /// Retrieves a list of scheduled notification IDs for attendance reminders on a given date.
+  // /// Returns an empty list if no IDs are stored for that date.
+  // Future<List<int>> getScheduledReminderIds(DateTime date) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final String key = _getReminderKeyForDate(date);
+  //   final List<String>? idsAsString = prefs.getStringList(key);
+  //   if (idsAsString != null) {
+  //     final List<int> ids = idsAsString.map((e) => int.tryParse(e)).whereType<int>().toList();
+  //     print("Retrieved reminder IDs for ${DateFormat('yyyy-MM-dd').format(date)}: $ids");
+  //     return ids;
+  //   }
+  //   return [];
+  // }
+
+  // /// Removes the stored scheduled notification IDs for attendance reminders on a given date.
+  // Future<void> removeScheduledReminderIds(DateTime date) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final String key = _getReminderKeyForDate(date);
+  //   await prefs.remove(key);
+  //   print("Removed reminder IDs for ${DateFormat('yyyy-MM-dd').format(date)} from local storage.");
+  // }
+
+  // /// Retrieves all keys used for attendance reminders.
+  // Future<List<String>> getAllAttendanceReminderKeys() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final Set<String> keys = prefs.getKeys();
+  //   return keys
+  //       .where((key) => key.startsWith(_kScheduledAttendanceRemindersPrefix))
+  //       .toList();
+  // }
+
+  // /// Clears all stored attendance reminder IDs from local storage.
+  // Future<void> clearAllScheduledReminderIds() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final List<String> keysToRemove = await getAllAttendanceReminderKeys();
+  //   for (String key in keysToRemove) {
+  //     await prefs.remove(key);
+  //   }
+  //   print("Cleared all attendance reminder IDs from local storage.");
+  // }
 }

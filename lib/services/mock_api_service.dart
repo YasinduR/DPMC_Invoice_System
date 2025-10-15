@@ -58,6 +58,8 @@ class MockApiService {
       case 'api/screens/list':
         sourceData = DummyData.screens;
         break;
+      case 'api/attendance/list':
+        sourceData = DummyData.attendances;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
     }
@@ -95,7 +97,7 @@ class MockApiService {
           }).toList();
     }
 
-    if (sourceData.isEmpty) {
+    if (sourceData.isEmpty && uri.path != 'api/attendance/list' ) {
       throw Exception('No data found.');
     }
     return sourceData.cast<T>();
@@ -564,6 +566,16 @@ class MockApiService {
 
         DummyData.receipts.add(receipt);
         return true;
+
+
+
+
+
+
+
+
+
+
 
       case 'api/attendance/save':
         if (body is! Attendance) {

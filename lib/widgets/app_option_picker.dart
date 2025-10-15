@@ -54,12 +54,15 @@ class _SelectionModalState extends State<SelectionModal> {
                 itemBuilder: (context, index) {
                   final option = widget.options[index];
                   return RadioListTile<String>(
-                    title: AutoSizeText( // <--- AutoSizeText
+                    title: AutoSizeText(
+                      // <--- AutoSizeText
                       option,
                       style: const TextStyle(fontSize: 14),
                       maxLines: 1, // Restrict to one line
                       minFontSize: 8, // Minimum font size before overflow
-                      overflow: TextOverflow.ellipsis, // Show ellipsis if it still overflows
+                      overflow:
+                          TextOverflow
+                              .ellipsis, // Show ellipsis if it still overflows
                     ),
                     value: option,
                     groupValue: _selectedValue,
@@ -75,9 +78,12 @@ class _SelectionModalState extends State<SelectionModal> {
             const SizedBox(height: 16),
             ActionButton(
               label: 'Submit',
-              icon: Icons.check_circle_outline, 
-              onPressed:(){Navigator.of(context).pop(_selectedValue);},
-              disabled: _selectedValue == null)
+              icon: Icons.check_circle_outline,
+              onPressed: () {
+                Navigator.of(context).pop(_selectedValue);
+              },
+              disabled: _selectedValue == null,
+            ),
           ],
         ),
       ),
@@ -86,10 +92,14 @@ class _SelectionModalState extends State<SelectionModal> {
 }
 
 class PickerFormField extends StatelessWidget {
-  final String? headerLabelText; // Optional label text displayed above the field.
-  final String? inputFieldLabelText; // Optional label text for the InputDecorator.
-  final String? selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
+  final String?
+  headerLabelText; // Optional label text displayed above the field.
+  final String?
+  inputFieldLabelText; // Optional label text for the InputDecorator.
+  final String?
+  selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
   final VoidCallback onTap; // The function to call when the field is tapped.
+  final bool isDisabled;
 
   const PickerFormField({
     super.key,
@@ -97,6 +107,7 @@ class PickerFormField extends StatelessWidget {
     this.inputFieldLabelText,
     required this.selectedOption,
     required this.onTap,
+    this.isDisabled=false
   });
 
   @override
@@ -125,14 +136,11 @@ class PickerFormField extends StatelessWidget {
             ),
           ),
         InkWell(
-          onTap: onTap,
+          onTap: isDisabled ? null:onTap,
           borderRadius: BorderRadius.circular(12),
           child: InputDecorator(
             isEmpty: selectedOption == null,
-            decoration: InputDecoration(
-              labelText:
-                  inputFieldLabelText, 
-            ),
+            decoration: InputDecoration(labelText: inputFieldLabelText),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2.0),
               child: Row(
@@ -147,8 +155,7 @@ class PickerFormField extends StatelessWidget {
                       ),
                       maxLines: 1, // Ensure it stays on one line
                       minFontSize: 8, // Minimum font size before truncation
-                      overflow:
-                          TextOverflow.ellipsis, // Add ellipsis if it still overflows
+                      overflow:TextOverflow.ellipsis, // Add ellipsis if it still overflows
                     ),
                   ),
                   const Icon(Icons.keyboard_arrow_down, color: Colors.black54),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
@@ -9,7 +8,6 @@ import 'package:myapp/widgets/app_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
-// --- Attendece Screen: Attendance For Admin ROLES----//
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
 
@@ -18,58 +16,195 @@ class AttendanceScreen extends ConsumerStatefulWidget {
 }
 
 class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
-  // void _onSubmit(String attendanceCode, DateTime date) async {
-  //   final authState = ref.watch(authProvider);
-  //   final User? currentUser = authState.currentUser;
-  //   if (currentUser != null) {
-  //     final attendeceData = Attendance(
-  //       userID: currentUser.id,
-  //       date: date,
-  //       attendance: attendanceCode,
-  //     );
+  Attendance? _currentAttendance;
+  String? _selectedWorkOption;
+  bool _isLoadingAttendance = true; 
+  String? _attendanceErrorMessage;
 
-  //     final String attendanceDescription =
-  //         _attendance[attendanceCode] ?? attendanceCode;
-  //     final formattedDate = DateFormat('dd MMM yyyy').format(date);
+  @override
+  void initState() {
+    super.initState();
+    _fetchTodayAttendance();
+  }
 
-  //     await save(
-  //       context: context,
-  //       dataUrl: 'api/attendance/save',
-  //       dataToSave: attendeceData,
-  //       onSuccess: () {
-  //         showSnackBar(
-  //           context: context,
-  //           message:
-  //               'Attendance on $formattedDate saved as "$attendanceDescription" successfully!',
-  //           type: MessageType.success,
-  //         );
-  //         Navigator.of(context).pop();
-  //       },
-  //       onError: (e) {
-  //         String errorMessage = e.toString().replaceFirst('Exception: ', '');
-  //         showSnackBar(
-  //           context: context,
-  //           message: errorMessage,
-  //           type: MessageType.error,
-  //         );
-  //       },
-  //     );
-  //   } else {
-  //     showSnackBar(
-  //       context: context,
-  //       message: 'No user has logged in.',
-  //       type: MessageType.error,
-  //     );
-  //   }
-  // }
-  void _onStart() async {}
-  void _onEnd() async {}
+  Future<void> _fetchTodayAttendance() async {
+    setState(() {
+      _isLoadingAttendance = true;
+      _attendanceErrorMessage = null; // Clear previous errors
+    });
 
+    final authState = ref.read(authProvider);
+    final User? currentUser = authState.currentUser;
+
+    if (currentUser == null) {
+      if (context.mounted) {
+        showSnackBar(
+          context: context,
+          message: 'No user is logged in. Please log in again.',
+          type: MessageType.error,
+        );
+      }
+      setState(() {
+        _isLoadingAttendance = false;
+        _attendanceErrorMessage = 'User not logged in.';
+      });
+      return;
+    }
+
+    final today = DateTime.now();
+    final filters = {
+      'userID': currentUser.id,
+      'date': DateTime(today.year, today.month, today.day).toIso8601String(),
+    };
+
+    if (!context.mounted) return;
+    await inquire<Attendance>(
+      context: context,
+      dataUrl: 'api/attendance/list',
+      filters: filters,
+      onSuccess: (data) {
+        setState(() {
+          if (data.isNotEmpty) {
+            _currentAttendance = data.first;
+            _selectedWorkOption = _currentAttendance!.workMode;
+          } else {
+            _currentAttendance = null;
+            _selectedWorkOption = null; // Or set a default like 'Office'
+          }
+          _isLoadingAttendance = false;
+        });
+      },
+      onError: (e) {
+        setState(() {
+          _isLoadingAttendance = false;
+          // Handle 'No data found' as a non-error state for initial display
+          if (e.contains('No data found')) {
+            _currentAttendance = null;
+            _selectedWorkOption = null;
+          } else {
+            String errorMessage = e.toString().replaceFirst('Exception: ', '');
+            _attendanceErrorMessage = 'Failed to fetch attendance data: $errorMessage';
+            if (context.mounted) {
+              showSnackBar(
+                context: context,
+                message: _attendanceErrorMessage!,
+                type: MessageType.error,
+              );
+            }
+          }
+        });
+      },
+    );
+  }
+
+  void _onStart() async {
+    final authState = ref.read(authProvider);
+    final User? currentUser = authState.currentUser;
+
+    if (currentUser == null || _selectedWorkOption == null) {
+      if (context.mounted) {
+        showSnackBar(
+          context: context,
+          message: 'Please select a work mode and ensure user is logged in.',
+          type: MessageType.error,
+        );
+      }
+      return;
+    }
+
+    final now = DateTime.now();
+    final newAttendance = Attendance(
+      userID: currentUser.id,
+      date: DateTime(now.year, now.month, now.day),
+      attendanceType: 'ATTENDANCE', // Default status
+      workMode: _selectedWorkOption!,
+      start: now,
+      end: null,
+      remark: null,
+    );
+
+    if (!context.mounted) return;
+    await save<Attendance>(
+      context: context,
+      dataUrl: 'api/attendance/save',
+      dataToSave: newAttendance,
+      onSuccess: () {
+        if (context.mounted) {
+          showSnackBar(
+            context: context,
+            message: 'Attendance started successfully!',
+            type: MessageType.success,
+          );
+        }
+        _fetchTodayAttendance(); // Refresh UI
+      },
+      onError: (e) {
+        if (context.mounted) {
+          String errorMessage = e.toString().replaceFirst('Exception: ', '');
+          showSnackBar(
+            context: context,
+            message: 'Failed to start attendance: $errorMessage',
+            type: MessageType.error,
+          );
+        }
+      },
+    );
+  }
+
+  void _onEnd() async {
+    if (_currentAttendance == null || _currentAttendance!.start == null) {
+      if (context.mounted) {
+        showSnackBar(
+          context: context,
+          message: 'Cannot end attendance. Attendance was not started or not found.',
+          type: MessageType.error,
+        );
+      }
+      return;
+    }
+
+    final now = DateTime.now();
+    final updatedAttendance = _currentAttendance!.copyWith(
+      end: now,
+    );
+
+    if (!context.mounted) return;
+    await save<Attendance>(
+      context: context,
+      dataUrl: 'api/attendance/save',
+      dataToSave: updatedAttendance,
+      onSuccess: () {
+        if (context.mounted) {
+          showSnackBar(
+            context: context,
+            message: 'Attendance ended successfully!',
+            type: MessageType.success,
+          );
+        }
+        _fetchTodayAttendance(); // Refresh UI
+      },
+      onError: (e) {
+        if (context.mounted) {
+          String errorMessage = e.toString().replaceFirst('Exception: ', '');
+          showSnackBar(
+            context: context,
+            message: 'Failed to end attendance: $errorMessage',
+            type: MessageType.error,
+          );
+        }
+      },
+    );
+  }
+
+  void _onWorkOptionSelected(String? option) {
+    setState(() {
+      _selectedWorkOption = option;
+    });
+  }
 
   void _goBack() {
     Navigator.of(context).pop();
   }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -83,11 +218,37 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         ),
       );
     }
+    if (_isLoadingAttendance) {
+      return const AppPage(
+        title: 'Attendance',
+        onBack: null,
+        canPop: false,
+        child: Center(
+          child: Text('Loading..'),
+        ),
+      );
+    }
+    if (_attendanceErrorMessage != null) {
+      return AppPage(
+        title: 'Attendance',
+        onBack: _goBack,
+          child: Center(
+          child: Text(_attendanceErrorMessage!),
+        ),
+      );
+    }
     return AppPage(
       title: 'Attendance',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
-      child: AttendanceView(onStart: _onStart, onEnd: _onEnd),
+      child: AttendanceView(
+        start: _currentAttendance?.start,
+        end: _currentAttendance?.end,
+        selectedWorkOption: _selectedWorkOption,
+        onWorkOptionSelected: _onWorkOptionSelected,
+        onStart: _onStart,
+        onEnd: _onEnd,
+      ),
     );
   }
 }

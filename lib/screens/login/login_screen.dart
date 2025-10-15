@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
+//import 'package:myapp/services/attendance_reminder_service.dart';
 //import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/views/login_form_view.dart';
 import 'package:myapp/views/password_setup_view.dart';
@@ -57,6 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (biometricLoginSuccessful && updatedAuthState.isLoggedIn) {
         if (!updatedAuthState.requiresPasswordChange) {
           if (mounted) {
+            //await AttendanceReminderManager.setupDailyAttendanceNotifications();
             Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
           }
         } else {
@@ -121,13 +123,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           }
         });
       } else {
+
         savedUserName =
             await ref.read(authProvider.notifier).getCurrentSavedUsername();
         if (savedUserName != username) {
           // If this is a new user replace/add info to local storage.
           await _userInfoSaveOnDevice();
         } else {}
+         // await AttendanceReminderManager.setupDailyAttendanceNotifications();
         Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
+
       }
     }
   }
@@ -151,6 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         message: 'Password changed successfully! You are now logged in.',
         type: MessageType.success,
       );
+      //await AttendanceReminderManager.setupDailyAttendanceNotifications();
       Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
       setState(() {
         _currentView = LoginScreenView.loginForm;

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
@@ -5,19 +7,32 @@ import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
-// API Calls with Generic Types
 Future<void> inquire<T extends Mappable>({
   required BuildContext context,
   required String dataUrl,
   required Function(List<T> data) onSuccess,
   required Function(String errorMessage) onError,
+  Map<String, dynamic>? filters,
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
   if (!context.mounted) return;
 
   try {
     loadingOverlay.show(context);
-    final List<T> data = await MockApiService.get<T>(dataUrl);
+    String url = dataUrl;
+    if (filters != null && filters.isNotEmpty) {
+      List<List<dynamic>> filterConditions = [];
+      filters.forEach((key, value) {
+        filterConditions.add([
+          key,
+          '=',
+          value,
+        ]); // Assuming '=' operator only for now
+      });
+      url += '?filters=${jsonEncode(filterConditions)}';
+    }
+
+    final List<T> data = await MockApiService.get<T>(url);
     onSuccess(data);
   } catch (e) {
     onError('Failed to load data: $e');
@@ -33,7 +48,8 @@ Future<void> dealerLogin({
   required String dealerCode,
   required String pin,
   required VoidCallback onSuccess,
-  required Function(Exception e) onError, // MODIFIED: Changed to accept Exception
+  required Function(Exception e)
+  onError, // MODIFIED: Changed to accept Exception
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
   if (!context.mounted) return;
@@ -50,10 +66,10 @@ Future<void> dealerLogin({
     if (isAuthenticated) {
       onSuccess();
     } else {
-      onError(UnauthorisedException('Authentication failed.')); 
+      onError(UnauthorisedException('Authentication failed.'));
     }
   } catch (e) {
-    if (e is Exception) { 
+    if (e is Exception) {
       onError(e);
     } else {
       onError(Exception(e.toString()));
@@ -88,7 +104,6 @@ Future<void> save<T extends Mappable>({
     }
   }
 }
-
 
 Future<void> checkScreenPermission({
   required BuildContext context,
@@ -126,7 +141,9 @@ Future<void> checkScreenPermission({
 // THIS IS TO COLLECT ALL SCREEN INFO ON APP ROUTE INITIALIZING //
 Future<List<Screen>> loadScreens() async {
   try {
-    final List<Screen> data = await MockApiService.get<Screen>('api/screens/list');
+    final List<Screen> data = await MockApiService.get<Screen>(
+      'api/screens/list',
+    );
     return data;
   } catch (e) {
     throw Exception('Failed to load screens: $e');

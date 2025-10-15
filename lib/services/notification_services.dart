@@ -51,7 +51,8 @@ class NotificationService {
           priority: Priority.high,
           showWhen: false,
         );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    const NotificationDetails platformChannelSpecifics = 
+    NotificationDetails(
       android: androidPlatformChannelSpecifics,
     );
     await _notificationsPlugin.show(
@@ -85,4 +86,84 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
+
+  // --- FOR SCHEDULED NOTIFICATIONS ---//
+  static Future<void> scheduleNotification({
+    required int id, // Unique ID for each scheduled notification
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledTime,
+  }) async {
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'DPMC-Invoice-System',
+          'Notification Channel',
+          channelDescription: 'DPMC Invoice System',
+          importance: Importance.max,
+          priority: Priority.high,
+          
+          //visibility: NotificationVisibility.public, // Ensure visible on lock screen
+          // icon: '@mipmap/ic_launcher', // Optional: Custom small icon
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      //payload: payload,
+     // matchDateTimeComponents: DateTimeComponents.time, // Match time component only for daily repeats if needed
+    );
+  }
+
+ static Future<void> periodicallyShow({
+    required int id, // Unique ID for this periodic notification
+    required String title,
+    required String body,
+    required RepeatInterval repeatInterval,
+    //String? payload,
+  }) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+          'DPMC-Invoice-System',
+          'Notification Channel',
+          channelDescription: 'DPMC Invoice System',
+          importance: Importance.max,
+          priority: Priority.high,
+          showWhen: false, // Typically not shown for repeating notifications
+        );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await _notificationsPlugin.periodicallyShow(
+      id,
+      title,
+      body,
+      repeatInterval,
+      platformChannelSpecifics,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+     // payload: payload,
+    );
+  }
+  /// Cancels a specific scheduled notification by its ID.
+  static Future<void> cancelNotification(int id) async {
+    await _notificationsPlugin.cancel(id);
+  }
+
+  /// Cancels all pending notifications. Use with caution as it clears all types.
+  static Future<void> cancelAllNotifications() async {
+    await _notificationsPlugin.cancelAll();
+  }
+
+  /// Retrieves a list of all pending scheduled notifications.
+  static Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    return await _notificationsPlugin.pendingNotificationRequests();
+  }
+
+
+
+
 }

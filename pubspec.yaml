@@ -49,6 +49,7 @@ dependencies:
   local_auth: ^2.1.8 # For biometric Authentication
   shared_preferences: ^2.2.2 # For local storage
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

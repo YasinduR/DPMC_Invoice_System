@@ -68,8 +68,7 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
   Widget build(BuildContext context) {
     // Watch authProvider here to get loading state for the button
     final authState = ref.watch(authProvider);
-    final bool isdisabled =
-        _usernameController.text.isEmpty || _passwordController.text.isEmpty;
+    final bool isdisabled = _usernameController.text.isEmpty || _passwordController.text.isEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

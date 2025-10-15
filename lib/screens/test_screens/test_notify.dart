@@ -1,6 +1,7 @@
 
 // -- IMPORTANT : REMOVE THIS LATER---//
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:myapp/services/notification_services.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
@@ -39,6 +40,24 @@ class TestPage extends StatelessWidget {
                 NotificationService.showScheduledNotification(
                   title: 'Scheduled Notification',
                   body: 'This notification was scheduled 5s ago!',
+                );
+                showSnackBar(
+                  context: context,
+                  message: 'Notification scheduled for 5s from now!',
+                  type: MessageType.success,
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            ActionButton(
+              label: 'Period Notification (1m)',
+              onPressed: () {
+                NotificationService.periodicallyShow(
+                  title: 'Period Notification',
+                  body: 'This notification was scheduled periodically!', 
+                  id: 10, 
+                  repeatInterval: RepeatInterval.everyMinute,
+
                 );
                 showSnackBar(
                   context: context,

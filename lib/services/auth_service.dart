@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
+//import 'package:myapp/services/attendance_reminder_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
@@ -36,6 +37,7 @@ class AuthService {
                 body: {'username': username, 'password': password,'mode':mode},
               )
               as User;
+      // await AttendanceReminderManager.setupDailyAttendanceNotifications();
       return user;
     } catch (e) {
       if (loadingOverlay.isShowing) {
