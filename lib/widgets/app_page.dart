@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 //import 'package:flutter/services.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'app_header.dart';
@@ -57,8 +58,9 @@ class AppPage extends StatelessWidget {
           );
 
           if (shouldExit) {
-            // SystemNavigator.pop(); // Closes App
-            exit(0); // Ensure app closes
+            SystemNavigator.pop(); // Closes App
+            SystemNavigator.pop(); 
+           //exit(0); // Ensure app closes
           }
         }
       },

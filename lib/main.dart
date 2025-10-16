@@ -1,122 +1,299 @@
+import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/app_router.dart';
-import 'package:timezone/timezone.dart' as tz;
-//import 'package:workmanager/workmanager.dart';
-
-/// import 'package:myapp/services/attendance_service.dart';
-// import 'package:myapp/screens/login/login_screen.dart';
-// import 'package:myapp/screens/main_menu/main_menu_screen.dart';
 import 'package:myapp/services/notification_services.dart';
-//import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/app_routes.dart';
-//import 'package:myapp/providers/auth_provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 
 
-// Define a unique name for the WorkManager task
-//const String simpleWorkManagerTaskName = "Attendence_Start_Reminder";
+// --- Background Service Entry Point ---
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
+  try {
+    if (service is AndroidServiceInstance) {
+    }
+
+    service.invoke('update'); // This is a general 'update' event to the UI
+
+    _startPeriodicTasks(service); // This function will now handle its own notification setup
+
+  } catch (e) {
+   // print('onStart error during initialization: $e');
+    service.stopSelf();
+  }
+
+  service.on('stopService').listen((event) {
+    //print("Background process is now stopped via UI request.");
+    service.stopSelf();
+  });
+}
+
+// ... rest of initializeService() remains the same ...
+
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      isForegroundMode: true,
+      autoStart: true,
+      initialNotificationTitle: "DPMC Invoice System",
+      initialNotificationContent: "DPMC Invoice System Services Initialized",
+      foregroundServiceNotificationId: 888,
+    ),
+    iosConfiguration: IosConfiguration(
+      autoStart: false, // Change to false for iOS
+      onForeground: onStart,
+    ),
+  );
+  await FlutterBackgroundService().startService(); // Calls the static startService
+}
+
+
+void _startPeriodicTasks(ServiceInstance service) {
+  int counter = 0;
+
+  final FlutterLocalNotificationsPlugin _backgroundNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/launcher_icon'); // Confirm if 'app_icon' or 'ic_launcher'
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'DPMC-Invoice-System', // Channel ID - MUST match what show() uses below
+    'Notification Channel',
+    description: 'DPMC Invoice System notifications',
+    importance: Importance.max,
+    playSound: true,
+  );
+
+  // Create the channel for Android 8.0+
+  _backgroundNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  _backgroundNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (response) async {
+      // Handle notification tap when app is in foreground from background service
+    },
+    onDidReceiveBackgroundNotificationResponse: (response) async {
+      // Handle notification tap when app is in background/killed from background service
+    },
+  );
+  // End of one-time notification setup for background isolate
+
+
+  // Define notification details ONCE for re-use
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+        'DPMC-Invoice-System', // MUST match the channel ID created above!
+        'Notification Channel',
+        channelDescription: 'DPMC Invoice System',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
+        icon: '@mipmap/launcher_icon', // Confirm if 'app_icon' or 'ic_launcher'
+      );
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+
+
+  Timer.periodic(const Duration(seconds: 30), (timer) async {
+    try {
+      counter++;
+
+      if (service is AndroidServiceInstance) {
+        //final isForeground = await service.isForegroundService();
+        //if (isForeground) {
+          final now = DateFormat('HH:mm:ss').format(DateTime.now());
+
+          // await service.setForegroundNotificationInfo(
+          //   title: "Service Active",
+          //   content: "Update #$counter at $now",
+          // );
+
+          // Direct call to show notification
+          await _backgroundNotificationsPlugin.show(
+            DateTime.now().millisecondsSinceEpoch % 100000, // Unique ID
+            "Attendance Start Reminder",
+            "It is $now ! Please Start your attendance",
+            platformChannelSpecifics, // Use the defined details
+            payload: 'foreground_periodic',
+          );
+          service.invoke('update', {
+            "counter": counter,
+            "time": now,
+          });
+      //  } else {
+          //final now = DateFormat('HH:mm:ss').format(DateTime.now());
+          // Direct call to show notification
+          // await _backgroundNotificationsPlugin.show(
+          //   DateTime.now().millisecondsSinceEpoch % 100000, // Unique ID
+          //   "Background Update",
+          //   "Service running in Background at $now",
+          //   platformChannelSpecifics, // Use the defined details
+          //   payload: 'background_periodic',
+          // );
+       // }
+      }
+
+      print('Background task update: #$counter at ${DateFormat('HH:mm:ss').format(DateTime.now())}');
+    } catch (e) {
+      print('Background task error within periodic timer: $e');
+      // The PlatformException from permission_handler should now be gone.
+    }
+  });
+}
+
+
+
+// Future<void> initializeService() async {
+//   final service = FlutterBackgroundService();
+
+//   await service.configure(
+//     androidConfiguration: AndroidConfiguration(
+//       onStart: onStart,
+//       isForegroundMode: true,
+//       autoStart: true,
+//       initialNotificationTitle: "Periodic Service",
+//       initialNotificationContent: "Service is running in background",
+//       foregroundServiceNotificationId: 888,
+//     ),
+//     iosConfiguration: IosConfiguration(
+//       autoStart: true,
+//       onForeground: onStart,
+//     ),
+//   );
+  
+//   service.startService();
+// }
 
 // @pragma('vm:entry-point')
-// void callbackDispatcher() {
-//   Workmanager().executeTask((taskName, inputData) async {
-//     //print("Workmanager: Executing task: $taskName");
+// void onStart(ServiceInstance service) async {
+//   DartPluginRegistrant.ensureInitialized();
+  
+//   // Initialize time zones for this isolate
+//   tz.initializeTimeZones();
 
-//     // Initialize notification service in background context if it hasn't been.
-//     // This is important because the background isolate is separate.
-//     await NotificationService.initialize();
+//   if (service is AndroidServiceInstance) {
+//     service.setForegroundNotificationInfo(
+//       title: "Periodic Service Active",
+//       content: "Service started",
+//     );
+//   }
 
-//     if (taskName == "Attendence_Start_Reminder") {
-//       final DateTime now = DateTime.now();
-//       final String formattedTime = DateFormat('hh:mm a').format(now);
+//   service.on('stopService').listen((event) {
+//     service.stopSelf();
+//   });
 
-//       // Define the reminder window (8:30 AM to 5:00 PM)
-//       const int startHour = 8;
-//       const int startMinute = 30;
-//       const int endHour = 17; // 5 PM
-//       const int endMinute = 0;
-
-//       // Create TZDateTime for comparison to handle local time correctly
-//       final tz.TZDateTime nowInLocal = tz.TZDateTime.now(tz.local);
-//       final tz.TZDateTime reminderStartTime = tz.TZDateTime(
-//         tz.local,
-//         nowInLocal.year,
-//         nowInLocal.month,
-//         nowInLocal.day,
-//         startHour,
-//         startMinute,
-//       );
-//       final tz.TZDateTime reminderEndTime = tz.TZDateTime(
-//         tz.local,
-//         nowInLocal.year,
-//         nowInLocal.month,
-//         nowInLocal.day,
-//         endHour,
-//         endMinute,
-//       );
-
-//       // Check if current time is within the reminder window
-//       final bool isWithinReminderWindow = nowInLocal.isAfter(reminderStartTime) && nowInLocal.isBefore(reminderEndTime);
-
-//       //print("Workmanager: Current time: ${DateFormat('HH:mm').format(now)}, within window: $isWithinReminderWindow");
-
-//       if (isWithinReminderWindow) {
-//         // --- NO VALIDATION / EXTRA METHODS ---
-//         // Just show the notification if within the time bracket
-//         await NotificationService.showNotification(
-//           //id: 101, // A fixed ID for this simple WorkManager-triggered notification
-//           title: 'Simple Reminder',
-//           body: 'It\'s $formattedTime. This is your reminder to Start Attendence !',
+//   // More robust timer implementation
+//   Timer.periodic(const Duration(minutes: 1), (timer) async {
+//     if (service is AndroidServiceInstance) {
+//       if (await service.isForegroundService()) {
+//         final now = DateFormat('HH:mm:ss').format(DateTime.now());
+//         service.setForegroundNotificationInfo(
+//           title: "Periodic Task Running",
+//           content: "Last update at $now",
 //         );
-//         //print("Workmanager: Simple reminder notification shown at $formattedTime.");
-//       } else {
-//         //print("Workmanager: Outside reminder window. No notification shown.");
+        
+//         // Show notification (remove if causing issues)
+//         // await NotificationService.showNotification(
+//         //   title: "Background Update",
+//         //   body: "Service running at $now",
+//         // );
 //       }
-//       return Future.value(true); // Indicate successful execution
-//     } else {
-//       //print("Workmanager: Unknown task: $taskName");
-//       return Future.value(false); // Indicate failure or unhandled task
 //     }
 //   });
 // }
 
-// // Function to register the WorkManager task
-// Future<void> registerSimpleWorkManagerReminder() async {
-//   print("Registering simple 15-min WorkManager reminder task...");
-//   await Workmanager().registerPeriodicTask(
-//     "Attendence_Start_Reminder",
-//     "Attendence_Start_Reminder", // The task name to be executed in callbackDispatcher
-//     frequency: const Duration(seconds: 30),    // constraints: Constraints(
-//     //   networkType: NetworkType.connected, // Only run when there's an active network
-//     // ),
-//     existingWorkPolicy: ExistingWorkPolicy.replace, // Replace if already exists
-//   );
-//   //print("WorkManager periodic task '$simpleWorkManagerTaskName' registered.");
-//   await NotificationService.showNotification(
-//     title: 'WorkManager Test',
-//     body: '15-min reminders registered (8:30 AM - 5:00 PM).',
-//   );
+// // --- Background Service Entry Point ---
+// @pragma('vm:entry-point') // Required for Flutter Background Service
+// void onStart(ServiceInstance service) async {
+//   // Ensure that DartPluginRegistrant.ensureInitialized() is called for the background isolate
+//   // This is crucial for plugins to work correctly in the background isolate.
+//   DartPluginRegistrant.ensureInitialized();
+//   // // Initialize NotificationService for THIS isolate.
+//   // await NotificationService.initialize();
+
+//   // // --- Add the one-time notification here ---
+//   // await NotificationService.showNotification(
+//   //   title: "Service Started!",
+//   //   body: "Your periodic notification service is now active.",
+//   // );
+
+//   // For Android, cast to AndroidServiceInstance to access Android-specific methods
+//   if (service is AndroidServiceInstance) {
+//     // This is where you can update the persistent foreground notification details.
+//     // The service is ALREADY set as foreground due to 'isForegroundMode: true' in configure.
+//     // We update the notification content here.
+//     service.setForegroundNotificationInfo(
+//       title: "Periodic Service Active",
+//       content: "Service started",
+//     );
+//   }
+
+//   // Listen for stop requests from the UI
+//   // This allows your UI to tell the background service to stop itself.
+//   service.on('stopService').listen((event) {
+//     service.stopSelf();
+//   });
+
+//   // --- Schedule the 1-minute task ---
+//   Timer.periodic(const Duration(minutes: 1), (timer) async {
+//     if (service is AndroidServiceInstance) {
+//       // You can check if it's still a foreground service (though for this setup, it should be)
+//       if (await service.isForegroundService()) {
+//         final now = DateFormat('HH:mm:ss').format(DateTime.now());
+//         // Update the persistent foreground notification content
+//         service.setForegroundNotificationInfo(
+//           title: "Periodic Task Running",
+//           content: "Last notification sent at $now",
+//         );
+//       }
+//     }
+
+//     // Call your notification function. It will use the _notificationsPlugin
+//     // that was initialized for THIS background isolate.
+//     // await NotificationService.showNotification(
+//     //   title: "1-Minute Reminder",
+//     //   body:
+//     //       "It's been a minute! Current time: ${DateFormat('HH:mm:ss').format(DateTime.now())}",
+//     // );
+//   });
 // }
 
-// // Function to cancel the WorkManager task
-// Future<void> cancelSimpleWorkManagerReminder() async {
-//   //print("Attempting to cancel simple WorkManager reminder...");
-//   await Workmanager().cancelByUniqueName("Attendence_Start_Reminder");
-//   //print("Successfully cancelled WorkManager task '$simpleWorkManagerTaskName'.");
-//   await NotificationService.showNotification(
-//     title: 'WorkManager Test',
-//     body: '15-min reminders cancelled.',
+// Future<void> initializeService() async {
+//   final service = FlutterBackgroundService();
+
+//   await service.configure(
+//     androidConfiguration: AndroidConfiguration(
+//       onStart: onStart,
+//       isForegroundMode: true, // Essential for persistent background execution
+//       autoStart: true, // <--- CHANGED THIS TO TRUE
+//       initialNotificationTitle: "Periodic Service",
+//       initialNotificationContent: "Service is running in background",
+//       foregroundServiceNotificationId:888, // Unique ID for the foreground notification
+//     ),
+//     iosConfiguration: IosConfiguration(), // Keep or remove, as per previous discussion
 //   );
+//   await FlutterBackgroundService().startService(); // <--- Corrected this line
 // }
-
-
-
-
-
 
 Future<void> main() async {
   // Ensure that Flutter bindings are initialized before calling native code
@@ -125,25 +302,14 @@ Future<void> main() async {
   //await NotificationService.initialize(); // Local Nofication Service // Integrate Firebase notifications later
   await AppRoutes.initialize(); // Collect Screen data from db and create App Routes
   //AttendanceReminderManager.setupDailyAttendanceNotifications();
-  
-  // Initialize Workmanager
-  // await Workmanager().initialize(
-  //   callbackDispatcher,
-  //   isInDebugMode: true, // Set to false for production
-  // );
-
+  await initializeService();
   // Initialize NotificationService
   await NotificationService.initialize();
-
-  // Register the WorkManager task once at app startup
-  //await registerSimpleWorkManagerReminder();
 
   runApp(
     const ProviderScope(child: MyApp()),
   ); // Run app with riverpod provider scope
-    // Initialize Workmanager
-
-
+  // Initialize Workmanager
 }
 
 class MyApp extends ConsumerWidget {

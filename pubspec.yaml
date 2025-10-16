@@ -48,6 +48,8 @@ dependencies:
   collection: ^1.18.0 # For using firstornullmthod
   local_auth: ^2.1.8 # For biometric Authentication
   shared_preferences: ^2.2.2 # For local storage
+  flutter_background_service: ^5.0.0 # Use the latest version
+
 
 
 dev_dependencies:
