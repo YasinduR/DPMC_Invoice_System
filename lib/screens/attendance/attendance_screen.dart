@@ -3,6 +3,7 @@ import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/views/attendance_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +19,7 @@ class AttendanceScreen extends ConsumerStatefulWidget {
 class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   Attendance? _currentAttendance;
   String? _selectedWorkOption;
-  bool _isLoadingAttendance = true; 
+  bool _isLoadingAttendance = true;
   String? _attendanceErrorMessage;
 
   @override
@@ -83,7 +84,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
             _selectedWorkOption = null;
           } else {
             String errorMessage = e.toString().replaceFirst('Exception: ', '');
-            _attendanceErrorMessage = 'Failed to fetch attendance data: $errorMessage';
+            _attendanceErrorMessage =
+                'Failed to fetch attendance data: $errorMessage';
             if (context.mounted) {
               showSnackBar(
                 context: context,
@@ -129,13 +131,16 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       dataUrl: 'api/attendance/save',
       dataToSave: newAttendance,
       onSuccess: () {
+        //Locally Update Attendance Status to manage Bckground notifications remove later if not nessary
+
         if (context.mounted) {
           showSnackBar(
             context: context,
-            message: 'Attendance started successfully!',
+            message: 'Attendance started successfully! ',
             type: MessageType.success,
           );
         }
+
         _fetchTodayAttendance(); // Refresh UI
       },
       onError: (e) {
@@ -147,8 +152,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
             type: MessageType.error,
           );
         }
+        return;
       },
     );
+  final LocalStorageService localStorageService = LocalStorageService(); // Instantiate here
+
+    final String today = localStorageService.getCurrentDateFormatted();
+    final String? currentStatus = await localStorageService.getAttendanceStatusForDate(today);
+    if (currentStatus == null || currentStatus == 'Pending') {
+      if (currentStatus == null) {
+        await localStorageService.updateAttendanceStatus(today, 'Started');
+        print('Attendance status changed from null to Pending.');
+        // Notify UI about the change if needed
+      }
+    }
   }
 
   void _onEnd() async {
@@ -156,7 +173,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       if (context.mounted) {
         showSnackBar(
           context: context,
-          message: 'Cannot end attendance. Attendance was not started or not found.',
+          message:
+              'Cannot end attendance. Attendance was not started or not found.',
           type: MessageType.error,
         );
       }
@@ -164,16 +182,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     }
 
     final now = DateTime.now();
-    final updatedAttendance = _currentAttendance!.copyWith(
-      end: now,
-    );
+    final updatedAttendance = _currentAttendance!.copyWith(end: now);
 
     if (!context.mounted) return;
     await save<Attendance>(
       context: context,
       dataUrl: 'api/attendance/save',
       dataToSave: updatedAttendance,
-      onSuccess: () {
+      onSuccess: () async {
         if (context.mounted) {
           showSnackBar(
             context: context,
@@ -181,6 +197,11 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
             type: MessageType.success,
           );
         }
+        //Locally Update Attendance Status to manage Bckground notifications remove later if not nessary
+        final LocalStorageService localStorageService = LocalStorageService();
+        final String today =
+            localStorageService.getCurrentDateFormatted(); // e.g., "2025-10-26"
+        await localStorageService.updateAttendanceStatus(today, 'Marked');
         _fetchTodayAttendance(); // Refresh UI
       },
       onError: (e) {
@@ -205,6 +226,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   void _goBack() {
     Navigator.of(context).pop();
   }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -223,18 +245,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         title: 'Attendance',
         onBack: null,
         canPop: false,
-        child: Center(
-          child: Text('Loading..'),
-        ),
+        child: Center(child: Text('Loading..')),
       );
     }
     if (_attendanceErrorMessage != null) {
       return AppPage(
         title: 'Attendance',
         onBack: _goBack,
-          child: Center(
-          child: Text(_attendanceErrorMessage!),
-        ),
+        child: Center(child: Text(_attendanceErrorMessage!)),
       );
     }
     return AppPage(
