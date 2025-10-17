@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
+import 'package:myapp/models/employee_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/menu_model.dart';
 import 'package:myapp/models/part_model.dart';
@@ -22,7 +25,18 @@ import 'package:myapp/models/user_model.dart';
 
 class DummyData {
   static final List<Receipt> _sessionReceipts = [];
-  static final List<Attendance> _attendance = [];
+  //static final List<Attendance> _attendance = [];
+
+  static final List<Attendance> _attendance = generateDummyAttendanceData(userId: "8108", numberOfWorkingDays: 30);
+  static final List<Employee> _employees = [
+
+    Employee(id: '2619', name: 'YASINDU GANEGODA', compName: 'D P INFOTECH PRIVATE LIMITED'),
+    Employee(id: '8108', name: 'NIMESH KALPANA', compName: 'D P INFOTECH PRIVATE LIMITED'),
+    Employee(id: '1122', name: 'SACHITH DANANJAYA', compName: 'D P INFOTECH PRIVATE LIMITED'),
+
+  ];
+
+
 
   static final List<Menu> _menus = [
     Menu(MenuId: '01', MenuName: 'Sales'),
@@ -192,7 +206,7 @@ class DummyData {
       telephone: '+94761234566',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001', '002'],
-      isTemporaryPassword: true,
+      isTemporaryPassword: false,
       passwordUpdatedAt: DateTime.now(),
     ),
     User(
@@ -200,6 +214,7 @@ class DummyData {
       username: 'sachith',
       email: 'sachith@example.com',
       telephone: '+94711234567',
+      isTemporaryPassword: true,
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002'],
     ),
@@ -1454,4 +1469,109 @@ class DummyData {
   static List<Role> get roles => _roles;
   static List<Perm> get perms => _perms;
   static List<Attendance> get attendances => _attendance;
+  static List<Employee> get employees => _employees;
+
+
+
+
+
+}
+
+
+
+List<Attendance> generateDummyAttendanceData({
+  required String userId,
+  int numberOfWorkingDays = 30,
+}) {
+  final List<Attendance> attendanceRecords = [];
+  final Random random = Random();
+  DateTime currentDate = DateTime.now(); // Starts from today's date
+
+  while (attendanceRecords.length < numberOfWorkingDays) {
+    // Go back one day at a time
+    currentDate = currentDate.subtract(const Duration(days: 1));
+
+    // Skip weekends (Saturday and Sunday)
+    if (currentDate.weekday == DateTime.saturday || currentDate.weekday == DateTime.sunday) {
+      continue;
+    }
+
+    // This is a working day, generate attendance for it
+    String attendanceType;
+    String workMode;
+    DateTime? startTime;
+    DateTime? endTime;
+    String? remark;
+
+    // Distribute attendance types: ~80% PRESENT, ~10% LEAVE, ~10% HOLIDAY
+    final int typeRoll = random.nextInt(100); // 0-99
+    if (typeRoll < 80) { // High chance for PRESENT
+      attendanceType = "PRESENT";
+       List<String> _workOptions = ['Home', 'Office', 'Field'];
+       int randomIndex = random.nextInt(_workOptions.length);
+
+  // 3. Access the random element
+      workMode = _workOptions[randomIndex];
+
+      // Generate start time around 8:00 AM +/- 15 minutes
+      startTime = DateTime(
+        currentDate.year,
+        currentDate.month,
+        currentDate.day,
+        8,
+        0,
+      ).add(Duration(minutes: random.nextInt(31) - 15)); // -15 to +15 minutes
+
+      // Generate end time around 5:00 PM +/- 15 minutes
+      endTime = DateTime(
+        currentDate.year,
+        currentDate.month,
+        currentDate.day,
+        17,
+        0,
+      ).add(Duration(minutes: random.nextInt(31) - 15)); // -15 to +15 minutes
+
+      // Ensure end time is at least 6 hours after start time for a plausible work day
+      if (endTime.isBefore(startTime.add(const Duration(hours: 6)))) {
+        endTime = startTime.add( Duration(hours: 8, minutes: random.nextInt(60))); // ~8 to 9 hour shift
+      }
+
+      // Add a remark occasionally for PRESENT days
+      final int remarkRoll = random.nextInt(10); // 0-9
+      if (remarkRoll < 2) { // 20% chance
+        remark = random.nextBool() ? "Early arrival" : "Late departure";
+      } else if (remarkRoll == 3) { // 10% chance
+        remark = "Working remotely today";
+      } else {
+        remark = null;
+      }
+
+    } else if (typeRoll < 90) { // 10% chance for LEAVE
+      attendanceType = "LEAVE";
+      workMode = ""; // Not applicable
+      startTime = null;
+      endTime = null;
+      remark = random.nextBool() ? "Annual Leave" : "Sick Leave";
+
+    } else { // 10% chance for HOLIDAY
+      attendanceType = "HOLIDAY";
+      workMode = ""; // Not applicable
+      startTime = null;
+      endTime = null;
+      remark = "Public Holiday";
+    }
+
+    attendanceRecords.add(
+      Attendance(
+        userID: userId,
+        date: DateTime(currentDate.year, currentDate.month, currentDate.day), // Normalize to date only
+        attendanceType: attendanceType,
+        workMode: workMode,
+        start: startTime,
+        end: endTime,
+        remark: remark,
+      ),
+    );
+  }
+  return attendanceRecords;
 }

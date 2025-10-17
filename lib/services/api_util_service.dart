@@ -22,13 +22,28 @@ Future<void> inquire<T extends Mappable>({
     String url = dataUrl;
     if (filters != null && filters.isNotEmpty) {
       List<List<dynamic>> filterConditions = [];
-      filters.forEach((key, value) {
-        filterConditions.add([
-          key,
-          '=',
-          value,
-        ]); // Assuming '=' operator only for now
+      // filters.forEach((key, value) {
+        
+      //   filterConditions.add([
+      //     key,
+      //     '=',
+      //     value,
+      //   ]); // Assuming '=' operator only for now
+      // });
+            filters.forEach((key, value) {
+        if (key.endsWith('_start')) {
+          // For date_start, use original field name (e.g., 'date') and '>=' operator
+          filterConditions.add([key.replaceFirst('_start', ''), '>=', value]);
+        } else if (key.endsWith('_end')) {
+          // For date_end, use original field name (e.g., 'date') and '<=' operator
+          filterConditions.add([key.replaceFirst('_end', ''), '<=', value]);
+        } else {
+          // Default to '=' for other filters
+          filterConditions.add([key, '=', value]);
+        }
       });
+
+
       url += '?filters=${jsonEncode(filterConditions)}';
     }
 

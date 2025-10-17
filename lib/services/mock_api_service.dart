@@ -60,6 +60,8 @@ class MockApiService {
         break;
       case 'api/attendance/list':
         sourceData = DummyData.attendances;
+      case 'api/employee/list':
+        sourceData = DummyData.employees;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
     }
@@ -82,16 +84,50 @@ class MockApiService {
               if (!itemMap.containsKey(field)) return false;
 
               final itemValue = itemMap[field];
+              // Prepare values for comparison, especially for 'date'
+              dynamic comparableItemValue = itemValue;
+              dynamic comparableValue = value;
+
+              // Parse dates if the field is 'date'
+              if (field == 'date' &&
+                  itemValue is String &&
+                  value is String) {
+                try {
+                  comparableItemValue = DateTime.parse(itemValue);
+                  comparableValue = DateTime.parse(value);
+                } catch (e) {
+                  // If date parsing fails, comparison will be false or handled by default
+                  print('Error parsing date for filter: $e');
+                  return false;
+                }
+              }
 
               switch (operator) {
                 case '=':
-                  return itemValue.toString().toLowerCase() ==
-                      value.toString().toLowerCase();
+                  return comparableItemValue.toString().toLowerCase() ==
+                      comparableValue.toString().toLowerCase();
                 case '!=':
-                  return itemValue.toString().toLowerCase() !=
-                      value.toString().toLowerCase();
-                default:
+                  return comparableItemValue.toString().toLowerCase() !=
+                      comparableValue.toString().toLowerCase();
+                case '>=':
+                  // Only compare if values are comparable (like DateTime, num, String)
+                  if (comparableItemValue is Comparable &&
+                      comparableValue is Comparable &&
+                      comparableItemValue.runtimeType ==
+                          comparableValue.runtimeType) {
+                    return comparableItemValue.compareTo(comparableValue) >= 0;
+                  }
                   return false;
+                case '<=':
+                  if (comparableItemValue is Comparable &&
+                      comparableValue is Comparable &&
+                      comparableItemValue.runtimeType ==
+                          comparableValue.runtimeType) {
+                    return comparableItemValue.compareTo(comparableValue) <= 0;
+                  }
+                  return false;
+                default:
+                  return false; // Unknown operator
               }
             });
           }).toList();
@@ -180,7 +216,7 @@ class MockApiService {
             user.incPins = 0;
             bool passwordIsExpired = false;
             const Duration passwordExpiryDuration = Duration(
-              seconds: 60,
+              seconds: 1000,
             ); // For Testing Tme GAP IS 30 SEC
 
             if (user.passwordUpdatedAt != null) {

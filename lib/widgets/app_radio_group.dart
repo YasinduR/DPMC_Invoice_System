@@ -7,6 +7,7 @@ class TitledRadioGroup extends StatelessWidget {
   final List<String> options;
   final String selectedValue;
   final ValueChanged<String?> onChanged;
+  final bool enabled; // New parameter to control enablement
 
   const TitledRadioGroup({
     super.key,
@@ -14,6 +15,7 @@ class TitledRadioGroup extends StatelessWidget {
     required this.options,
     required this.selectedValue,
     required this.onChanged,
+    this.enabled = true
   });
 
   @override
@@ -37,11 +39,13 @@ class TitledRadioGroup extends StatelessWidget {
               options.map((option) {
                 return Expanded(
                   child: RadioListTile<String>(
-                    title: Text(option, style: const TextStyle(fontSize: 12)),
+                    title: Text(
+                    option, 
+                    style: const TextStyle(fontSize: 12)),
                     value: option,
                     groupValue: selectedValue,
-                    onChanged: onChanged,
-                    activeColor: AppColors.primary,
+                    onChanged: enabled? onChanged : null,
+                    activeColor: enabled? AppColors.primary: AppColors.disabled,
                     contentPadding: EdgeInsets.zero,
                   ),
                 );
