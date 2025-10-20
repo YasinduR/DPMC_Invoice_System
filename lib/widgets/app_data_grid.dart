@@ -25,6 +25,10 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
   // Visibilty of filter bar over the table by Default true
   final bool hasFilter;
 
+  /// A list of merge rules to apply to the grid rows.
+  /// The first rule whose `shouldMerge` predicate returns true for an item will be applied.
+  final List<DataGridMergeRule<T>>? mergeRules;
+
   const AppDataGrid({
     super.key,
     required this.items,
@@ -33,6 +37,7 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
     this.onFilterPressed,
     this.hasFilter = true,
     this.searchHintText = 'Search...',
+    this.mergeRules,
   });
 
   @override
@@ -175,23 +180,130 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
     );
   }
 
+  // Widget _buildRow(T item) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border(bottom: BorderSide(color: AppColors.border)),
+  //     ),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children:
+  //           widget.columns.map((column) {
+  //             return Expanded(
+  //               flex: column.flex,
+  //               child: column.cellBuilder(context, item),
+  //             );
+  //           }).toList(),
+  //     ),
+  //   );
+  // }
+
+  // UPDATED: _buildRow to generically handle merge rules
   Widget _buildRow(T item) {
+    DataGridMergeRule<T>? appliedRule;
+
+    // Find the first matching merge rule for this item
+    if (widget.mergeRules != null) {
+      for (var rule in widget.mergeRules!) {
+        if (rule.shouldMerge(item)) {
+          appliedRule = rule;
+          break; // Apply only the first matching rule
+        }
+      }
+    }
+
+    // Build the list of children for the Row widget
+    List<Widget> rowChildren = [];
+    int currentColumnIndex = 0;
+
+    if (appliedRule != null) {
+      // Add columns before the merged section
+      for (int i = 0; i < appliedRule.startColumnIndex; i++) {
+        rowChildren.add(
+          Expanded(
+            flex: widget.columns[i].flex,
+            child: widget.columns[i].cellBuilder(context, item),
+          ),
+        );
+        currentColumnIndex++;
+      }
+
+      // Calculate total flex for the merged section
+      int mergedFlex = 0;
+      for (
+        int i = appliedRule.startColumnIndex;
+        i <= appliedRule.endColumnIndex;
+        i++
+      ) {
+        mergedFlex += widget.columns[i].flex;
+      }
+
+      // Add the merged cell
+      rowChildren.add(
+        Expanded(
+          flex: mergedFlex,
+          child: appliedRule.mergedCellBuilder(context, item),
+        ),
+      );
+      currentColumnIndex =
+          appliedRule.endColumnIndex + 1; // Move past merged columns
+    }
+
+    // Add remaining columns (either after merged section or all if no rule applied)
+    for (int i = currentColumnIndex; i < widget.columns.length; i++) {
+      rowChildren.add(
+        Expanded(
+          flex: widget.columns[i].flex,
+          child: widget.columns[i].cellBuilder(context, item),
+        ),
+      );
+    }
+
+    // Determine the row's decoration
+    BoxDecoration rowDecoration = BoxDecoration(
+      color: Colors.white,
+      border: Border(bottom: BorderSide(color: AppColors.border)),
+    );
+    if (appliedRule?.decorationBuilder != null) {
+      rowDecoration = appliedRule!.decorationBuilder!(context, item);
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
-      ),
+      decoration: rowDecoration,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children:
-            widget.columns.map((column) {
-              return Expanded(
-                flex: column.flex,
-                child: column.cellBuilder(context, item),
-              );
-            }).toList(),
+        children: rowChildren,
       ),
     );
   }
+}
+
+// NEW: Generic Merge Rule Definition
+class DataGridMergeRule<T> {
+  /// A predicate function to determine if this rule should apply to a given item.
+  final bool Function(T item) shouldMerge;
+  final int startColumnIndex;
+  final int endColumnIndex;
+
+  /// A builder function for the content of the merged cell.
+  final Widget Function(BuildContext context, T item) mergedCellBuilder;
+
+  /// An optional builder for the decoration of the merged cell container.
+  final BoxDecoration Function(BuildContext context, T item)? decorationBuilder;
+
+  DataGridMergeRule({
+    required this.shouldMerge,
+    required this.startColumnIndex,
+    required this.endColumnIndex,
+    required this.mergedCellBuilder,
+    this.decorationBuilder,
+  }) : assert(startColumnIndex >= 0, 'startColumnIndex must be non-negative'),
+       assert(endColumnIndex >= 0, 'endColumnIndex must be non-negative'),
+       assert(
+         endColumnIndex >= startColumnIndex,
+         'endColumnIndex must be greater than or equal to startColumnIndex',
+       );
 }

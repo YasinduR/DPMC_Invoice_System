@@ -288,7 +288,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       print('Error setting biometric preference: $e');
       onError(e is Exception ? e : Exception(e.toString()));
-      // If an error occurs, ensure the local storage preference is consistent
       await _localStorageService.setBiometricPreference(!enable); // Revert
     } finally {
       state = state.copyWith(isLoading: false);

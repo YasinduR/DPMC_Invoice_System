@@ -27,5 +27,7 @@ class AppColors {
   static const Color transparent = Colors.transparent;
   static  Color dialogShadowColor = Colors.black.withOpacity(0.4); // 
 
-
+  static const Color successLight = Color(0xFFE8F5E9); // A very light green, suitable for backgrounds
+  static const Color dangerLight = Color(0xFFFFEBEE); // A very light red/pink, suitable for backgrounds
+  
 }

@@ -1470,11 +1470,6 @@ class DummyData {
   static List<Perm> get perms => _perms;
   static List<Attendance> get attendances => _attendance;
   static List<Employee> get employees => _employees;
-
-
-
-
-
 }
 
 
@@ -1505,7 +1500,7 @@ List<Attendance> generateDummyAttendanceData({
 
     // Distribute attendance types: ~80% PRESENT, ~10% LEAVE, ~10% HOLIDAY
     final int typeRoll = random.nextInt(100); // 0-99
-    if (typeRoll < 80) { // High chance for PRESENT
+    if (typeRoll < 60) { // High chance for PRESENT
       attendanceType = "PRESENT";
        List<String> _workOptions = ['Home', 'Office', 'Field'];
        int randomIndex = random.nextInt(_workOptions.length);
@@ -1546,7 +1541,7 @@ List<Attendance> generateDummyAttendanceData({
         remark = null;
       }
 
-    } else if (typeRoll < 90) { // 10% chance for LEAVE
+    } else if (typeRoll < 80) { // 10% chance for LEAVE
       attendanceType = "LEAVE";
       workMode = ""; // Not applicable
       startTime = null;

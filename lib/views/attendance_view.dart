@@ -6,18 +6,17 @@ import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/employee_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
-import 'package:myapp/widgets/app_date_picker.dart';
-// import 'package:myapp/widgets/app_option_picker.dart';
 import 'package:myapp/widgets/app_fixed_text_field.dart';
 import 'package:myapp/widgets/app_radio_group.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
+import 'package:myapp/widgets/cards/date_display_card.dart';
 import 'package:myapp/widgets/cards/employee_info_card.dart';
 
 class AttendanceView extends StatefulWidget {
   final User currentUser; // Now takes the currentUser directly
-
   const AttendanceView({super.key, required this.currentUser});
 
   @override
@@ -51,13 +50,13 @@ class _AttendanceViewState extends State<AttendanceView> {
     _selectedDate = DateTime.now();
     _selectedWorkOption = _workOptions[0];
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _fetchTodayAttendance(),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchEmployeeInfo());
+      (_) => _fetchTodayAttendance());
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _fetchAttendanceRecords(),
-    );
+      (_) => _fetchEmployeeInfo());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _fetchAttendanceRecords());
   }
+
 
   Future<void> _fetchTodayAttendance() async {
     setState(() {
@@ -129,8 +128,11 @@ class _AttendanceViewState extends State<AttendanceView> {
     });
 
     final today = DateTime.now();
-    // Get the start of today (YYYY-MM-DD 00:00:00)
-    final endOfRange = DateTime(today.year, today.month, today.day);
+    final endOfRange = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    ).subtract(const Duration(days: 1));
     final startOfRange = endOfRange.subtract(const Duration(days: 20));
 
     final filters = {
@@ -146,14 +148,20 @@ class _AttendanceViewState extends State<AttendanceView> {
       filters: filters,
       onSuccess: (data) {
         if (mounted) {
-          setState(() {
-            if (data.isNotEmpty) {
-              _attendanceRecords = data;
-              print(_attendanceRecords);
-            } else {
-              _attendanceRecords = null;
-            }
-            _isLoadingAttendanceRecords = false;
+
+      setState(() {
+        if (data.isNotEmpty) {
+          _attendanceRecords = data;
+        } else {
+          _attendanceRecords = null;
+        }
+        _isLoadingAttendanceRecords = false;
+        if (_attendanceRecords != null && _currentAttendance != null) {
+        if(_currentAttendance?.end != null){
+      //_attendanceRecords = _currentAttendance! + _attendanceRecords;
+      _attendanceRecords!.insert(0, _currentAttendance!);
+      }
+    }
           });
         }
       },
@@ -193,9 +201,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       _isLoadingEmployee = true;
       _employeeErrorMessage = null;
     });
-
     final filters = {'id': widget.currentUser.id}; // Use widget.currentUser.id
-
     if (!context.mounted) return;
     await inquire<Employee>(
       context: context,
@@ -325,6 +331,11 @@ class _AttendanceViewState extends State<AttendanceView> {
           );
         }
         _fetchTodayAttendance(); // Refresh UI
+        setState(() {
+          if (_attendanceRecords != null) {
+            _attendanceRecords!.insert(0, updatedAttendance);
+            }
+        });
       },
       onError: (e) {
         if (context.mounted) {
@@ -342,27 +353,58 @@ class _AttendanceViewState extends State<AttendanceView> {
   Widget _buildAttendanceRecordArea() {
     if (_isLoadingAttendanceRecords) {
       return const Center(child: Text('Loading Attendance Records ...'));
-    } 
-    else if (_attendanceRecords == null) {
-      return const Center(child: Text('No Attendance Records found for you !.'));
-    }
-     else if (_attendanceRecords!.isEmpty) {
-      return const Center(child: Text('No Attendance Records found for you !.'));
+    } else if (_attendanceRecords == null) {
+      return const Center(
+        child: Text('No Attendance Records found for you !.'),
+      );
+    } else if (_attendanceRecords!.isEmpty) {
+      return const Center(
+        child: Text('No Attendance Records found for you !.'),
+      );
     } else {
       return AppDataGrid<Attendance>(
         hasFilter: false, // <-- Hides the filter/search bar
         items: _attendanceRecords!,
         filterableFields: const [],
+        mergeRules: [
+          // Merge Cells When Holiday OR Leave
+          DataGridMergeRule<Attendance>(
+            shouldMerge: (att) => att.start == null && att.end == null,
+            startColumnIndex: 1,
+            endColumnIndex: 3,
+            mergedCellBuilder:
+                (context, att) => Center(
+                  child: Text(
+                    att.attendanceType,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color:
+                          att.attendanceType == 'HOLIDAY'
+                              ? AppColors.success
+                              : AppColors.danger,
+                    ),
+                  ),
+                ),
+            decorationBuilder:
+                (context, att) => BoxDecoration(
+                  color:
+                      att.attendanceType == 'HOLIDAY'
+                          ? AppColors.successLight
+                          : AppColors.dangerLight, // Distinct background color for leave rows
+                ),
+          ),
+        ],
         columns: [
           DynamicColumn<Attendance>(
             label: 'Date',
             flex: 1,
             cellBuilder:
                 (context, att) => AutoSizeText(
-                  // Assuming `att.date` is already a String in 'YYYY-MM-DD' format
-                  att.date.toIso8601String(),
+                  att.date.toIso8601String().split('T')[0],
                   maxLines: 1,
-                  textAlign: TextAlign.right,
+                  minFontSize: 8,
+                  textAlign: TextAlign.center,
                 ),
           ),
           DynamicColumn<Attendance>(
@@ -372,6 +414,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                 (context, att) => AutoSizeText(
                   att.workMode, // Assuming attendanceType covers "Worked From"
                   maxLines: 1,
+                   minFontSize: 8,
                   textAlign: TextAlign.center,
                 ),
           ),
@@ -381,9 +424,11 @@ class _AttendanceViewState extends State<AttendanceView> {
             cellBuilder:
                 (context, att) => AutoSizeText(
                   // Assuming `att.date` is already a String in 'YYYY-MM-DD' format
-                  att.start!.toIso8601String() ?? 'N/A',
+                  // att.start != null? att.start!.toIso8601String().split('T')[1]  : 'N/A',
+                  att.start != null ? DateFormat('HH:mm').format(att.start!) : 'N/A',
                   maxLines: 1,
-                  textAlign: TextAlign.right,
+                  minFontSize: 8,
+                  textAlign: TextAlign.center,
                 ),
           ),
           DynamicColumn<Attendance>(
@@ -391,8 +436,9 @@ class _AttendanceViewState extends State<AttendanceView> {
             flex: 1,
             cellBuilder:
                 (context, att) => AutoSizeText(
-                  att.end!.toIso8601String() ?? 'N/A', // Assuming attendanceType covers "Worked From"
+                  att.end != null ? DateFormat('HH:mm').format(att.end!) : 'N/A',
                   maxLines: 1,
+                   minFontSize: 8,
                   textAlign: TextAlign.center,
                 ),
           ),
@@ -400,6 +446,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       );
     }
   }
+  
   // void _onWorkOptionSelected(String? option) {
   //   setState(() {
   //     _selectedWorkOption = option;
@@ -452,12 +499,14 @@ class _AttendanceViewState extends State<AttendanceView> {
             children: [
               EmployeeInfoCard(employee: _employeeInfo!), // Use internal state
               const SizedBox(height: 25),
-              DatePickerField(
-                labelText: 'Select Date',
-                selectedDate: _selectedDate,
-                onDateSelected: onDateSelected,
-                disabled: true, // Attendance is usually for current day
-              ),
+              DateDisplayCard(
+              selectedDate: _selectedDate!),
+              // DatePickerField(
+              //   labelText: 'Select Date',
+              //   selectedDate: _selectedDate,
+              //   onDateSelected: onDateSelected,
+              //   disabled: true, // Attendance is usually for current day
+              // ),
               const SizedBox(height: 20),
               TitledRadioGroup(
                 title: 'Work From',
@@ -472,23 +521,58 @@ class _AttendanceViewState extends State<AttendanceView> {
               ),
 
               const SizedBox(height: 24),
-              if (_currentAttendance?.start != null)
-                FixedTextField(
-                  inputFieldLabelText: 'Start Time',
-                  selectedOption: DateFormat(
-                    'hh:mm a',
-                  ).format(_currentAttendance!.start!),
-                ),
-              if (_currentAttendance?.start != null &&
-                  _currentAttendance?.end != null)
-                const SizedBox(height: 12),
-              if (_currentAttendance?.end != null)
-                FixedTextField(
-                  inputFieldLabelText: 'End Time',
-                  selectedOption: DateFormat(
-                    'hh:mm a',
-                  ).format(_currentAttendance!.end!),
-                ),
+              Row(
+                // Use MainAxisAlignment.spaceEvenly or .start if you only have one field sometimes
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (_currentAttendance?.start != null)
+                    Flexible(
+                    fit: FlexFit.loose,
+                      child: FixedTextField(
+                        headerLabelText: 'Start Time', // Added header label for clarity
+                        //inputFieldLabelText: 'Start Time', // Fallback label
+                        selectedOption: DateFormat(
+                          'hh:mm a',
+                        ).format(_currentAttendance!.start!),
+                        //isDisabled: true, // Make it explicitly disabled
+                      ),
+                    ),
+                  // Add horizontal space ONLY if both start and end times exist
+                  if (_currentAttendance?.start != null &&
+                      _currentAttendance?.end != null)
+                    const SizedBox(width: 6), // <-- Use width for horizontal spacing
+
+                  if (_currentAttendance?.end != null)
+                    Flexible( 
+                    fit: FlexFit.loose,
+                      child: FixedTextField(
+                        headerLabelText: 'End Time', // Added header label for clarity
+                        selectedOption: DateFormat(
+                          'hh:mm a',
+                        ).format(_currentAttendance!.end!),
+                      ),
+                    ),
+                ],
+              ),
+              // Row(children: [
+              // if (_currentAttendance?.start != null)
+              //   FixedTextField(
+              //     inputFieldLabelText: 'Start Time',
+              //     selectedOption: DateFormat(
+              //       'hh:mm a',
+              //     ).format(_currentAttendance!.start!),
+              //   ),
+              // if (_currentAttendance?.start != null &&
+              //     _currentAttendance?.end != null)
+              //   const SizedBox(height: 12),
+              // if (_currentAttendance?.end != null)
+              //   FixedTextField(
+              //     inputFieldLabelText: 'End Time',
+              //     selectedOption: DateFormat(
+              //       'hh:mm a',
+              //     ).format(_currentAttendance!.end!),
+              //   ),
+              // ],),
               const SizedBox(height: 24),
               SizedBox(height: 250.0, child: _buildAttendanceRecordArea()),
             ],
@@ -522,115 +606,3 @@ class _AttendanceViewState extends State<AttendanceView> {
     );
   }
 }
-// class AttendanceView extends StatefulWidget {
-//   final Employee employee;
-//   final DateTime? start;
-//   final DateTime? end;
-//   final String? selectedWorkOption; // Renamed from workOption
-//   final void Function(String?) onWorkOptionSelected; // New callback
-//   final void Function() onStart;
-//   final void Function() onEnd;
-
-//   const AttendanceView({
-//     super.key,
-//     required this.employee,
-//     this.start,
-//     this.end,
-//     this.selectedWorkOption, // Renamed
-//     required this.onWorkOptionSelected, // New
-//     required this.onStart,
-//     required this.onEnd,
-//   });
-
-//   @override
-//   State<AttendanceView> createState() => _AttendanceViewState();
-// }
-
-// class _AttendanceViewState extends State<AttendanceView> {
-//   DateTime? _selectedDate;
-//   final List<String> _workOptions = ['Home', 'Office', 'Field'];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _selectedDate = DateTime.now(); 
-//   }
-
-//   Future<void> _showWorkOptionPicker() async {
-//     final result = await showDialog<String>(
-//       context: context,
-//       builder: (context) => SelectionModal(
-//         title: 'Work From',
-//         options: _workOptions,
-//         initialValue: widget.selectedWorkOption,
-//       ),
-//     );
-//     if (result != null) {
-//       widget.onWorkOptionSelected(result);
-//     }
-//   }
-
-//   void onDateSelected(date) {
-//     setState(() => _selectedDate = date);
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Expanded(
-//           child: ListView(
-//             padding: const EdgeInsets.all(16.0),
-//             children: [
-//               EmployeeInfoCard(employee: widget.employee),
-//               const SizedBox(height: 20),
-//               DatePickerField(
-//                 labelText: 'Select Date',
-//                 selectedDate: _selectedDate,
-//                 onDateSelected: onDateSelected,
-//                 disabled: true, // Attendance is usually for current day
-//               ),
-//               const SizedBox(height: 20),
-//                 PickerFormField(
-//                 inputFieldLabelText: 'Select Attendance',
-//                 selectedOption: widget.selectedWorkOption,
-//                 onTap: _showWorkOptionPicker,
-//                 isDisabled: widget.start != null ,
-//               ),
-//               const SizedBox(height: 24),
-//               if (widget.start != null)
-//                   FixedTextField( inputFieldLabelText: 'Start Time',selectedOption: DateFormat('hh:mm a').format(widget.start!),),
-//               if (widget.start != null && widget.end != null)
-//                 const SizedBox(height: 12),
-//               if (widget.end != null)
-//                   FixedTextField( inputFieldLabelText: 'End Time',selectedOption: DateFormat('hh:mm a').format(widget.end!),),
-//             ],
-//           ),
-//         ),
-
-//         Padding(
-//           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-//           child: Column(
-//             children: [
-//               if (widget.start == null)
-//                 ActionButton(
-//                   icon: Icons.check_circle_outline,
-//                   label: 'Start Attendance',
-//                   disabled: widget.selectedWorkOption == null,
-//                   onPressed: () {  widget.onStart(); },
-//                 ),
-//               if (widget.start != null && widget.end == null) 
-//                 ActionButton(
-//                   icon: Icons.close,
-//                   type: ActionButtonType.secondary,
-//                   label: 'End Attendance',
-//                   disabled: false,
-//                   onPressed: () {  widget.onEnd(); },
-//                 ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
