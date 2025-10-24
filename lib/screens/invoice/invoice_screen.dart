@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/invoice_model.dart';
+import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/providers/region_provider.dart';
+import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/views/create_invoice_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
@@ -20,6 +24,7 @@ class InvoiceScreen extends ConsumerStatefulWidget {
 }
 
 class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
+  final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   TinData? _selectedTin;
 
@@ -93,15 +98,59 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     }
   }
 
-  void _saveinvoice() {
+  Future<void> _saveinvoice(List<Part> selectedParts) async {
+    double total = 0;
+    for (var part in selectedParts) {
+      final qty = part.receivedQty;
+      final price = part.price;
+      total += (qty * price);
+    }
+    final invoiceData = Invoice(date: DateTime.now().toIso8601String().split('T')[0], invoiceNumber: 'AAA', customer: _selectedDealer!.accountCode, totalValue: total);
+    await save(
+      context: context,
+      dataUrl: 'api/invoice/save',
+      dataToSave: invoiceData,
+      onSuccess: () {
+        showSnackBar(
+          context: context,
+          message: 'Invoice saved successfully!',
+          type: MessageType.success,
+        );
+          _printerService.previewThermalInvoicePdf(
+      selectedParts,
+_selectedDealer!.name,
+    );
+      },
+      onError: (e) {
+        String errorMessage = e.toString().replaceFirst('Exception: ', '');
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      },
+    );
+  
+
+    // Add print preview. // Pass Dealer Info
+    // User Info Tin Info and selected parts to print preview
+    //String dealerName = _selectedDealer == null ? '' : _selectedDealer?.name;
+    // _printerService.previewThermalInvoicePdf(
+    //   selectedParts,
+    //   _selectedDealer!.name,
+    // );
+
+    // // ADD API request later here
+    // showSnackBar(
+    //   context: context,
+    //   message: "Invoice Saved !",
+    //   type: MessageType.success,
+    // );
     setState(() {
       _currentStep = 1; // Move to the initial page
     });
-    showSnackBar(
-      context: context,
-      message: "Invoice Saved !",
-      type: MessageType.success,
-    );
+
+
   }
 
   void _goBack() {
@@ -131,8 +180,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer:
-              null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer: null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,

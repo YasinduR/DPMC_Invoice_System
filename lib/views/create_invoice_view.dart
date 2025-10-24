@@ -17,7 +17,7 @@ import 'package:myapp/widgets/cards/tin_info_card.dart';
 class CreateInvoiceView extends StatefulWidget {
   final Dealer dealer;
   final TinData tindata;
-  final VoidCallback onSubmit;
+  final void Function(List<Part>) onSubmit;
 
   const CreateInvoiceView({
     super.key,
@@ -213,7 +213,9 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
                 icon: Icons.check_circle_outline,
                 label: 'Save',
                 disabled: totalAmount == 0,
-                onPressed: widget.onSubmit,
+                onPressed: () {
+                  widget.onSubmit(_selectedParts); // Pass _selectedParts here
+                },
               ),
             ],
           ),

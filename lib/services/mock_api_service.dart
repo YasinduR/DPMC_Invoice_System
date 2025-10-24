@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
+import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
@@ -89,9 +90,7 @@ class MockApiService {
               dynamic comparableValue = value;
 
               // Parse dates if the field is 'date'
-              if (field == 'date' &&
-                  itemValue is String &&
-                  value is String) {
+              if (field == 'date' && itemValue is String && value is String) {
                 try {
                   comparableItemValue = DateTime.parse(itemValue);
                   comparableValue = DateTime.parse(value);
@@ -133,7 +132,7 @@ class MockApiService {
           }).toList();
     }
 
-    if (sourceData.isEmpty && uri.path != 'api/attendance/list' ) {
+    if (sourceData.isEmpty && uri.path != 'api/attendance/list') {
       throw Exception('No data found.');
     }
     return sourceData.cast<T>();
@@ -579,19 +578,22 @@ class MockApiService {
         return true;
 
       case 'api/invoice/save':
-        if (body is! Receipt) {
+        if (body is! Invoice) {
           throw Exception(
             'Invalid type for saving a receipt. Expected a Receipt object.',
           );
         }
 
-        final receipt = body;
+        final invoice = body;
 
-        final isDuplicate = DummyData.receipts.any(
-          (existingReceipt) =>
-              existingReceipt.dealerCode == receipt.dealerCode &&
-              existingReceipt.bankCode == receipt.bankCode &&
-              existingReceipt.chequeNumber == receipt.chequeNumber,
+          final updatedInvoice = invoice.copyWith(
+            // Use copyWith
+            invoiceNumber: generateInvoiceNumber(),
+          );
+        //invoice.invoiceNumber = generateInvoiceNumber();
+        final isDuplicate = DummyData.invoices.any(
+          (existingInvoice) =>
+              existingInvoice.invoiceNumber == updatedInvoice.invoiceNumber
         );
 
         if (isDuplicate) {
@@ -600,18 +602,8 @@ class MockApiService {
           );
         }
 
-        DummyData.receipts.add(receipt);
+        DummyData.invoices.add(updatedInvoice);
         return true;
-
-
-
-
-
-
-
-
-
-
 
       case 'api/attendance/save':
         if (body is! Attendance) {
@@ -641,4 +633,23 @@ class MockApiService {
         throw FetchDataException('Invalid POST API URL: $url');
     }
   }
+}
+
+String generateInvoiceNumber() {
+  final now = DateTime.now();
+
+  // Format date as YYYYMMDD
+  String year = now.year.toString();
+  String month = now.month.toString().padLeft(2, '0');
+  String day = now.day.toString().padLeft(2, '0');
+  String formattedDate = year + month + day;
+
+  // Format time as HHMMSS
+  String hour = now.hour.toString().padLeft(2, '0');
+  String minute = now.minute.toString().padLeft(2, '0');
+  String second = now.second.toString().padLeft(2, '0');
+  String formattedTime = hour + minute + second;
+
+  // Combine to create the invoice number
+  return 'MIN' + formattedDate + formattedTime;
 }

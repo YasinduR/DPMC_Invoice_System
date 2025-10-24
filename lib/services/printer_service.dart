@@ -1,0 +1,477 @@
+import 'package:flutter/material.dart';
+import 'dart:typed_data'; // For Uint8List
+
+// For thermal printers (ESC/POS) - keeping for future implementation
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart'; // For future Bluetooth connection
+import 'package:myapp/models/part_model.dart';
+
+// For PDF printing and preview 
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+
+class PrinterService {
+  // --- Thermal Printer (ESC/POS) related - for future use ---
+  // FlutterBluePlus _flutterBlue = FlutterBluePlus.instance; // For future Bluetooth scanning/connection
+  // BluetoothDevice _connectedDevice; // To store a connected printer device
+
+  late CapabilityProfile _profile; // Loaded once for ESC/POS command generation
+
+  Future<void> initPrinterServices() async {
+    _profile = await CapabilityProfile.load(); //
+    // No actual thermal printer connection logic here for now.
+    // This method is kept for future expansion of thermal printing.
+  }
+
+  // A common data structure to hold receipt information
+  // This ensures both ESC/POS generation and PDF preview use the same data.
+  // This is Similar to Dataset in crystal report application ERP
+  Map<String, dynamic> _buildReceiptData( // Used For Testing
+    List<Map<String, dynamic>> items,
+    String customerName,
+  ) {
+    double total = 0;
+    for (var item in items) {
+      final qty = item['qty'] as int;
+      final price = item['price'] as double;
+      total += (qty * price);
+    }
+
+    return {
+      'storeName': 'YOUR STORE NAME',
+      'customerName': customerName,
+      'items': items,
+      'total': total,
+      'date':
+          DateTime.now().toLocal().toString().split(
+            ' ',
+          )[0], // Simple date format
+      'time': DateTime.now()
+          .toLocal()
+          .toString()
+          .split(' ')[1]
+          .substring(0, 5), // Simple time format
+    };
+  }
+
+  Map<String, dynamic> _buildInvoice( 
+    List<Part> selectedParts,
+    String dealerName,
+  ) {
+    double total = 0;
+    for (var part in selectedParts) {
+      // final qty = item['qty'] as int;
+      final qty = part.receivedQty;
+      final price = part.price;
+      total += (qty * price);
+    }
+
+    return {
+      'dealerName': dealerName,
+      'parts': selectedParts,
+      'total': total,
+      'date':
+          DateTime.now().toLocal().toString().split(
+            ' ',
+          )[0], // Simple date format
+      'time': DateTime.now()
+          .toLocal()
+          .toString()
+          .split(' ')[1]
+          .substring(0, 5), // Simple time format
+    };
+  }
+
+  // This method the ESC/POS commands, but does NOT print for now. // 
+  // Prepare this for each Prints  // Dont Remove.
+  // It returns the bytes, which could be sent to a printer later.
+  // Future<Uint8List> generateThermalReceiptCommands(List<Map<String, dynamic>> items, String customerName) async {
+  //   final receiptData = _buildReceiptData(items, customerName);
+  //   final Generator generator = Generator(PaperSize.mm80, _profile); // Adjust paper size if needed
+  //   List<int> bytes = [];
+
+  //   bytes += generator.text(receiptData['storeName'], styles: const PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2, width: PosTextSize.size2));
+  //   bytes += generator.text('Date: ${receiptData['date']} ${receiptData['time']}', styles: const PosStyles(align: PosAlign.center,height: PosTextSize.size2, width : PosTextSize.size1));
+  //   bytes += generator.text('Customer: ${receiptData['customerName']}', styles: const PosStyles(align: PosAlign.left));
+  //   bytes += generator.hr(); // Horizontal Rule
+
+  //   // Table header
+  //   bytes += generator.row([
+  //     PosColumn(text: 'Item', width: 6),
+  //     PosColumn(text: 'Qty', width: 2, styles: const PosStyles(align: PosAlign.right)),
+  //     PosColumn(text: 'Price', width: 4, styles: const PosStyles(align: PosAlign.right)),
+  //   ]);
+  //   bytes += generator.hr();
+
+  //   // Item details
+  //   for (var item in receiptData['items']) {
+  //     final name = item['name'] as String;
+  //     final qty = item['qty'] as int;
+  //     final price = item['price'] as double;
+
+  //     bytes += generator.row([
+  //       PosColumn(text: name, width: 6),
+  //       PosColumn(text: qty.toString(), width: 2, styles: const PosStyles(align: PosAlign.right)),
+  //       PosColumn(text: price.toStringAsFixed(2), width: 4, styles: const PosStyles(align: PosAlign.right)),
+  //     ]);
+  //   }
+
+  //   bytes += generator.hr();
+  //   bytes += generator.row([
+  //     PosColumn(text: 'TOTAL', width: 8, styles: const PosStyles(bold: true, height: PosTextSize.size2, width: PosTextSize.size2)),
+  //     PosColumn(text: receiptData['total'].toStringAsFixed(2), width: 4, styles: const PosStyles(align: PosAlign.right, bold: true, height: PosTextSize.size2, width: PosTextSize.size2)),
+  //   ]);
+  //   bytes += generator.feed(2); // Line feeds
+  //   bytes += generator.cut(); // Cut paper
+
+  //   print("ESC/POS Receipt commands generated (${bytes.length} bytes). Not sent to printer for now.");
+  //   return Uint8List.fromList(bytes); // Return the generated bytes
+  // }
+
+  // Method to preview the thermal INVOICE as PDF 
+  Future<void> previewThermalInvoicePdf(
+    List<Part> selectedParts,
+    String dealerName,
+  ) async {
+    final data = _buildInvoice(selectedParts, dealerName);
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat:PdfPageFormat.roll80, // Mimics a common thermal paper width (80mm)
+        margin: const pw.EdgeInsets.all(10), // Reduced margins for receipt feel
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(
+                'DPMC Invoice System',
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.Text(
+                'Date: ${data['date']} ${data['time']}',
+                style: const pw.TextStyle(fontSize: 10),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Align(
+                alignment: pw.Alignment.centerLeft,
+                child: pw.Text(
+                  'Dealer : ${data['dealerName']}',
+                  style: const pw.TextStyle(fontSize: 12),
+                ),
+              ),
+              pw.Divider(thickness: 0.5),
+              pw.Table.fromTextArray(
+                headers: ['Part No', 'Quantity', 'Price'],
+                data:
+                    (data['parts'] as List<Part>).map((item) {
+                      final id = item.partNo;
+                      final qty = item.receivedQty;
+                      final price = item.price;
+                      return [id, qty.toString(), price.toStringAsFixed(2)];
+                    }).toList(),
+                headerStyle: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 10,
+                ),
+                cellStyle: const pw.TextStyle(fontSize: 10),
+                //cellAlignment: pw.Alignment.centerLeft,
+                        // UPDATED: Use cellAlignments instead of cellAlignment
+                cellAlignments: {
+                  0: pw.Alignment.centerLeft,   // Part column
+                  1: pw.Alignment.centerRight,  // Quantity column
+                  2: pw.Alignment.centerRight,  // Price column
+                },
+                //Optional: You can also align headers to match if desired
+                headerAlignments: {
+                  0: pw.Alignment.centerLeft,
+                  1: pw.Alignment.centerRight,
+                  2: pw.Alignment.centerRight,
+                },
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(2.2), // Item name takes more space
+                  1: const pw.FlexColumnWidth(1.5), // Quantity
+                  2: const pw.FlexColumnWidth(1.8), // Price
+                },
+                border: null, // No border for a receipt feel
+                headerDecoration: const pw.BoxDecoration(
+                  border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+                ), // Thin line below header
+              ),
+              pw.Divider(thickness: 0.5),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    'TOTAL',
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  pw.Text(
+                    data['total'].toStringAsFixed(2),
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Thank you !',
+                style: const pw.TextStyle(fontSize: 10),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Show the PDF preview dialog
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
+
+  // NEW: Method to preview the thermal receipt as PDF
+  Future<void> previewThermalReceiptPdf(
+    List<Map<String, dynamic>> items,
+    String customerName,
+  ) async {
+    final receiptData = _buildReceiptData(items, customerName);
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.roll80, // Mimics a common thermal paper width (80mm)
+        margin: const pw.EdgeInsets.all(10), // Reduced margins for receipt feel
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(
+                receiptData['storeName'],
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.Text(
+                'Date: ${receiptData['date']} ${receiptData['time']}',
+                style: const pw.TextStyle(fontSize: 10),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Align(
+                alignment: pw.Alignment.centerLeft,
+                child: pw.Text(
+                  'Customer: ${receiptData['customerName']}',
+                  style: const pw.TextStyle(fontSize: 12),
+                ),
+              ),
+              pw.Divider(thickness: 0.5),
+              pw.Table.fromTextArray(
+                headers: ['Item', 'Qty', 'Price'],
+                data:
+                    (receiptData['items'] as List<dynamic>).map((item) {
+                      final name = item['name'] as String;
+                      final qty = item['qty'] as int;
+                      final price = item['price'] as double;
+                      return [name, qty.toString(), price.toStringAsFixed(2)];
+                    }).toList(),
+                headerStyle: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 10,
+                ),
+                cellStyle: const pw.TextStyle(fontSize: 10),
+                cellAlignment: pw.Alignment.centerLeft,
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(3), // Item name takes more space
+                  1: const pw.FlexColumnWidth(1), // Quantity
+                  2: const pw.FlexColumnWidth(1.5), // Price
+                },
+                border: null, // No border for a receipt feel
+                headerDecoration: const pw.BoxDecoration(
+                border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+                ), // Thin line below header
+              ),
+              pw.Divider(thickness: 0.5),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    'TOTAL',
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  pw.Text(
+                    receiptData['total'].toStringAsFixed(2),
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Thank you for your purchase!',
+                style: const pw.TextStyle(fontSize: 10),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Show the PDF preview dialog
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
+
+  // // --- PDF Printing related (e.g., invoices, reports) ---
+  // // These are unchanged from previous examples.
+
+  // Future<void> generateAndPrintInvoice(Map<String, dynamic> invoiceData) async {
+  //   final pdf = pw.Document();
+
+  //   pdf.addPage(
+  //     pw.Page(
+  //       pageFormat: PdfPageFormat.a4,
+  //       build: (pw.Context context) {
+  //         return pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //           children: [
+  //             pw.Text(
+  //               'Invoice',
+  //               style: pw.TextStyle(
+  //                 fontSize: 30,
+  //                 fontWeight: pw.FontWeight.bold,
+  //               ),
+  //             ),
+  //             pw.SizedBox(height: 20),
+  //             pw.Row(
+  //               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 pw.Column(
+  //                   crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //                   children: [
+  //                     pw.Text(
+  //                       'From:',
+  //                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //                     ),
+  //                     pw.Text('Your Company Name'),
+  //                     pw.Text('123 Business Rd'),
+  //                     pw.Text('City, Country'),
+  //                   ],
+  //                 ),
+  //                 pw.Column(
+  //                   crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //                   children: [
+  //                     pw.Text(
+  //                       'To:',
+  //                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //                     ),
+  //                     pw.Text(invoiceData['customerName'] as String),
+  //                     pw.Text(invoiceData['customerAddress'] as String),
+  //                     pw.Text(invoiceData['customerCity'] as String),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //             pw.SizedBox(height: 20),
+  //             pw.Text(
+  //               'Invoice #: ${invoiceData['invoiceNumber']}',
+  //               style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //             ),
+  //             pw.Text(
+  //               'Date: ${invoiceData['date']}',
+  //               style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //             ),
+  //             pw.SizedBox(height: 20),
+  //             pw.Table.fromTextArray(
+  //               headers: ['Item', 'Quantity', 'Unit Price', 'Total'],
+  //               data:
+  //                   (invoiceData['items'] as List<dynamic>).map((item) {
+  //                     final name = item['name'] as String;
+  //                     final qty = item['qty'] as int;
+  //                     final price = item['price'] as double;
+  //                     return [
+  //                       name,
+  //                       qty.toString(),
+  //                       price.toStringAsFixed(2),
+  //                       (qty * price).toStringAsFixed(2),
+  //                     ];
+  //                   }).toList(),
+  //               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //               cellAlignment: pw.Alignment.centerLeft,
+  //               columnWidths: {
+  //                 0: const pw.FlexColumnWidth(3),
+  //                 1: const pw.FlexColumnWidth(1),
+  //                 2: const pw.FlexColumnWidth(1.5),
+  //                 3: const pw.FlexColumnWidth(1.5),
+  //               },
+  //             ),
+  //             pw.SizedBox(height: 20),
+  //             pw.Align(
+  //               alignment: pw.Alignment.bottomRight,
+  //               child: pw.Text(
+  //                 'Total Amount: \$${invoiceData['totalAmount']}',
+  //                 style: pw.TextStyle(
+  //                   fontSize: 16,
+  //                   fontWeight: pw.FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     ),
+  //   );
+
+  //   await Printing.layoutPdf(
+  //     onLayout: (PdfPageFormat format) async => pdf.save(),
+  //   );
+  // }
+
+  // Future<void> generateAndPrintReport(String title, String content) async {
+  //   final pdf = pw.Document();
+
+  //   pdf.addPage(
+  //     pw.Page(
+  //       pageFormat: PdfPageFormat.a4,
+  //       build: (pw.Context context) {
+  //         return pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //           children: [
+  //             pw.Center(
+  //               child: pw.Text(
+  //                 title,
+  //                 style: pw.TextStyle(
+  //                   fontSize: 24,
+  //                   fontWeight: pw.FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ),
+  //             pw.SizedBox(height: 20),
+  //             pw.Text(content),
+  //             // Add more complex layout as needed
+  //           ],
+  //         );
+  //       },
+  //     ),
+  //   );
+
+  //   await Printing.layoutPdf(
+  //     onLayout: (PdfPageFormat format) async => pdf.save(),
+  //   );
+  // }
+}

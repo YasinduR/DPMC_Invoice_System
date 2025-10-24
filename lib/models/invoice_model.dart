@@ -25,4 +25,18 @@ class Invoice implements Mappable {
       'totalValue': totalValue,
     };
   }
+
+    Invoice copyWith({
+    String? date,
+    String? invoiceNumber,
+    String? customer,
+    double? totalValue
+  }) {
+    return Invoice(
+      date: date ?? this.date,
+      invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+      customer: customer ?? this.customer,
+      totalValue: totalValue ?? this.totalValue,
+    );
+  }
 }

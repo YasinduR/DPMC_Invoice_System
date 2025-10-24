@@ -19,6 +19,7 @@ import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/security_setting/security_setting_screen.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
+import 'package:myapp/screens/test_screens/test_print.dart';
 
 // This will link main.dart with the approutes with handling permission
 
@@ -155,7 +156,8 @@ class AppRouter {
         return (context) => const SecuritySettingScreen();
       case '/attendance':
         return (context) => const AttendanceScreen();
-
+      case '/testPrint':
+        return (context) => const TestPrintPage();
       default:
         return null; // Return Null for the invalid routes
     }

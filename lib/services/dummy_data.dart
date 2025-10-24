@@ -156,6 +156,14 @@ class DummyData {
       title: 'Change Password',
       iconName: 'lock_reset',
     ),
+
+     Screen(
+      screenId: '016',
+      screenName: 'testPrint',
+      menuId: '01',
+      title: 'Test',
+      iconName: 'print',
+    ),
   ];
 
   static final List<Role> _roles = [
@@ -186,6 +194,9 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '015'), // Security Settings
     Perm(RoleId: '002', ScreenId: '015'), // Security Settings
     Perm(RoleId: '003', ScreenId: '015'), // Security Settings
+    Perm(RoleId: '001', ScreenId: '016'), // Test Print
+    Perm(RoleId: '002', ScreenId: '016'), // Test Print
+    Perm(RoleId: '003', ScreenId: '016'), // Test Print
   ];
 
   static final List<User> _users = [
