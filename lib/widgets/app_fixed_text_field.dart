@@ -17,13 +17,14 @@ class FixedTextField extends StatelessWidget {
     this.headerLabelText,
     this.inputFieldLabelText,
     required this.selectedOption,
-   // this.isDisabled=false
+    // this.isDisabled=false
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center, // Align header and field to the start
+      crossAxisAlignment:
+          CrossAxisAlignment.center, // Align header and field to the start
       children: [
         if (headerLabelText != null && headerLabelText!.isNotEmpty)
           Padding(
@@ -39,46 +40,57 @@ class FixedTextField extends StatelessWidget {
               ),
             ),
           ),
-  
-    Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Adjust margins as needed
-      elevation: 2, // Subtle shadow
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners
-      ),
-      child: InkWell(
-        onTap: null, // Handled by the parent widget
-        borderRadius: BorderRadius.circular(12.0), // Match card border for InkWell splash
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-          child: Row(
-            //mainAxisAlignment: MainAxisAlignment.,
-            mainAxisSize: MainAxisSize.min, 
-            children: [
-              Icon(
-                Icons.access_time_outlined,
-                color: AppColors.primary, // Dark grey icon color
-                size: 20,
+
+        Card(
+          color: AppColors.lightLavender,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 8.0,
+          ), // Adjust margins as needed
+          elevation: 2, // Subtle shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0), // Rounded corners
+          ),
+          child: InkWell(
+            onTap: null, // Handled by the parent widget
+            borderRadius: BorderRadius.circular(
+              12.0,
+            ), // Match card border for InkWell splash
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 16.0,
               ),
-              const SizedBox(width: 9.0),
-              Flexible(
-                fit: FlexFit.loose, // Use Expanded to ensure the text takes available space
-                child: AutoSizeText(
-                  selectedOption!,
-                  maxLines: 1,
-                  minFontSize: 8,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[850], // Darker grey text color
+              child: Row(
+                //mainAxisAlignment: MainAxisAlignment.,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.access_time_outlined,
+                    color: AppColors.primary, // Dark grey icon color
+                    size: 20,
                   ),
-                ),
+                  const SizedBox(width: 9.0),
+                  Flexible(
+                    fit:
+                        FlexFit
+                            .loose, // Use Expanded to ensure the text takes available space
+                    child: AutoSizeText(
+                      selectedOption!,
+                      maxLines: 1,
+                      minFontSize: 8,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[850], // Darker grey text color
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
         // // IntrinsicWidth wraps the entire tappable field (InkWell)
         // IntrinsicWidth( // This makes the InkWell take only the width needed by its child
         //   child: InkWell(
@@ -156,7 +168,7 @@ class FixedTextField extends StatelessWidget {
     //             style: const TextStyle(
     //               fontWeight: FontWeight.bold,
     //               fontSize: 14,
-    //               color:AppColors.primary, 
+    //               color:AppColors.primary,
     //             ),
     //           ),
     //         ),
@@ -179,9 +191,9 @@ class FixedTextField extends StatelessWidget {
     //                     fontSize: 16,
     //                     color: AppColors.text,
     //                   ),
-    //                   maxLines: 1, 
-    //                   minFontSize: 8, 
-    //                   overflow:TextOverflow.ellipsis, 
+    //                   maxLines: 1,
+    //                   minFontSize: 8,
+    //                   overflow:TextOverflow.ellipsis,
     //                 ),
     //               ),
     //             ],

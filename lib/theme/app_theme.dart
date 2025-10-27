@@ -196,7 +196,7 @@ ThemeData appTheme(BuildContext context) {
     textButtonTheme: customTextButtonTheme,
     dialogTheme: customDialogTheme,
     inputDecorationTheme: customInputDecorationTheme,
-    switchTheme: customSwitchTheme
+    switchTheme: customSwitchTheme,
     // Add other theme properties as needed
   );
 }

@@ -408,7 +408,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                 ),
           ),
           DynamicColumn<Attendance>(
-            label: 'Worked From',
+            label: 'Location',
             flex: 1,
             cellBuilder:
                 (context, att) => AutoSizeText(

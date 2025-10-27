@@ -18,6 +18,7 @@ class DateDisplayCard extends StatelessWidget {
     final String formattedDate = DateFormat('EEEE, dd MMMM yyyy').format(selectedDate);
 
     return Card(
+      color: AppColors.lightLavender,
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Adjust margins as needed
       elevation: 2, // Subtle shadow
       shape: RoundedRectangleBorder(

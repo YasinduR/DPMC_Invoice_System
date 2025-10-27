@@ -25,6 +25,8 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
   // Visibilty of filter bar over the table by Default true
   final bool hasFilter;
 
+  final Color fillColor;
+
   /// A list of merge rules to apply to the grid rows.
   /// The first rule whose `shouldMerge` predicate returns true for an item will be applied.
   final List<DataGridMergeRule<T>>? mergeRules;
@@ -38,6 +40,7 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
     this.hasFilter = true,
     this.searchHintText = 'Search...',
     this.mergeRules,
+    this.fillColor=AppColors.lightLavender
   });
 
   @override
@@ -121,7 +124,7 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: widget.fillColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border),
       ),
@@ -152,7 +155,7 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-      color: AppColors.white,
+      color: widget.fillColor,
       child: Row(
         children:
             widget.columns.map((column) {
@@ -263,7 +266,7 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
 
     // Determine the row's decoration
     BoxDecoration rowDecoration = BoxDecoration(
-      color: Colors.white,
+      color: widget.fillColor,
       border: Border(bottom: BorderSide(color: AppColors.border)),
     );
     if (appliedRule?.decorationBuilder != null) {

@@ -13,6 +13,7 @@ class AppColors {
   static const Color textSelection = Color(0xFFBBDEFB);
   static const Color textFaded = Colors.black54;
   static const Color textSecondary = Colors.black54;
+  static const Color lightLavender = Color(0xFFF8F7FA); // 0xFF prefix for opaque color
 
   // Border Colors
   static const Color border = Color(0xFFE0E0E0); // Light Gray
