@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_router.dart';
+//import 'package:myapp/services/location_service.dart';
 
 import 'package:myapp/services/notification_services.dart';
 import 'package:myapp/theme/app_theme.dart';
@@ -24,11 +25,21 @@ Future<void> main() async {
 
   // Register the WorkManager task once at app startup
   //await registerSimpleWorkManagerReminder();
+  //final locationService = LocationService();
+ // final bool locationReady = await locationService.initializeLocationAndPermissions();
 
-  runApp(
-    const ProviderScope(child: MyApp()),
-  ); // Run app with riverpod provider scope
-    // Initialize Workmanager
+  // if (locationReady) {
+    runApp(
+      const ProviderScope(child: MyApp()),
+    ); // Run app with riverpod provider scope
+  //}
+  // final locationService = LocationService();
+  // await locationService.initializeLocationAndPermissions();
+
+  // runApp(
+  //   const ProviderScope(child: MyApp()),
+  // ); // Run app with riverpod provider scope
+  //   // Initialize Workmanager
 
 
 }
@@ -42,7 +53,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Invoice App',
       theme: appTheme(context),
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.initializer,
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, ref),
       scaffoldMessengerKey: scaffoldMessengerKey,
     );

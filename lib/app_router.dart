@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/screens/Initializer/Initializer_screen.dart';
 import 'package:myapp/screens/attendance/attendance_screen.dart';
 import 'package:myapp/screens/change_password/change_pwd_screen.dart';
 import 'package:myapp/screens/error_screen/error_screen.dart';
@@ -35,6 +36,7 @@ class AppRouter {
     final authState = ref.read(authProvider);
     final publicRoutes = [
       // AppRoutes.authCheck,
+      AppRoutes.initializer,
       AppRoutes.login,
       AppRoutes.forgetPassword,
     ];
@@ -120,6 +122,8 @@ class AppRouter {
 
   static WidgetBuilder? _getRouteBuilder(String? routeName) {
     switch (routeName) {
+      case AppRoutes.initializer: // Handle the new location check route
+        return (context) => const InitializerScreen();
       case AppRoutes.login:
         return (context) => const LoginScreen();
       case AppRoutes.mainMenu:

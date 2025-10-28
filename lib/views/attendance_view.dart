@@ -1,11 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/employee_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/location_service.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
@@ -261,7 +263,35 @@ class _AttendanceViewState extends State<AttendanceView> {
       }
       return;
     }
+    // Location Extraction
+    final LocationService locationService = LocationService();
 
+    double? startLat;
+    double? startLon;
+
+    try {
+      final List<double?>? coordinates = await locationService.getCurrentLocationCoordinates();
+
+      if (coordinates != null && coordinates[0] != null && coordinates[1] != null) {
+        startLat = coordinates[0]!;
+        startLon = coordinates[1]!;
+      } else {
+        // If location is not available, throw an exception
+        throw FetchLocationException(
+          'Location services are required to start attendance. Please ensure GPS is on and permissions are granted.',
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        String errorMessage = e.toString();
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      }
+      return; // Stop the _onStart process
+    }
     final now = DateTime.now();
     final newAttendance = Attendance(
       userID: widget.currentUser.id, // Use widget.currentUser.id
@@ -269,6 +299,8 @@ class _AttendanceViewState extends State<AttendanceView> {
       attendanceType: 'ATTENDANCE',
       workMode: _selectedWorkOption!,
       start: now,
+      startLat: startLat,
+      startLon: startLon,
       end: null,
       remark: null,
     );
@@ -314,8 +346,41 @@ class _AttendanceViewState extends State<AttendanceView> {
       return;
     }
 
+    // Location Extraction
+    final LocationService locationService = LocationService();
+
+    double? endLat;
+    double? endLon;
+
+    try {
+      final List<double?>? coordinates = await locationService.getCurrentLocationCoordinates();
+
+      if (coordinates != null && coordinates[0] != null && coordinates[1] != null) {
+        endLat = coordinates[0]!;
+        endLon = coordinates[1]!;
+      } else {
+        throw FetchLocationException(
+          'Location services are required to end attendance. Please ensure GPS is on and permissions are granted.',
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        String errorMessage = e.toString();
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      }
+      return; // Stop the process
+    }
+    /// Location Extract end
     final now = DateTime.now();
-    final updatedAttendance = _currentAttendance!.copyWith(end: now);
+    final updatedAttendance = _currentAttendance!.copyWith(
+      end: now,
+      endLat: endLat,
+      endLon: endLon
+      );
 
     if (!context.mounted) return;
     await save<Attendance>(
@@ -575,6 +640,22 @@ class _AttendanceViewState extends State<AttendanceView> {
               // ],),
               const SizedBox(height: 24),
               SizedBox(height: 250.0, child: _buildAttendanceRecordArea()),
+
+                     const SizedBox(height: 24),
+              Column(
+                // Use MainAxisAlignment.spaceEvenly or .start if you only have one field sometimes
+               // mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (_currentAttendance?.start != null)
+                  Text('Start Lat: ${_currentAttendance?.startLat?.toStringAsFixed(6) ?? 'N/A'}'),
+                  if (_currentAttendance?.start != null)
+                  Text('Start Lon: ${_currentAttendance?.startLon?.toStringAsFixed(6) ?? 'N/A'}'),                  
+                  if (_currentAttendance?.end != null)
+                  Text('End Lat: ${_currentAttendance?.endLat?.toStringAsFixed(6) ?? 'N/A'}'),
+                  if (_currentAttendance?.end != null)
+                  Text('End Lon: ${_currentAttendance?.endLon?.toStringAsFixed(6) ?? 'N/A'}'),       
+                ],
+              ),
             ],
           ),
         ),

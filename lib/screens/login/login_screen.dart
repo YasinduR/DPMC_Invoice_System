@@ -132,7 +132,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         } else {}
          // await AttendanceReminderManager.setupDailyAttendanceNotifications();
         Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
-
       }
     }
   }

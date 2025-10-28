@@ -6,6 +6,7 @@ import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/services/local_auth_service.dart';
 import 'package:myapp/services/local_storage_service.dart';
+import 'package:myapp/services/location_service.dart';
 
 class AuthState {
   final bool isLoggedIn;
@@ -65,12 +66,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
   final LocalAuthService _localAuthService;
   final LocalStorageService _localStorageService;
+  final LocationService _locationService;
 
   AuthNotifier(
     this._authService,
     this._localAuthService,
     this._localStorageService,
+    this._locationService
+
   ) : super(AuthState.initial());
+
+
+  Future<void> _ensureLocationServicesAreOn() async {
+    final bool isReady = await _locationService.areLocationServicesAndPermissionsReady();
+    if (!isReady) {
+      throw FetchLocationException('Location services are disabled or permissions are denied. Please enable them to proceed.');
+    }
+  }
+
 
   //  Perform biometric login
   Future<bool> loginWithBiometrics(
@@ -79,6 +92,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   ) async {
     state = state.copyWith(isLoading: true);
     try {
+      await _ensureLocationServicesAreOn();
       final isBiometricEnabled =
           await _localStorageService.getBiometricPreference(context);
       final savedUsername =
@@ -191,6 +205,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, requiresPasswordChange: false);
 
     try {
+      await _ensureLocationServicesAreOn();
       final user = await _authService.login(
         context: context,
         username: username,
@@ -457,16 +472,21 @@ final localStorageServiceProvider = Provider<LocalStorageService>((ref) {
   return LocalStorageService();
 });
 
+final locationServiceProvider  = Provider<LocationService>((ref) {
+  return LocationService();
+});
+
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = ref.read(authServiceProvider);
-  final localAuthService = ref.read(
-    localAuthServiceProvider,
-  ); // Read the new service
+  final localAuthService = ref.read(localAuthServiceProvider); // Read the new service
   final localStorageService = ref.read(localStorageServiceProvider);
+  final locationService = ref.read(locationServiceProvider);
+
   return AuthNotifier(
     authService,
     localAuthService,
     localStorageService,
+    locationService
   ); // Pass both services
 });
 

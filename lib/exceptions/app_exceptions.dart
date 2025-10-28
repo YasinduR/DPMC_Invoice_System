@@ -30,3 +30,8 @@ class FetchDataException extends AppException {
   FetchDataException(String message)
     : super(message, "Error During Communication: ");
 }
+
+class FetchLocationException extends AppException {
+  FetchLocationException(String message) : super(message, "Location Not Found: ");
+}
+

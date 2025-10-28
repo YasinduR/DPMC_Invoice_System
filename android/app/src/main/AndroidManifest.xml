@@ -75,6 +75,9 @@
     <!-- Needed for Bluetooth scanning on many devices. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Required for background location (if your app needs it after login) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
    <!-- Permissions for scheduled notifications -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Use maxSdkVersion="32" for older versions -->

@@ -7,6 +7,7 @@ class AppRoutes {
   // Common Routes
   // static const String authCheck = '/authCheck'; // NEW route
   static const String login = '/login';
+  static const String initializer = '/initializer';
   static const String fraudMenu = '/fraudMenu'; // Remove Later
   static const String mainMenu = '/mainMenu';
   static const String forgetPassword = '/forgetPassword';
@@ -17,12 +18,12 @@ class AppRoutes {
 
   static final Map<String, String> routeToScreenTitleMap = {};
 
-  static Future<void> initialize() async{
+  static Future<void> initialize() async {
     screenNameToRouteMap.clear();
     routeToScreenIdMap.clear();
     routeToScreenTitleMap.clear();
 
-   final List<Screen> screens = await loadScreens();
+    final List<Screen> screens = await loadScreens();
 
     for (final screen in screens) {
       final routePath = '/${screen.screenName}';

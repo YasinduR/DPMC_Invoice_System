@@ -16,6 +16,7 @@ class AppPage extends StatelessWidget {
   final bool showFooter; // Toggles the footer visibility.
   final EdgeInsets contentPadding; // Padding around the main content.
   final bool showAppBar; // Toggles the app bar visibility.
+  final bool showBackButton; // Toggles the backbutton visibility.
 
   final bool
   canPop; // override Back Button behavior Set this false to prevent pop
@@ -30,12 +31,14 @@ class AppPage extends StatelessWidget {
     this.actions,
     this.showFooter = true, // Defaults to true
     this.showAppBar = true,
+    this.showBackButton = true, // Defaults to true
     this.canPop = true, // By default back button can pop
     this.contentPadding = const EdgeInsets.symmetric(
       horizontal: 20.0,
       vertical: 16.0,
     ),
     this.onPopInvoked,
+    
   });
 
   @override
@@ -64,9 +67,16 @@ class AppPage extends StatelessWidget {
       },
       child: Scaffold(
         //backgroundColor: AppColors.background,
-        appBar:
+         appBar:
             showAppBar
-                ? AppHeader(title: title, onBack: onBack, actions: actions)
+                ? AppHeader(
+                    title: title,
+                    // Pass onBack only if showBackButton is true
+                    onBack: showBackButton ? onBack : null,
+                    actions: actions,
+                    showBackButton: showBackButton, // Pass the new property
+
+                  )
                 : null,
         body: Column(
           children: [
