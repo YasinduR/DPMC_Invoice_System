@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "603437808563",
+    "project_id": "dpmc-inv-system",
+    "storage_bucket": "dpmc-inv-system.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:603437808563:android:a90e789459c752923569c6",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6o-UuWNvo0l1x0lukhGbIQ4NYt4hMccs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

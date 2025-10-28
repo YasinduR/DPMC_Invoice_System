@@ -3,6 +3,8 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // NEW: Apply the Google Services plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -50,5 +52,15 @@ flutter {
 // --- CHANGE: Correct Kotlin DSL syntax for dependencies ---
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    // NEW: Add Firebase BoM (Bill of Materials) for consistent versions
+    // Use the latest stable version of Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+
+    // NEW: Add Firebase Messaging library
+    implementation("com.google.firebase:firebase-messaging")
+
+    // Optional: Add Firebase Analytics if you want to track FCM events
+    implementation("com.google.firebase:firebase-analytics")
 }
 // --- End of CHANGE ---
