@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -9,6 +10,7 @@ import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_option_picker.dart';
+import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_radio_group.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
@@ -18,7 +20,7 @@ import 'package:myapp/widgets/cards/tin_info_card.dart';
 class ReturnsView extends StatefulWidget {
   final Dealer dealer;
   final TinData tinData;
-  final VoidCallback onSubmit;
+  final void Function(List<ReturnItem>,String,String) onSubmit;
 
   const ReturnsView({
     super.key,
@@ -32,8 +34,8 @@ class ReturnsView extends StatefulWidget {
 }
 
 class _ReturnsViewState extends State<ReturnsView> {
-  
-  List<ReturnItem> _items = []; // Initialize with an empty list
+  List<ReturnItem> _items = [];
+  List<ReturnItem> _selectedItems = []; // Initialize with an empty list
   bool _isLoading = true; // Flag to manage loading state
   String? _errorMessage; // To store any potential error message
 
@@ -88,12 +90,47 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
   }
 
-  void _togglePartSelection(String partNo) {
-    setState(() {
-      final part = _items.firstWhere((p) => p.partNo == partNo);
-      part.isSelected = !part.isSelected;
-    });
+  Future<void> _togglePartSelection(String partNo) async {
+    final sourcePart = _items.firstWhere((p) => p.partNo == partNo);
+    final isCurrentlySelected = _selectedItems.any((p) => p.partNo == partNo);
+
+    if (isCurrentlySelected) {
+      setState(() {
+        _selectedItems.removeWhere((p) => p.partNo == partNo);
+      });
+    } else {
+      final newSelectedPart = sourcePart.copyWith(returnQty: 1);
+      setState(() {
+        _selectedItems.add(newSelectedPart);
+      });
+      await _showQuantityDialog(newSelectedPart);
+    }
   }
+
+  Future<void> _showQuantityDialog(ReturnItem selectedItem) async {
+    final newQuantity = await showDialog<int>(
+      context: context,
+      builder:
+          (context) => QuantityEditDialog(
+            initialQuantity: selectedItem.returnQty,
+            title: 'Return Quantity',
+            maxQuantity: selectedItem.requestQty,
+          ),
+    );
+
+    if (newQuantity != null && mounted) {
+      setState(() {
+        selectedItem.returnQty = newQuantity;
+      });
+    }
+  }
+
+  // void _togglePartSelection(String partNo) {
+  //   setState(() {
+  //     final part = _items.firstWhere((p) => p.partNo == partNo);
+  //     part.isSelected = !part.isSelected;
+  //   });
+  // }
 
   Future<void> _showReasonPicker() async {
     final result = await showDialog<String>(
@@ -114,7 +151,8 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   bool get isAnyItemSelected {
-    return _items.any((item) => item.isSelected);
+    //return _items.any((item) => item.isSelected);
+    return _selectedItems.isNotEmpty;
   }
 
   Widget _buildItemsList() {
@@ -153,13 +191,37 @@ class _ReturnsViewState extends State<ReturnsView> {
           flex: 2,
           cellBuilder:
               (context, part) => Center(
+                // child: Checkbox(
+                //   value: part.isSelected,
+                //   activeColor: AppColors.primary,
+                //   checkColor: Colors.white,
+                //   onChanged: (value) => _togglePartSelection(part.partNo),
+                // ),
                 child: Checkbox(
-                  value: part.isSelected,
+                  value: _selectedItems.any((p) => p.partNo == part.partNo),
                   activeColor: AppColors.primary,
                   checkColor: Colors.white,
                   onChanged: (value) => _togglePartSelection(part.partNo),
                 ),
               ),
+        ),
+        DynamicColumn<ReturnItem>(
+          label: 'Return Qty',
+          flex: 3,
+          cellBuilder: (context, part) {
+            final selectedPart = _selectedItems.firstWhereOrNull(
+              (p) => p.partNo == part.partNo,
+            );
+            return QuantitySelector(
+              value: selectedPart?.returnQty ?? 0,
+              enabled: selectedPart != null,
+              dialogTitle: 'Return Quantity',
+              maxQuantity: part.requestQty,
+              onChanged: (newValue) {
+                setState(() => selectedPart!.returnQty = newValue);
+              },
+            );
+          },
         ),
       ],
     );
@@ -203,17 +265,14 @@ class _ReturnsViewState extends State<ReturnsView> {
         ),
 
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            24,
-          ), 
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: ActionButton(
             icon: Icons.check_circle_outline,
             label: 'Save',
             disabled: !isAnyItemSelected || _selectedReason == null,
-            onPressed: widget.onSubmit,
+            onPressed: () {
+                  widget.onSubmit(_selectedItems,_selectedReturnType,_selectedReason!); // Pass _selectedParts here
+                },
           ),
         ),
       ],

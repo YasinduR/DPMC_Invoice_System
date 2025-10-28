@@ -102,6 +102,7 @@ Future<void> save<T extends Mappable>({
   required T dataToSave,
   required Function() onSuccess,
   required Function(String errorMessage) onError,
+  Function(T rawReceivedData)? onReceivedData, // Optional call back based on response (ex-print)
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
   if (!context.mounted) return;
@@ -109,7 +110,25 @@ Future<void> save<T extends Mappable>({
   try {
     loadingOverlay.show(context);
     // Call the generic postData method in the service
-    await MockApiService.post(dataUrl, body: dataToSave);
+    //await MockApiService.post(dataUrl, body: dataToSave);
+
+        // MockApiService.post returns Future<dynamic>, so apiResponse will be dynamic.
+    final dynamic apiResponse = await MockApiService.post(dataUrl, body: dataToSave); // Pass dataToSave directly
+
+    // If onReceivedData callback is provided, we attempt to process the API response.
+    if (onReceivedData != null) {
+      T? dataForCallback;
+
+    if (apiResponse is T) {
+        dataForCallback = apiResponse;
+      }
+      if (dataForCallback != null) {
+        onReceivedData(dataForCallback);
+      } else {
+        print('Warning: onReceivedData was provided, but API response could not be interpreted as Map<String, dynamic> or a Mappable object. Actual type: ${apiResponse.runtimeType}. Response: $apiResponse');
+        // You might want to provide more specific error handling or logging here.
+      }
+    }
     onSuccess();
   } catch (e) {
     onError(e.toString());

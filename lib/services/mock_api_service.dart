@@ -5,6 +5,7 @@ import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 
@@ -605,6 +606,35 @@ class MockApiService {
         DummyData.invoices.add(updatedInvoice);
         return true;
 
+      case 'api/return/save':
+        if (body is! Return) {
+          throw Exception(
+            'Invalid type for saving a return. Expected a Receipt object.',
+          );
+        }
+
+        final returnboby = body;
+
+        final updatedReturn = returnboby.copyWith(
+            // Use copyWith
+            returnId: generateRetNumber(),
+          );
+        //invoice.invoiceNumber = generateInvoiceNumber();
+        final isDuplicate = DummyData.returns.any(
+          (existingReturn) =>
+              existingReturn.returnId == updatedReturn.returnId
+        );
+
+        if (isDuplicate) {
+          throw Exception(
+            'This return id already exists.',
+          );
+        }
+
+        DummyData.returns.add(updatedReturn);
+        return updatedReturn;
+
+
       case 'api/attendance/save':
         if (body is! Attendance) {
           throw Exception(
@@ -652,4 +682,23 @@ String generateInvoiceNumber() {
 
   // Combine to create the invoice number
   return 'MIN' + formattedDate + formattedTime;
+}
+
+String generateRetNumber() {
+  final now = DateTime.now();
+
+  // Format date as YYYYMMDD
+  String year = now.year.toString();
+  String month = now.month.toString().padLeft(2, '0');
+  String day = now.day.toString().padLeft(2, '0');
+  String formattedDate = year + month + day;
+
+  // Format time as HHMMSS
+  String hour = now.hour.toString().padLeft(2, '0');
+  String minute = now.minute.toString().padLeft(2, '0');
+  String second = now.second.toString().padLeft(2, '0');
+  String formattedTime = hour + minute + second;
+
+  // Combine to create the invoice number
+  return 'RET' + formattedDate + formattedTime;
 }

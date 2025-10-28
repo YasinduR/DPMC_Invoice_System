@@ -15,6 +15,7 @@ import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/role_model.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/models/tin_model.dart';
@@ -25,6 +26,7 @@ import 'package:myapp/models/user_model.dart';
 
 class DummyData {
   static final List<Receipt> _sessionReceipts = [];
+  static final List<Return> _sessionReturns = [];
   //static final List<Attendance> _attendance = [];
 
   static final List<Attendance> _attendance = generateDummyAttendanceData(userId: "8108", numberOfWorkingDays: 30);
@@ -1481,6 +1483,8 @@ class DummyData {
   static List<Perm> get perms => _perms;
   static List<Attendance> get attendances => _attendance;
   static List<Employee> get employees => _employees;
+  static List<Return> get returns => _sessionReturns;
+
 }
 
 

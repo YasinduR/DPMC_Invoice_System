@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/return_save_model.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
+import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/views/add_return_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
@@ -12,7 +18,6 @@ import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 //import 'package:myapp/views/auth_dealer_view.dart';
 
-
 class ReturnScreen extends ConsumerStatefulWidget {
   const ReturnScreen({super.key});
 
@@ -21,6 +26,7 @@ class ReturnScreen extends ConsumerStatefulWidget {
 }
 
 class _ReturnScreenState extends ConsumerState<ReturnScreen> {
+  final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   Dealer? _selectedDealer;
   TinData? _selectedTin;
@@ -61,7 +67,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   //   });
   // }
 
-    void _onDealerSelected(Dealer dealer) {
+  void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
       if (_selectedDealer != null) {
@@ -99,15 +105,78 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     }
   }
 
-  void _saveReturn() {
+  void _saveReturn(
+    List<ReturnItem> selectedItems,
+    String selectedReturnType,
+    String selectedReason,
+  ) async {
+    final authState = ref.watch(authProvider);
+    final User? currentUser = authState.currentUser;
+    if (currentUser == null ||
+        _selectedTin == null ||
+        _selectedRegion == null ||
+        _selectedDealer == null) {
+      showSnackBar(
+        context: context,
+        message: "No data to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+
+    final saveReturn = Return(
+      returnId: 'AAA',
+      tinNo: _selectedTin!.tinNumber,
+      route: _selectedRegion!.region,
+      dealerName: _selectedDealer!.name,
+      dealerId: _selectedDealer!.accountCode,
+      userId: currentUser.id,
+      returnType: selectedReturnType,
+      returnReason: selectedReason,
+      returnTime: DateTime.now(),
+      returnItems: selectedItems,
+    );
+
+    late Return savedReturn;
+    await save(
+      context: context,
+      dataUrl: 'api/return/save',
+      dataToSave: saveReturn,
+      onSuccess: () {
+        showSnackBar(
+          context: context,
+          message: 'Return saved successfully!',
+          type: MessageType.success,
+        );
+        _printerService.previewThermalReturnPdf(savedReturn);
+      },
+      onError: (e) {
+        String errorMessage = e.toString().replaceFirst('Exception: ', '');
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      },
+      // rawReceivedData is extrcted from the API BODY on post request response
+      onReceivedData: (rawReceivedData) {
+        try {
+          // Parse the raw map back into a Return object
+          savedReturn = rawReceivedData;
+        } catch (e) {
+          // Handle this error appropriately, perhaps showing an error snackbar
+          showSnackBar(
+            context: context,
+            message: 'Failed to process response for Return: $e',
+            type: MessageType.error,
+          );
+          // Optionally, rethrow or set savedReturn to null to prevent onSuccess from running
+        }
+      },
+    );
     setState(() {
       _currentStep = 1; // Move to the tinselaction
     });
-    showSnackBar(
-      context: context,
-      message: "Invoice Saved !",
-      type: MessageType.success,
-    );
   }
 
   void _goBack() {
