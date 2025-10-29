@@ -579,20 +579,20 @@ class MockApiService {
         return true;
 
       case 'api/invoice/save':
-        if (body is! Invoice) {
+        if (body is! InvoiceSave) {
           throw Exception(
-            'Invalid type for saving a receipt. Expected a Receipt object.',
+            'Invalid type for saving a Invoice. Expected an Invoice object.',
           );
         }
 
         final invoice = body;
 
-          final updatedInvoice = invoice.copyWith(
+        final updatedInvoice = invoice.copyWith(
             // Use copyWith
             invoiceNumber: generateInvoiceNumber(),
           );
         //invoice.invoiceNumber = generateInvoiceNumber();
-        final isDuplicate = DummyData.invoices.any(
+        final isDuplicate = DummyData.savedInvoices.any(
           (existingInvoice) =>
               existingInvoice.invoiceNumber == updatedInvoice.invoiceNumber
         );
@@ -603,8 +603,8 @@ class MockApiService {
           );
         }
 
-        DummyData.invoices.add(updatedInvoice);
-        return true;
+        DummyData.savedInvoices.add(updatedInvoice);
+        return updatedInvoice;
 
       case 'api/return/save':
         if (body is! Return) {

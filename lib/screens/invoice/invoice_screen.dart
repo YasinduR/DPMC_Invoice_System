@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/printer_service.dart';
@@ -99,27 +101,62 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   }
 
   Future<void> _saveinvoice(List<Part> selectedParts) async {
+        final authState = ref.watch(authProvider);
+    final User? currentUser = authState.currentUser;
+    if (currentUser == null ||
+        _selectedTin == null ||
+        _selectedRegion == null ||
+        _selectedDealer == null||
+        selectedParts.isEmpty
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No data to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
     double total = 0;
     for (var part in selectedParts) {
       final qty = part.receivedQty;
       final price = part.price;
       total += (qty * price);
     }
-    final invoiceData = Invoice(date: DateTime.now().toIso8601String().split('T')[0], invoiceNumber: 'AAA', customer: _selectedDealer!.accountCode, totalValue: total);
+    final invoiceData = InvoiceSave(
+      invoiceNumber: 'AAA',
+      tinNo: _selectedTin!.tinNumber,
+      route: _selectedRegion!.region,
+      dealerName: _selectedDealer!.name,
+      dealerId: _selectedDealer!.accountCode,
+      userId: currentUser.id,
+      invoiceAmount: total,
+      invoiceTime: DateTime.now(),
+      parts: selectedParts
+      );
+    
+    late InvoiceSave savedInvoice;
     await save(
       context: context,
       dataUrl: 'api/invoice/save',
       dataToSave: invoiceData,
+      onReceivedData: (rawReceivedData){
+        try {
+          savedInvoice = rawReceivedData;
+        } catch (e) {
+          showSnackBar(
+            context: context,
+            message: 'Failed to process response for Invoice: $e',
+            type: MessageType.error,
+          );
+        }
+      },
       onSuccess: () {
         showSnackBar(
           context: context,
           message: 'Invoice saved successfully!',
           type: MessageType.success,
         );
-          _printerService.previewThermalInvoicePdf(
-      selectedParts,
-_selectedDealer!.name,
-    );
+          _printerService.previewThermalInvoicePdf(savedInvoice);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');

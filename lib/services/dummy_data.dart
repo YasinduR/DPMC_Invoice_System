@@ -27,6 +27,7 @@ import 'package:myapp/models/user_model.dart';
 class DummyData {
   static final List<Receipt> _sessionReceipts = [];
   static final List<Return> _sessionReturns = [];
+  static final List<InvoiceSave> _sessionInvoices = [];
   //static final List<Attendance> _attendance = [];
 
   static final List<Attendance> _attendance = generateDummyAttendanceData(userId: "8108", numberOfWorkingDays: 30);
@@ -1484,6 +1485,7 @@ class DummyData {
   static List<Attendance> get attendances => _attendance;
   static List<Employee> get employees => _employees;
   static List<Return> get returns => _sessionReturns;
+   static List<InvoiceSave> get savedInvoices => _sessionInvoices;
 
 }
 

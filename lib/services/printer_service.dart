@@ -5,6 +5,7 @@ import 'dart:typed_data'; // For Uint8List
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart'; // For future Bluetooth connection
 import 'package:intl/intl.dart';
+import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 
@@ -28,7 +29,8 @@ class PrinterService {
     // No actual thermal printer connection logic here for now.
     // This method is kept for future expansion of thermal printing.
   }
-
+// Helpers For PDF previews
+// Company Header Along with Print Title
   pw.Column _companyHeaderPdf(String topic) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -58,7 +60,7 @@ class PrinterService {
     );
   }
 
-  // Helper for _buildReturnDetailsTable to create each row
+  // Helper for label : Value Table Rows
   pw.TableRow _buildDetailTableRow(String label, String value) {
     return pw.TableRow(
       children: [
@@ -86,15 +88,12 @@ class PrinterService {
       ],
     );
   }
-
-  // --- Modified Return PDF method ---
+// End of Helpers
+// PDF Previews
+  // --- Return PDF method ---
   Future<void> previewThermalReturnPdf(Return returnObj) async {
     final pdf = pw.Document();
     final formattedReturnDate = DateFormat('yyyy/MM/dd').format(returnObj.returnTime);
- // REDUCED FONT SIZE for signature section
-  const pw.TextStyle signatureStyle = pw.TextStyle(fontSize: 8);
-  // VERY SHORTENED dash line to match thermal receipt appearance
-  const String dashLine = '------'; // Only 6 dashes
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.roll80,
@@ -131,21 +130,7 @@ class PrinterService {
                 )
                 ),
               ),
-              // NEW: Details section matching the image
-              // pw.Align(
-              //   alignment: pw.Alignment.centerLeft,
-              //   child: pw.Column(
-              //     crossAxisAlignment: pw.CrossAxisAlignment.start,
-              //     children: [
-              //       // Helper to create a consistent label-value row
-              //       _buildDetailRow('Route', returnObj.route),
-              //       _buildDetailRow('TIN No', returnObj.tinNo),
-              //       _buildDetailRow('Dealer Name', returnObj.dealerName),
-              //       _buildDetailRow('User', returnObj.userId), // Using userId as per your model
-              //       _buildDetailRow('Return Date', formattedReturnDate),
-              //     ],
-              //   ),
-              // ),
+
               pw.SizedBox(height: 10), // Space before the table
               pw.Divider(thickness: 0.5),
 
@@ -186,7 +171,7 @@ class PrinterService {
               ),
               pw.Divider(thickness: 0.5),
               pw.SizedBox(height: 20),
-
+              // Signature Section
               pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
@@ -223,164 +208,6 @@ pw.SizedBox(height: 10),
               ],
             ),
                           // SIGNATURE SECTION
-            // pw.Table(
-            //   border: null,
-            //   columnWidths: {
-            //     0: const pw.FlexColumnWidth(1), // Dealer side
-            //     1: const pw.FixedColumnWidth(15), // Gap between signatures
-            //     2: const pw.FlexColumnWidth(1), // Driver side
-            //   },
-            //   children: [
-            //     // Row for the dash lines (to ensure they are on the same level)
-            //     pw.TableRow(
-            //       children: [
-            //         pw.Align(
-            //           alignment: pw.Alignment.center,
-            //           child: pw.Text(dashLine, style: signatureStyle),
-            //         ),
-            //         pw.SizedBox.shrink(), // Placeholder for the fixed gap column
-            //         pw.Align(
-            //           alignment: pw.Alignment.center,
-            //           child: pw.Text(dashLine, style: signatureStyle),
-            //         ),
-            //       ],
-            //     ),
-            //     // Row for the signature labels
-            //     pw.TableRow(
-            //       children: [
-            //         pw.Column(
-            //           crossAxisAlignment: pw.CrossAxisAlignment.center,
-            //           children: [
-            //             pw.Text('Dealer Signature', style: signatureStyle),
-            //             pw.Text('Dealer Stamp', style: signatureStyle),
-            //           ],
-            //         ),
-            //         pw.SizedBox.shrink(), // Placeholder for the fixed gap column
-            //         pw.Column(
-            //           crossAxisAlignment: pw.CrossAxisAlignment.center,
-            //           children: [
-            //             pw.Text('Driver Signature', style: signatureStyle),
-            //             pw.Text('', style: signatureStyle), // Empty line for symmetry
-            //           ],
-            //         ),
-            //       ],
-            //     ),
-            //   ],
-            // ),
-
-            // pw.SizedBox(height: 30), // Space between top signatures and security signature
-
-            // // Security Signature & Stamp (Centered)
-            // pw.Column(
-            //   crossAxisAlignment: pw.CrossAxisAlignment.center,
-            //   children: [
-            //     pw.Text(dashLine, style: signatureStyle),
-            //     pw.Text('Security Sig. & Stamp', style: signatureStyle),
-            //   ],
-            // ),
-            // pw.SizedBox(height: 20),
-                          // NEW: Signature Section using pw.Table for better control
-            // pw.Table(
-            //   border: null,
-            //   columnWidths: {
-            //     0: const pw.FlexColumnWidth(1), // For Dealer signature
-            //     1: const pw.FixedColumnWidth(15), // Small fixed gap between signatures
-            //     2: const pw.FlexColumnWidth(1), // For Driver signature
-            //   },
-            //   children: [
-            //     // Row for the dash lines
-            //     pw.TableRow(
-            //       children: [
-            //         pw.Align(
-            //           alignment: pw.Alignment.center,
-            //           child: pw.Text(dashLine, style: signatureStyle),
-            //         ),
-            //         pw.SizedBox.shrink(), // Empty widget for the fixed gap column
-            //         pw.Align(
-            //           alignment: pw.Alignment.center,
-            //           child: pw.Text(dashLine, style: signatureStyle),
-            //         ),
-            //       ],
-            //     ),
-            //     // Row for the signature labels
-            //     pw.TableRow(
-            //       children: [
-            //         pw.Column(
-            //           crossAxisAlignment: pw.CrossAxisAlignment.center,
-            //           children: [
-            //             pw.Text('Dealer Signature', style: signatureStyle),
-            //             pw.Text('Dealer Stamp', style: signatureStyle),
-            //           ],
-            //         ),
-            //         pw.SizedBox.shrink(), // Empty widget for the fixed gap column
-            //         pw.Column(
-            //           crossAxisAlignment: pw.CrossAxisAlignment.center,
-            //           children: [
-            //             pw.Text('Driver Signature', style: signatureStyle),
-            //             pw.Text('', style: signatureStyle), // Empty line for symmetry
-            //           ],
-            //         ),
-            //       ],
-            //     ),
-            //   ],
-            // ),
-
-            // pw.SizedBox(height: 30), // Space between top signatures and security signature
-
-            // // Security Signature & Stamp (Centered)
-            // pw.Column(
-            //   crossAxisAlignment: pw.CrossAxisAlignment.center,
-            //   children: [
-            //     pw.Text(dashLine, style: signatureStyle),
-            //     pw.Text('Security Sig. & Stamp', style: signatureStyle),
-            //   ],
-            // ),
-            // pw.SizedBox(height: 20), // Space after the security signature
-    //           pw.Column(
-    //   crossAxisAlignment: pw.CrossAxisAlignment.center,
-    //   children: [
-    //     // Dealer and Driver Signatures Row
-    //     pw.Row(
-    //       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //       children: [
-    //         // Dealer Signature & Stamp (Left)
-    //         pw.Expanded(
-    //           child: pw.Column(
-    //             crossAxisAlignment: pw.CrossAxisAlignment.center,
-    //             children: [
-    //               pw.Text(dashLine, style: signatureStyle),
-    //               pw.Text('Dealer Signature', style: signatureStyle),
-    //               pw.Text('Dealer Stamp', style: signatureStyle),
-    //             ],
-    //           ),
-    //         ),
-    //         pw.SizedBox(width: 20), // Space between left and right sections
-    //         // Driver Signature (Right)
-    //         pw.Expanded(
-    //           child: pw.Column(
-    //             crossAxisAlignment: pw.CrossAxisAlignment.center,
-    //             children: [
-    //               pw.Text(dashLine, style: signatureStyle),
-    //               pw.Text('Driver Signature', style: signatureStyle),
-    //               pw.Text('', style: signatureStyle), // Empty line for symmetry if needed
-    //             ],
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //     pw.SizedBox(height: 30), // Space between top signatures and security signature
-
-    //     // Security Signature & Stamp (Centered)
-    //     pw.Column(
-    //       crossAxisAlignment: pw.CrossAxisAlignment.center,
-    //       children: [
-    //         pw.Text(dashLine, style: signatureStyle),
-    //         pw.Text('Security Sig. & Stamp', style: signatureStyle),
-    //       ],
-    //     ),
-    //     pw.SizedBox(height: 20), // Space after the security signature
-    //   ],
-    // ),
             ],
           );
         },
@@ -392,127 +219,102 @@ pw.SizedBox(height: 10),
     );
   }
 
+  // --- Invoice PDF method --
+Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
+    final pdf = pw.Document();
+    final formattedInvoiceDate = DateFormat('yyyy/MM/dd').format(invoiceObj.invoiceTime);
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.roll80,
+        margin: const pw.EdgeInsets.all(10),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              // Company Header
+              _companyHeaderPdf('INVOICE'),
+              pw.Table(
+      border: null, // No border for a clean look
+      columnWidths: {
+        0: const pw.FlexColumnWidth(2.5), // For labels like 'Route'
+        1: const pw.FixedColumnWidth(8), // For the colon ':' - fixed small width
+        2: const pw.FlexColumnWidth(5.5), // For values
+      },
+      children: [
+        _buildDetailTableRow('Invoice No', invoiceObj.invoiceNumber.toUpperCase()),
+        _buildDetailTableRow('Route', invoiceObj.route.toUpperCase()),
+        _buildDetailTableRow('TIN No', invoiceObj.tinNo.toUpperCase()),
+        _buildDetailTableRow('Dealer Name', invoiceObj.dealerName.toUpperCase()),
+        _buildDetailTableRow('User', invoiceObj.userId.toUpperCase()), // Using userId as per your model
+        _buildDetailTableRow('Invoice Date', formattedInvoiceDate.toUpperCase()),
+      ],
+    ),
+              pw.SizedBox(height: 10), // Space before the table
+              pw.Divider(thickness: 0.5),
 
-  // Future<void> previewThermalReturnPdf(Return returnObj) async {
-  //   final pdf = pw.Document();
+              // Return Items Table
+              pw.Table.fromTextArray(
+                headers: ['Part No', 'Quantity', 'Price'],
+                data: invoiceObj.parts.map((item) {
+                  return [
+                    item.partNo,
+                    item.receivedQty.toString(),
+                    item.price.toStringAsFixed(2), // Formats price to two decimal places
+                  ];
+                }).toList(),
+                headerStyle: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 10,
+                ),
+                cellStyle: const pw.TextStyle(fontSize: 10), // Not bold
+                cellAlignments: {
+                  0: pw.Alignment.centerLeft, 
+                  1: pw.Alignment.centerRight, 
+                  2: pw.Alignment.centerRight, 
+                },
+                headerAlignments: {
+                  0: pw.Alignment.centerLeft,
+                  1: pw.Alignment.centerRight,
+                  2: pw.Alignment.centerRight,
+                },
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(2.2),
+                  1: const pw.FlexColumnWidth(1.5),
+                  2: const pw.FlexColumnWidth(1.8),
+                },
+                border: null,
+                headerDecoration: const pw.BoxDecoration(
+                  border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+                ),
+              ),
+              pw.Divider(thickness: 0.5),
+              pw.SizedBox(height: 20),
+                pw.Align(
+                alignment: pw.Alignment.centerLeft,
+                child: pw.Text(
+                  'Total Amount : ${invoiceObj.invoiceAmount.toStringAsFixed(2)}', // Formats invoiceAmount to two decimal places
+                  style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 10,
+                )
+                ),
+              ),
 
-  //   final formattedDate = DateFormat('yyyy-MM-dd').format(returnObj.returnTime);
-  //   final formattedTime = DateFormat('HH:mm:ss').format(returnObj.returnTime);
+            ],
+          );
+        },
+      ),
+    );
 
-  //   // // Calculate totals for summary
-  //   // int totalRequestedQty = 0;
-  //   // int totalReturnedQty = 0;
-  //   // for (var item in returnObj.returnItems) {
-  //   //   totalRequestedQty += item.requestQty;
-  //   //   totalReturnedQty += item.returnQty;
-  //   // }
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
 
-  //   pdf.addPage(
-  //     pw.Page(
-  //       pageFormat:
-  //           PdfPageFormat.roll80, // Mimics a common thermal paper width (80mm)
-  //       margin: const pw.EdgeInsets.all(10), // Reduced margins for receipt feel
-  //       build: (pw.Context context) {
-  //         return pw.Column(
-  //           crossAxisAlignment: pw.CrossAxisAlignment.center,
-  //           children: [
-  //             pw.Text(
-  //               'DPMC Return System',
-  //               style: pw.TextStyle(
-  //                 fontSize: 16,
-  //                 fontWeight: pw.FontWeight.bold,
-  //               ),
-  //             ),
-  //             pw.Text(
-  //               'Return ID: ${returnObj.returnId}',
-  //               style: pw.TextStyle(
-  //                 fontSize: 12,
-  //                 fontWeight: pw.FontWeight.bold,
-  //               ),
-  //             ),
-  //             pw.SizedBox(height: 5),
-  //             pw.Text(
-  //               'Date: $formattedDate Time: $formattedTime',
-  //               style: const pw.TextStyle(fontSize: 10),
-  //             ),
-  //             pw.SizedBox(height: 10),
-  //             pw.Align(
-  //               alignment: pw.Alignment.centerLeft,
-  //               child: pw.Column(
-  //                 crossAxisAlignment: pw.CrossAxisAlignment.start,
-  //                 children: [
-  //                   pw.Text(
-  //                     'Dealer: ${returnObj.dealerName}',
-  //                     style: const pw.TextStyle(fontSize: 12),
-  //                   ),
-  //                   pw.Text(
-  //                     'Dealer ID: ${returnObj.dealerId}',
-  //                     style: const pw.TextStyle(fontSize: 10),
-  //                   ),
-  //                   pw.Text(
-  //                     'Type: ${returnObj.returnType}',
-  //                     style: const pw.TextStyle(fontSize: 10),
-  //                   ),
-  //                   pw.Text(
-  //                     'Reason: ${returnObj.returnReason}',
-  //                     style: const pw.TextStyle(fontSize: 10),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             pw.Divider(thickness: 0.5),
-  //             pw.Table.fromTextArray(
-  //               headers: ['Part No', 'Req. Qty', 'Ret. Qty'],
-  //               data:
-  //                   returnObj.returnItems.map((item) {
-  //                     return [
-  //                       item.partNo,
-  //                       item.requestQty.toString(),
-  //                       item.returnQty.toString(),
-  //                     ];
-  //                   }).toList(),
-  //               headerStyle: pw.TextStyle(
-  //                 fontWeight: pw.FontWeight.bold,
-  //                 fontSize: 10,
-  //               ),
-  //               cellStyle: const pw.TextStyle(fontSize: 10),
-  //               cellAlignments: {
-  //                 0: pw.Alignment.centerLeft, // Part column
-  //                 1: pw.Alignment.centerRight, // Requested Quantity
-  //                 2: pw.Alignment.centerRight, // Returned Quantity
-  //               },
-  //               headerAlignments: {
-  //                 0: pw.Alignment.centerLeft,
-  //                 1: pw.Alignment.centerRight,
-  //                 2: pw.Alignment.centerRight,
-  //               },
-  //               columnWidths: {
-  //                 0: const pw.FlexColumnWidth(2.2), // Part No takes more space
-  //                 1: const pw.FlexColumnWidth(1.5), // Requested Quantity
-  //                 2: const pw.FlexColumnWidth(1.8), // Returned Quantity
-  //               },
-  //               border: null, // No border for a receipt feel
-  //               headerDecoration: const pw.BoxDecoration(
-  //                 border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
-  //               ), // Thin line below header
-  //             ),
-  //             pw.Divider(thickness: 0.5),
-  //             pw.SizedBox(height: 20),
-  //             pw.Text(
-  //               'Return processed. Thank you!',
-  //               style: const pw.TextStyle(fontSize: 10),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     ),
-  //   );
-
-  //   // Show the PDF preview dialog
-  //   await Printing.layoutPdf(
-  //     onLayout: (PdfPageFormat format) async => pdf.save(),
-  //   );
-  // }
+  /// End Of PDF Previews
+  /// 
+  
+  //// Testing Methods
 
   // A common data structure to hold receipt information
   // This ensures both ESC/POS generation and PDF preview use the same data.
@@ -621,7 +423,7 @@ pw.SizedBox(height: 10),
   // }
 
   // Method to preview the thermal INVOICE as PDF
-  Future<void> previewThermalInvoicePdf(
+  Future<void> previewThermalInvoicePdf2(
     List<Part> selectedParts,
     String dealerName,
   ) async {
@@ -685,9 +487,7 @@ pw.SizedBox(height: 10),
                   2: pw.Alignment.centerRight,
                 },
                 columnWidths: {
-                  0: const pw.FlexColumnWidth(
-                    2.2,
-                  ), // Item name takes more space
+                  0: const pw.FlexColumnWidth(2.2), // Item name takes more space
                   1: const pw.FlexColumnWidth(1.5), // Quantity
                   2: const pw.FlexColumnWidth(1.8), // Price
                 },
