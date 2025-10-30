@@ -562,6 +562,11 @@ class MockApiService {
 
         final receipt = body;
 
+        // final updatedreceipt = receipt.copyWith(
+        //     // Use copyWith
+        //     recieptNo: generateRecNumber(),
+        //   );
+
         final isDuplicate = DummyData.receipts.any(
           (existingReceipt) =>
               existingReceipt.dealerCode == receipt.dealerCode &&
@@ -575,8 +580,14 @@ class MockApiService {
           );
         }
 
-        DummyData.receipts.add(receipt);
-        return true;
+        
+        final updatedreceipt = receipt.copyWith(
+            // Use copyWith
+            recieptNo: generateRecNumber(),
+          );
+
+        DummyData.receipts.add(updatedreceipt);
+        return updatedreceipt;
 
       case 'api/invoice/save':
         if (body is! InvoiceSave) {
@@ -701,4 +712,23 @@ String generateRetNumber() {
 
   // Combine to create the invoice number
   return 'RET' + formattedDate + formattedTime;
+}
+
+String generateRecNumber() {
+  final now = DateTime.now();
+
+  // Format date as YYYYMMDD
+  String year = now.year.toString();
+  String month = now.month.toString().padLeft(2, '0');
+  String day = now.day.toString().padLeft(2, '0');
+  String formattedDate = year + month + day;
+
+  // Format time as HHMMSS
+  String hour = now.hour.toString().padLeft(2, '0');
+  String minute = now.minute.toString().padLeft(2, '0');
+  String second = now.second.toString().padLeft(2, '0');
+  String formattedTime = hour + minute + second;
+
+  // Combine to create the invoice number
+  return 'REC' + formattedDate + formattedTime;
 }

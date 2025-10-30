@@ -4,11 +4,11 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_page.dart';
 
-// Middle Screen for Every Menu Screen 
+// Middle Screen for Every Menu Screen
 //in the begining this will check whethere the current user has specific permission to the given screenId
 class PermissionCheckScreen extends ConsumerStatefulWidget {
   final String screenId;
-  final String  screenTitle;
+  final String screenTitle;
   final WidgetBuilder destinationScreenBuilder;
 
   const PermissionCheckScreen({
@@ -22,7 +22,6 @@ class PermissionCheckScreen extends ConsumerStatefulWidget {
   ConsumerState<PermissionCheckScreen> createState() =>
       _PermissionCheckScreenState();
 }
-
 
 class _PermissionCheckScreenState extends ConsumerState<PermissionCheckScreen> {
   String? _currentTitle;
@@ -72,25 +71,36 @@ class _PermissionCheckScreenState extends ConsumerState<PermissionCheckScreen> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (!didPop) {
+          // The pop was prevented by canPop: false.
+          // Do nothing here to silently block the back button.
+         // print('Back button pressed but pop is blocked and doing nothing.');
+        }
+      },
+      onBack: null,
+      showBackButton: false,
       title: _currentTitle ?? 'Loading...',
       contentPadding: const EdgeInsets.all(16.0),
       child: Center(
-      child: _errorMessage == null
-          ? const Text( // It's good practice to use const for static widgets
-              'Loading...',
-              style: TextStyle(fontSize: 16),
-            )
-          : Text(
-              _errorMessage!,
-              // Add this line to center the text content
-              textAlign: TextAlign.center, 
-              style: const TextStyle(fontSize: 16),
-            ),
-    ),
+        child:
+            _errorMessage == null
+                ? const Text(
+                  // It's good practice to use const for static widgets
+                  'Loading...',
+                  style: TextStyle(fontSize: 16),
+                )
+                : Text(
+                  _errorMessage!,
+                  // Add this line to center the text content
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+      ),
     );
   }
 }
-
 
 // class _PermissionCheckScreenState extends ConsumerState<PermissionCheckScreen> {
 //   @override

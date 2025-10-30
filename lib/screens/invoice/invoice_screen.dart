@@ -101,21 +101,62 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   }
 
   Future<void> _saveinvoice(List<Part> selectedParts) async {
-        final authState = ref.watch(authProvider);
-    final User? currentUser = authState.currentUser;
-    if (currentUser == null ||
-        _selectedTin == null ||
-        _selectedRegion == null ||
-        _selectedDealer == null||
+    
+    final authState = ref.watch(authProvider);
+    final User? currentUser =  authState.currentUser;
+    final Region? currentRegion = ref.watch(regionProvider).selectedRegion;
+    if (
         selectedParts.isEmpty
         ) {
       showSnackBar(
         context: context,
-        message: "No data to save. Please try again !",
+        message: "No parts to save. Please try again !",
         type: MessageType.error,
       );
       return;
     }
+
+     if (
+        _selectedDealer == null 
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No dealer to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+            if (
+        currentRegion == null 
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No region to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+        if (
+        _selectedTin == null 
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No tin to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+    if (currentUser == null
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No user to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+
+
     double total = 0;
     for (var part in selectedParts) {
       final qty = part.receivedQty;
@@ -125,13 +166,17 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     final invoiceData = InvoiceSave(
       invoiceNumber: 'AAA',
       tinNo: _selectedTin!.tinNumber,
-      route: _selectedRegion!.region,
+      route: currentRegion.region,
       dealerName: _selectedDealer!.name,
       dealerId: _selectedDealer!.accountCode,
       userId: currentUser.id,
       invoiceAmount: total,
       invoiceTime: DateTime.now(),
-      parts: selectedParts
+      parts: selectedParts, 
+      orderNo:  _selectedTin!.orderNumber, 
+      dealerVatNo: _selectedDealer!.vatNo, 
+      dealerAddress: _selectedDealer!.address + ', ' + _selectedDealer!.city,
+      payOndel: _selectedTin!.payOnDel
       );
     
     late InvoiceSave savedInvoice;

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data'; // For Uint8List
 
@@ -7,6 +8,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart'; // For future Bluetoo
 import 'package:intl/intl.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
+import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 
 // For PDF printing and preview
@@ -29,8 +31,9 @@ class PrinterService {
     // No actual thermal printer connection logic here for now.
     // This method is kept for future expansion of thermal printing.
   }
-// Helpers For PDF previews
-// Company Header Along with Print Title
+
+  // Helpers For PDF previews
+  // Company Header Along with Print Title
   pw.Column _companyHeaderPdf(String topic) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -88,12 +91,15 @@ class PrinterService {
       ],
     );
   }
-// End of Helpers
-// PDF Previews
+
+  // End of Helpers
+  // PDF Previews
   // --- Return PDF method ---
   Future<void> previewThermalReturnPdf(Return returnObj) async {
     final pdf = pw.Document();
-    final formattedReturnDate = DateFormat('yyyy/MM/dd').format(returnObj.returnTime);
+    final formattedReturnDate = DateFormat(
+      'yyyy/MM/dd',
+    ).format(returnObj.returnTime);
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.roll80,
@@ -104,30 +110,42 @@ class PrinterService {
             children: [
               // Company Header
               _companyHeaderPdf(returnObj.returnType),
+
               pw.Table(
-      border: null, // No border for a clean look
-      columnWidths: {
-        0: const pw.FlexColumnWidth(2.5), // For labels like 'Route'
-        1: const pw.FixedColumnWidth(8), // For the colon ':' - fixed small width
-        2: const pw.FlexColumnWidth(5.5), // For values
-      },
-      children: [
-        _buildDetailTableRow('Route', returnObj.route.toUpperCase()),
-        _buildDetailTableRow('TIN No', returnObj.tinNo.toUpperCase()),
-        _buildDetailTableRow('Dealer Name', returnObj.dealerName.toUpperCase()),
-        _buildDetailTableRow('User', returnObj.userId.toUpperCase()), // Using userId as per your model
-        _buildDetailTableRow('Return Date', formattedReturnDate.toUpperCase()),
-      ],
-    ),
-    pw.SizedBox(height: 10),
-                  pw.Align(
+                border: null, // No border for a clean look
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(2.5), // For labels like 'Route'
+                  1: const pw.FixedColumnWidth(
+                    8,
+                  ), // For the colon ':' - fixed small width
+                  2: const pw.FlexColumnWidth(5.5), // For values
+                },
+                children: [
+                  _buildDetailTableRow('Route', returnObj.route.toUpperCase()),
+                  _buildDetailTableRow('TIN No', returnObj.tinNo.toUpperCase()),
+                  _buildDetailTableRow(
+                    'Dealer Name',
+                    returnObj.dealerName.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'User',
+                    returnObj.userId.toUpperCase(),
+                  ), // Using userId as per your model
+                  _buildDetailTableRow(
+                    'Return Date',
+                    formattedReturnDate.toUpperCase(),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
                   'Return Reason : ${returnObj.returnReason}',
                   style: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 10,
-                )
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 10,
+                  ),
                 ),
               ),
 
@@ -137,13 +155,14 @@ class PrinterService {
               // Return Items Table
               pw.Table.fromTextArray(
                 headers: ['Part No', 'Req. Qty', 'Ret. Qty'],
-                data: returnObj.returnItems.map((item) {
-                  return [
-                    item.partNo,
-                    item.requestQty.toString(),
-                    item.returnQty.toString(),
-                  ];
-                }).toList(),
+                data:
+                    returnObj.returnItems.map((item) {
+                      return [
+                        item.partNo,
+                        item.requestQty.toString(),
+                        item.returnQty.toString(),
+                      ];
+                    }).toList(),
                 headerStyle: pw.TextStyle(
                   fontWeight: pw.FontWeight.bold,
                   fontSize: 10,
@@ -171,43 +190,44 @@ class PrinterService {
               ),
               pw.Divider(thickness: 0.5),
               pw.SizedBox(height: 20),
+
               // Signature Section
               pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
                   '         -----------------                  -----------------',
-                  style: pw.TextStyle(
-                  fontSize: 10,
-                )
+                  style: pw.TextStyle(fontSize: 10),
                 ),
               ),
               pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
                   '     Dealer Signature         Driver Signature',
-                  style: pw.TextStyle(
-                  fontSize: 10,
-                )
+                  style: pw.TextStyle(fontSize: 10),
                 ),
               ),
-            pw.Align(
+              pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
                   '      Dealer Stamp        ',
-                  style: pw.TextStyle(
-                  fontSize: 10,
-                )
+                  style: pw.TextStyle(fontSize: 10),
                 ),
               ),
-pw.SizedBox(height: 10),
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
-              children: [
-                pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
-                pw.Text('Security Sig. & Stamp', style:  pw.TextStyle(fontSize: 10)),
-              ],
-            ),
-                          // SIGNATURE SECTION
+              pw.SizedBox(height: 10),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    '-----------------',
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                  pw.Text(
+                    'Security Sig. & Stamp',
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                ],
+              ),
+              // SIGNATURE SECTION
             ],
           );
         },
@@ -219,10 +239,401 @@ pw.SizedBox(height: 10),
     );
   }
 
-  // --- Invoice PDF method --
-Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
+  // Invoice PDF
+  Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
     final pdf = pw.Document();
-    final formattedInvoiceDate = DateFormat('yyyy/MM/dd').format(invoiceObj.invoiceTime);
+    final formattedInvoiceDate = DateFormat(
+      'yyyy/MM/dd',
+    ).format(invoiceObj.invoiceTime);
+
+    // Function to build the common invoice page content
+    pw.Page _buildInvoicePageContent(String headerText) {
+      return pw.Page(
+        pageFormat: PdfPageFormat.roll80,
+        margin: const pw.EdgeInsets.all(10),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              // Company Header (dynamic based on headerText)
+              _companyHeaderPdf(headerText),
+
+              // Address Section
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('To:', style: pw.TextStyle(fontSize: 10)),
+                  pw.Text(
+                    invoiceObj.dealerName,
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                  pw.Text(
+                    invoiceObj.dealerAddress,
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 15),
+
+              // Invoice Details Table
+              pw.Table(
+                border: null,
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(2.5),
+                  1: const pw.FixedColumnWidth(8),
+                  2: const pw.FlexColumnWidth(5.5),
+                },
+                children: [
+                  _buildDetailTableRow(
+                    'A/C No',
+                    invoiceObj.dealerId.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'Order No',
+                    invoiceObj.orderNo.toUpperCase(),
+                  ),
+                  _buildDetailTableRow('Route', invoiceObj.route.toUpperCase()),
+                  _buildDetailTableRow(
+                    'VAT',
+                    invoiceObj.dealerVatNo.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'Invoice No',
+                    invoiceObj.invoiceNumber.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'TIN No',
+                    invoiceObj.tinNo.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'Pay on Del',
+                    invoiceObj.payOndel.toUpperCase(),
+                  ),
+                  _buildDetailTableRow('User', invoiceObj.userId.toUpperCase()),
+                  _buildDetailTableRow(
+                    'Date',
+                    formattedInvoiceDate.toUpperCase(),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+
+              pw.SizedBox(
+                width: 200,
+                child: // // Parts Table
+                    pw.Table(
+                  border: null,
+                  tableWidth: pw.TableWidth.max,
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(
+                      1,
+                    ), // Changed to FlexColumnWidth to absorb remaining space
+                    1: const pw.FixedColumnWidth(40),
+                    2: const pw.FixedColumnWidth(30),
+                    3: const pw.FixedColumnWidth(50),
+                  },
+                  children: [
+                    // Header Row
+                    pw.TableRow(
+                      children: [
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              'Part No.',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                            pw.Text(
+                              'Description',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                            pw.Text(
+                              'Unit Rs.',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.Align(
+                          alignment: pw.Alignment.centerRight,
+                          child: pw.Text(
+                            'Qty',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                        pw.Align(
+                          alignment: pw.Alignment.centerRight,
+                          child: pw.Text(
+                            'Disc',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                        pw.Align(
+                          alignment: pw.Alignment.centerRight,
+                          child: pw.Text(
+                            'Net Sale',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Data Rows for each item
+                    ...invoiceObj.parts.map((item) {
+                      final netSale =
+                          (item.price - item.discount) * item.receivedQty;
+                      return pw.TableRow(
+                        verticalAlignment: pw.TableCellVerticalAlignment.bottom,
+                        children: [
+                          pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                item.partNo,
+                                style: const pw.TextStyle(fontSize: 10),
+                              ),
+                              pw.Text(
+                                item.description,
+                                style: const pw.TextStyle(fontSize: 10),
+                              ),
+                              pw.Text(
+                                item.price.toStringAsFixed(2),
+                                style: const pw.TextStyle(fontSize: 10),
+                              ),
+                            ],
+                          ),
+                          pw.Align(
+                            alignment: pw.Alignment.centerRight,
+                            child: pw.Text(
+                              item.receivedQty.toString(),
+                              style: const pw.TextStyle(fontSize: 10),
+                            ),
+                          ),
+                          pw.Align(
+                            alignment: pw.Alignment.centerRight,
+                            child: pw.Text(
+                              item.discount.toStringAsFixed(2),
+                              style: const pw.TextStyle(fontSize: 10),
+                            ),
+                          ),
+                          pw.Align(
+                            alignment: pw.Alignment.centerRight,
+                            child: pw.Text(
+                              netSale.toStringAsFixed(2),
+                              style: const pw.TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              ),
+
+              pw.Divider(thickness: 0.5),
+              pw.SizedBox(height: 5),
+
+              // Total Amount section
+              pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text(
+                      invoiceObj.invoiceAmount.toStringAsFixed(2),
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    ),
+                    pw.Text(
+                      '=================',
+                      style: pw.TextStyle(fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              // "Above goods received" text
+              pw.Align(
+                alignment: pw.Alignment.center,
+                child: pw.Text(
+                  'Above goods recieved in good condition',
+                  style: pw.TextStyle(
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    // Add the Customer Copy page using the common method
+    pdf.addPage(_buildInvoicePageContent('CREDIT INVOICE - CUSTOMER COPY'));
+
+    // Add the Office Copy page using the common method
+    pdf.addPage(_buildInvoicePageContent('CREDIT INVOICE - OFFICE COPY'));
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
+
+  // --- Return PDF method ---
+  Future<void> previewThermalReceiptPdf(Receipt recObj) async {
+    final pdf = pw.Document();
+    final formattedDate = DateFormat('yyyy/MM/dd').format(recObj.recieptTime);
+    final formattedDepDate = DateFormat('yyyy/MM/dd').format(recObj.chequeDate);
+    final double fontSize = 10;
+    final double chequeAmount = recObj.chequeAmount;
+    final double totalCreditNoteAmount = recObj.creditNotes.fold(
+      0.0,
+      (sum, note) => sum + note.amount,
+    );
+
+
+    
+  // Helper for label : Value Table Rows
+  pw.TableRow _buildTableRow(String label, String value) {
+    return pw.TableRow(
+      children: [
+        pw.Align(
+          alignment: pw.Alignment.centerLeft,
+          child: pw.Text(
+            label,
+            style: const pw.TextStyle(fontSize: 10), // Label text
+          ),
+        ),
+        pw.Align(
+          alignment: pw.Alignment.centerLeft,
+          child: pw.Text(
+            ' ',
+            style: const pw.TextStyle(fontSize: 10), // Colon
+          ),
+        ),
+        pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(
+            value,
+            style: const pw.TextStyle(fontSize: 10), // Value text
+          ),
+        ),
+      ],
+    );
+  }
+
+    pw.TableRow _buildBoldTableRow(String label, String value) {
+    return pw.TableRow(
+      children: [
+        pw.Align(
+          alignment: pw.Alignment.centerLeft,
+          child: pw.Text(
+            label,
+              style: pw.TextStyle(fontSize: fontSize,fontWeight: pw.FontWeight.bold,), // Value text
+          ),
+        ),
+        pw.Align(
+          alignment: pw.Alignment.centerLeft,
+          child: pw.Text(
+            ' ',
+              style: pw.TextStyle(fontSize: fontSize,fontWeight: pw.FontWeight.bold,), // Value text
+          ),
+        ),
+        pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(
+            value,
+              style: pw.TextStyle(fontSize: fontSize,fontWeight: pw.FontWeight.bold,), // Value text
+          ),
+        ),
+      ],
+    );
+  }
+
+
+    // pw.TableRow _buildTableRow(String label, String value) {
+    //   return pw.TableRow(
+    //     children: [
+    //       pw.Align(
+    //         alignment: pw.Alignment.centerLeft,
+    //         child: pw.Text(
+    //           label,
+    //           style: pw.TextStyle(fontSize: fontSize), // Label text
+    //         ),
+    //       ),
+    //       pw.Align(
+    //         alignment: pw.Alignment.centerLeft,
+    //         child: pw.Text(
+    //           value,
+    //           style: pw.TextStyle(fontSize: fontSize), // Value text
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    // }
+
+    //     pw.TableRow _buildBoldTableRow(String label, String value) {
+    //   return pw.TableRow(
+    //     children: [
+    //       pw.Align(
+    //         alignment: pw.Alignment.centerLeft,
+    //         child: pw.Text(
+    //           label,
+    //           style: pw.TextStyle(fontSize: fontSize,fontWeight: pw.FontWeight.bold,), // Label text
+    //         ),
+    //       ),
+    //       pw.Align(
+    //         alignment: pw.Alignment.centerLeft,
+    //         child: pw.Text(
+    //           value,
+    //           style: pw.TextStyle(fontSize: fontSize,fontWeight: pw.FontWeight.bold,), // Value text
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    // }
+
+    pw.TableRow _buildSingleRow(String label) {
+      return pw.TableRow(
+        children: [
+          pw.Align(
+            alignment: pw.Alignment.centerLeft,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(fontSize: fontSize), // Label text
+            ),
+          )
+        ],
+      );
+    }
+
+    // final totalDue = recObj.tins.fold(
+    //   Decimal.zero,
+    //   (sum, tin) => sum + Decimal.parse(tin.invAmount.toString()),
+    // );
+
+    final totalPayment = Decimal.parse(
+      (totalCreditNoteAmount + chequeAmount).toString(),
+    );
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.roll80,
@@ -232,74 +643,198 @@ Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
               // Company Header
-              _companyHeaderPdf('INVOICE'),
-              pw.Table(
-      border: null, // No border for a clean look
-      columnWidths: {
-        0: const pw.FlexColumnWidth(2.5), // For labels like 'Route'
-        1: const pw.FixedColumnWidth(8), // For the colon ':' - fixed small width
-        2: const pw.FlexColumnWidth(5.5), // For values
-      },
-      children: [
-        _buildDetailTableRow('Invoice No', invoiceObj.invoiceNumber.toUpperCase()),
-        _buildDetailTableRow('Route', invoiceObj.route.toUpperCase()),
-        _buildDetailTableRow('TIN No', invoiceObj.tinNo.toUpperCase()),
-        _buildDetailTableRow('Dealer Name', invoiceObj.dealerName.toUpperCase()),
-        _buildDetailTableRow('User', invoiceObj.userId.toUpperCase()), // Using userId as per your model
-        _buildDetailTableRow('Invoice Date', formattedInvoiceDate.toUpperCase()),
-      ],
-    ),
-              pw.SizedBox(height: 10), // Space before the table
-              pw.Divider(thickness: 0.5),
-
-              // Return Items Table
-              pw.Table.fromTextArray(
-                headers: ['Part No', 'Quantity', 'Price'],
-                data: invoiceObj.parts.map((item) {
-                  return [
-                    item.partNo,
-                    item.receivedQty.toString(),
-                    item.price.toStringAsFixed(2), // Formats price to two decimal places
-                  ];
-                }).toList(),
-                headerStyle: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 10,
-                ),
-                cellStyle: const pw.TextStyle(fontSize: 10), // Not bold
-                cellAlignments: {
-                  0: pw.Alignment.centerLeft, 
-                  1: pw.Alignment.centerRight, 
-                  2: pw.Alignment.centerRight, 
-                },
-                headerAlignments: {
-                  0: pw.Alignment.centerLeft,
-                  1: pw.Alignment.centerRight,
-                  2: pw.Alignment.centerRight,
-                },
-                columnWidths: {
-                  0: const pw.FlexColumnWidth(2.2),
-                  1: const pw.FlexColumnWidth(1.5),
-                  2: const pw.FlexColumnWidth(1.8),
-                },
-                border: null,
-                headerDecoration: const pw.BoxDecoration(
-                  border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
-                ),
-              ),
-              pw.Divider(thickness: 0.5),
-              pw.SizedBox(height: 20),
-                pw.Align(
-                alignment: pw.Alignment.centerLeft,
+              pw.Align(
+                alignment: pw.Alignment.center,
                 child: pw.Text(
-                  'Total Amount : ${invoiceObj.invoiceAmount.toStringAsFixed(2)}', // Formats invoiceAmount to two decimal places
+                  'PROVISIONAL RECEIPT',
                   style: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 10,
-                )
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
                 ),
               ),
+              _companyHeaderPdf('OFFICE'),
 
+              pw.Divider(thickness: 0.5),
+              pw.Table(
+                border: null, // No border for a clean look
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(2.5), // For labels like 'Route'
+                  1: const pw.FixedColumnWidth(
+                    8,
+                  ), // For the colon ':' - fixed small width
+                  2: const pw.FlexColumnWidth(5.5), // For values
+                },
+                children: [
+                  _buildDetailTableRow('Date', formattedDate),
+                  _buildDetailTableRow(
+                    'Cashier Code',
+                    recObj.userId.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'AC No',
+                    recObj.dealerCode.toUpperCase(),
+                  ),
+                  _buildDetailTableRow(
+                    'Receipt No',
+                    recObj.recieptNo.toUpperCase(),
+                  ), // Using userId as per your model
+                ],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Divider(thickness: 0.5),
+
+               pw.Table(
+                border: null, // No border for a clean look
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(1), // For labels like 'Route'
+                },
+                children: [
+                  _buildSingleRow('Recieved with Thanks'),
+                  _buildSingleRow('Being Settlement of'),
+
+                ],
+              ),
+              // pw.Text(
+              //   'Recieved with Thanks',
+              //   style: pw.TextStyle(fontSize: fontSize),
+              // ),
+             // pw.SizedBox(height: 10),
+             // pw.Text('Being Settlement of', style: pw.TextStyle(fontSize: fontSize)),
+              // pw.Table.fromTextArray(
+              //   headers: ['Invoice Numbers', 'Amount'],
+              //   data:
+              //       recObj.tins.map((tin) {
+              //         return [tin.mobileInvNo, tin.invAmount];
+              //       }).toList(),
+              //   headerStyle: pw.TextStyle(
+              //     fontWeight: pw.FontWeight.bold,
+              //     fontSize: fontSize,
+              //   ),
+              //   cellStyle: pw.TextStyle(fontSize: fontSize), // Not bold
+              //   cellAlignments: {
+              //     0: pw.Alignment.centerLeft, // Part column
+              //     1: pw.Alignment.centerRight, // Requested Quantity
+              //   },
+              //   headerAlignments: {
+              //     0: pw.Alignment.centerLeft,
+              //     1: pw.Alignment.centerRight,
+              //   },
+              //   columnWidths: {
+              //     0: const pw.FlexColumnWidth(2),
+              //     1: const pw.FlexColumnWidth(1),
+              //   },
+              //   border: null,
+              //   headerDecoration: const pw.BoxDecoration(
+              //     border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+              //   ),
+              // ),
+              // pw.SizedBox(height: 10), // Space before the table
+              pw.Table(
+                border: null, // No border for a clean look
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(4), // For labels like 'Route'
+                  1: const pw.FixedColumnWidth(
+                    8,
+                  ), // For the colon ':' - fixed small width
+                  2: const pw.FlexColumnWidth(3), // For values
+                },
+                children: [
+                    
+                    _buildBoldTableRow(
+                    'Invoice Numbers',
+                    'Amount (Rs.)',
+                  ),
+                  //   _buildDetailTableRowmod(
+                  //   '   ',
+                  //   '   ',
+                  // ),
+                      ...recObj.tins.map(
+      (item) => _buildTableRow(
+        item.mobileInvNo.toString(), // Assuming mobileInvNo can be directly converted to string
+        item.invAmount.toStringAsFixed(2), // Assuming invAmount is a double and needs formatting
+      ),
+    ),
+                ],
+              ),
+            pw.Divider(thickness: 0.5),
+                pw.Table(
+                border: null, // No border for a clean look
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(4), // For labels like 'Route'
+                  1: const pw.FixedColumnWidth(
+                    8,
+                  ), // For the colon ':' - fixed small width
+                  2: const pw.FlexColumnWidth(3), // For values
+                },
+                children: [
+                  _buildTableRow(
+                    'Total Amount',
+                    totalPayment.toStringAsFixed(2),
+                  ),
+                  _buildTableRow(
+                    'Total Claimable Amount',
+                    '(   -' + totalCreditNoteAmount.toStringAsFixed(2) + ')',
+                  ),
+                  _buildTableRow(
+                    'Total Amount Recieved',
+                    chequeAmount.toStringAsFixed(2),
+                  ),
+                 _buildTableRow('', '==========='),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+                pw.Table(
+                border: null, // No border for a clean look
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(1),
+                  // 1: const pw.FixedColumnWidth(8),
+                  // 2: const pw.FlexColumnWidth(4),
+                },
+                children: [
+                  _buildSingleRow('Payment Method: Cheque'),
+                  _buildSingleRow('Bank and Branch:'),
+                  _buildSingleRow('  ${recObj.branchName.toUpperCase()}'),
+                   _buildSingleRow('Check No / Card No: ${recObj.chequeNumber.toUpperCase()}'),
+                   _buildSingleRow('To be Deposited Date: $formattedDepDate'),
+                  // _buildDetailTableRow(
+                  //   'Bank and Branch',
+                  //   recObj.branchName.toUpperCase(),
+                  // ),
+                  // _buildDetailTableRow(
+                  //   'Check No / Card No',
+                  //   recObj.chequeNumber,
+                  // ),
+                  // _buildDetailTableRow(
+                  //   'To be Deposited Date',
+                  //   formattedDepDate,
+                  // ), // Using userId as per your model
+                ],
+              ),
+              // pw.Table(
+              //   border: null, // No border for a clean look
+              //   columnWidths: {
+              //     0: const pw.FlexColumnWidth(3),
+              //     1: const pw.FixedColumnWidth(8),
+              //     2: const pw.FlexColumnWidth(4),
+              //   },
+              //   children: [
+              //     _buildDetailTableRow('Payment Method', 'Cheque'),
+              //     _buildDetailTableRow(
+              //       'Bank and Branch',
+              //       recObj.branchName.toUpperCase(),
+              //     ),
+              //     _buildDetailTableRow(
+              //       'Check No/ Card No',
+              //       recObj.chequeNumber,
+              //     ),
+              //     _buildDetailTableRow(
+              //       'To be Deposited Date',
+              //       formattedDepDate,
+              //     ), // Using userId as per your model
+              //   ],
+              // ),
+              pw.SizedBox(height: 10),
             ],
           );
         },
@@ -310,10 +845,340 @@ Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
   }
+  // Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
+  //   final pdf = pw.Document();
+  //   final formattedInvoiceDate = DateFormat('yyyy/MM/dd').format(invoiceObj.invoiceTime);
+
+  //   pdf.addPage(
+  //     pw.Page(
+  //       pageFormat: PdfPageFormat.roll80,
+  //       margin: const pw.EdgeInsets.all(10),
+  //       build: (pw.Context context) {
+  //         return pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.center,
+  //           children: [
+  //             // Company Header
+  //             _companyHeaderPdf('CREDIT INVOICE - CUSTOMER COPY'),
+
+  //             // Address Section (already left-aligned with crossAxisAlignment.start)
+  //             pw.Column(
+  //               crossAxisAlignment: pw.CrossAxisAlignment.start, // Ensures left alignment
+  //               children: [
+  //                 pw.Text('To:', style: pw.TextStyle(fontSize: 10)),
+  //                 pw.Text(invoiceObj.dealerName, style: pw.TextStyle(fontSize: 10)),
+  //                 pw.Text(invoiceObj.dealerAddress, style: pw.TextStyle(fontSize: 10)),
+  //               ],
+  //             ),
+  //             pw.SizedBox(height: 15),
+
+  //             // Invoice Details Table
+  //             pw.Table(
+  //               border: null,
+  //               columnWidths: {
+  //                 0: const pw.FlexColumnWidth(2.5),
+  //                 1: const pw.FixedColumnWidth(8),
+  //                 2: const pw.FlexColumnWidth(5.5),
+  //               },
+  //               children: [
+  //                 _buildDetailTableRow('A/C No', invoiceObj.dealerId.toUpperCase()),
+  //                 _buildDetailTableRow('Order No', invoiceObj.orderNo.toUpperCase()),
+  //                 _buildDetailTableRow('Route', invoiceObj.route.toUpperCase()),
+  //                 _buildDetailTableRow('VAT', invoiceObj.dealerVatNo.toUpperCase()),
+  //                 _buildDetailTableRow('Invoice No', invoiceObj.invoiceNumber.toUpperCase()),
+  //                 _buildDetailTableRow('TIN No', invoiceObj.tinNo.toUpperCase()),
+  //                 _buildDetailTableRow('Pay on Del', invoiceObj.payOndel.toUpperCase()),
+  //                 _buildDetailTableRow('User', invoiceObj.userId.toUpperCase()),
+  //                 _buildDetailTableRow('Date', formattedInvoiceDate.toUpperCase()),
+  //               ],
+  //             ),
+  //             pw.SizedBox(height: 10),
+
+  //             // Parts Table (custom structure to match the image with Unit Price under Description)
+  //             pw.Table(
+  //               border: null,
+  //               tableWidth: pw.TableWidth.max, // Use maximum available width
+  //               columnWidths: {
+  //                 // 0: const pw.FlexColumnWidth(2.5), // Combined: Description -- Part No. and Unit Rs.
+  //                 // 1: const pw.FlexColumnWidth(1), // Qty
+  //                 // 2: const pw.FlexColumnWidth(1), // Disc
+  //                 // 3: const pw.FlexColumnWidth(1.5), // Net Sale
+  //                 0: const pw.FixedColumnWidth(70), // Combined: Description -- Part No. and Unit Rs.
+  //                 1: const pw.FixedColumnWidth(40), // Qty
+  //                 2: const pw.FixedColumnWidth(30), // Disc
+  //                 3: const pw.FixedColumnWidth(50), // Net Sale
+  //               //  4: const pw.FixedColumnWidth(55.0), // Net Sale
+  //               },
+  //               children: [
+  //                 // Header Row
+  //                 pw.TableRow(
+  //                   children: [
+  //                     pw.Column( // Combined header for Description -- Part No. and Unit Rs.
+  //                       crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //                       children: [
+  //                         pw.Text('Description', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+  //                         pw.Text('Part No.', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+  //                         pw.Text('Unit Rs.', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+  //                       ],
+  //                     ),
+  //                     pw.Align(
+  //                       alignment: pw.Alignment.centerRight, // Align header for Qty
+  //                       child: pw.Text('Qty', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+  //                     ),
+  //                     pw.Align(
+  //                       alignment: pw.Alignment.centerRight, // Align header for Disc
+  //                       child: pw.Text('Disc', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+  //                     ),
+  //                     pw.Align(
+  //                       alignment: pw.Alignment.centerRight, // Align header for Net Sale
+  //                       child: pw.Text('Net Sale', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 // Data Rows for each item
+  //                 ...invoiceObj.parts.map((item) {
+  //                   final netSale = (item.price - item.discount) * item.receivedQty;
+  //                   return pw.TableRow(
+  //                     // Important: Align content to the bottom of the row to match the image's baseline
+  //                     verticalAlignment: pw.TableCellVerticalAlignment.bottom,
+  //                     children: [
+  //                       // First column: Part No., Description (N/A), and Unit Price
+  //                       pw.Column(
+  //                         crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //                         children: [
+  //                           pw.Text(item.partNo, style: const pw.TextStyle(fontSize: 10)),
+  //                           pw.Text(item.description, style: const pw.TextStyle(fontSize: 10)),
+  //                           pw.Text(item.price.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 10)), // Unit Price here
+  //                         ],
+  //                       ),
+  //                       // Quantity
+  //                       pw.Align(
+  //                         alignment: pw.Alignment.centerRight,
+  //                         child: pw.Text(item.receivedQty.toString(), style: const pw.TextStyle(fontSize: 10)),
+  //                       ),
+  //                       // Discount
+  //                       pw.Align(
+  //                         alignment: pw.Alignment.centerRight,
+  //                         child: pw.Text(item.discount.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 10)),
+  //                       ),
+  //                       // Net Sale
+  //                       pw.Align(
+  //                         alignment: pw.Alignment.centerRight,
+  //                         child: pw.Text(netSale.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 10)),
+  //                       ),
+  //                     ],
+  //                   );
+  //                 }),
+  //               ],
+  //             ),
+
+  //             pw.Divider(thickness: 0.5),
+  //             pw.SizedBox(height: 5),
+
+  //             // Total Amount section (moved to bottom right)
+  //             pw.Align(
+  //               alignment: pw.Alignment.centerRight, // Aligns the Column to the right
+  //               child: pw.Column(
+  //                 crossAxisAlignment: pw.CrossAxisAlignment.end, // Ensures text within the column is right-aligned
+  //                 children: [
+  //                   pw.Text(
+  //                     invoiceObj.invoiceAmount.toStringAsFixed(2),
+  //                     style: pw.TextStyle(
+  //                       fontWeight: pw.FontWeight.bold,
+  //                       fontSize: 10,
+  //                     ),
+  //                   ),
+  //                   pw.Text('=================', style: pw.TextStyle(fontSize: 10)),
+  //                 ],
+  //               ),
+  //             ),
+  //             pw.SizedBox(height: 10), // Space between total and "Above goods..."
+  //             // "Above goods received" text (centered)
+  //             pw.Align(
+  //               alignment: pw.Alignment.center,
+  //               child: pw.Text(
+  //                 'Above goods recieved in good condition',
+  //                 style: pw.TextStyle(
+  //                   fontWeight: pw.FontWeight.bold,
+  //                   fontSize: 10,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     ),
+  //   );
+
+  //   await Printing.layoutPdf(
+  //     onLayout: (PdfPageFormat format) async => pdf.save(),
+  //   );
+  // }
+  // --- Invoice PDF method --
+  // Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
+  //     final pdf = pw.Document();
+  //     final formattedInvoiceDate = DateFormat('yyyy/MM/dd').format(invoiceObj.invoiceTime);
+  //     pdf.addPage(
+  //       pw.Page(
+  //         pageFormat: PdfPageFormat.roll80,
+  //         margin: const pw.EdgeInsets.all(10),
+  //         build: (pw.Context context) {
+  //           return pw.Column(
+  //             crossAxisAlignment: pw.CrossAxisAlignment.center,
+  //             children: [
+  //               // Company Header
+  //               _companyHeaderPdf('CREDIT INVOICE - CUSTOMER COPY'),
+
+  //               pw.Column(
+  //               crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //               children: [
+  //                 pw.Text('To:', style: pw.TextStyle(fontSize: 10)),
+  //                 pw.Text(invoiceObj.dealerName, style:  pw.TextStyle(fontSize: 10)),
+  //                 pw.Text(invoiceObj.dealerAddress, style:  pw.TextStyle(fontSize: 10)),
+  //               ],
+  //             ),
+  //              pw.SizedBox(height: 15),
+  //               pw.Table(
+  //       border: null, // No border for a clean look
+  //       columnWidths: {
+  //         0: const pw.FlexColumnWidth(2.5), // For labels like 'Route'
+  //         1: const pw.FixedColumnWidth(8), // For the colon ':' - fixed small width
+  //         2: const pw.FlexColumnWidth(5.5), // For values
+  //       },
+  //       children: [
+  //         _buildDetailTableRow('A/C No', invoiceObj.dealerId.toUpperCase()),
+  //         _buildDetailTableRow('Order No', invoiceObj.orderNo.toUpperCase()),
+  //         _buildDetailTableRow('Route', invoiceObj.route.toUpperCase()),
+  //         _buildDetailTableRow('VAT', invoiceObj.dealerVatNo.toUpperCase()),
+  //         _buildDetailTableRow('Invoice No', invoiceObj.invoiceNumber.toUpperCase()),
+  //         _buildDetailTableRow('TIN No', invoiceObj.tinNo.toUpperCase()),
+  //         _buildDetailTableRow('Pay on Del', invoiceObj.payOndel.toUpperCase()),
+  //         _buildDetailTableRow('User', invoiceObj.userId.toUpperCase()), // Using userId as per your model
+  //         _buildDetailTableRow('Date', formattedInvoiceDate.toUpperCase()),
+  //       ],
+  //     ),
+  //               pw.SizedBox(height: 10), // Space before the table
+  //               pw.Divider(thickness: 0.5),
+  //               pw.Table.fromTextArray(
+  //   headers: ['Part No', 'Quantity', 'Unit', 'Net Sale'], // Added 'Net Sale' header
+  //   data: invoiceObj.parts.map((item) {
+  //     final netSale = item.price * item.receivedQty; // Calculate net sale
+  //     return [
+  //       item.partNo,
+  //       item.receivedQty.toString(),
+  //       item.price.toStringAsFixed(2), // Formats price to two decimal places
+  //       netSale.toStringAsFixed(2), // Formats net sale to two decimal places
+  //     ];
+  //   }).toList(),
+  //   headerStyle: pw.TextStyle(
+  //     fontWeight: pw.FontWeight.bold,
+  //     fontSize: 10,
+  //   ),
+  //   cellStyle: const pw.TextStyle(fontSize: 10), // Not bold
+  //   cellAlignments: {
+  //     0: pw.Alignment.centerLeft,
+  //     1: pw.Alignment.centerRight,
+  //     2: pw.Alignment.centerRight,
+  //     3: pw.Alignment.centerRight, // Alignment for Net Sale column
+  //   },
+  //   headerAlignments: {
+  //     0: pw.Alignment.centerLeft,
+  //     1: pw.Alignment.centerRight,
+  //     2: pw.Alignment.centerRight,
+  //     3: pw.Alignment.centerRight, // Alignment for Net Sale header
+  //   },
+  //   columnWidths: {
+  //     0: const pw.FlexColumnWidth(2.2),
+  //     1: const pw.FlexColumnWidth(1.5),
+  //     2: const pw.FlexColumnWidth(1.8),
+  //     3: const pw.FlexColumnWidth(1.8), // Width for Net Sale column
+  //   },
+  //   border: null,
+  //   headerDecoration: const pw.BoxDecoration(
+  //     border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+  //   ),
+  // ),
+  // pw.Divider(thickness: 0.5),
+  // pw.SizedBox(height: 20),
+  //               pw.Column(
+  //               crossAxisAlignment: pw.CrossAxisAlignment.end,
+  //               children: [
+  //                 pw.Text(invoiceObj.invoiceAmount.toStringAsFixed(2), style: pw.TextStyle(fontSize: 10)),
+  //                 pw.Text('=================', style:  pw.TextStyle(fontSize: 10)),
+  //               ],
+  //             ),
+  //               pw.Align(
+  //                 alignment: pw.Alignment.center,
+  //                 child: pw.Text(
+  //                   'Above goods recieved in good condition', // Formats invoiceAmount to two decimal places
+  //                   style: pw.TextStyle(
+  //                   fontWeight: pw.FontWeight.bold,
+  //                   fontSize: 10,
+  //                 )
+  //                 ),
+  //               ),
+  //              // Return Items Table
+  //               // pw.Table.fromTextArray(
+  //               //   headers: ['Part No', 'Quantity', 'Price'],
+  //               //   data: invoiceObj.parts.map((item) {
+  //               //     return [
+  //               //       item.partNo,
+  //               //       item.receivedQty.toString(),
+  //               //       item.price.toStringAsFixed(2), // Formats price to two decimal places
+  //               //     ];
+  //               //   }).toList(),
+  //               //   headerStyle: pw.TextStyle(
+  //               //     fontWeight: pw.FontWeight.bold,
+  //               //     fontSize: 10,
+  //               //   ),
+  //               //   cellStyle: const pw.TextStyle(fontSize: 10), // Not bold
+  //               //   cellAlignments: {
+  //               //     0: pw.Alignment.centerLeft,
+  //               //     1: pw.Alignment.centerRight,
+  //               //     2: pw.Alignment.centerRight,
+  //               //   },
+  //               //   headerAlignments: {
+  //               //     0: pw.Alignment.centerLeft,
+  //               //     1: pw.Alignment.centerRight,
+  //               //     2: pw.Alignment.centerRight,
+  //               //   },
+  //               //   columnWidths: {
+  //               //     0: const pw.FlexColumnWidth(2.2),
+  //               //     1: const pw.FlexColumnWidth(1.5),
+  //               //     2: const pw.FlexColumnWidth(1.8),
+  //               //   },
+  //               //   border: null,
+  //               //   headerDecoration: const pw.BoxDecoration(
+  //               //     border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+  //               //   ),
+  //               // ),
+  //               // pw.Divider(thickness: 0.5),
+  //               pw.SizedBox(height: 20),
+  //               //   pw.Align(
+  //               //   alignment: pw.Alignment.centerLeft,
+  //               //   child: pw.Text(
+  //               //     'Total Amount : ${invoiceObj.invoiceAmount.toStringAsFixed(2)}', // Formats invoiceAmount to two decimal places
+  //               //     style: pw.TextStyle(
+  //               //     fontWeight: pw.FontWeight.bold,
+  //               //     fontSize: 10,
+  //               //   )
+  //               //   ),
+  //               // ),
+
+  //             ],
+  //           );
+  //         },
+  //       ),
+  //     );
+
+  //     await Printing.layoutPdf(
+  //       onLayout: (PdfPageFormat format) async => pdf.save(),
+  //     );
+
+  //   }
 
   /// End Of PDF Previews
-  /// 
-  
+  ///
+
   //// Testing Methods
 
   // A common data structure to hold receipt information
@@ -487,7 +1352,9 @@ Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
                   2: pw.Alignment.centerRight,
                 },
                 columnWidths: {
-                  0: const pw.FlexColumnWidth(2.2), // Item name takes more space
+                  0: const pw.FlexColumnWidth(
+                    2.2,
+                  ), // Item name takes more space
                   1: const pw.FlexColumnWidth(1.5), // Quantity
                   2: const pw.FlexColumnWidth(1.8), // Price
                 },
@@ -531,7 +1398,7 @@ Future<void> previewThermalInvoicePdf(InvoiceSave invoiceObj) async {
   }
 
   // NEW: Method to preview the thermal receipt as PDF
-  Future<void> previewThermalReceiptPdf(
+  Future<void> previewThermalReceiptTestPdf(
     List<Map<String, dynamic>> items,
     String customerName,
   ) async {

@@ -1090,10 +1090,10 @@ class DummyData {
   ];
 
   static final List<TinData> _tins = [
-    const TinData(tinNumber: 'TIN987654321', totalValue: 1500.75),
-    const TinData(tinNumber: 'TIN123456789', totalValue: 899.99),
-    const TinData(tinNumber: 'TIN555555555', totalValue: 12500.00),
-    const TinData(tinNumber: 'TIN314159265', totalValue: 432.50),
+    const TinData(tinNumber: 'TIN987654321', totalValue: 1500.75, orderNumber: 'PADC202510250001'),
+    const TinData(tinNumber: 'TIN123456789', totalValue: 899.99, orderNumber: 'PADC202510250002'),
+    const TinData(tinNumber: 'TIN555555555', totalValue: 12500.00, orderNumber: 'PADC202510250003'),
+    const TinData(tinNumber: 'TIN314159265', totalValue: 432.50, orderNumber: 'PADC202510250004'),
   ];
 
   static final List<Region> _regions = [

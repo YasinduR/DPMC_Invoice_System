@@ -9,8 +9,11 @@ import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/tin_model.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/printer_service.dart';
 //import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/views/reciept_detail_view.dart';
 import 'package:myapp/views/region_selection_view.dart';
@@ -29,6 +32,7 @@ class RecieptScreen extends ConsumerStatefulWidget {
 }
 
 class _RecieptScreenState extends ConsumerState<RecieptScreen> {
+  final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
@@ -166,7 +170,10 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
   }
 
   void _onSubmit() async {
-    if (!_isReceiptFormValid) {
+    final authState = ref.watch(authProvider);
+    final User? currentUser = authState.currentUser;
+
+    if (!_isReceiptFormValid || currentUser ==null) {
       showSnackBar(
         context: context,
         message:
@@ -229,24 +236,38 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
     }
 
     final receiptData = Receipt(
+      // receiptTime: Datetime.now(),
+      recieptNo: 'AAA',
+      userId: currentUser.id,
+      dealerName:_selectedDealer!.name,
       dealerCode: _selectedDealer!.accountCode,
       chequeNumber: _chequeNoController.text,
       chequeAmount: chequeAmount,
       chequeDate: _selectedChequeDate!,
       bankCode: _selectedBank!.bankCode,
       branchCode: _selectedBranch!.branchCode,
-      //tinNumber: _selectedTin!.tinNumber,  // when single tin used through helper
-      tinNumbers:
-          _selectedTins
-              .map((t) => t.tinNo)
-              .toList(), // Assuming list of strings
-      creditNotes: _creditNotes,
+      branchName:_selectedBranch!.branchName,
+      tins:_selectedTins,
+      creditNotes: _creditNotes, 
+      recieptTime: DateTime.now(),
     );
+    late Receipt savedReceipt;
 
     await save(
       context: context,
       dataUrl: 'api/receipts/save',
       dataToSave: receiptData,
+    onReceivedData: (rawReceivedData){
+        try {
+          savedReceipt = rawReceivedData;
+        } catch (e) {
+          showSnackBar(
+            context: context,
+            message: 'Failed to process response for Reciept: $e',
+            type: MessageType.error,
+          );
+        }
+      },
       onSuccess: () {
         showSnackBar(
           context: context,
@@ -255,6 +276,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         );
         _clearReceiptDetails();
         _receiptDetailsKey.currentState?.loadTinInvoices();
+        _printerService.previewThermalReceiptPdf(savedReceipt);
+
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');

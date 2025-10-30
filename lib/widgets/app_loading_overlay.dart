@@ -7,32 +7,29 @@ class AppLoadingOverlay {
   OverlayEntry? _overlayEntry;
   final Color? backgroundColor;
 
- AppLoadingOverlay({
-    this.backgroundColor = AppColors.overlayBackground, 
-  });
+  AppLoadingOverlay({this.backgroundColor = AppColors.overlayBackground});
   void show(BuildContext context) {
     if (_overlayEntry != null) {
       // Overlay is already shown
       return;
     }
     _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          if (backgroundColor != null)
-            Positioned.fill(
-              child: Container(
-                color: backgroundColor!,
-              ),
-            ),
-            AppLoadingIndicator(),
-        ],
-      ),
+      builder:
+          (context) => Stack(
+            children: [
+              if (backgroundColor != null)
+                Positioned.fill(child: Container(color: backgroundColor!)),
+              AppLoadingIndicator(),
+            ],
+          ),
     );
     Overlay.of(context).insert(_overlayEntry!);
   }
+
   void hide() {
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
+
   bool get isShowing => _overlayEntry != null;
 }

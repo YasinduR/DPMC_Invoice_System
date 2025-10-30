@@ -41,7 +41,7 @@ class _TestPrintPageState extends State<TestPrintPage> {
                   {'name': 'Product C with extra text', 'qty': 3, 'price': 5.25},
                   {'name': 'Product D with more details and description', 'qty': 1, 'price': 99.99},
                 ];
-                _printerService.previewThermalReceiptPdf(items, 'Yasindu Ganegoda');
+                _printerService.previewThermalReceiptTestPdf(items, 'Yasindu Ganegoda');
                 // showSnackBar(
                 //   context: context,
                 //   message: 'Generating PDF preview for thermal receipt...',

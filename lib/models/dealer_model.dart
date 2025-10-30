@@ -9,6 +9,7 @@ class Dealer implements Mappable {
   final String region;
   final String pin; // Added a pin field to store the dealer's PIN
   final bool hasBankGuarantee;
+  final String vatNo;
   bool isLocked; // Changed to mutable
   int incPins; // Changed to mutable
 
@@ -18,7 +19,8 @@ class Dealer implements Mappable {
     required this.accountCode,
     required this.address,
     required this.city,
-    this.pin ='123', // pin is now required
+    this.vatNo ='N/A',
+    this.pin = '123', // pin is now required
     this.region = '',
     this.hasBankGuarantee = false,
     this.isLocked = false,
@@ -31,6 +33,7 @@ class Dealer implements Mappable {
       'name': name,
       'accountCode': accountCode,
       'surname': surname,
+      'vatNo': vatNo,
       'address': address,
       'city': city,
       'region': region,
