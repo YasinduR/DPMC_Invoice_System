@@ -3,15 +3,13 @@ import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 
 // Common Quantity Selector for the app
-
 class QuantitySelector extends StatelessWidget {
-
-  final int value;                  // The current quantity to display.
+  final int value; // The current quantity to display.
   final ValueChanged<int>? onChanged; // Callback when the quantity is updated.
-  final bool enabled;               // Toggles if the selector is interactive.
-  final String dialogTitle;         // The title for the pop-up edit dialog.
-  final int? maxQuantity;           // Optional maximum value allowed in the dialog.
-
+  final bool enabled; // Toggles if the selector is interactive.
+  final String dialogTitle; // The title for the pop-up edit dialog.
+  final int? maxQuantity; // Optional maximum value allowed in the dialog.
+  final int minQuantity; // NEW: Optional minimum value allowed in the dialog.
 
   const QuantitySelector({
     super.key,
@@ -19,9 +17,9 @@ class QuantitySelector extends StatelessWidget {
     this.onChanged,
     this.enabled = true,
     this.dialogTitle = 'Update Quantity', // Default title
-    this.maxQuantity, 
+    this.maxQuantity,
+    this.minQuantity = 1, // NEW: Default minQuantity to 1
   });
-
 
   // This internal method handles the logic of showing the dialog.
   Future<void> _showEditDialog(BuildContext context) async {
@@ -29,9 +27,12 @@ class QuantitySelector extends StatelessWidget {
 
     final newValue = await showDialog<int>(
       context: context,
-      builder:
-          (context) =>
-              QuantityEditDialog(initialQuantity: value, title: dialogTitle,maxQuantity: maxQuantity),
+      builder: (context) => QuantityEditDialog(
+        initialQuantity: value,
+        title: dialogTitle,
+        maxQuantity: maxQuantity,
+        minQuantity: minQuantity, // NEW: Pass minQuantity to the dialog
+      ),
     );
     if (newValue != null) {
       onChanged!(newValue);
@@ -97,13 +98,15 @@ class QuantityStepperDisplay extends StatelessWidget {
 class QuantityEditDialog extends StatefulWidget {
   final int initialQuantity;
   final String title;
-  final int? maxQuantity; // <-- ADD THIS: Optional maximum value
+  final int? maxQuantity;
+  final int minQuantity; 
 
   const QuantityEditDialog({
     super.key,
     required this.initialQuantity,
     required this.title,
-    this.maxQuantity
+    this.maxQuantity,
+    this.minQuantity = 1, 
   });
 
   @override
@@ -116,21 +119,24 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
   @override
   void initState() {
     super.initState();
-  //  _currentQuantity = widget.initialQuantity;
-
-    if (widget.initialQuantity < 1) {
-      _currentQuantity = 1;
-    } else {
-      _currentQuantity = widget.initialQuantity;
+    // Ensure initial quantity is within bounds [minQuantity, maxQuantity]
+    _currentQuantity = widget.initialQuantity;
+    if (_currentQuantity < widget.minQuantity) {
+      _currentQuantity = widget.minQuantity;
+    }
+    // Also consider maxQuantity if initial is greater
+    if (widget.maxQuantity != null && _currentQuantity > widget.maxQuantity!) {
+      _currentQuantity = widget.maxQuantity!;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-        // Determine if the increment/decrement buttons should be disabled
-    final canDecrement = _currentQuantity > 1;
-    final canIncrement = widget.maxQuantity == null || _currentQuantity < widget.maxQuantity!;
-    
+    // Determine if the increment/decrement buttons should be disabled
+    final canDecrement = _currentQuantity > widget.minQuantity; // NEW: Use widget.minQuantity
+    final canIncrement =
+        widget.maxQuantity == null || _currentQuantity < widget.maxQuantity!;
+
     return AlertDialog(
       title: Text(widget.title),
       content: Row(
@@ -153,19 +159,26 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
           IconButton(
             icon: Icon(
               Icons.add_circle,
-              color: canIncrement ? AppColors.primary : AppColors.disabled,
+              color: canIncrement ? AppColors.primary : AppColors.disabled, // Assuming AppColors is defined
               size: 30,
             ),
-              onPressed: canIncrement
+            onPressed: canIncrement
                 ? () => setState(() => _currentQuantity++)
                 : null,
           ),
         ],
       ),
       actions: [
-        ActionButton(minsize:true, label: 'Ok', onPressed: () => Navigator.of(context).pop(_currentQuantity)),
+        ActionButton(
+            minsize: true,
+            label: 'Ok',
+            onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined
 
-        ActionButton(minsize:true, label: 'Cancel', onPressed: () => Navigator.of(context).pop(),),
+        ActionButton(
+          minsize: true,
+          label: 'Cancel',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ],
     );
   }

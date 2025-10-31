@@ -21,7 +21,8 @@ class MainMenuScreen extends ConsumerWidget {
       '004', // Invoice
       '005', // Print Invoice
       '008', // Receipt
-      '009', // Returns
+      '009', // Returns 
+      '017', // Returns Request Adjust
       '011', // Route Selection
       '010', // Re-Print
       '003', // Setup Print

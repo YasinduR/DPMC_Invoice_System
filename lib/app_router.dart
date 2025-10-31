@@ -15,6 +15,7 @@ import 'package:myapp/screens/print_invoice/print_invoice_screen.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
 import 'package:myapp/screens/reciept/reciept_screen.dart';
 import 'package:myapp/screens/reprint/reprint_screen.dart';
+import 'package:myapp/screens/return%20request%20adjustment%20/ret_req_adj_screen.dart';
 import 'package:myapp/screens/returns/return_screen.dart';
 import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/security_setting/security_setting_screen.dart';
@@ -162,6 +163,8 @@ class AppRouter {
         return (context) => const AttendanceScreen();
       case '/testPrint':
         return (context) => const TestPrintPage();
+      case '/returnRequestAdjust':
+        return (context) => const RetReqAdjScreen();
       default:
         return null; // Return Null for the invalid routes
     }

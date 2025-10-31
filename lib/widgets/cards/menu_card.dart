@@ -1,4 +1,5 @@
 // Helper widget for creating each card in the menu grid
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_colors.dart';
 
@@ -35,9 +36,11 @@ class MenuCard extends StatelessWidget {
           children: [
             Icon(icon, size: 40, color: AppColors.primary),
             const SizedBox(height: 10),
-            Text(
+            AutoSizeText(
+              maxLines: 2,
               label,
               textAlign: TextAlign.center,
+              minFontSize: 8,
               style: Theme.of(context).textTheme.labelMedium
             ),
           ],

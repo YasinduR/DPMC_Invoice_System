@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/theme/app_colors.dart';
 
-// Tin Information card
+// Information card with ?
 
-class TinInfoDisplay extends StatelessWidget {
-  final TinData tinData;
+class InfoDisplay extends StatelessWidget {
+  final String info;
   final VoidCallback? onInfoPressed;
-  const TinInfoDisplay({super.key, required this.tinData, this.onInfoPressed});
+  const InfoDisplay({super.key, required this.info, this.onInfoPressed});
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -21,7 +20,7 @@ class TinInfoDisplay extends StatelessWidget {
               border: Border.all(color: AppColors.border),
             ),
             child: Text(
-              tinData.tinNumber,
+              info,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),

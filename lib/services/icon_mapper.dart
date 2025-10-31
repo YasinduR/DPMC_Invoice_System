@@ -20,7 +20,9 @@ class IconMapper {
     'info': Icons.info,
     'logout': Icons.logout,
     'checklist': Icons.checklist,
-    'security_settings': Icons.security, // Added for general security settings
+    'security_settings': Icons.security,
+    'account_tree_sharp':Icons.account_tree_sharp
+    // Added for general security settings
     // add icon name defined : Icon files
   };
 

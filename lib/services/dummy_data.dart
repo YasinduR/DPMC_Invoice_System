@@ -15,6 +15,7 @@ import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/role_model.dart';
 import 'package:myapp/models/screen_model.dart';
@@ -27,19 +28,32 @@ import 'package:myapp/models/user_model.dart';
 class DummyData {
   static final List<Receipt> _sessionReceipts = [];
   static final List<Return> _sessionReturns = [];
+  //static final List<ReturnRequest> _returnRequest = [];
+
   static final List<InvoiceSave> _sessionInvoices = [];
   //static final List<Attendance> _attendance = [];
 
-  static final List<Attendance> _attendance = generateDummyAttendanceData(userId: "8108", numberOfWorkingDays: 30);
+  static final List<Attendance> _attendance = generateDummyAttendanceData(
+    userId: "8108",
+    numberOfWorkingDays: 30,
+  );
   static final List<Employee> _employees = [
-
-    Employee(id: '2619', name: 'YASINDU GANEGODA', compName: 'D P INFOTECH PRIVATE LIMITED'),
-    Employee(id: '8108', name: 'NIMESH KALPANA', compName: 'D P INFOTECH PRIVATE LIMITED'),
-    Employee(id: '1122', name: 'SACHITH DANANJAYA', compName: 'D P INFOTECH PRIVATE LIMITED'),
-
+    Employee(
+      id: '2619',
+      name: 'YASINDU GANEGODA',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
+    Employee(
+      id: '8108',
+      name: 'NIMESH KALPANA',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
+    Employee(
+      id: '1122',
+      name: 'SACHITH DANANJAYA',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
   ];
-
-
 
   static final List<Menu> _menus = [
     Menu(MenuId: '01', MenuName: 'Sales'),
@@ -151,7 +165,6 @@ class DummyData {
       title: 'Security',
       iconName: 'security_settings',
     ),
-
     Screen(
       screenId: '012',
       screenName: 'changePassword',
@@ -159,13 +172,19 @@ class DummyData {
       title: 'Change Password',
       iconName: 'lock_reset',
     ),
-
-     Screen(
+    Screen(
       screenId: '016',
       screenName: 'testPrint',
       menuId: '01',
       title: 'Test',
       iconName: 'print',
+    ),
+    Screen(
+      screenId: '017',
+      screenName: 'returnRequestAdjust',
+      menuId: '01',
+      title: 'Return Request Adjustment',
+      iconName: 'account_tree_sharp',
     ),
   ];
 
@@ -200,6 +219,9 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '016'), // Test Print
     Perm(RoleId: '002', ScreenId: '016'), // Test Print
     Perm(RoleId: '003', ScreenId: '016'), // Test Print
+    Perm(RoleId: '001', ScreenId: '017'), // Return Request Adjustment
+    Perm(RoleId: '002', ScreenId: '017'), // Return Request Adjustment
+    Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
   ];
 
   static final List<User> _users = [
@@ -1090,10 +1112,26 @@ class DummyData {
   ];
 
   static final List<TinData> _tins = [
-    const TinData(tinNumber: 'TIN987654321', totalValue: 1500.75, orderNumber: 'PADC202510250001'),
-    const TinData(tinNumber: 'TIN123456789', totalValue: 899.99, orderNumber: 'PADC202510250002'),
-    const TinData(tinNumber: 'TIN555555555', totalValue: 12500.00, orderNumber: 'PADC202510250003'),
-    const TinData(tinNumber: 'TIN314159265', totalValue: 432.50, orderNumber: 'PADC202510250004'),
+    const TinData(
+      tinNumber: 'TIN987654321',
+      totalValue: 1500.75,
+      orderNumber: 'PADC202510250001',
+    ),
+    const TinData(
+      tinNumber: 'TIN123456789',
+      totalValue: 899.99,
+      orderNumber: 'PADC202510250002',
+    ),
+    const TinData(
+      tinNumber: 'TIN555555555',
+      totalValue: 12500.00,
+      orderNumber: 'PADC202510250003',
+    ),
+    const TinData(
+      tinNumber: 'TIN314159265',
+      totalValue: 432.50,
+      orderNumber: 'PADC202510250004',
+    ),
   ];
 
   static final List<Region> _regions = [
@@ -1466,6 +1504,118 @@ class DummyData {
     ),
   ];
 
+static final List<ReturnRequest> _returnRequests = [
+  ReturnRequest(
+    returnId: 'RET00000001',
+    dealerId: 'AC2000123306',
+    userId: '2619',
+    returnType: 'Field Returns',
+    returnReason: 'LEAKAGES (PETROL/OIL)',
+    requestUpdate: DateTime.now().subtract(Duration(days: 1)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
+      ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
+      ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+      ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+    ],
+  ),
+  ReturnRequest(
+    returnId: 'RET00000002',
+    dealerId: 'AC2000123306',
+    userId: '2619',
+    returnType: 'Discrepancy Returns',
+    returnReason: 'MANUFACTURING DEFECT',
+    requestUpdate: DateTime.now().subtract(Duration(days: 2)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
+      ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
+    ],
+  ),
+  ReturnRequest(
+    returnId: 'RET00000003',
+    dealerId: 'AC2000123306',
+    userId: '2619',
+    returnType: 'Field Returns',
+    returnReason: 'Bead Failure - BF',
+    requestUpdate: DateTime.now().subtract(Duration(days: 3)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
+      ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
+    ],
+  ),
+  ReturnRequest(
+    returnId: 'RET00000004',
+    dealerId: 'AC2000123306',
+    userId: '2619',
+    returnType: 'Discrepancy Returns',
+    returnReason: 'REFUND',
+    requestUpdate: DateTime.now().subtract(Duration(days: 4)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+      ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+    ],
+  ),
+  ReturnRequest(
+    returnId: 'RET00000005',
+    dealerId: 'AC2000123306',
+    userId: '2619',
+    returnType: 'Field Returns',
+    returnReason: 'LOYALTY DISCOUNT',
+    requestUpdate: DateTime.now().subtract(Duration(days: 5)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'HW-6600-JK', requestQty: 8, returnQty: 8),
+      ReturnItem(partNo: 'XY-7766-WX', requestQty: 13, returnQty: 13),
+    ],
+  ),
+
+   ReturnRequest(
+    returnId: 'RET00000006',
+    dealerId: 'AC2000123307',
+    userId: '2619',
+    returnType: 'Field Returns',
+    returnReason: 'LEAKAGES (PETROL/OIL)',
+    requestUpdate: DateTime.now().subtract(Duration(days: 1)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
+      ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
+      ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+      ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+    ],
+  ),
+  ReturnRequest(
+    returnId: 'RET00000007',
+    dealerId: 'AC2000123307',
+    userId: '2619',
+    returnType: 'Discrepancy Returns',
+    returnReason: 'MANUFACTURING DEFECT',
+    requestUpdate: DateTime.now().subtract(Duration(days: 2)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
+      ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
+    ],
+  ),
+  ReturnRequest(
+    returnId: 'RET00000008',
+    dealerId: 'AC2000123307',
+    userId: '2619',
+    returnType: 'Field Returns',
+    returnReason: 'Bead Failure - BF',
+    requestUpdate: DateTime.now().subtract(Duration(days: 3)),
+    returnTime: DateTime.now(),
+    returnItems: [
+      ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
+      ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
+    ],
+  ),
+];
+
   static List<Bank> get banks => _banks;
   static List<BankBranch> get branches => _branches;
   static List<Dealer> get dealers => _dealers;
@@ -1485,11 +1635,9 @@ class DummyData {
   static List<Attendance> get attendances => _attendance;
   static List<Employee> get employees => _employees;
   static List<Return> get returns => _sessionReturns;
-   static List<InvoiceSave> get savedInvoices => _sessionInvoices;
-
+  static List<InvoiceSave> get savedInvoices => _sessionInvoices;
+  static List<ReturnRequest> get returnRequests => _returnRequests;
 }
-
-
 
 List<Attendance> generateDummyAttendanceData({
   required String userId,
@@ -1504,7 +1652,8 @@ List<Attendance> generateDummyAttendanceData({
     currentDate = currentDate.subtract(const Duration(days: 1));
 
     // Skip weekends (Saturday and Sunday)
-    if (currentDate.weekday == DateTime.saturday || currentDate.weekday == DateTime.sunday) {
+    if (currentDate.weekday == DateTime.saturday ||
+        currentDate.weekday == DateTime.sunday) {
       continue;
     }
 
@@ -1517,12 +1666,13 @@ List<Attendance> generateDummyAttendanceData({
 
     // Distribute attendance types: ~80% PRESENT, ~10% LEAVE, ~10% HOLIDAY
     final int typeRoll = random.nextInt(100); // 0-99
-    if (typeRoll < 60) { // High chance for PRESENT
+    if (typeRoll < 60) {
+      // High chance for PRESENT
       attendanceType = "PRESENT";
-       List<String> _workOptions = ['Home', 'Office', 'Field'];
-       int randomIndex = random.nextInt(_workOptions.length);
+      List<String> _workOptions = ['Home', 'Office', 'Field'];
+      int randomIndex = random.nextInt(_workOptions.length);
 
-  // 3. Access the random element
+      // 3. Access the random element
       workMode = _workOptions[randomIndex];
 
       // Generate start time around 8:00 AM +/- 15 minutes
@@ -1545,27 +1695,31 @@ List<Attendance> generateDummyAttendanceData({
 
       // Ensure end time is at least 6 hours after start time for a plausible work day
       if (endTime.isBefore(startTime.add(const Duration(hours: 6)))) {
-        endTime = startTime.add( Duration(hours: 8, minutes: random.nextInt(60))); // ~8 to 9 hour shift
+        endTime = startTime.add(
+          Duration(hours: 8, minutes: random.nextInt(60)),
+        ); // ~8 to 9 hour shift
       }
 
       // Add a remark occasionally for PRESENT days
       final int remarkRoll = random.nextInt(10); // 0-9
-      if (remarkRoll < 2) { // 20% chance
+      if (remarkRoll < 2) {
+        // 20% chance
         remark = random.nextBool() ? "Early arrival" : "Late departure";
-      } else if (remarkRoll == 3) { // 10% chance
+      } else if (remarkRoll == 3) {
+        // 10% chance
         remark = "Working remotely today";
       } else {
         remark = null;
       }
-
-    } else if (typeRoll < 80) { // 10% chance for LEAVE
+    } else if (typeRoll < 80) {
+      // 10% chance for LEAVE
       attendanceType = "LEAVE";
       workMode = ""; // Not applicable
       startTime = null;
       endTime = null;
       remark = random.nextBool() ? "Annual Leave" : "Sick Leave";
-
-    } else { // 10% chance for HOLIDAY
+    } else {
+      // 10% chance for HOLIDAY
       attendanceType = "HOLIDAY";
       workMode = ""; // Not applicable
       startTime = null;
@@ -1576,7 +1730,11 @@ List<Attendance> generateDummyAttendanceData({
     attendanceRecords.add(
       Attendance(
         userID: userId,
-        date: DateTime(currentDate.year, currentDate.month, currentDate.day), // Normalize to date only
+        date: DateTime(
+          currentDate.year,
+          currentDate.month,
+          currentDate.day,
+        ), // Normalize to date only
         attendanceType: attendanceType,
         workMode: workMode,
         start: startTime,

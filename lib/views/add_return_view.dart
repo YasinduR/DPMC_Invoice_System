@@ -14,7 +14,7 @@ import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_radio_group.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
-import 'package:myapp/widgets/cards/tin_info_card.dart';
+import 'package:myapp/widgets/cards/info_card.dart';
 
 // Final Step of Return screen after region/dealer/tin selections - Adds return request
 class ReturnsView extends StatefulWidget {
@@ -237,7 +237,7 @@ class _ReturnsViewState extends State<ReturnsView> {
             children: [
               DealerInfoCard(dealer: widget.dealer),
               const SizedBox(height: 12),
-              TinInfoDisplay(tinData: widget.tinData),
+              InfoDisplay(info: widget.tinData.tinNumber),
               const SizedBox(height: 16),
 
               SizedBox(height: 250.0, child: _buildItemsList()),

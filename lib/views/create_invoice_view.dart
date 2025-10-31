@@ -11,7 +11,7 @@ import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
-import 'package:myapp/widgets/cards/tin_info_card.dart';
+import 'package:myapp/widgets/cards/info_card.dart';
 
 // Final view of Invoice Screen Shows after Dealer TIN selections
 class CreateInvoiceView extends StatefulWidget {
@@ -195,7 +195,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
             children: [
               DealerInfoCard(dealer: widget.dealer),
               const SizedBox(height: 12),
-              TinInfoDisplay(tinData: widget.tindata),
+              InfoDisplay(info: widget.tindata.tinNumber),
               const SizedBox(height: 12),
               SizedBox(height: 300.0, child: _buildPartList()),
             ],

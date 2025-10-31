@@ -5,6 +5,7 @@ import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
@@ -62,6 +63,9 @@ class MockApiService {
         break;
       case 'api/attendance/list':
         sourceData = DummyData.attendances;
+
+      case 'api/return-request/list':
+        sourceData = DummyData.returnRequests;
       case 'api/employee/list':
         sourceData = DummyData.employees;
       default:
@@ -580,11 +584,10 @@ class MockApiService {
           );
         }
 
-        
         final updatedreceipt = receipt.copyWith(
-            // Use copyWith
-            recieptNo: generateRecNumber(),
-          );
+          // Use copyWith
+          recieptNo: generateRecNumber(),
+        );
 
         DummyData.receipts.add(updatedreceipt);
         return updatedreceipt;
@@ -599,13 +602,13 @@ class MockApiService {
         final invoice = body;
 
         final updatedInvoice = invoice.copyWith(
-            // Use copyWith
-            invoiceNumber: generateInvoiceNumber(),
-          );
+          // Use copyWith
+          invoiceNumber: generateInvoiceNumber(),
+        );
         //invoice.invoiceNumber = generateInvoiceNumber();
         final isDuplicate = DummyData.savedInvoices.any(
           (existingInvoice) =>
-              existingInvoice.invoiceNumber == updatedInvoice.invoiceNumber
+              existingInvoice.invoiceNumber == updatedInvoice.invoiceNumber,
         );
 
         if (isDuplicate) {
@@ -627,25 +630,83 @@ class MockApiService {
         final returnboby = body;
 
         final updatedReturn = returnboby.copyWith(
-            // Use copyWith
-            returnId: generateRetNumber(),
-          );
+          // Use copyWith
+          returnId: generateRetNumber(),
+        );
         //invoice.invoiceNumber = generateInvoiceNumber();
         final isDuplicate = DummyData.returns.any(
-          (existingReturn) =>
-              existingReturn.returnId == updatedReturn.returnId
+          (existingReturn) => existingReturn.returnId == updatedReturn.returnId,
         );
 
         if (isDuplicate) {
-          throw Exception(
-            'This return id already exists.',
-          );
+          throw Exception('This return id already exists.');
         }
 
         DummyData.returns.add(updatedReturn);
         return updatedReturn;
 
+    case 'api/return-request/update':
+        if (body is! ReturnRequest) {
+          throw Exception(
+            'Invalid type for updating a return request. Expected a ReturnRequest object.',
+          );
+        }
 
+        final ReturnRequest incomingReturnRequest = body; // This body contains the new returnItems
+
+        // Find the index of the existing return request in the DummyData list
+        final int index = DummyData.returnRequests.indexWhere(
+          (existingReturn) => existingReturn.returnId == incomingReturnRequest.returnId,
+        );
+
+        if (index == -1) {
+          // If no existing return request is found with the given ID
+          throw Exception('No return request found with ID ${incomingReturnRequest.returnId} for update.');
+        } else {
+          // Get the existing return request
+          final ReturnRequest existingReturn = DummyData.returnRequests[index];
+
+          // Create a new ReturnRequest object by copying the existing one,
+          // but updating only the 'returnItems' with the new ones from the incoming body.
+          // This assumes your ReturnRequest class has a copyWith method.
+          final ReturnRequest updatedReturn = existingReturn.copyWith(
+            returnItems: incomingReturnRequest.returnItems, // Only update returnItems
+          );
+
+          // Replace the old ReturnRequest object with the new, partially updated one
+          DummyData.returnRequests[index] = updatedReturn;
+
+          // Optionally, you might want to return the updated request
+          // return updatedReturn;
+        }
+      // case 'api/return-request/update':
+      //   if (body is! ReturnRequest) {
+      //     throw Exception(
+      //       'Invalid type for saving a return. Expected a Receipt object.',
+      //     );
+      //   }
+
+      //   final returnReqboby = body;
+
+      //   final ReturnRequest? existingReturn = DummyData
+      //       .returnRequests
+      //       .firstOrNull!(
+      //     (existingReturn) => existingReturn.returnId == returnReqboby.returnId,
+      //   );
+
+      //   //invoice.invoiceNumber = generateInvoiceNumber();
+      //   // final isDuplicate = DummyData.returns.any(
+      //   //   (existingReturn) => existingReturn.returnId == updatedReturn.returnId,
+      //   // );
+      //   if (existingReturn == null) {
+      //     throw Exception('This no return request  found id already exists.');
+      //   } else {
+      //     final updatedReturn = existingReturn.copyWith(
+      //       returnItems: returnReqboby.returnItems,
+      //     );
+      //     DummyData.returnRequests.add(updatedReturn);
+      //     //return updatedReturn;
+      //   }
       case 'api/attendance/save':
         if (body is! Attendance) {
           throw Exception(
