@@ -13,10 +13,13 @@ class ReturnItem implements Mappable {
     this.returnQty = 0
   });
 
+
   @override
   Map<String, dynamic> toMap() {
     return {'partNo': partNo, 'requestQty': requestQty,'returnQty':returnQty};
   }
+
+
 
   ReturnItem copyWith({
     String? partNo,

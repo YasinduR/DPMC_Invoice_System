@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myapp/models/invoice_model.dart';
-import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/return_request_model.dart';
-import 'package:myapp/models/return_save_model.dart';
-import 'package:myapp/models/user_model.dart';
-import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
-import 'package:myapp/services/printer_service.dart';
-import 'package:myapp/views/create_invoice_view.dart';
 import 'package:myapp/views/return_request_adjust_view.dart';
 import 'package:myapp/views/select_return_request_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/views/select_dealer_view.dart';
-import 'package:myapp/views/select_tin_view.dart';
-import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-//import 'package:myapp/views/auth_dealer_view.dart';
 
-// Re
+// Return Request Adjust Screen
 class RetReqAdjScreen extends ConsumerStatefulWidget {
   const RetReqAdjScreen({super.key});
 
@@ -32,7 +22,6 @@ class RetReqAdjScreen extends ConsumerStatefulWidget {
 }
 
 class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
-  //final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   ReturnRequest? _selectedRetReq;
 
@@ -77,21 +66,6 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
       }
     });
   }
-
-  // void _submitDealer(Dealer dealer) {
-  //   if (_selectedDealer != null) {
-  //     setState(() {
-  //       _currentStep = 1; // Move to Tin selection
-  //     });
-  //   }
-  // }
-
-  // void _onAuthenticated() {
-  //   setState(() {
-  //     _currentStep = 2; // Move to Create Invoice step
-  //   });
-  // }
-  //--- Dealer Selection
 
   void _onRetReqSelected(ReturnRequest retReq) {
     setState(() {
@@ -139,7 +113,6 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
         returnItems: selectedItems,
       );
 
-      //   late InvoiceSave savedInvoice;
       await save(
         context: context,
         dataUrl: 'api/return-request/update',
@@ -197,24 +170,15 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer:
-              null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer:null, 
           onDealerSelected: _onDealerSelected,
-          //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
-      // case 1:
-      //   currentView = AuthenticateDealerView(
-      //     dealer: _selectedDealer!,
-      //     onAuthenticated: _onAuthenticated,
-      //   );
-      //   break;
       case 1:
         currentView = SelectReturnRequestView(
           dealer: _selectedDealer!,
           selectedReturnRequest: _selectedRetReq,
-          //onTinNumberSelected: _onTinSelected,
           onSubmit: _submitReturnRequest,
           onReturnRequestSelected: _onRetReqSelected,
         );
@@ -237,9 +201,6 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
-      // case 1:
-      //   currentTitle = 'Authenticate Dealer';
-      //   break;
       case 1:
         currentTitle = 'Select Return Request';
         break;

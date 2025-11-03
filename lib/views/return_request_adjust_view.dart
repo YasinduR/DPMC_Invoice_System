@@ -2,12 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/return_request_model.dart';
-import 'package:myapp/models/tin_model.dart';
-import 'package:myapp/services/api_util_service.dart';
-import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';
@@ -35,7 +31,7 @@ class ReturnRequestView extends StatefulWidget {
 class _ReturnRequestViewState extends State<ReturnRequestView> {
   List<ReturnItem> _items = [];
   List<ReturnItem> _modifiedItems = [];
-  
+
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -50,20 +46,52 @@ class _ReturnRequestViewState extends State<ReturnRequestView> {
     super.dispose();
   }
 
+// Check whether existing items and modified items are equal
+  bool _areReturnItemsEqual(List<ReturnItem> listA, List<ReturnItem> listB) {
+    if (listA.length != listB.length) {
+      return false; 
+    }
+    final Map<String, int> mapA = {
+      for (var item in listA) item.partNo: item.returnQty
+    };
+    for (var itemB in listB) {
+      if (!mapA.containsKey(itemB.partNo)) {
+        return false;
+      }
+      if (mapA[itemB.partNo] != itemB.returnQty) {
+        return false; 
+      }
+    }
+    return true;
+  }
+
+
+  void _onSubmit() {
+    if (_areReturnItemsEqual(_items, _modifiedItems)) {
+      showSnackBar(
+        context: context,
+        message: 'Please Adjust Return Items Before Submit',
+        type: MessageType.error,
+      );
+    } else {
+      widget.onSubmit(_modifiedItems);
+    }
+  }
+
   void _loadParts() {
     try {
       setState(() {
         _items = widget.returnReq.returnItems;
-        //_modifiedItems = widget.returnReq.returnItems;
-                // Deep copy the returnItems for _modifiedItems
-        _modifiedItems = widget.returnReq.returnItems
-            .map((item) => ReturnItem( // Assuming ReturnItem has a constructor that accepts its properties
-              partNo: item.partNo,
-              returnQty: item.returnQty,
-              requestQty: item.requestQty,
-              // ... copy other properties of ReturnItem
-            ))
-            .toList();
+        _modifiedItems =
+            widget.returnReq.returnItems
+                .map(
+                  (item) => ReturnItem(
+                    partNo: item.partNo,
+                    returnQty: item.returnQty,
+                    requestQty: item.requestQty,
+                  ),
+                )
+                .toList();
         if (_items.isEmpty) {
           _errorMessage = 'No Data Found';
         }
@@ -105,8 +133,7 @@ class _ReturnRequestViewState extends State<ReturnRequestView> {
           label: 'Return Qty',
           flex: 2,
           cellBuilder:
-              (context, part) =>
-                  Center(child: Text(part.returnQty.toString())),
+              (context, part) => Center(child: Text(part.returnQty.toString())),
         ),
         DynamicColumn<ReturnItem>(
           label: 'Modified Return Qty',
@@ -134,6 +161,7 @@ class _ReturnRequestViewState extends State<ReturnRequestView> {
 
   @override
   Widget build(BuildContext context) {
+    final bool noChanges = _areReturnItemsEqual(_items, _modifiedItems);
     return Column(
       children: [
         Expanded(
@@ -154,15 +182,15 @@ class _ReturnRequestViewState extends State<ReturnRequestView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              //_buildTotalAmountSection(totalAmount),
               const SizedBox(height: 16),
               ActionButton(
                 icon: Icons.check_circle_outline,
                 label: 'Update',
-                //disabled: totalAmount == 0,
-                onPressed: () {
-                  widget.onSubmit(_modifiedItems); // Pass _selectedItems here
-                },
+                disabled: noChanges,
+                onPressed: _onSubmit,
+                // onPressed: () {
+                //   widget.onSubmit(_modifiedItems); // Pass _selectedItems here
+                // },
               ),
             ],
           ),
@@ -170,24 +198,4 @@ class _ReturnRequestViewState extends State<ReturnRequestView> {
       ],
     );
   }
-
-  // Widget _buildTotalAmountSection(double totalAmount) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //     children: [
-  //       const Text(
-  //         'Total Amount',
-  //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //       ),
-  //       Text(
-  //         totalAmount.toStringAsFixed(2),
-  //         style: const TextStyle(
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.bold,
-  //           color: AppColors.primary,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }
