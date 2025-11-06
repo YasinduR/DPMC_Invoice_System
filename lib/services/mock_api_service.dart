@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
@@ -11,17 +12,123 @@ import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 
 import 'package:bcrypt/bcrypt.dart';
+import 'package:uuid/uuid.dart';
 
 //// IMPORTANT :  This works as the Back-End remove later
 
 class MockApiService {
-  static Future<List<T>> get<T extends Mappable>(String url) async {
+  static const Uuid _uuid = Uuid(); // For generating unique tokens
+  static const String _jwtSecretKey = 'DPMC-INV-SYSTEM'; // Change The Key Later
+
+  static const List<String> _publicEndpoints = [        // Where We dont need access token
+    'api/user/login',
+    'api/user/request-password-reset',
+    'api/user/reset-password',
+    'api/user/set-password',
+    'api/user/renew-password',
+    'api/user/changepassword',
+    'api/refreshToken',
+  ];
+
+  static Future<void> _validateAccessToken(String? accessToken) async {
+    if (accessToken == null || accessToken.isEmpty) {
+      print('DEBUG: No access token provided with the request.');
+      throw UnauthorisedException('No access token provided. Please log in.');
+    }
+
+    try {
+      // Verify the JWT with the secret key
+      final JWT jwt = JWT.verify(accessToken, SecretKey(_jwtSecretKey));
+      // Optionally, you could also check 'iss', 'sub', or other claims here
+    } on JWTExpiredException {
+      print('DEBUG: Access token expired.');
+      throw UnauthorisedException(
+        'Access token has expired. Please log in again.',
+      );
+    } on JWTInvalidException {
+      print('DEBUG: Invalid access token signature/structure.');
+      throw UnauthorisedException('Invalid access token. Please log in again.');
+    } on JWTNotActiveException {
+      print('DEBUG: Access token not yet active.');
+      throw UnauthorisedException(
+        'Access token is not yet active. Please log in again.',
+      );
+    } catch (e) {
+      print('DEBUG: Unexpected error validating access token: $e');
+      throw UnauthorisedException(
+        'Authentication failed: Could not verify token. Please log in again.',
+      );
+    }
+  }
+
+  static Future<String> _generateAccessToken(User user) async {
+            final DateTime tokenIssuedAt = DateTime.now();
+            final DateTime tokenExpiresAt = tokenIssuedAt.add(
+              const Duration(seconds: 100),
+            );
+
+            final jwt = JWT(
+              {
+                'userId': user.id,
+                'username': user.username,
+                'roles': user.roles,
+                'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
+                'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
+              },
+              issuer: 'mock_api_service',
+              subject: user.id,
+            );
+
+          return jwt.sign(SecretKey(_jwtSecretKey));
+  }
+
+  static Future<String> _generateRefreshToken(User user) async {
+    final DateTime tokenIssuedAt = DateTime.now();
+    final DateTime tokenExpiresAt = tokenIssuedAt.add(
+      const Duration(days: 7), // Refresh token longer-lived
+    );
+
+    final jwt = JWT(
+      {
+        'userId': user.id,
+        'username': user.username,
+        'roles': user.roles,
+        'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
+        'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
+      },
+      issuer: 'mock_api_service',
+      subject: user.id,
+    );
+
+    return jwt.sign(SecretKey(_jwtSecretKey));
+  }
+
+
+
+
+  static Future<List<T>> get<T extends Mappable>(
+    String url, {
+    String? authToken, // Token is now passed as a parameter
+  }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
     final uri = Uri.parse(url);
     if (!uri.path.endsWith('/list')) {
       throw Exception('Invalid GET URL. Must end with "/list".');
     }
+
+    try {
+      if (uri.path != 'api/screens/list') {
+        await _validateAccessToken(authToken); // Validate the passed token
+      }
+    } catch (e) {
+      rethrow;
+    }
+
+    // final uri = Uri.parse(url);
+    // if (!uri.path.endsWith('/list')) {
+    //   throw Exception('Invalid GET URL. Must end with "/list".');
+    // }
 
     List<Mappable> sourceData;
 
@@ -63,7 +170,6 @@ class MockApiService {
         break;
       case 'api/attendance/list':
         sourceData = DummyData.attendances;
-
       case 'api/return-request/list':
         sourceData = DummyData.returnRequests;
       case 'api/employee/list':
@@ -143,8 +249,12 @@ class MockApiService {
     return sourceData.cast<T>();
   }
 
-  static Future<dynamic> post(String url, {dynamic body}) async {
+  static Future<dynamic> post(String url, {dynamic body, String? accessToken}) async {
     await Future.delayed(const Duration(seconds: 1));
+
+        if (!_publicEndpoints.contains(url)) {
+      await _validateAccessToken(accessToken);
+    }
 
     switch (url) {
       case 'api/permission/check':
@@ -267,13 +377,71 @@ class MockApiService {
                     .map((role) => role.roleName) // Extract just the name
                     .toList(); // Convert to a List<String>
 
-            //user.isLocked = false;
+            // Return a Map containing user data and tokens
+            // Generate mock tokens
+            // final DateTime tokenIssuedAt = DateTime.now();
+            // final DateTime tokenExpiresAt = tokenIssuedAt.add(
+            //   const Duration(seconds: 1000),
+            // );
 
-            return user.copyWith(
-              accessibleScreen: accessibleScreens,
-              rolenames: userRoleNames,
-              isPasswordExpired: passwordIsExpired,
-            );
+            // final jwt = JWT(
+            //   {
+            //     'userId': user.id,
+            //     'username': user.username,
+            //     'roles': user.roles,
+            //     'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
+            //     'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
+            //   },
+            //   issuer: 'mock_api_service',
+            //   subject: user.id,
+            // );
+
+            // final String accessToken = jwt.sign(SecretKey(_jwtSecretKey));
+            // final String refreshToken = 'refresh-${_uuid.v4()}';
+
+           // final DateTime accessTokenExpiry = tokenExpiresAt;
+
+            final String accessToken =  await _generateAccessToken(user);
+            final String refreshToken = await _generateRefreshToken(user);
+           
+           // final DateTime accessTokenExpiry = tokenExpiresAt;
+
+
+            return {
+              'user':
+                  user
+                      .copyWith(
+                        accessibleScreen: accessibleScreens,
+                        rolenames: userRoleNames,
+                        isPasswordExpired: passwordIsExpired,
+                      )
+                      .toMap(),
+              'accessToken': accessToken,
+              'refreshToken': refreshToken,
+              // 'accessTokenExpiry': accessTokenExpiry.toIso8601String(),
+            };
+
+            // final String accessToken = 'access-${_uuid.v4()}';
+            // final String refreshToken = 'refresh-${_uuid.v4()}';
+            // // Set access token expiry to 1 hour from now for example
+            // final DateTime accessTokenExpiry = DateTime.now().add(
+            //   const Duration(hours: 1),
+            // );
+            // return {
+            //   'user': user.copyWith(
+            //     accessibleScreen: accessibleScreens,
+            //     rolenames: userRoleNames,
+            //     isPasswordExpired: passwordIsExpired,
+            //   ).toMap(), // Convert user object to map
+            //   'accessToken': accessToken,
+            //   'refreshToken': refreshToken,
+            //   'accessTokenExpiry': accessTokenExpiry.toIso8601String(),
+            // };
+            // return user.copyWith(
+            //   accessibleScreen: accessibleScreens,
+            //   rolenames: userRoleNames,
+            //   isPasswordExpired: passwordIsExpired,
+            // );
           } else {
             if (mode == 'BioMetric') {
               throw UnauthorisedException(
@@ -645,23 +813,27 @@ class MockApiService {
         DummyData.returns.add(updatedReturn);
         return updatedReturn;
 
-    case 'api/return-request/update':
+      case 'api/return-request/update':
         if (body is! ReturnRequest) {
           throw Exception(
             'Invalid type for updating a return request. Expected a ReturnRequest object.',
           );
         }
 
-        final ReturnRequest incomingReturnRequest = body; // This body contains the new returnItems
+        final ReturnRequest incomingReturnRequest =
+            body; // This body contains the new returnItems
 
         // Find the index of the existing return request in the DummyData list
         final int index = DummyData.returnRequests.indexWhere(
-          (existingReturn) => existingReturn.returnId == incomingReturnRequest.returnId,
+          (existingReturn) =>
+              existingReturn.returnId == incomingReturnRequest.returnId,
         );
 
         if (index == -1) {
           // If no existing return request is found with the given ID
-          throw Exception('No return request found with ID ${incomingReturnRequest.returnId} for update.');
+          throw Exception(
+            'No return request found with ID ${incomingReturnRequest.returnId} for update.',
+          );
         } else {
           // Get the existing return request
           final ReturnRequest existingReturn = DummyData.returnRequests[index];
@@ -670,7 +842,8 @@ class MockApiService {
           // but updating only the 'returnItems' with the new ones from the incoming body.
           // This assumes your ReturnRequest class has a copyWith method.
           final ReturnRequest updatedReturn = existingReturn.copyWith(
-            returnItems: incomingReturnRequest.returnItems, // Only update returnItems
+            returnItems:
+                incomingReturnRequest.returnItems, // Only update returnItems
           );
 
           // Replace the old ReturnRequest object with the new, partially updated one
@@ -730,6 +903,38 @@ class MockApiService {
           DummyData.attendances.add(newAttendance);
         }
         return true;
+      
+      case 'api/refreshToken':
+        if (body is! Map<String, dynamic> || !body.containsKey('refreshToken')) {
+          throw Exception('Invalid refresh token request body.');
+        }
+
+        final String refreshToken = body['refreshToken'] as String;
+
+        try {
+          final JWT decodedJwt = JWT.verify(refreshToken, SecretKey(_jwtSecretKey));
+          final String userId = decodedJwt.payload['userId'] as String;
+
+          final user = DummyData.users.firstWhere(
+            (u) => u.id == userId,
+            orElse: () => throw UnauthorisedException('User not found for refresh token.'),
+          );
+
+          final newAccessToken = await _generateAccessToken(user);
+          // Optionally, generate a new refresh token as well for rolling refresh tokens
+          final newRefreshToken = await _generateRefreshToken(user);
+
+          return {
+            'accessToken': newAccessToken,
+            'refreshToken': newRefreshToken, // Include if you want rolling refresh tokens
+          };
+        } on JWTExpiredException {
+          throw UnauthorisedException('Refresh token has expired.');
+        } on JWTInvalidException {
+          throw UnauthorisedException('Invalid refresh token.');
+        } on JWTException catch (e) {
+          throw UnauthorisedException('Failed to process refresh token: ${e.message}');
+        }
 
       default:
         throw FetchDataException('Invalid POST API URL: $url');

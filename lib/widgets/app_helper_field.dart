@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree is built and stable before any state updates are attempted. back button press
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/services/mock_api_service.dart';
+import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
@@ -74,6 +76,7 @@ class _AppSelectionFieldState<T extends Mappable>
   T? _lastSelectedItem;
   List<T> _fetchedItems = [];
   late final AppLoadingOverlay _loadingOverlay;
+  final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
 
   @override
   void initState() {
@@ -148,7 +151,6 @@ class _AppSelectionFieldState<T extends Mappable>
         return;
       }
     }
-
     _loadingOverlay.show(context); // Use the common overlay
     try {
       String fullUrl = widget.dataUrl;
@@ -158,7 +160,20 @@ class _AppSelectionFieldState<T extends Mappable>
         final String encodedFilters = Uri.encodeComponent(filterJson);
         fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
       }
-      final items = await MockApiService.get<T>(fullUrl);
+      final String? accessToken = await _secureStorageService.getAccessToken();
+
+      if (accessToken == null) {
+        // Handle case where no token is found (e.g., user not logged in)
+        print('Error: No access token found. User is not authenticated.');
+        // You might want to navigate to a login screen or show an error message
+        throw UnauthorisedException('Please log in to access this data.');
+      }
+
+      final items = await MockApiService.get<T>(
+        fullUrl,
+        authToken: accessToken, // Pass the retrieved access token
+      );
+      //final items = await MockApiService.get<T>(fullUrl);
       _loadingOverlay.hide();
       if (mounted) {
         setState(() {

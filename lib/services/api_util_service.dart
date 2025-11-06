@@ -5,6 +5,7 @@ import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/services/mock_api_service.dart';
+import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
 Future<void> inquire<T extends Mappable>({
@@ -30,7 +31,7 @@ Future<void> inquire<T extends Mappable>({
       //     value,
       //   ]); // Assuming '=' operator only for now
       // });
-            filters.forEach((key, value) {
+      filters.forEach((key, value) {
         if (key.endsWith('_start')) {
           // For date_start, use original field name (e.g., 'date') and '>=' operator
           filterConditions.add([key.replaceFirst('_start', ''), '>=', value]);
@@ -46,8 +47,21 @@ Future<void> inquire<T extends Mappable>({
 
       url += '?filters=${jsonEncode(filterConditions)}';
     }
+      final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
 
-    final List<T> data = await MockApiService.get<T>(url);
+      final String? accessToken = await _secureStorageService.getAccessToken(); 
+
+      if (accessToken == null) {
+        print('Error: No access token found. User is not authenticated.');
+        throw UnauthorisedException('Please log in to access this data.');
+      }
+
+       final List<T> data = await MockApiService.get<T>(
+        url,
+        authToken: accessToken, // Pass the retrieved access token
+      );
+
+    //final List<T> data = await MockApiService.get<T>(url);
     onSuccess(data);
   } catch (e) {
     onError('Failed to load data: $e');
@@ -71,10 +85,14 @@ Future<void> dealerLogin({
 
   try {
     loadingOverlay.show(context);
+      final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
+      final String? accessToken = await _secureStorageService.getAccessToken(); 
+
     final bool isAuthenticated =
         await MockApiService.post(
               'api/dealer/login',
               body: {'dealerCode': dealerCode, 'pin': pin},
+              accessToken: accessToken
             )
             as bool;
 
@@ -109,11 +127,13 @@ Future<void> save<T extends Mappable>({
 
   try {
     loadingOverlay.show(context);
+      final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
+      final String? accessToken = await _secureStorageService.getAccessToken(); 
     // Call the generic postData method in the service
     //await MockApiService.post(dataUrl, body: dataToSave);
 
         // MockApiService.post returns Future<dynamic>, so apiResponse will be dynamic.
-    final dynamic apiResponse = await MockApiService.post(dataUrl, body: dataToSave); // Pass dataToSave directly
+    final dynamic apiResponse = await MockApiService.post(dataUrl, body: dataToSave,accessToken: accessToken); // Pass dataToSave directly
 
     // If onReceivedData callback is provided, we attempt to process the API response.
     if (onReceivedData != null) {
@@ -151,10 +171,14 @@ Future<void> checkScreenPermission({
 
   try {
     loadingOverlay.show(context);
+    final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
+    final String? accessToken = await _secureStorageService.getAccessToken(); 
+
     final bool hasPermission =
         await MockApiService.post(
               'api/permission/check',
               body: {'screenId': screenId, 'roleIds': roleIds},
+              accessToken: accessToken
             )
             as bool;
 
@@ -175,6 +199,20 @@ Future<void> checkScreenPermission({
 // THIS IS TO COLLECT ALL SCREEN INFO ON APP ROUTE INITIALIZING //
 Future<List<Screen>> loadScreens() async {
   try {
+      // final String? accessToken = await _secureStorageService.getAccessToken();
+
+      // if (accessToken == null) {
+      //   // Handle case where no token is found (e.g., user not logged in)
+      //   print('Error: No access token found. User is not authenticated.');
+      //   // You might want to navigate to a login screen or show an error message
+      //   throw UnauthorisedException('Please log in to access this data.');
+      // }
+
+      // final List<Screen> data = await MockApiService.get<Screen>(
+      //   'api/screens/list',
+      //   authToken: accessToken, // Pass the retrieved access token
+      // );
+
     final List<Screen> data = await MockApiService.get<Screen>(
       'api/screens/list',
     );

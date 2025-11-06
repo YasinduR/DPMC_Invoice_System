@@ -16,8 +16,24 @@ class Screen implements Mappable {
     required this.iconName,
   });
   
+  // fromMap named constructor for deserialization
+  @override
+  Screen.fromMap(Map<String, dynamic> map)
+      : screenId = map['screenId'] as String,
+        screenName = map['screenName'] as String,
+        menuId = map['menuId'] as String,
+        title = map['title'] as String,
+        iconName = map['iconName'] as String;
+
+  // toMap method for serialization
   @override
   Map<String, dynamic> toMap() {
-    return {'screenId': screenId, 'screenName': screenName,'menuId': menuId, 'title': title,'iconName': iconName};
+    return {
+      'screenId': screenId,
+      'screenName': screenName,
+      'menuId': menuId,
+      'title': title,
+      'iconName': iconName,
+    };
   }
 }

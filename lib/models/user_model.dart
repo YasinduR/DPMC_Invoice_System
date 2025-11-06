@@ -35,6 +35,47 @@ class User {
     this.isPasswordExpired = false, // Default to not expired
     this.incPins=0
   });
+// FromMap constructor for deserialization
+  @override
+  User.fromMap(Map<String, dynamic> map)
+      : id = map['id'] as String,
+        username = map['username'] as String,
+        email = map['email'] as String,
+        password = map['password'] as String,
+        telephone = map['telephone'] as String,
+        roles = List<String>.from(map['roles'] as List),
+        accessibleScreen = (map['accessibleScreen'] as List<dynamic>?)
+                ?.map((e) => Screen.fromMap(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        rolenames = List<String>.from(map['rolenames'] as List? ?? []),
+        isLocked = map['isLocked'] as bool? ?? false,
+        incPins = map['incPins'] as int? ?? 0,
+        passwordUpdatedAt = map['passwordUpdatedAt'] != null
+            ? DateTime.parse(map['passwordUpdatedAt'] as String)
+            : null,
+        isTemporaryPassword = map['isTemporaryPassword'] as bool? ?? false,
+        isPasswordExpired = map['isPasswordExpired'] as bool? ?? false;
+
+  // toMap method for serialization
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'username': username,
+      'email': email,
+      'password': password,
+      'telephone': telephone,
+      'roles': roles,
+      'accessibleScreen': accessibleScreen.map((s) => s.toMap()).toList(),
+      'rolenames': rolenames,
+      'isLocked': isLocked,
+      'incPins': incPins,
+      'passwordUpdatedAt': passwordUpdatedAt?.toIso8601String(),
+      'isTemporaryPassword': isTemporaryPassword,
+      'isPasswordExpired': isPasswordExpired,
+    };
+  }
 
   User copyWith({
     String? id,

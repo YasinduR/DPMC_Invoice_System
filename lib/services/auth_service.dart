@@ -4,14 +4,19 @@ import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 //import 'package:myapp/services/attendance_reminder_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
+import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 
 class AuthService {
+  final SecureStorageService _secureStorageService =
+      SecureStorageService(); // Instantiate SecureStorageService
+
   Future<void> logout({required BuildContext context}) async {
     final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
       await Future.delayed(const Duration(milliseconds: 500));
+      await _secureStorageService.clearTokens();
     } catch (e) {
       return null;
     } finally {
@@ -25,20 +30,56 @@ class AuthService {
     required BuildContext context,
     required String username,
     required String password,
-    String mode ='',
+    String mode = '',
     required Function(Exception e) onError,
   }) async {
     final loadingOverlay = AppLoadingOverlay();
     try {
       loadingOverlay.show(context);
-      final user =
+      // final user =
+      //     await MockApiService.post(
+      //           'api/user/login',
+      //           body: {
+      //             'username': username,
+      //             'password': password,
+      //             'mode': mode,
+      //           },
+      //         )
+      //         as User;
+            // Assume MockApiService.post returns a Map containing user data and tokens
+      final Map<String, dynamic> apiResponse =
           await MockApiService.post(
                 'api/user/login',
                 body: {'username': username, 'password': password,'mode':mode},
-              )
-              as User;
-      // await AttendanceReminderManager.setupDailyAttendanceNotifications();
+              ) as Map<String, dynamic>;
+
+      final user = User.fromMap(apiResponse['user'] as Map<String, dynamic>);
+      final accessToken = apiResponse['accessToken'] as String;
+      final refreshToken = apiResponse['refreshToken'] as String;
+      // final accessTokenExpiryString = apiResponse['accessTokenExpiry'] as String;
+      // final accessTokenExpiry = DateTime.parse(accessTokenExpiryString);
+
+
+      // --- START: Print tokens for testing ---
+      print('--- Login Successful ---');
+      print('Access Token: $accessToken');
+      print('Refresh Token: $refreshToken');
+      // print('Access Token Expiry (String): $accessTokenExpiryString');
+      // print('Access Token Expiry (DateTime): $accessTokenExpiry');
+      print('------------------------');
+      // --- END: Print tokens for testing ---
+
+      // Save tokens securely
+      await _secureStorageService.saveTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+       // accessTokenExpiry: accessTokenExpiry,
+      );
+
+      // await AttendanceReminderManager.setupDailyAttendanceNotifications(); // If applicable
       return user;
+      // await AttendanceReminderManager.setupDailyAttendanceNotifications();
+     // return user;
     } catch (e) {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
@@ -114,7 +155,7 @@ class AuthService {
         loadingOverlay.hide();
       }
       rethrow;
-     // return null;
+      // return null;
     } finally {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
@@ -220,9 +261,5 @@ class AuthService {
     }
   }
 
-    // --- NEW LOCAL STORAGE METHODS ---
-
-
-
-
+  // --- NEW LOCAL STORAGE METHODS ---
 }
