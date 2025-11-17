@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree is built and stable before any state updates are attempted. back button press
+import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
+//import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
-
-
 
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
@@ -17,33 +17,52 @@ typedef FilterConditions = List<List<dynamic>>;
 // Common Helper of the Application
 
 class AppSelectionField<T extends Mappable> extends StatefulWidget {
-
-  final TextEditingController controller; // The controller for the text field to manage its content. 
-  final String labelText; // The text that appears as the label for the input field.
-  final IconData icon;   // The icon displayed on the button next to the text field. Defaults to a question mark.
-  final String dataUrl;   // The API endpoint URL from where to fetch the list of selectable items.
-  final void Function(T) onSelected;   // Callback function that is triggered when an item is selected from the list.
-  final CommitStateChangedCallback? onCommitStateChanged; // Callback to notify the parent widget whether the current value is a valid, selected item.
+  final TextEditingController
+  controller; // The controller for the text field to manage its content.
+  final String
+  labelText; // The text that appears as the label for the input field.
+  final IconData
+  icon; // The icon displayed on the button next to the text field. Defaults to a question mark.
+  final String
+  dataUrl; // The API endpoint URL from where to fetch the list of selectable items.
+  final void Function(T)
+  onSelected; // Callback function that is triggered when an item is selected from the list.
+  final CommitStateChangedCallback?
+  onCommitStateChanged; // Callback to notify the parent widget whether the current value is a valid, selected item.
   // This is useful for enabling/disabling buttons based on a committed selection.
 
-  final String selectionSheetTitle;  // The title displayed at the top of the modal bottom sheet.
-  final List<String> displayNames;   // The list of column headers to show in the data table on the selection sheet.
-  final List<String> valueFields; // The list of field names from the data model (T) to get the values for the columns.  
+  final String
+  selectionSheetTitle; // The title displayed at the top of the modal bottom sheet.
+  final List<String>
+  displayNames; // The list of column headers to show in the data table on the selection sheet.
+  final List<String>
+  valueFields; // The list of field names from the data model (T) to get the values for the columns.
   // The order must correspond to `displayNames`.
 
-  final String mainField; // The specific field name from the data model (T) whose value should be displayed in the text field.
-  final T? initialValue; // The initial value to populate the field with when the widget is first built.
-  final FilterConditions? filterConditions; // Optional list of filters to be sent with the API request to narrow down the data.
+  final String
+  mainField; // The specific field name from the data model (T) whose value should be displayed in the text field.
+  final T?
+  initialValue; // The initial value to populate the field with when the widget is first built.
+  final FilterConditions?
+  filterConditions; // Optional list of filters to be sent with the API request to narrow down the data.
   // Example: [['status', '=', 'active'], ['department', '=', 'sales']]
-  
-  final Future<bool> Function()? preRequest;/// An optional asynchronous function to run before fetching data.If it returns `false`, the data fetching process is cancelled.
-  final String? Function(String?)? validator; // A standard validator function for the underlying TextFormField.
-  final void Function(String)? onChanged; /// A standard onChanged callback for the underlying TextFormField.
-  final void Function(String)? onFieldSubmitted; // A standard onFieldSubmitted callback for the underlying TextFormField.
-  final TextInputAction? textInputAction; /// The type of action button to display on the keyboard (e.g., next, done).
 
-  final bool showHelperOnInitialization; // Optional flag to show selection sheet on initialization. automate ? press
+  final Future<bool> Function()? preRequest;
 
+  /// An optional asynchronous function to run before fetching data.If it returns `false`, the data fetching process is cancelled.
+  final String? Function(String?)?
+  validator; // A standard validator function for the underlying TextFormField.
+  final void Function(String)? onChanged;
+
+  /// A standard onChanged callback for the underlying TextFormField.
+  final void Function(String)?
+  onFieldSubmitted; // A standard onFieldSubmitted callback for the underlying TextFormField.
+  final TextInputAction? textInputAction;
+
+  /// The type of action button to display on the keyboard (e.g., next, done).
+
+  final bool
+  showHelperOnInitialization; // Optional flag to show selection sheet on initialization. automate ? press
 
   const AppSelectionField({
     super.key,
@@ -59,12 +78,12 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     required this.mainField,
     this.initialValue,
     this.filterConditions,
-    this.preRequest, 
-    this.validator, 
-    this.onChanged, 
-    this.onFieldSubmitted, 
+    this.preRequest,
+    this.validator,
+    this.onChanged,
+    this.onFieldSubmitted,
     this.textInputAction,
-    this.showHelperOnInitialization = false
+    this.showHelperOnInitialization = false,
   });
 
   @override
@@ -76,7 +95,8 @@ class _AppSelectionFieldState<T extends Mappable>
   T? _lastSelectedItem;
   List<T> _fetchedItems = [];
   late final AppLoadingOverlay _loadingOverlay;
-  final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
+  final SecureStorageService _secureStorageService =
+      SecureStorageService(); // Instantiate SecureStorageService
 
   @override
   void initState() {
@@ -92,30 +112,28 @@ class _AppSelectionFieldState<T extends Mappable>
 
       // Defer the callbacks that trigger state changes in parent widgets.
       SchedulerBinding.instance.addPostFrameCallback((_) {
-
         // This code will run after the first frame is rendered.
         if (mounted) {
           // Always check if the widget is still in the tree
           widget.onSelected(widget.initialValue as T);
           widget.onCommitStateChanged?.call(true);
         }
-          // //  Optionally show the selection sheet on initialization even if value selected 
-          // Consider enablaling this later
+        // //  Optionally show the selection sheet on initialization even if value selected
+        // Consider enablaling this later
 
-          // if (widget.showHelperOnInitialization == true) {
-          //   _showSelectionSheet(context);
-          // }
-          //---------
+        // if (widget.showHelperOnInitialization == true) {
+        //   _showSelectionSheet(context);
+        // }
+        //---------
       });
-    } else if (widget.showHelperOnInitialization == true) { // If no initialValue and helper on init required sheet should still show
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _showSelectionSheet(context);
-          }
-        });
+    } else if (widget.showHelperOnInitialization == true) {
+      // If no initialValue and helper on init required sheet should still show
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showSelectionSheet(context);
+        }
+      });
     }
-
-
   }
 
   @override
@@ -138,6 +156,60 @@ class _AppSelectionFieldState<T extends Mappable>
     }
   }
 
+  // Future<void> _showSelectionSheet(BuildContext context) async {
+  //   if (widget.preRequest != null) {
+  //     final shouldProceed = await widget.preRequest!();
+  //     if (!shouldProceed) {
+  //       return;
+  //     }
+
+  //     try {
+  //       String fullUrl = widget.dataUrl;
+  //       if (widget.filterConditions != null &&
+  //           widget.filterConditions!.isNotEmpty) {
+  //         final String filterJson = jsonEncode(widget.filterConditions);
+  //         final String encodedFilters = Uri.encodeComponent(filterJson);
+  //         fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
+  //       }
+
+  //       await inquire<T>(
+  //         context: context,
+  //         dataUrl: fullUrl,
+  //         onSuccess: (items) async {
+  //           if (mounted) {
+  //             setState(() {
+  //               _fetchedItems = items;
+  //               print(_fetchedItems);
+  //             });
+  //             await _presentSelectionSheet(context, _fetchedItems);
+  //           }
+  //         },
+  //         onError: (errorMessage) {
+  //           if (mounted) {
+  //             showSnackBar(
+  //               context: context,
+  //               message: errorMessage,
+  //               type: MessageType.error,
+  //             );
+  //           }
+  //         },
+  //       );
+  //     } catch (e) {
+  //       if (mounted) {
+  //         String errorMessage = e.toString();
+  //         if (errorMessage.startsWith('Exception: ')) {
+  //           errorMessage = errorMessage.substring('Exception: '.length);
+  //         }
+  //         showSnackBar(
+  //           context: context,
+  //           message: errorMessage,
+  //           type: MessageType.error,
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
+
   Future<void> _showSelectionSheet(BuildContext context) async {
     // // If items are already fetched, just show the selection sheet WITH OUT REFETCH
     // if (_fetchedItems.isNotEmpty) {
@@ -153,13 +225,16 @@ class _AppSelectionFieldState<T extends Mappable>
     }
     _loadingOverlay.show(context); // Use the common overlay
     try {
-      String fullUrl = widget.dataUrl;
+      //Sring baseUrl =;
+      String baseUrl = Config.baseUrl;
+      String fullUrl = baseUrl + widget.dataUrl;
       if (widget.filterConditions != null &&
           widget.filterConditions!.isNotEmpty) {
         final String filterJson = jsonEncode(widget.filterConditions);
         final String encodedFilters = Uri.encodeComponent(filterJson);
-        fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
+        fullUrl = '${fullUrl}?filters=$encodedFilters';
       }
+      print(fullUrl);
       final String? accessToken = await _secureStorageService.getAccessToken();
 
       if (accessToken == null) {
@@ -202,6 +277,7 @@ class _AppSelectionFieldState<T extends Mappable>
     BuildContext context,
     List<T> items,
   ) async {
+    print('Openning sheet');
     final initialQuery = widget.controller.text;
 
     if (initialQuery.isNotEmpty) {
@@ -234,7 +310,7 @@ class _AppSelectionFieldState<T extends Mappable>
       builder: (_) {
         return SelectionSheet<T>(
           title: widget.selectionSheetTitle,
-          items: items, 
+          items: items,
           initialSearchQuery: initialQuery,
           displayNames: widget.displayNames,
           valueFields: widget.valueFields,
@@ -300,12 +376,13 @@ class AppHelpTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     InputDecoration baseDecoration = InputDecoration(labelText: labelText);
 
     // Apply specific border overrides if hideBorder is true
     if (hideBorder) {
-      OutlineInputBorder baseOut = AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.none);
+      OutlineInputBorder baseOut = AppThemeHelpers.getAppRoundedBorder(
+        type: AppBorderType.none,
+      );
 
       baseDecoration = baseDecoration.copyWith(
         border: baseOut,
@@ -316,24 +393,24 @@ class AppHelpTextField extends StatelessWidget {
         disabledBorder: baseOut,
       );
     }
-    InputDecoration effectiveDecoration = baseDecoration.applyDefaults(Theme.of(context).inputDecorationTheme);
+    InputDecoration effectiveDecoration = baseDecoration.applyDefaults(
+      Theme.of(context).inputDecorationTheme,
+    );
 
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment
-              .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: TextFormField(
             onChanged: onChanged,
             textInputAction: textInputAction,
-           // cursorColor: AppColors.primary, // Add this line
+            // cursorColor: AppColors.primary, // Add this line
             //autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
             onFieldSubmitted: (_) => onIconPressed!(),
             keyboardType: keyboardType,
             validator: validator,
-            decoration: effectiveDecoration
+            decoration: effectiveDecoration,
           ),
         ),
         const SizedBox(width: 8),
@@ -441,11 +518,9 @@ class _SelectionSheetState<T extends Mappable>
               const Divider(height: 1),
               Expanded(
                 child: SingleChildScrollView(
-                  controller:
-                      scrollController, 
+                  controller: scrollController,
                   child: SingleChildScrollView(
-                    scrollDirection:
-                        Axis.horizontal, 
+                    scrollDirection: Axis.horizontal,
                     child: DataTable(
                       columns:
                           widget.displayNames.map((name) {

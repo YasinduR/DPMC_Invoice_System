@@ -57,7 +57,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
 
     await inquire<Part>(
       context: context,
-      dataUrl: 'api/parts/list',
+      dataUrl: 'parts/list',
       onSuccess: (List<Part> data) {
         if (mounted) {
           setState(() {

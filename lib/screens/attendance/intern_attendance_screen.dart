@@ -48,7 +48,7 @@
 
 //       await save(
 //         context: context,
-//         dataUrl: 'api/attendance/save',
+//         dataUrl: 'attendance/save',
 //         dataToSave: attendeceData,
 //         onSuccess: () {
 //           showSnackBar(

@@ -64,7 +64,7 @@ class _ReturnsViewState extends State<ReturnsView> {
 
     await inquire<ReturnItem>(
       context: context,
-      dataUrl: 'api/return-items/list',
+      dataUrl: 'return-items/list',
       onSuccess: (List<ReturnItem> data) {
         if (mounted) {
           setState(() {

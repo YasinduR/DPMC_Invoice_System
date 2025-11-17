@@ -41,20 +41,20 @@ class MockApiService {
       final JWT jwt = JWT.verify(accessToken, SecretKey(_jwtSecretKey));
       // Optionally, you could also check 'iss', 'sub', or other claims here
     } on JWTExpiredException {
-      print('DEBUG: Access token expired.');
+     //print('DEBUG: Access token expired.');
       throw UnauthorisedException(
         'Access token has expired. Please log in again.',
       );
     } on JWTInvalidException {
-      print('DEBUG: Invalid access token signature/structure.');
+      //print('DEBUG: Invalid access token signature/structure.');
       throw UnauthorisedException('Invalid access token. Please log in again.');
     } on JWTNotActiveException {
-      print('DEBUG: Access token not yet active.');
+      //print('DEBUG: Access token not yet active.');
       throw UnauthorisedException(
         'Access token is not yet active. Please log in again.',
       );
     } catch (e) {
-      print('DEBUG: Unexpected error validating access token: $e');
+      //print('DEBUG: Unexpected error validating access token: $e');
       throw UnauthorisedException(
         'Authentication failed: Could not verify token. Please log in again.',
       );

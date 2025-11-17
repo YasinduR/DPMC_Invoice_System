@@ -125,7 +125,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
       ['dealerAccCode', '=', widget.dealer.accountCode],
     ];
     final encodedFilters = Uri.encodeComponent(jsonEncode(filters));
-    final dataUrl = 'api/tin-invoices/list?filters=$encodedFilters';
+    final dataUrl = 'tin-invoices/list?filters=$encodedFilters';
 
     await inquire<TinInvoice>(
       context: context,
@@ -304,7 +304,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                 displayNames: const ['Bank Name'],
                 valueFields: const ['bankName'],
                 mainField: 'bankName',
-                dataUrl: 'api/bank/list',
+                dataUrl: 'bank/list',
               ),
               const SizedBox(height: 16),
               AppSelectionField<BankBranch>(
@@ -318,7 +318,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                 displayNames: const ['Branch Name', 'Bank Name'],
                 valueFields: const ['branchName', 'bankName'],
                 mainField: 'branchName',
-                dataUrl: 'api/branch/list',
+                dataUrl: 'branch/list',
                 preRequest: _handlePreRequestBank,
                 filterConditions:
                     widget.selectedBank != null

@@ -79,7 +79,7 @@ class _SelectReferenceViewState extends State<SelectReferenceView> {
             displayNames: const ['Reference ID', 'Remark'],
             valueFields: const ['refId', 'remark'],
             mainField: 'refId',
-            dataUrl: 'api/references/list',
+            dataUrl: 'references/list',
           ),
           const Spacer(),
           ActionButton(

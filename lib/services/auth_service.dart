@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/config/app_config.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
@@ -10,6 +11,16 @@ import 'package:myapp/widgets/app_loading_overlay.dart';
 class AuthService {
   final SecureStorageService _secureStorageService =
       SecureStorageService(); // Instantiate SecureStorageService
+  String baseUrl = Config.baseUrl;
+  String userPath = 'user/';
+
+  String get loginUrl => '${baseUrl}user/login';
+  String get changePasswordUrl => '${baseUrl}user/changepassword';
+  String get requestPasswordResetUrl => '${baseUrl}user/request-password-reset';
+  String get resetPasswordUrl => '${baseUrl}user/reset-password';
+  String get setPasswordUrl => '${baseUrl}user/set-password';
+  String get renewPasswordUrl => '${baseUrl}user/renew-password';
+
 
   Future<void> logout({required BuildContext context}) async {
     final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
@@ -46,19 +57,23 @@ class AuthService {
       //           },
       //         )
       //         as User;
-            // Assume MockApiService.post returns a Map containing user data and tokens
+      // Assume MockApiService.post returns a Map containing user data and tokens
       final Map<String, dynamic> apiResponse =
           await MockApiService.post(
-                'api/user/login',
-                body: {'username': username, 'password': password,'mode':mode},
-              ) as Map<String, dynamic>;
+                loginUrl,
+                body: {
+                  'username': username,
+                  'password': password,
+                  'mode': mode,
+                },
+              )
+              as Map<String, dynamic>;
 
       final user = User.fromMap(apiResponse['user'] as Map<String, dynamic>);
       final accessToken = apiResponse['accessToken'] as String;
       final refreshToken = apiResponse['refreshToken'] as String;
       // final accessTokenExpiryString = apiResponse['accessTokenExpiry'] as String;
       // final accessTokenExpiry = DateTime.parse(accessTokenExpiryString);
-
 
       // --- START: Print tokens for testing ---
       print('--- Login Successful ---');
@@ -73,13 +88,13 @@ class AuthService {
       await _secureStorageService.saveTokens(
         accessToken: accessToken,
         refreshToken: refreshToken,
-       // accessTokenExpiry: accessTokenExpiry,
+        // accessTokenExpiry: accessTokenExpiry,
       );
 
       // await AttendanceReminderManager.setupDailyAttendanceNotifications(); // If applicable
       return user;
       // await AttendanceReminderManager.setupDailyAttendanceNotifications();
-     // return user;
+      // return user;
     } catch (e) {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
@@ -107,7 +122,7 @@ class AuthService {
     try {
       loadingOverlay.show(context);
       await MockApiService.post(
-        'api/user/changepassword',
+        changePasswordUrl,
         body: {
           'username': username,
           'oldPassword': oldPassword,
@@ -143,7 +158,7 @@ class AuthService {
     try {
       loadingOverlay.show(context);
       return await MockApiService.post(
-            'api/user/request-password-reset',
+            requestPasswordResetUrl,
             body: {
               'username': username,
               //'email': email
@@ -174,7 +189,7 @@ class AuthService {
     try {
       loadingOverlay.show(context);
       return await MockApiService.post(
-            'api/user/reset-password',
+            resetPasswordUrl,
             body: {
               'username': username,
               'token': token,
@@ -203,7 +218,7 @@ class AuthService {
       loadingOverlay.show(context);
       final updatedUser =
           await MockApiService.post(
-                'api/user/set-password',
+                setPasswordUrl,
                 body: {
                   'username': username,
                   'newPassword': newPassword,
@@ -240,7 +255,7 @@ class AuthService {
       loadingOverlay.show(context);
       final updatedUser =
           await MockApiService.post(
-                'api/user/renew-password',
+                renewPasswordUrl,
                 body: {'username': username, 'newPassword': newPassword},
               )
               as User;

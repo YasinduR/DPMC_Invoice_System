@@ -157,7 +157,7 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             displayNames: const ['Account Code', 'Name', 'Address', 'City'],
             valueFields: const ['accountCode', 'name', 'address', 'city'],
             mainField: 'name',
-            dataUrl: 'api/dealers/list',
+            dataUrl: 'dealers/list',
             filterConditions:
                 widget.selectedRegion != null
                     ? [

@@ -61,7 +61,7 @@ class _SelectRegionViewState extends State<SelectRegionView> {
             displayNames: const ['Region'],
             valueFields: const ['region'],
             mainField: 'region',
-            dataUrl: 'api/regions/list',
+            dataUrl: 'regions/list',
           ),
           const Spacer(),
           ActionButton(

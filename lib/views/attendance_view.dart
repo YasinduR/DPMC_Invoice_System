@@ -75,7 +75,7 @@ class _AttendanceViewState extends State<AttendanceView> {
     if (!context.mounted) return;
     await inquire<Attendance>(
       context: context,
-      dataUrl: 'api/attendance/list',
+      dataUrl: 'attendance/list',
       filters: filters,
       onSuccess: (data) {
         if (mounted) {
@@ -146,7 +146,7 @@ class _AttendanceViewState extends State<AttendanceView> {
     if (!context.mounted) return;
     await inquire<Attendance>(
       context: context,
-      dataUrl: 'api/attendance/list',
+      dataUrl: 'attendance/list',
       filters: filters,
       onSuccess: (data) {
         if (mounted) {
@@ -207,7 +207,7 @@ class _AttendanceViewState extends State<AttendanceView> {
     if (!context.mounted) return;
     await inquire<Employee>(
       context: context,
-      dataUrl: 'api/employee/list',
+      dataUrl: 'employee/list',
       filters: filters,
       onSuccess: (data) {
         if (!context.mounted) return;
@@ -308,7 +308,7 @@ class _AttendanceViewState extends State<AttendanceView> {
     if (!context.mounted) return;
     await save<Attendance>(
       context: context,
-      dataUrl: 'api/attendance/save',
+      dataUrl: 'attendance/save',
       dataToSave: newAttendance,
       onSuccess: () {
         if (context.mounted) {
@@ -385,7 +385,7 @@ class _AttendanceViewState extends State<AttendanceView> {
     if (!context.mounted) return;
     await save<Attendance>(
       context: context,
-      dataUrl: 'api/attendance/save',
+      dataUrl: 'attendance/save',
       dataToSave: updatedAttendance,
       onSuccess: () {
         if (context.mounted) {

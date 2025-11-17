@@ -115,7 +115,7 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
 
       await save(
         context: context,
-        dataUrl: 'api/return-request/update',
+        dataUrl: 'return-request/update',
         dataToSave: retReqData,
 
         onSuccess: () {

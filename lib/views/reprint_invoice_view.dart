@@ -70,7 +70,7 @@ class _SelectInvoiceViewState extends State<SelectInvoiceView> {
               'totalValue',
             ],
             mainField: 'invoiceNumber',
-            dataUrl: 'api/invoices/list',
+            dataUrl: 'invoices/list',
           ),
           const Spacer(),
           ActionButton(

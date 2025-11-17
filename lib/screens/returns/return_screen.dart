@@ -191,7 +191,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     late Return savedReturn;
     await save(
       context: context,
-      dataUrl: 'api/return/save',
+      dataUrl: 'return/save',
       dataToSave: saveReturn,
       onSuccess: () {
         showSnackBar(

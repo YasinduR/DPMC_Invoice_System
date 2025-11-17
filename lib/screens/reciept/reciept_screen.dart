@@ -253,7 +253,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
 
     await save(
       context: context,
-      dataUrl: 'api/receipts/save',
+      dataUrl: 'receipts/save',
       dataToSave: receiptData,
     onReceivedData: (rawReceivedData){
         try {

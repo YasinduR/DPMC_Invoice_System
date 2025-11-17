@@ -67,7 +67,7 @@ class _SelectReturnRequestViewState extends State<SelectReturnRequestView> {
             displayNames: const ['Return ID', 'Return Type','Return Reason'],
             valueFields: const ['returnId', 'returnType','returnReason'],
             mainField: 'returnId',
-            dataUrl: 'api/return-request/list',
+            dataUrl: 'return-request/list',
             filterConditions:
                 widget.dealer != null
                     ? [

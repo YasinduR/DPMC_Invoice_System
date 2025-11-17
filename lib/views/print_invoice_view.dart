@@ -43,7 +43,7 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
       ['dealerAccCode', '=', widget.dealer.accountCode],
     ];
     final encodedFilters = Uri.encodeComponent(jsonEncode(filters));
-    final dataUrl = 'api/tin-invoices/list?filters=$encodedFilters';
+    final dataUrl = 'tin-invoices/list?filters=$encodedFilters';
 
     await inquire<TinInvoice>(
       context: context,

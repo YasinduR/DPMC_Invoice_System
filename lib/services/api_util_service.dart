@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/screen_model.dart';
@@ -16,11 +17,13 @@ Future<void> inquire<T extends Mappable>({
   Map<String, dynamic>? filters,
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
-  if (!context.mounted) return;
+  //if (!context.mounted) return;
 
   try {
     loadingOverlay.show(context);
-    String url = dataUrl;
+          String baseUrl = Config.baseUrl;
+      String url = '${baseUrl}$dataUrl';
+    //String url = dataUrl;
     if (filters != null && filters.isNotEmpty) {
       List<List<dynamic>> filterConditions = [];
       // filters.forEach((key, value) {
@@ -85,12 +88,14 @@ Future<void> dealerLogin({
 
   try {
     loadingOverlay.show(context);
+      String baseUrl = Config.baseUrl;
+      String url = '${baseUrl}dealer/login';
       final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
       final String? accessToken = await _secureStorageService.getAccessToken(); 
 
     final bool isAuthenticated =
         await MockApiService.post(
-              'api/dealer/login',
+              url,
               body: {'dealerCode': dealerCode, 'pin': pin},
               accessToken: accessToken
             )
@@ -127,13 +132,15 @@ Future<void> save<T extends Mappable>({
 
   try {
     loadingOverlay.show(context);
+      String baseUrl = Config.baseUrl;
+      String url = '${baseUrl}$dataUrl';
       final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
       final String? accessToken = await _secureStorageService.getAccessToken(); 
     // Call the generic postData method in the service
     //await MockApiService.post(dataUrl, body: dataToSave);
 
         // MockApiService.post returns Future<dynamic>, so apiResponse will be dynamic.
-    final dynamic apiResponse = await MockApiService.post(dataUrl, body: dataToSave,accessToken: accessToken); // Pass dataToSave directly
+    final dynamic apiResponse = await MockApiService.post(url, body: dataToSave,accessToken: accessToken); // Pass dataToSave directly
 
     // If onReceivedData callback is provided, we attempt to process the API response.
     if (onReceivedData != null) {
@@ -171,12 +178,13 @@ Future<void> checkScreenPermission({
 
   try {
     loadingOverlay.show(context);
+    String baseUrl = Config.baseUrl;
     final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
     final String? accessToken = await _secureStorageService.getAccessToken(); 
 
     final bool hasPermission =
         await MockApiService.post(
-              'api/permission/check',
+              '${baseUrl}permission/check',
               body: {'screenId': screenId, 'roleIds': roleIds},
               accessToken: accessToken
             )
@@ -212,9 +220,9 @@ Future<List<Screen>> loadScreens() async {
       //   'api/screens/list',
       //   authToken: accessToken, // Pass the retrieved access token
       // );
-
+    String baseUrl = Config.baseUrl;
     final List<Screen> data = await MockApiService.get<Screen>(
-      'api/screens/list',
+      '${baseUrl}screens/list',
     );
     return data;
   } catch (e) {

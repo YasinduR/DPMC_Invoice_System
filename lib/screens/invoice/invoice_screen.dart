@@ -182,7 +182,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     late InvoiceSave savedInvoice;
     await save(
       context: context,
-      dataUrl: 'api/invoice/save',
+      dataUrl: 'invoice/save',
       dataToSave: invoiceData,
       onReceivedData: (rawReceivedData){
         try {

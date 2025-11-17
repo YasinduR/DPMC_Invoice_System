@@ -67,7 +67,7 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
             displayNames: const ['TIN Number', 'Total Value'],
             valueFields: const ['tinNumber', 'totalValue'],
             mainField: 'tinNumber',
-            dataUrl: 'api/tins/list',
+            dataUrl: 'tins/list',
           ),
 
           const Spacer(),
