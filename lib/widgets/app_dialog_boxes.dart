@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/theme/app_fonts.dart';
 import 'package:myapp/widgets/app_action_button.dart'; // Make sure the path is correct
 
+const dialogBoxFont = AppFonts.primaryFont;  // Font Family Name 
 
 /// A generic dialog function. All other dialogs are based on this.
 Future<T?> showAppDialog<T>({
@@ -23,7 +25,11 @@ Future<T?> showAppDialog<T>({
         title: Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontFamily: dialogBoxFont,
+          ),
         ),
         // The main message content
         content: content,
@@ -65,22 +71,28 @@ Future<bool> showConfirmationDialog({
     context: context,
     title: title,
     content:
-        content != null ? Text(content, textAlign: TextAlign.center) : null,
+        content != null
+            ? Text(
+              content,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: dialogBoxFont),
+            )
+            : null,
     actions: [
       ActionButton(
-        label: confirmButtonText, 
+        label: confirmButtonText,
         onPressed: () {
           Navigator.of(context).pop(true); // Return true
         },
         type: ActionButtonType.secondary,
-        ),
+      ),
 
-        ActionButton(
-        label: cancelButtonText, 
+      ActionButton(
+        label: cancelButtonText,
         onPressed: () {
           Navigator.of(context).pop(false); // Return true
         },
-        ),
+      ),
 
       // // The "Confirm" button (e.g., "Yes, Log out")
       // buildDialogButton(
@@ -115,7 +127,7 @@ Future<void> showInfoDialog({
   return showAppDialog(
     context: context,
     title: title,
-    content: Text(content, textAlign: TextAlign.center),
+    content: Text(content, textAlign: TextAlign.center,style: TextStyle(fontFamily:dialogBoxFont),),
     actions: [
       // buildDialogButton(
       //   text: buttonText,
@@ -123,14 +135,12 @@ Future<void> showInfoDialog({
       //   onPressed: () => Navigator.of(context).pop(),
       // ),
       ActionButton(
-        label: buttonText, 
+        label: buttonText,
         onPressed: () {
           Navigator.of(context).pop(false); // Return true
         },
-        type: isError ? ActionButtonType.secondary :ActionButtonType.primary,
-        )
-
-
+        type: isError ? ActionButtonType.secondary : ActionButtonType.primary,
+      ),
     ],
   );
 }
@@ -150,9 +160,12 @@ class _PinVerificationDialogContent extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _PinVerificationDialogContentState createState() => _PinVerificationDialogContentState();
+  _PinVerificationDialogContentState createState() =>
+      _PinVerificationDialogContentState();
 }
-class _PinVerificationDialogContentState extends State<_PinVerificationDialogContent> {
+
+class _PinVerificationDialogContentState
+    extends State<_PinVerificationDialogContent> {
   final TextEditingController _pinController = TextEditingController();
   String _currentPin = '';
 
@@ -189,24 +202,23 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
 
   @override
   Widget build(BuildContext context) {
-    final bool isVerifyButtonDisabled = _currentPin.isEmpty || _currentPin.length < widget.pinLength;
+    final bool isVerifyButtonDisabled =
+        _currentPin.isEmpty || _currentPin.length < widget.pinLength;
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       title: Text(
         widget.title,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: dialogBoxFont),
       ),
       content: TextField(
         controller: _pinController,
-        obscureText: true, 
+        obscureText: true,
         textAlign: TextAlign.center,
-        keyboardType: TextInputType.number, 
-        textInputAction: TextInputAction.done, 
+        keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.done,
         inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly, 
+          FilteringTextInputFormatter.digitsOnly,
           LengthLimitingTextInputFormatter(widget.pinLength),
         ],
         decoration: InputDecoration(
@@ -226,8 +238,13 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
           // ),
           // contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
         ),
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
-        autofocus: true, 
+        style: TextStyle(
+          fontFamily: dialogBoxFont,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: AppColors.text,
+        ),
+        autofocus: true,
         onSubmitted: (value) {
           if (!isVerifyButtonDisabled) {
             _handleVerifyAction();
@@ -241,7 +258,11 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: ActionButton(label: widget.verifyButtonText, onPressed: _handleVerifyAction,disabled: isVerifyButtonDisabled)
+              child: ActionButton(
+                label: widget.verifyButtonText,
+                onPressed: _handleVerifyAction,
+                disabled: isVerifyButtonDisabled,
+              ),
               // child: buildDialogButton(
               //   text: widget.verifyButtonText,
               //   backgroundColor: AppColors.primary,
@@ -251,7 +272,11 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: ActionButton(label: widget.cancelButtonText, onPressed: _handleCancelAction,type: ActionButtonType.secondary)
+              child: ActionButton(
+                label: widget.cancelButtonText,
+                onPressed: _handleCancelAction,
+                type: ActionButtonType.secondary,
+              ),
 
               // child: buildDialogButton(
               //   text: widget.cancelButtonText,
@@ -267,16 +292,17 @@ class _PinVerificationDialogContentState extends State<_PinVerificationDialogCon
   }
 }
 
-Future<String?> showPinVerificationDialog({ // Dialog box to return string
-  required BuildContext context, 
+Future<String?> showPinVerificationDialog({
+  // Dialog box to return string
+  required BuildContext context,
   required String title, // Title of the Dialog Box
   String verifyButtonText = 'Verify', // Submit button title
   String cancelButtonText = 'Cancel', // Cancle button title
-  int pinLength = 3, // Fixed PIN length 
+  int pinLength = 3, // Fixed PIN length
 }) async {
   return await showDialog<String?>(
     context: context,
-    barrierDismissible: false, 
+    barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return _PinVerificationDialogContent(
         title: title,

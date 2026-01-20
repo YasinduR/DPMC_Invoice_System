@@ -5,8 +5,10 @@ class AppColors {
   AppColors._();
 
   // Main Theme Colors
-  static const Color primary = Color(0xFF0D47A1); // Dark Blue
-  static const Color background = Color(0xFFE3F2FD); // Light Blue
+  // static const Color primary = Color(0xFF0D47A1); // Dark Blue
+  // static const Color background = Color(0xFFE3F2FD); // Light Blue  Previous Dont Remove
+  static const Color primary = Color(0xFF0D47A1); // Dark Blue 
+  static const Color background = Color(0xFFF0F5F9); // Light Blue: Changed to a more muted, professional light blue-grey
   static const Color disabled = Colors.grey;
   static const Color white = Colors.white;
   static const Color text = Colors.black87;

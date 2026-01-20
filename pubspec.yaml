@@ -55,7 +55,7 @@ dependencies:
   uuid: ^4.0.0 # For UUID access Token generation in mock api
   dart_jsonwebtoken: ^2.10.0 # For Token Generation
   flutter_dotenv: ^5.1.0 # For .env file reading
-  
+  #google_fonts: ^6.3.0 # Google Fonts no need to add manually
 
 
 dev_dependencies:
@@ -86,7 +86,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+  generate: true
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -107,6 +107,11 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts: # <--- Start of your manual font declarations
+  - family: Montserrat # This is the family name you will use in your Dart code
+    fonts:
+      - asset: assets/fonts/Montserrat-Bold.ttf # Path to the Regular variant
+      - asset: assets/fonts/Montserrat-Regular.ttf # Path to the Bold variant
   # fonts:
   #   - family: Schyler
   #     fonts:

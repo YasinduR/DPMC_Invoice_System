@@ -95,6 +95,11 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
                   const SizedBox(width: 12),
                   Text(
                     'Invoice System',
+                      // style: TextStyle(
+                      //   fontFamily: 'Montserrat',
+                      //   fontWeight: FontWeight.bold, // For Montserrat-Bold
+                      //   fontSize: 20,
+                      // ),
                     style:  Theme.of(context).textTheme.headlineLarge,
                   ),
                 ],
@@ -166,7 +171,7 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
                   onPressed: widget.onForgetPassword,
                   child: Text(
                     'Forgot password?',
-                    // style: Theme.of(context).textTheme.labelSmall
+                     style: Theme.of(context).textTheme.labelSmall
                   ),
                 ),
               ),
