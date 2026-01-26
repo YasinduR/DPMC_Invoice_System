@@ -540,7 +540,7 @@ class _AttendanceViewState extends State<AttendanceView> {
   @override
   Widget build(BuildContext context) {
     if (_isLoadingAttendance || _isLoadingEmployee) {
-      return const Center(child: Text('Loading..'));
+      return const Center(child: Text('')); // Add Loading Text here if required
     }
 
     if (_attendanceErrorMessage != null) {

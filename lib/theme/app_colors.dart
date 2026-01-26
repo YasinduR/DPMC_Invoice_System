@@ -9,7 +9,11 @@ class AppColors {
   // static const Color background = Color(0xFFE3F2FD); // Light Blue  Previous Dont Remove
   static const Color primary = Color(0xFF0D47A1); // Dark Blue 
   static const Color background = Color(0xFFF0F5F9); // Light Blue: Changed to a more muted, professional light blue-grey
-  static const Color disabled = Colors.grey;
+  static const Color secondary = Color(0xff546e7a);
+  static const Color tertiary = Color(0xFF90A4AE); // Blue Grey 300
+  //static const Color disabled = Colors.grey;
+   static const Color disabled = Color(0xFFD6E0EA);
+   static const Color ondisabled = Color(0xFF7A94B5);
   static const Color white = Colors.white;
   static const Color text = Colors.black87;
   static const Color textSelection = Color(0xFFBBDEFB);

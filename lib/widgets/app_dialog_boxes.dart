@@ -28,7 +28,7 @@ Future<T?> showAppDialog<T>({
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
-            fontFamily: dialogBoxFont,
+            fontFamily: dialogBoxFont
           ),
         ),
         // The main message content
@@ -80,18 +80,21 @@ Future<bool> showConfirmationDialog({
             : null,
     actions: [
       ActionButton(
+        isInDialog: true,
         label: confirmButtonText,
         onPressed: () {
           Navigator.of(context).pop(true); // Return true
         },
-        type: ActionButtonType.secondary,
+        //type: ActionButtonType.secondary,
       ),
 
       ActionButton(
+        isInDialog: true,
         label: cancelButtonText,
         onPressed: () {
           Navigator.of(context).pop(false); // Return true
         },
+        type: ActionButtonType.secondary,
       ),
 
       // // The "Confirm" button (e.g., "Yes, Log out")
@@ -135,6 +138,7 @@ Future<void> showInfoDialog({
       //   onPressed: () => Navigator.of(context).pop(),
       // ),
       ActionButton(
+        isInDialog: true,
         label: buttonText,
         onPressed: () {
           Navigator.of(context).pop(false); // Return true
@@ -259,6 +263,7 @@ class _PinVerificationDialogContentState
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: ActionButton(
+                isInDialog: true,
                 label: widget.verifyButtonText,
                 onPressed: _handleVerifyAction,
                 disabled: isVerifyButtonDisabled,
@@ -273,6 +278,7 @@ class _PinVerificationDialogContentState
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: ActionButton(
+                isInDialog: true,
                 label: widget.cancelButtonText,
                 onPressed: _handleCancelAction,
                 type: ActionButtonType.secondary,

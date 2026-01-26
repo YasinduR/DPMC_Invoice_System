@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 
@@ -8,11 +9,12 @@ class ActionButton extends StatelessWidget {
   final String label; // Label
   final VoidCallback onPressed; // OnPress Call Back fn
   final IconData? icon; // Icon is optional
-  final ActionButtonType
-  type; // New: Button type (primary, secondary, tertiary, custom)
+  final ActionButtonType type; // New: Button type (primary, secondary, tertiary, custom)
   final Color? color; // Used only if type is custom
   final bool disabled; // Disabled state
   final bool? minsize;
+  final bool isInDialog; // whether it is in a dialog box or not
+  
 
   const ActionButton({
     super.key,
@@ -23,6 +25,7 @@ class ActionButton extends StatelessWidget {
     this.color, // Custom color for ActionButtonType.custom
     this.minsize = false,
     this.disabled = false,
+    this.isInDialog = false,
   });
 
   @override
@@ -62,17 +65,60 @@ class ActionButton extends StatelessWidget {
       );
     }
 
-    return (icon != null)
+return Center(
+  child: FractionallySizedBox(
+    widthFactor: isInDialog ? 0.9 : 0.65, // x100% of available width
+    child: (icon != null)
         ? ElevatedButton.icon(
-          icon: Icon(icon),
-          label: Text(label, style: AppThemeHelpers.getActionButtonTextStyle()),
-          onPressed: disabled ? null : onPressed,
-          style: effectiveButtonStyle,
-        )
+            icon: Icon(icon),
+            label: 
+            // Text(
+            //   label,
+            //   style: AppThemeHelpers.getActionButtonTextStyle(),
+            // )
+            AutoSizeText(
+              label,
+              maxLines: 1,
+              minFontSize: 8,
+              overflow: TextOverflow.ellipsis,
+              style: AppThemeHelpers.getActionButtonTextStyle(),
+              )
+            ,
+            onPressed: disabled ? null : onPressed,
+            style: effectiveButtonStyle,
+          )
         : ElevatedButton(
-          onPressed: disabled ? null : onPressed,
-          style: effectiveButtonStyle,
-          child: Text(label, style: AppThemeHelpers.getActionButtonTextStyle()),
-        );
+            onPressed: disabled ? null : onPressed,
+            style: effectiveButtonStyle,
+            child: 
+            // Text(
+            //   label,
+            //   style: AppThemeHelpers.getActionButtonTextStyle(),
+            // )
+            AutoSizeText(
+  label,
+  maxLines: 1,
+  minFontSize: 8,
+  overflow: TextOverflow.ellipsis,
+  style: AppThemeHelpers.getActionButtonTextStyle(),
+    )
+            ,
+          ),
+  ),
+);
+
+
+    // return (icon != null)
+    //     ? ElevatedButton.icon(
+    //       icon: Icon(icon),
+    //       label: Text(label, style: AppThemeHelpers.getActionButtonTextStyle()),
+    //       onPressed: disabled ? null : onPressed,
+    //       style: effectiveButtonStyle,
+    //     )
+    //     : ElevatedButton(
+    //       onPressed: disabled ? null : onPressed,
+    //       style: effectiveButtonStyle,
+    //       child: Text(label, style: AppThemeHelpers.getActionButtonTextStyle()),
+    //     );
   }
 }

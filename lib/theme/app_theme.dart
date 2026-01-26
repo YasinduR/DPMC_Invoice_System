@@ -11,8 +11,8 @@ ThemeData appTheme(BuildContext context) {
     surface: AppColors.background, // Your custom background color for surfaces
     seedColor: AppColors.primary,
     primary: AppColors.primary,
-    secondary: AppColors.danger,
-    tertiary: AppColors.success,
+    secondary: AppColors.secondary,
+    tertiary: AppColors.tertiary,
     onPrimary: AppColors.white,
     onSecondary: AppColors.white,
     onTertiary: AppColors.white,
@@ -79,8 +79,10 @@ ThemeData appTheme(BuildContext context) {
       color: customColorScheme.onPrimary, // Text/icon color on primary button
     ),
 
-    labelSmall: TextStyle(fontSize: 14, color: customColorScheme.primary), //  ex - Forget Password text Button
-
+    labelSmall: TextStyle(
+      fontSize: 14,
+      color: customColorScheme.primary,
+    ), //  ex - Forget Password text Button
     // Menucard Captions
     labelMedium: TextStyle(
       fontSize: 14,
@@ -115,22 +117,64 @@ ThemeData appTheme(BuildContext context) {
   );
 
   // Ex-Submit buttn
-  final ElevatedButtonThemeData
-  customElevatedButtonTheme = ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: customColorScheme.primary, // Default background color
-      foregroundColor: customColorScheme.onPrimary, // Default text/icon color
-      minimumSize: const Size(double.infinity, 50), // Default size
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30),
-      ), // Default shape
-      textStyle: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: customColorScheme.onPrimary, // Text/icon color on primary button
-      ), // Default text style for button labels
-    ),
-  );
+  // final ElevatedButtonThemeData
+  // customElevatedButtonTheme = ElevatedButtonThemeData(
+  //   style: ElevatedButton.styleFrom(
+  //     backgroundColor: customColorScheme.primary, // Default background color
+  //     foregroundColor: customColorScheme.onPrimary, // Default text/icon color
+  //     minimumSize: const Size(double.infinity, 50), // Default size
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(30),
+  //     ), // Default shape
+  //     textStyle: TextStyle(
+  //       fontSize: 16,
+  //       fontWeight: FontWeight.bold,
+  //       color: customColorScheme.onPrimary, // Text/icon color on primary button
+  //     ), // Default text style for button labels
+  //   ),
+  // );
+
+  final ElevatedButtonThemeData customElevatedButtonTheme =
+      ElevatedButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(
+            const Size(double.infinity, 50),
+          ),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          ),
+
+          //  Background color (enabled & disabled)
+          backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+            if (states.contains(MaterialState.disabled)) {
+              return AppColors.disabled; // Disabled background
+            }
+            return customColorScheme.primary; // Enabled
+          }),
+
+          // Text & icon color (enabled & disabled)
+          foregroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+            if (states.contains(MaterialState.disabled)) {
+              //return AppColors.white.withOpacity(0.6); // Disabled text
+              return AppColors.ondisabled; // Disabled text
+            }
+            return customColorScheme.onPrimary; // Enabled
+          }),
+
+          //  Text style (AutoSizeText will inherit this)
+          textStyle: MaterialStateProperty.all(
+            TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+
+          // Optional: remove elevation when disabled
+          elevation: MaterialStateProperty.resolveWith<double>((states) {
+            if (states.contains(MaterialState.disabled)) {
+              return 0;
+            }
+            return 2;
+          }),
+        ),
+      );
   // EX- Forget pwd
   final TextButtonThemeData customTextButtonTheme = TextButtonThemeData(
     style: TextButton.styleFrom(

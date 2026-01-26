@@ -169,15 +169,57 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
         ],
       ),
       actions: [
-        ActionButton(
-            minsize: true,
-            label: 'Ok',
-            onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined
 
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child:         
+              ActionButton(
+            //minsize: true,
+            isInDialog: true,
+            label: 'Ok',
+            onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined,
+              // child: buildDialogButton(
+              //   text: widget.verifyButtonText,
+              //   backgroundColor: AppColors.primary,
+              //   onPressed: _handleVerifyAction,
+              //   disabled: isVerifyButtonDisabled,
+              // ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: 
         ActionButton(
-          minsize: true,
+          //minsize: true,
+          isInDialog: true,
           label: 'Cancel',
+          type: ActionButtonType.secondary,
           onPressed: () => Navigator.of(context).pop(),
+        )
+
+              // child: buildDialogButton(
+              //   text: widget.cancelButtonText,
+              //   backgroundColor: AppColors.borderDark,
+              //   onPressed: _handleCancelAction,
+              // ),
+            ),
+          ],
+
+        // ActionButton(
+        //     //minsize: true,
+        //     isInDialog: true,
+        //     label: 'Ok',
+        //     onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined
+
+        // ActionButton(
+        //   //minsize: true,
+        //   isInDialog: true,
+        //   label: 'Cancel',
+        //   type: ActionButtonType.secondary,
+        //   onPressed: () => Navigator.of(context).pop(),
         ),
       ],
     );

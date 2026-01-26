@@ -88,7 +88,7 @@ class _PermissionCheckScreenState extends ConsumerState<PermissionCheckScreen> {
             _errorMessage == null
                 ? const Text(
                   // It's good practice to use const for static widgets
-                  'Loading...',
+                  '', // Add the loading text if required
                   style: TextStyle(fontSize: 16),
                 )
                 : Text(
