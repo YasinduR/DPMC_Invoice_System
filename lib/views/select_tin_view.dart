@@ -3,6 +3,7 @@ import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 
 // TIN selection view shows after the dealer selection
@@ -37,6 +38,24 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
     }
   }
 
+  void _onTinSubmitted() {
+    if (widget.selectedTin != null) {
+      if (widget.selectedTin?.paymentStatus == 'A') {
+        widget.onSubmit();
+      } else {
+        showSnackBar(
+          context: context,
+          message: 'Please Select Approved TIN !',
+          type: MessageType.warning,
+        );
+      _tinController.clear();
+      setState(() {
+        _isTinSelectionCommitted = false;
+      });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _tinController.dispose();
@@ -52,7 +71,6 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         children: [
           DealerInfoCard(dealer: widget.dealer),
           const SizedBox(height: 16),
-
           AppSelectionField<TinData>(
             controller: _tinController,
             labelText: 'Select TIN Number',
@@ -64,10 +82,13 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
                 _isTinSelectionCommitted = isCommitted;
               });
             },
-            displayNames: const ['TIN Number', 'Total Value'],
-            valueFields: const ['tinNumber', 'totalValue'],
+            displayNames: const ['TIN Number', 'Total Value', 'Payment Status'],
+            valueFields: const ['tinNumber', 'totalValue', 'paymentStatus'],
             mainField: 'tinNumber',
             dataUrl: 'tins/list',
+            filterConditions: [
+              ['dealerCode', '=', widget.dealer.accountCode],
+            ],
           ),
 
           const Spacer(),
@@ -75,7 +96,7 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
           ActionButton(
             icon: Icons.check_circle_outline,
             label: 'Submit',
-            onPressed: widget.onSubmit,
+            onPressed: _onTinSubmitted,
             disabled: !_isTinSelectionCommitted,
           ),
         ],

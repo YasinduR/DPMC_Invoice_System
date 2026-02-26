@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/return_save_model.dart';
@@ -199,7 +200,10 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           message: 'Return saved successfully!',
           type: MessageType.success,
         );
-        _printerService.previewThermalReturnPdf(savedReturn);
+                final details = PrintFooterDetail(
+                          formNo: 'PA-FO-53',
+                          revNo: '01');
+        _printerService.previewThermalReturnPdf(savedReturn,details);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');

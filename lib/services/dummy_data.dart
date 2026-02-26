@@ -1112,27 +1112,58 @@ class DummyData {
   ];
 
   static final List<TinData> _tins = [
-    const TinData(
-      tinNumber: 'TIN987654321',
-      totalValue: 1500.75,
-      orderNumber: 'PADC202510250001',
-    ),
-    const TinData(
-      tinNumber: 'TIN123456789',
-      totalValue: 899.99,
-      orderNumber: 'PADC202510250002',
-    ),
-    const TinData(
-      tinNumber: 'TIN555555555',
-      totalValue: 12500.00,
-      orderNumber: 'PADC202510250003',
-    ),
-    const TinData(
-      tinNumber: 'TIN314159265',
-      totalValue: 432.50,
-      orderNumber: 'PADC202510250004',
-    ),
-  ];
+  const TinData(
+    tinNumber: 'TIN987654321',
+    orderNumber: 'PADC202510250001',
+    totalValue: 1500.75,
+    paymentStatus: 'P', // Payment Pending
+    dealercode: 'AC2000123306',
+  ),
+  const TinData(
+    tinNumber: 'TIN123456789',
+    orderNumber: 'PADC202510250002',
+    totalValue: 899.99,
+    paymentStatus: 'C', // Payment Completed
+    dealercode: 'AC2000123306',
+  ),
+  const TinData(
+    tinNumber: 'TIN555555555',
+    orderNumber: 'PADC202510250003',
+    totalValue: 12500.00,
+    paymentStatus: 'A', // Payment Approved
+    dealercode: 'AC2000123306',
+  ),
+  const TinData(
+    tinNumber: 'TIN314159265',
+    orderNumber: 'PADC202510250004',
+    totalValue: 432.50,
+    paymentStatus: 'P', // Another Pending example
+    dealercode: 'AC2000123306',
+  ),
+];
+
+  // static final List<TinData> _tins = [
+  //   const TinData(
+  //     tinNumber: 'TIN987654321',
+  //     totalValue: 1500.75,
+  //     orderNumber: 'PADC202510250001',
+  //   ),
+  //   const TinData(
+  //     tinNumber: 'TIN123456789',
+  //     totalValue: 899.99,
+  //     orderNumber: 'PADC202510250002',
+  //   ),
+  //   const TinData(
+  //     tinNumber: 'TIN555555555',
+  //     totalValue: 12500.00,
+  //     orderNumber: 'PADC202510250003',
+  //   ),
+  //   const TinData(
+  //     tinNumber: 'TIN314159265',
+  //     totalValue: 432.50,
+  //     orderNumber: 'PADC202510250004',
+  //   ),
+  // ];
 
   static final List<Region> _regions = [
     Region(region: 'COLOMBO', head: 'Mr. Chamila Galketiya'),

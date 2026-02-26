@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
+import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
@@ -101,13 +102,10 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   }
 
   Future<void> _saveinvoice(List<Part> selectedParts) async {
-    
     final authState = ref.watch(authProvider);
-    final User? currentUser =  authState.currentUser;
+    final User? currentUser = authState.currentUser;
     final Region? currentRegion = ref.watch(regionProvider).selectedRegion;
-    if (
-        selectedParts.isEmpty
-        ) {
+    if (selectedParts.isEmpty) {
       showSnackBar(
         context: context,
         message: "No parts to save. Please try again !",
@@ -116,9 +114,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       return;
     }
 
-     if (
-        _selectedDealer == null 
-        ) {
+    if (_selectedDealer == null) {
       showSnackBar(
         context: context,
         message: "No dealer to save. Please try again !",
@@ -126,9 +122,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       );
       return;
     }
-            if (
-        currentRegion == null 
-        ) {
+    if (currentRegion == null) {
       showSnackBar(
         context: context,
         message: "No region to save. Please try again !",
@@ -136,9 +130,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       );
       return;
     }
-        if (
-        _selectedTin == null 
-        ) {
+    if (_selectedTin == null) {
       showSnackBar(
         context: context,
         message: "No tin to save. Please try again !",
@@ -146,8 +138,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       );
       return;
     }
-    if (currentUser == null
-        ) {
+    if (currentUser == null) {
       showSnackBar(
         context: context,
         message: "No user to save. Please try again !",
@@ -155,7 +146,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       );
       return;
     }
-
 
     double total = 0;
     for (var part in selectedParts) {
@@ -172,19 +162,19 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       userId: currentUser.id,
       invoiceAmount: total,
       invoiceTime: DateTime.now(),
-      parts: selectedParts, 
-      orderNo:  _selectedTin!.orderNumber, 
-      dealerVatNo: _selectedDealer!.vatNo, 
+      parts: selectedParts,
+      orderNo: _selectedTin!.orderNumber,
+      dealerVatNo: _selectedDealer!.vatNo,
       dealerAddress: _selectedDealer!.address + ', ' + _selectedDealer!.city,
-      payOndel: _selectedTin!.payOnDel
-      );
-    
+      payOndel: _selectedTin!.payOnDel,
+    );
+
     late InvoiceSave savedInvoice;
     await save(
       context: context,
       dataUrl: 'invoice/save',
       dataToSave: invoiceData,
-      onReceivedData: (rawReceivedData){
+      onReceivedData: (rawReceivedData) {
         try {
           savedInvoice = rawReceivedData;
         } catch (e) {
@@ -201,7 +191,12 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           message: 'Invoice saved successfully!',
           type: MessageType.success,
         );
-          _printerService.previewThermalInvoicePdf(savedInvoice);
+        //final details = PrintFooterDetail({revNo:'PA-FO-53'});
+        final details = PrintFooterDetail(
+                          formNo: 'PA-FO-53',
+                          revNo: '01');
+                          
+        _printerService.previewThermalInvoicePdf(savedInvoice, details);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -212,7 +207,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         );
       },
     );
-  
 
     // Add print preview. // Pass Dealer Info
     // User Info Tin Info and selected parts to print preview
@@ -231,8 +225,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     setState(() {
       _currentStep = 1; // Move to the initial page
     });
-
-
   }
 
   void _goBack() {
@@ -262,7 +254,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer: null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer:
+              null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
