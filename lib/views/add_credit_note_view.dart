@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
-import 'package:myapp/theme/app_colors.dart';
+//import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
@@ -95,10 +95,14 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
           label: '',
           flex: 1,
           cellBuilder: (context, item) {
-            return IconButton(
-              icon: const Icon(Icons.close, color: AppColors.disabled),
+            return buildGridIconButton(
               onPressed: () => _removeNoteFromList(item),
+              buttonType: IconButtonType.remove,
             );
+            // return IconButton(
+            //   icon: const Icon(Icons.close, color: AppColors.disabled),
+            //   onPressed: () => _removeNoteFromList(item),
+            // );
           },
         ),
       ],
@@ -147,7 +151,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
                   label: 'Add Credit Note',
                   icon: Icons.add_card, // Example icon
                   onPressed: _addNoteToList,
-                  type:ActionButtonType.tertiary,
+                  type: ActionButtonType.tertiary,
                   disabled: isAddButtonDisabled,
                 ),
                 const SizedBox(height: 24),

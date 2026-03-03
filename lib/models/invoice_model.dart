@@ -1,7 +1,7 @@
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/part_model.dart';
 
-// --- Return Model ---
+// --- Invoice Model ---
 class InvoiceSave implements Mappable {
   final String invoiceNumber;
   final String tinNo;

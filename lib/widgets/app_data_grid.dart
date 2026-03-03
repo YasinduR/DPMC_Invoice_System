@@ -31,6 +31,8 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
   /// The first rule whose `shouldMerge` predicate returns true for an item will be applied.
   final List<DataGridMergeRule<T>>? mergeRules;
 
+  final String? noDataMessage;
+
   const AppDataGrid({
     super.key,
     required this.items,
@@ -40,7 +42,8 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
     this.hasFilter = true,
     this.searchHintText = 'Search...',
     this.mergeRules,
-    this.fillColor=AppColors.lightLavender
+    this.fillColor = AppColors.lightLavender,
+    this.noDataMessage,
   });
 
   @override
@@ -109,7 +112,8 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
 
   Widget _buildBody() {
     if (_filteredItems.isEmpty) {
-      return const Center(child: Text('No items found.'));
+      final message = widget.noDataMessage ?? 'No Data Found';
+      return Center(child: Text(message));
     }
 
     return ListView.builder(
@@ -309,4 +313,55 @@ class DataGridMergeRule<T> {
          endColumnIndex >= startColumnIndex,
          'endColumnIndex must be greater than or equal to startColumnIndex',
        );
+}
+
+// Grid Icon Button
+
+enum IconButtonType {
+  remove,
+  edit
+}
+
+Widget buildGridIconButton({
+  required VoidCallback onPressed,
+  required IconButtonType buttonType,
+  Color? iconColor,
+  double iconSize = 24.0,
+  EdgeInsetsGeometry padding = EdgeInsets.zero,
+}) {
+  // Get icon based on button type
+  IconData getIcon() {
+    switch (buttonType) {
+      case IconButtonType.remove:
+        return Icons.close;
+      case IconButtonType.edit:
+        return Icons.edit;
+      // default:
+      //   return Icons.close;
+    }
+  }
+
+  // Default colors for different button types
+  Color _getDefaultColor() {
+    switch (buttonType) {
+      case IconButtonType.remove:
+        return AppColors.removebtnColor;
+      case IconButtonType.edit:
+        return AppColors.editbtnColor;
+      // default:
+      //   return Colors.grey;
+    }
+  }
+
+  return IconButton(
+    icon: Icon(
+      getIcon(),
+      color: iconColor ?? _getDefaultColor(),
+      size: iconSize,
+    ),
+    onPressed: onPressed,
+    padding: padding,
+    constraints: const BoxConstraints(),
+    tooltip: buttonType.name.toUpperCase(), // Adds accessibility
+  );
 }

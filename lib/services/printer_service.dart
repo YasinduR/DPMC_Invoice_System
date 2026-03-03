@@ -967,99 +967,181 @@ Future<void> previewDispatchNotePdf(DispatchNoteSave note, PrintFooterDetail det
       margin: const pw.EdgeInsets.all(8),
       build: (context) {
         return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            /// HEADER
-            _companyHeaderPdf('ADVICE OF DISPATCH NOTE'),
-            pw.Divider(thickness: 0.5),
-            /// CUSTOMER SECTION
-            pw.Text("To:",
-                style: pw.TextStyle(
-                fontSize: fontSize,
-                fontWeight: pw.FontWeight.bold)
-                ),
-            pw.Text(note.dealerName.toUpperCase(),
-                style: const pw.TextStyle(fontSize: fontSize)),
-            pw.Text(note.dealerAddress.toUpperCase(),
-                style: const pw.TextStyle(fontSize: fontSize)),
-            pw.SizedBox(height: 6),
-            pw.Table(
-              columnWidths: {
-                0: const pw.FlexColumnWidth(3),
-                1: const pw.FlexColumnWidth(2),
-              },
-              children: [
-                _buildDetailTableRow("A/C No", note.dealerId),
-                _buildDetailTableRow("Order No", note.orderNo),
-                _buildDetailTableRow("TIN No", note.tinNo),
-                _buildDetailTableRow("Pay on Del", note.payOndel),
-                _buildDetailTableRow("Route", note.route),
-                _buildDetailTableRow("Date", formattedDate),
-                _buildDetailTableRow("Dispatch No", note.dispatchNumber),
-              ],
-            ),
-            pw.Divider(thickness: 0.5),
-            /// ITEM HEADER
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text("Description",
-                    style: pw.TextStyle(
-                        fontSize: fontSize,
-                        fontWeight: pw.FontWeight.bold)),
-                pw.Text("Qty",
-                    style: pw.TextStyle(
-                        fontSize: fontSize,
-                        fontWeight: pw.FontWeight.bold)),
-              ],
-            ),
-            pw.SizedBox(height: 5),
-            /// ITEM LIST
-            ...note.parts.map(
-              (item) => pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: note.tins.expand((tin) => [
+                /// HEADER
+                  _companyHeaderPdf('ADVICE OF DISPATCH NOTE'),
+                  pw.Divider(thickness: 0.5),
+    
+                /// CUSTOMER SECTION
+                  pw.Text("To:",style: pw.TextStyle(fontSize: fontSize, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(note.dealerName.toUpperCase(),style: pw.TextStyle(fontSize: fontSize)),
+                  pw.Text(note.dealerAddress.toUpperCase(),style: pw.TextStyle(fontSize: fontSize)),
+                  pw.SizedBox(height: 6),
+    
+                /// DETAILS TABLE
+                  pw.Table(
+                            columnWidths: { 0: const pw.FlexColumnWidth(3),1: const pw.FlexColumnWidth(2)},
+                            children: [
+                              _buildDetailTableRow("A/C No", note.dealerId),
+                              _buildDetailTableRow("Order No", tin.orderNumber),
+                              _buildDetailTableRow("TIN No", tin.tinNumber),
+                              _buildDetailTableRow("Pay on Del", tin.payOnDel),
+                              _buildDetailTableRow("Route", note.route),
+                              _buildDetailTableRow("Date", formattedDate),
+                              _buildDetailTableRow("Dispatch No", note.dispatchNumber),
+                              ],
+                              ),
+                    pw.Divider(thickness: 0.5),
+    
+                  /// ITEM HEADER
+                  pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                        pw.Text("Description",style: pw.TextStyle(fontSize: fontSize, fontWeight: pw.FontWeight.bold)),
+                        pw.Text("Qty",style: pw.TextStyle(fontSize: fontSize, fontWeight: pw.FontWeight.bold)),
+                        ],
+                    ),
+                  pw.SizedBox(height: 5),
+    
+    /// ITEMS LIST
+                  ...tin.parts.expand((item) => [
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Expanded(
-                          child: pw.Text(
-                          item.description,
-                          style: const pw.TextStyle(fontSize: fontSize),
-                          ),),
-                      pw.Text(
-                        item.requestQty.toString(),
-                        style: const pw.TextStyle(
-                            fontSize: fontSize),
+                        child: pw.Text(
+                        item.description,
+                        style: pw.TextStyle(fontSize: fontSize),
+                        ),
                       ),
+                  pw.Text(item.requestQty.toString(),style: pw.TextStyle(fontSize: fontSize)),
                     ],
                   ),
                   pw.Text(
                     item.partNo,
-                    style: const pw.TextStyle(
-                        fontSize: fontSize - 1),
-                  ),
+                    style: pw.TextStyle(fontSize: fontSize - 1),
+                    ),
                   pw.SizedBox(height: 4),
-                ],
-              ),
-            ),
-            pw.Divider(thickness: 0.5),
-            /// FOOTER COUNTS
-            pw.Table(
-              columnWidths: {
-                0: const pw.FlexColumnWidth(3),
-                1: const pw.FlexColumnWidth(2),
-              },
-              children: [
-                _row("No. of Boxes", note.noOfBoxes.toString()),
-                _row("No. of Tags", note.noOfTags.toString()),
-                _row("No. of Plastic Boxes", note.noOfPlasticBoxes.toString()),
-                _row("Remarks", note.remarks ?? "-"),
-              ],
-            ),
-            _formFooterPdf(details)
-          ],
-        );
+    ]),
+    
+    pw.Divider(thickness: 0.5),
+    
+    /// FOOTER COUNTS
+    pw.Table(
+      columnWidths: {
+        0: const pw.FlexColumnWidth(3),
+        1: const pw.FlexColumnWidth(2),
+      },
+      children: [
+        _row("No. of Boxes", tin.bagCount.toString()),
+        _row("No. of Tags", tin.tagCount.toString()),
+        _row("No. of Plastic Boxes", tin.plasticBCount.toString()),
+        _row("Remarks", tin.remark.isEmpty ? "-" : tin.remark),
+      ],
+    ),
+    _formFooterPdf(details),
+    
+    /// SEPARATOR BETWEEN TINS
+    if (tin != note.tins.last) ...[
+      pw.Divider(thickness: 2, color: PdfColors.grey600),
+    ]
+  ]).toList(),
+);
+        // return pw.Column(
+        //   crossAxisAlignment: pw.CrossAxisAlignment.start,
+        //   children: [
+        //     /// HEADER
+        //     _companyHeaderPdf('ADVICE OF DISPATCH NOTE'),
+        //     pw.Divider(thickness: 0.5),
+        //     /// CUSTOMER SECTION
+        //     pw.Text("To:",
+        //         style: pw.TextStyle(
+        //         fontSize: fontSize,
+        //         fontWeight: pw.FontWeight.bold)
+        //         ),
+        //     pw.Text(note.dealerName.toUpperCase(),
+        //         style: const pw.TextStyle(fontSize: fontSize)),
+        //     pw.Text(note.dealerAddress.toUpperCase(),
+        //         style: const pw.TextStyle(fontSize: fontSize)),
+        //     pw.SizedBox(height: 6),
+        //     pw.Table(
+        //       columnWidths: {
+        //         0: const pw.FlexColumnWidth(3),
+        //         1: const pw.FlexColumnWidth(2),
+        //       },
+        //       children: [
+        //         _buildDetailTableRow("A/C No", note.dealerId),
+        //         _buildDetailTableRow("Order No", note.tins[0].orderNumber),
+        //         _buildDetailTableRow("TIN No", note.tins[0].tinNumber),
+        //         _buildDetailTableRow("Pay on Del", note.tins[0].payOnDel),
+        //         _buildDetailTableRow("Route", note.route),
+        //         _buildDetailTableRow("Date", formattedDate),
+        //         _buildDetailTableRow("Dispatch No", note.dispatchNumber),
+        //       ],
+        //     ),
+        //     pw.Divider(thickness: 0.5),
+        //     /// ITEM HEADER
+        //     pw.Row(
+        //       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        //       children: [
+        //         pw.Text("Description",
+        //             style: pw.TextStyle(
+        //                 fontSize: fontSize,
+        //                 fontWeight: pw.FontWeight.bold)),
+        //         pw.Text("Qty",
+        //             style: pw.TextStyle(
+        //                 fontSize: fontSize,
+        //                 fontWeight: pw.FontWeight.bold)),
+        //       ],
+        //     ),
+        //     pw.SizedBox(height: 5),
+        //     /// ITEM LIST
+        //     ...note.tins[0].parts.map(
+        //       (item) => pw.Column(
+        //         crossAxisAlignment: pw.CrossAxisAlignment.start,
+        //         children: [
+        //           pw.Row(
+        //             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        //             children: [
+        //               pw.Expanded(
+        //                   child: pw.Text(
+        //                   item.description,
+        //                   style: const pw.TextStyle(fontSize: fontSize),
+        //                   ),),
+        //               pw.Text(
+        //                 item.requestQty.toString(),
+        //                 style: const pw.TextStyle(
+        //                     fontSize: fontSize),
+        //               ),
+        //             ],
+        //           ),
+        //           pw.Text(
+        //             item.partNo,
+        //             style: const pw.TextStyle(
+        //                 fontSize: fontSize - 1),
+        //           ),
+        //           pw.SizedBox(height: 4),
+        //         ],
+        //       ),
+        //     ),
+        //     pw.Divider(thickness: 0.5),
+        //     /// FOOTER COUNTS
+        //     pw.Table(
+        //       columnWidths: {
+        //         0: const pw.FlexColumnWidth(3),
+        //         1: const pw.FlexColumnWidth(2),
+        //       },
+        //       children: [
+        //         _row("No. of Boxes", note.tins[0].bagCount.toString()),
+        //         _row("No. of Tags", note.tins[0].tagCount.toString()),
+        //         _row("No. of Plastic Boxes", note.tins[0].plasticBCount.toString()),
+        //         _row("Remarks", note.tins[0].remark ?? "-"),
+        //       ],
+        //     ),
+        //     _formFooterPdf(details)
+        //   ],
+        // );
       },
     ),
   );

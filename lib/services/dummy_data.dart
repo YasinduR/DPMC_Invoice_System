@@ -6,6 +6,7 @@ import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
+import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/employee_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/menu_model.dart';
@@ -31,6 +32,7 @@ class DummyData {
   //static final List<ReturnRequest> _returnRequest = [];
 
   static final List<InvoiceSave> _sessionInvoices = [];
+  static final List<DispatchNoteSave> _sessionDispatchNotes = [];
   //static final List<Attendance> _attendance = [];
 
   static final List<Attendance> _attendance = generateDummyAttendanceData(
@@ -186,6 +188,14 @@ class DummyData {
       title: 'Return Request Adjustment',
       iconName: 'account_tree_sharp',
     ),
+
+    Screen(
+      screenId: '018',
+      screenName: 'dispatchNote',
+      menuId: '01',
+      title: 'Advice of Dispatch Note',
+      iconName: 'local_shipping',
+    ),
   ];
 
   static final List<Role> _roles = [
@@ -222,6 +232,8 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '002', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
+    Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
+
   ];
 
   static final List<User> _users = [
@@ -1111,13 +1123,19 @@ class DummyData {
     ),
   ];
 
-  static final List<TinData> _tins = [
+static final List<TinData> _tins = [
   const TinData(
     tinNumber: 'TIN987654321',
     orderNumber: 'PADC202510250001',
     totalValue: 1500.75,
     paymentStatus: 'P', // Payment Pending
     dealercode: 'AC2000123306',
+    payOnDel: 'N',
+    bagCount: 2,
+    tagCount: 4,
+    plasticBCount: 1,
+    remark: 'Handle with care',
+    parts: [],
   ),
   const TinData(
     tinNumber: 'TIN123456789',
@@ -1125,20 +1143,216 @@ class DummyData {
     totalValue: 899.99,
     paymentStatus: 'C', // Payment Completed
     dealercode: 'AC2000123306',
+    payOnDel: 'Y',
+    bagCount: 1,
+    tagCount: 2,
+    plasticBCount: 0,
+    remark: 'Fragile items',
+    parts: [],
   ),
-  const TinData(
+  TinData(
     tinNumber: 'TIN555555555',
     orderNumber: 'PADC202510250003',
     totalValue: 12500.00,
     paymentStatus: 'A', // Payment Approved
     dealercode: 'AC2000123306',
+    payOnDel: 'N',
+    bagCount: 5,
+    tagCount: 10,
+    plasticBCount: 3,
+    remark: 'Heavy equipment',
+    parts:  [
+      Part(
+        id: 'p3', 
+        partNo: 'AC2000123232', 
+        requestQty: 1, 
+        price: 8000.00,
+        description: 'Engine Assembly',
+      ),
+       Part(
+        id: 'p4', 
+        partNo: 'AC2000123342', 
+        requestQty: 1, 
+        price: 1000.00,
+        description: 'Transmission',
+      ),
+       Part(
+        id: 'p5', 
+        partNo: 'AC2000123932', 
+        requestQty: 6, 
+        price: 3000.00,
+        description: 'Wheel Set',
+      ),
+    ],
   ),
-  const TinData(
+  TinData(
     tinNumber: 'TIN314159265',
     orderNumber: 'PADC202510250004',
     totalValue: 432.50,
     paymentStatus: 'P', // Another Pending example
     dealercode: 'AC2000123306',
+    payOnDel: 'Y',
+    bagCount: 1,
+    tagCount: 1,
+    plasticBCount: 1,
+    remark: 'Small parts',
+    parts:  [
+      Part(
+        id: 'p6',
+        partNo: 'AC2000123111',
+        requestQty: 2,
+        price: 150.25,
+        description: 'Oil Filter',
+      ),
+       Part(
+        id: 'p7',
+        partNo: 'AC2000123222',
+        requestQty: 1,
+        price: 132.00,
+        description: 'Air Filter',
+      ),
+    ],
+  ),
+  
+  /// ADDITIONAL PAYMENT APPROVED ENTRIES WITH SAME DEALERCODE
+  
+  // Entry 5: Payment Approved with multiple parts and remark '-'
+  TinData(
+    tinNumber: 'TIN999888777',
+    orderNumber: 'PADC202510250005',
+    totalValue: 8750.25,
+    paymentStatus: 'A', // Payment Approved
+    dealercode: 'AC2000123306',
+    payOnDel: 'N',
+    bagCount: 4,
+    tagCount: 8,
+    plasticBCount: 2,
+    remark: '-',
+    parts:  [
+      Part(
+        id: 'p8',
+        partNo: 'AC2000123555',
+        requestQty: 2,
+        price: 1250.00,
+        description: 'Brake Caliper Set',
+      ),
+      Part(
+        id: 'p9',
+        partNo: 'AC2000123666',
+        requestQty: 4,
+        price: 350.00,
+        description: 'Brake Pads',
+      ),
+      Part(
+        id: 'p10',
+        partNo: 'AC2000123777',
+        requestQty: 2,
+        price: 450.00,
+        description: 'Brake Disc Rotor',
+      ),
+      Part(
+        id: 'p11',
+        partNo: 'AC2000123888',
+        requestQty: 1,
+        price: 2200.00,
+        description: 'ABS Control Module',
+      ),
+    ],
+  ),
+  
+  // Entry 6: Payment Approved with remark '-'
+  TinData(
+    tinNumber: 'TIN444333222',
+    orderNumber: 'PADC202510250006',
+    totalValue: 23450.50,
+    paymentStatus: 'A', // Payment Approved
+    dealercode: 'AC2000123306',
+    payOnDel: 'N',
+    bagCount: 8,
+    tagCount: 16,
+    plasticBCount: 5,
+    remark: '-',
+    parts:  [
+      Part(
+        id: 'p12',
+        partNo: 'AC2000123999',
+        requestQty: 1,
+        price: 8500.00,
+        description: 'Turbocharger Assembly',
+      ),
+      Part(
+        id: 'p13',
+        partNo: 'AC20001231010',
+        requestQty: 1,
+        price: 4200.00,
+        description: 'Intercooler',
+      ),
+      Part(
+        id: 'p14',
+        partNo: 'AC20001231111',
+        requestQty: 4,
+        price: 850.00,
+        description: 'Fuel Injector',
+      ),
+      Part(
+        id: 'p15',
+        partNo: 'AC20001231212',
+        requestQty: 2,
+        price: 950.00,
+        description: 'Fuel Pump',
+      ),
+      Part(
+        id: 'p16',
+        partNo: 'AC20001231313',
+        requestQty: 1,
+        price: 1800.00,
+        description: 'ECU Engine Control Unit',
+      ),
+    ],
+  ),
+  
+  // Entry 7: Payment Approved with remark '-'
+  TinData(
+    tinNumber: 'TIN777666555',
+    orderNumber: 'PADC202510250007',
+    totalValue: 5675.80,
+    paymentStatus: 'A', // Payment Approved
+    dealercode: 'AC2000123306',
+    payOnDel: 'Y',
+    bagCount: 3,
+    tagCount: 6,
+    plasticBCount: 2,
+    remark: '-',
+    parts:  [
+      Part(
+        id: 'p17',
+        partNo: 'AC20001231414',
+        requestQty: 2,
+        price: 675.00,
+        description: 'Alternator',
+      ),
+      Part(
+        id: 'p18',
+        partNo: 'AC20001231515',
+        requestQty: 2,
+        price: 545.00,
+        description: 'Starter Motor',
+      ),
+      Part(
+        id: 'p19',
+        partNo: 'AC20001231616',
+        requestQty: 4,
+        price: 185.00,
+        description: 'Spark Plugs',
+      ),
+      Part(
+        id: 'p20',
+        partNo: 'AC20001231717',
+        requestQty: 1,
+        price: 1250.00,
+        description: 'Ignition Coil Pack',
+      ),
+    ],
   ),
 ];
 
@@ -1667,6 +1881,7 @@ static final List<ReturnRequest> _returnRequests = [
   static List<Employee> get employees => _employees;
   static List<Return> get returns => _sessionReturns;
   static List<InvoiceSave> get savedInvoices => _sessionInvoices;
+  static List<DispatchNoteSave> get savedDispatchNotes => _sessionDispatchNotes;
   static List<ReturnRequest> get returnRequests => _returnRequests;
 }
 

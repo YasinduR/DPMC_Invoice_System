@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/screens/Initializer/Initializer_screen.dart';
+import 'package:myapp/screens/advice_of_dispatch_note.dart/advice_of_dispatch_note_screen.dart';
 import 'package:myapp/screens/attendance/attendance_screen.dart';
 import 'package:myapp/screens/change_password/change_pwd_screen.dart';
 import 'package:myapp/screens/error_screen/error_screen.dart';
@@ -71,12 +72,8 @@ class AppRouter {
         authState.requiresPasswordChange &&
         routeName != AppRoutes.login) {
       return MaterialPageRoute(
-        builder:
-            (_) =>
-                const LoginScreen(), // Redirect to LoginScreen, which will show set password form
-        settings: const RouteSettings(
-          name: AppRoutes.login,
-        ), // Keep route name as login
+        builder:(_) => const LoginScreen(), // Redirect to LoginScreen, which will show set password form
+        settings: const RouteSettings( name: AppRoutes.login), // Keep route name as login
       );
     }
 
@@ -165,6 +162,8 @@ class AppRouter {
         return (context) => const TestPrintPage();
       case '/returnRequestAdjust':
         return (context) => const RetReqAdjScreen();
+      case '/dispatchNote':
+        return (context) => const DispatchNoteScreen();
       default:
         return null; // Return Null for the invalid routes
     }

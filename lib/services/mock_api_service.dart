@@ -4,6 +4,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
+import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/reciept_model.dart';
 import 'package:myapp/models/return_request_model.dart';
@@ -788,6 +789,25 @@ class MockApiService {
         DummyData.savedInvoices.add(updatedInvoice);
         return updatedInvoice;
 
+        case 'api/dispatchNote/save':
+    if (body is! DispatchNoteSave) {
+      throw Exception('Invalid type for saving a Dispatch Note. Expected a DispatchNoteSave object.');
+    }
+    final dispatchNote = body;
+    final updatedDispatchNote = dispatchNote.copyWith(
+      dispatchNumber: generateDispatchNumber(),
+    );
+    final isDuplicate = DummyData.savedDispatchNotes.any(
+      (existing) => existing.dispatchNumber == updatedDispatchNote.dispatchNumber,
+    );
+    if (isDuplicate) {
+      throw Exception('Dispatch note number already exists.');
+    }
+    DummyData.savedDispatchNotes.add(updatedDispatchNote);
+    return updatedDispatchNote;
+
+  // Add other cases...
+
       case 'api/return/save':
         if (body is! Return) {
           throw Exception(
@@ -960,6 +980,27 @@ String generateInvoiceNumber() {
   // Combine to create the invoice number
   return 'MIN' + formattedDate + formattedTime;
 }
+
+
+String generateDispatchNumber() {
+  final now = DateTime.now();
+
+  // Format date as YYYYMMDD
+  String year = now.year.toString();
+  String month = now.month.toString().padLeft(2, '0');
+  String day = now.day.toString().padLeft(2, '0');
+  String formattedDate = year + month + day;
+
+  // Format time as HHMMSS
+  String hour = now.hour.toString().padLeft(2, '0');
+  String minute = now.minute.toString().padLeft(2, '0');
+  String second = now.second.toString().padLeft(2, '0');
+  String formattedTime = hour + minute + second;
+
+  // Combine to create the DIS
+  return 'ADN' + formattedDate + formattedTime;
+}
+
 
 String generateRetNumber() {
   final now = DateTime.now();
