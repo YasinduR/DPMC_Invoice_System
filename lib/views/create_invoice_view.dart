@@ -51,44 +51,69 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
 
   Future<void> _loadParts() async {
     setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+      _isLoading = false;
+      _parts = widget.tindata.parts;
+      _selectedParts = [];
     });
-
-    await inquire<Part>(
-      context: context,
-      dataUrl: 'parts/list',
-      onSuccess: (List<Part> data) {
-        if (mounted) {
-          setState(() {
-            _parts = data;
-            _isLoading = false;
-          });
-        }
-      },
-      onError: (String message) {
-        if (mounted) {
-          setState(() {
-            _errorMessage = message;
-            _isLoading = false;
-          });
-        }
+    if (_parts.isEmpty) {
+      if (mounted) {
         showSnackBar(
           context: context,
-          message: _errorMessage!,
-          type: MessageType.success,
+          message: 'No parts available',
+          type: MessageType.error,
         );
-      },
-    );
+      }
+    }
   }
+
+  // Future<void> _loadParts() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = null;
+  //   });
+  //   // setState(() {
+  //   //   _parts = widget.tindata.parts;
+
+  //   // });
+
+  //   await inquire<Part>(
+  //     context: context,
+  //     dataUrl: 'parts/list',
+  //     onSuccess: (List<Part> data) {
+  //       if (mounted) {
+  //         setState(() {
+  //           _parts = data;
+  //           _isLoading = false;
+  //         });
+  //       }
+  //     },
+  //     onError: (String message) {
+  //       if (mounted) {
+  //         setState(() {
+  //           _errorMessage = message;
+  //           _isLoading = false;
+  //         });
+  //       }
+  //       showSnackBar(
+  //         context: context,
+  //         message: _errorMessage!,
+  //         type: MessageType.success,
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildPartList() {
     if (_isLoading) {
       return const Center(child: Text("Loading parts..."));
     }
 
+    if (!_isLoading && _parts.isEmpty) {
+      return const Center(child: Text("No Parts Found"));
+    }
+
     if (_errorMessage != null) {
-      return const Center(child: Text("No data Found"));
+      return const Center(child: Text("No Parts Found"));
     }
 
     return AppDataGrid<Part>(
@@ -135,8 +160,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
             );
             return QuantitySelector(
               value: selectedPart?.receivedQty ?? 0,
-              enabled:
-                  selectedPart != null, 
+              enabled: selectedPart != null,
               dialogTitle: 'Delivered Quantity',
               maxQuantity: part.requestQty,
               onChanged: (newValue) {
