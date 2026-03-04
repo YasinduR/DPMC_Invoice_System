@@ -7,6 +7,56 @@ import 'package:myapp/widgets/app_action_button.dart'; // Make sure the path is 
 const dialogBoxFont = AppFonts.primaryFont;  // Font Family Name 
 
 /// A generic dialog function. All other dialogs are based on this.
+// Future<T?> showAppDialog<T>({
+//   required BuildContext context,
+//   required String title,
+//   Widget? content,
+//   List<Widget>? actions,
+// }) {
+//   return showDialog<T>(
+//     context: context,
+//     barrierDismissible: false, // User must interact to dismiss
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(20.0),
+//         ),
+//         // Center the title text
+//         title: Text(
+//           title,
+//           textAlign: TextAlign.center,
+//           style: const TextStyle(
+//             fontWeight: FontWeight.bold,
+//             fontSize: 20,
+//             fontFamily: dialogBoxFont
+//           ),
+//         ),
+//         // The main message content
+//         content: content,
+//         // The buttons at the bottom, wrapped in a Column
+//         actions:
+//             actions != null && actions.isNotEmpty
+//                 ? [
+//                   Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     crossAxisAlignment: CrossAxisAlignment.stretch,
+//                     children:
+//                         actions.map((action) {
+//                           // Add spacing between buttons
+//                           return Padding(
+//                             padding: const EdgeInsets.only(top: 8.0),
+//                             child: action,
+//                           );
+//                         }).toList(),
+//                   ),
+//                 ]
+//                 : null,
+//         actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+//       );
+//     },
+//   );
+// }
+
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required String title,
@@ -15,42 +65,27 @@ Future<T?> showAppDialog<T>({
 }) {
   return showDialog<T>(
     context: context,
-    barrierDismissible: false, // User must interact to dismiss
+    barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
-        // Center the title text
         title: Text(
           title,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
-            fontFamily: dialogBoxFont
+            fontFamily: dialogBoxFont,
           ),
         ),
-        // The main message content
         content: content,
-        // The buttons at the bottom, wrapped in a Column
-        actions:
-            actions != null && actions.isNotEmpty
-                ? [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children:
-                        actions.map((action) {
-                          // Add spacing between buttons
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: action,
-                          );
-                        }).toList(),
-                  ),
-                ]
-                : null,
+        // Use the actions directly and control spacing with ButtonTheme or style
+        actions: actions,
+        // Adjust spacing between actions
+        actionsOverflowDirection: VerticalDirection.down,
+        actionsOverflowButtonSpacing: 8,
         actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       );
     },
