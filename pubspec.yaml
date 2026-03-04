@@ -94,7 +94,7 @@ flutter:
   assets:
     - assets/images/dpmc.png
     - assets/images/dpmc_footer.png  
-    - .env
+    # - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

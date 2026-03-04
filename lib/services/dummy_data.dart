@@ -55,6 +55,11 @@ class DummyData {
       name: 'SACHITH DANANJAYA',
       compName: 'D P INFOTECH PRIVATE LIMITED',
     ),
+    Employee(
+      id: '2896',
+      name: 'DARSHAN RAVICHANDRAN',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
   ];
 
   static final List<Menu> _menus = [
@@ -196,6 +201,13 @@ class DummyData {
       title: 'Advice of Dispatch Note',
       iconName: 'local_shipping',
     ),
+    Screen(
+      screenId: '019',
+      screenName: 'dealerinfo',
+      menuId: '01',
+      title: 'Dealer Info Screen',
+      iconName: 'local_shipping',
+    ),
   ];
 
   static final List<Role> _roles = [
@@ -233,6 +245,9 @@ class DummyData {
     Perm(RoleId: '002', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
+    Perm(RoleId: '001', ScreenId: '019'), // Return Request Adjustment
+    Perm(RoleId: '002', ScreenId: '019'), // Return Request Adjustment
+    Perm(RoleId: '003', ScreenId: '019'), // Return Request Adjustment
 
   ];
 
@@ -281,6 +296,16 @@ class DummyData {
       telephone: '+94771234555',
       password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
       roles: ['001', '002', '003'],
+    ),
+    User(
+      id: '2619',
+      username: 'darshanr',
+      email: 'darshanr@example.com',
+      telephone: '+94771234927',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['001'],
+      isTemporaryPassword: false,
+      passwordUpdatedAt: DateTime.now(),
     ),
   ];
 

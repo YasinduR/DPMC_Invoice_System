@@ -23,6 +23,7 @@ import 'package:myapp/screens/security_setting/security_setting_screen.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 import 'package:myapp/screens/test_screens/test_print.dart';
+import 'package:myapp/screens/dealer_info/dealer_info_screen.dart';
 
 // This will link main.dart with the approutes with handling permission
 
@@ -164,6 +165,8 @@ class AppRouter {
         return (context) => const RetReqAdjScreen();
       case '/dispatchNote':
         return (context) => const DispatchNoteScreen();
+      case '/dealerinfo':
+        return (context) => const DealerInfoScreen();
       default:
         return null; // Return Null for the invalid routes
     }
