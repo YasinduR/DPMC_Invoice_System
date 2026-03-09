@@ -1,10 +1,11 @@
+import 'package:myapp/contracts/common_functions.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
 
 class Receipt implements Mappable {
-  final String recieptNo;
-  final DateTime recieptTime;
+  final String receiptNo;
+  final DateTime receiptTime;
   final String userId;
   final String dealerCode;
   final String dealerName;
@@ -18,8 +19,8 @@ class Receipt implements Mappable {
   final List<CreditNote> creditNotes;
 
   Receipt({
-    required this.recieptNo,
-    required this.recieptTime,
+    required this.receiptNo,
+    required this.receiptTime,
     required this.userId,
     required this.dealerName,
     required this.dealerCode,
@@ -36,15 +37,15 @@ class Receipt implements Mappable {
   @override
   Map<String, dynamic> toMap() {
     return {
-      'recieptNo':recieptNo,
-      'recieptTime': recieptTime.toIso8601String(), // Standard format for APIs
+      'receiptNo': receiptNo,
+      'receiptTime': formatDateTime(receiptTime), // Standard format for APIs
       'dealerCode': dealerCode,
       'userId': userId,
       'dealerName': dealerName,
       'dealer': dealerCode,
       'chequeNumber': chequeNumber,
       'chequeAmount': chequeAmount,
-      'chequeDate': chequeDate.toIso8601String(), // Standard format for APIs
+      'chequeDate': formatDateTime(chequeDate), // Standard format for APIs
       'bankCode': bankCode,
       'branchCode': branchCode,
       'branchName': branchName,
@@ -52,9 +53,10 @@ class Receipt implements Mappable {
       'creditNotes': creditNotes.map((note) => note.toMap()).toList(),
     };
   }
-    Receipt copyWith({
-    String? recieptNo,
-    DateTime? recieptTime,
+
+  Receipt copyWith({
+    String? receiptNo,
+    DateTime? receiptTime,
     String? userId,
     String? dealerCode,
     String? dealerName,
@@ -68,8 +70,8 @@ class Receipt implements Mappable {
     List<CreditNote>? creditNotes,
   }) {
     return Receipt(
-      recieptNo: recieptNo ?? this.recieptNo,
-      recieptTime: recieptTime ?? this.recieptTime,
+      receiptNo: receiptNo ?? this.receiptNo,
+      receiptTime: receiptTime ?? this.receiptTime,
       userId: userId ?? this.userId,
       dealerCode: dealerCode ?? this.dealerCode,
       dealerName: dealerName ?? this.dealerName,

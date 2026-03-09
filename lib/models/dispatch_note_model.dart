@@ -1,3 +1,4 @@
+import 'package:myapp/contracts/common_functions.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/tin_model.dart';
@@ -37,7 +38,7 @@ class DispatchNoteSave implements Mappable {
       'dealerAddress': dealerAddress,
       'dealerId': dealerId,
       'userId': userId,
-      'dispatchTime': dispatchTime.toIso8601String(),
+      'dispatchTime': formatDateTime(dispatchTime),
       'tins': tins.map((item) => item.toMap()).toList(),
     };
   }

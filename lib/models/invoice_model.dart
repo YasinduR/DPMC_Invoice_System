@@ -1,3 +1,4 @@
+import 'package:myapp/contracts/common_functions.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/part_model.dart';
 
@@ -47,7 +48,7 @@ class InvoiceSave implements Mappable {
       'dealerId': dealerId,
       'userId': userId,
       'invoiceAmount': invoiceAmount,
-      'invoiceTime': invoiceTime.toIso8601String(),
+      'invoiceTime': formatDateTime(invoiceTime),
       'parts': parts.map((item) => item.toMap()).toList(),
     };
   }

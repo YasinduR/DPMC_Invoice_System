@@ -14,7 +14,7 @@ import 'package:myapp/screens/main_menu/main_menu_screen.dart';
 import 'package:myapp/screens/protected_screen/permission_screen.dart';
 import 'package:myapp/screens/print_invoice/print_invoice_screen.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
-import 'package:myapp/screens/reciept/reciept_screen.dart';
+import 'package:myapp/screens/receipt/receipt_screen.dart';
 import 'package:myapp/screens/reprint/reprint_screen.dart';
 import 'package:myapp/screens/return%20request%20adjustment%20/ret_req_adj_screen.dart';
 import 'package:myapp/screens/returns/return_screen.dart';
@@ -72,8 +72,12 @@ class AppRouter {
         authState.requiresPasswordChange &&
         routeName != AppRoutes.login) {
       return MaterialPageRoute(
-        builder:(_) => const LoginScreen(), // Redirect to LoginScreen, which will show set password form
-        settings: const RouteSettings( name: AppRoutes.login), // Keep route name as login
+        builder:
+            (_) =>
+                const LoginScreen(), // Redirect to LoginScreen, which will show set password form
+        settings: const RouteSettings(
+          name: AppRoutes.login,
+        ), // Keep route name as login
       );
     }
 
@@ -144,8 +148,8 @@ class AppRouter {
         return (context) => const ProfileScreen();
       case '/testNotify':
         return (context) => const TestPage();
-      case '/reciept':
-        return (context) => const RecieptScreen();
+      case '/receipt':
+        return (context) => const ReceiptScreen();
       case '/returns':
         return (context) => const ReturnScreen();
       case '/reprint':

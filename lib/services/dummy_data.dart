@@ -12,7 +12,7 @@ import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/menu_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/permission_model.dart';
-import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
@@ -27,11 +27,173 @@ import 'package:myapp/models/user_model.dart';
 //// IMPORTANT :  This works as the DataBase remove later
 
 class DummyData {
-  static final List<Receipt> _sessionReceipts = [];
+  static final dummyInv1 = InvoiceSave(
+    invoiceNumber: "DN20260224002",
+    tinNo: "PTIBDM202602170463",
+    orderNo: "PADC2026021605834",
+    payOndel: "N",
+    route: "R01",
+
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    dealerVatNo: "VAT123456789",
+    dealerAddress: "No 199/4 Kanaththa Road, Molligoda, Wadduwa",
+    dealerId: "AC2018023904",
+
+    userId: "USR01",
+
+    parts: [
+      Part(
+        id: '1',
+        partNo: "03100335",
+        description: "BEARING NEEDLE [SCE188] - MAINSHAFT",
+        requestQty: 10,
+        price: 21.3,
+      ),
+      Part(
+        id: '2',
+        partNo: "24171094",
+        description: "SHOCKABSORBER ASSEMBLY - REAR",
+        requestQty: 6,
+        price: 4500.00,
+      ),
+      Part(
+        id: '3',
+        partNo: "39132420",
+        description: "BEARING BALL [6305] - CRANKSHAFT",
+        requestQty: 5,
+        price: 320.50,
+      ),
+      Part(
+        id: '4',
+        partNo: "39193120",
+        description: "BEARING BALL - 28 X 68 X 18",
+        requestQty: 4,
+        price: 275.75,
+      ),
+      Part(
+        id: '5',
+        partNo: "AA101108",
+        description: "GEAR SELECTER",
+        requestQty: 5,
+        price: 1890.00,
+      ),
+      Part(
+        id: '6',
+        partNo: "AA101481",
+        description: "INNER CLUTCH RELEASE COMPLETE",
+        requestQty: 5,
+        price: 2150.00,
+      ),
+      Part(
+        id: '7',
+        partNo: "AB171044",
+        description: "SHOCKABSORBER ASSEMBLY COMPLETE - FRONT",
+        requestQty: 4,
+        price: 5600.00,
+      ),
+      Part(
+        id: '8',
+        partNo: "AS00304013",
+        description: "N/A",
+        requestQty: 50,
+        price: 12.00,
+      ),
+      Part(
+        id: '9',
+        partNo: "DS101277",
+        description: "TENSIONER ASSEMBLY",
+        requestQty: 5,
+        price: 1340.00,
+      ),
+    ],
+    invoiceAmount: 100000.00,
+    invoiceTime: DateTime.now(),
+  );
+
+  static final dummyInv2 = InvoiceSave(
+    invoiceNumber: "DN20260224001",
+    tinNo: "PTIBDM202602170463",
+    orderNo: "PADC2026021605834",
+    payOndel: "N",
+    route: "R01",
+
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    dealerVatNo: "VAT123456789",
+    dealerAddress: "No 199/4 Kanaththa Road, Molligoda, Wadduwa",
+    dealerId: "AC2018023904",
+
+    userId: "USR01",
+
+    parts: [
+      Part(
+        id: '1',
+        partNo: "03100335",
+        description: "BEARING NEEDLE [SCE188] - MAINSHAFT",
+        requestQty: 10,
+        price: 21.3,
+      ),
+      Part(
+        id: '2',
+        partNo: "24171094",
+        description: "SHOCKABSORBER ASSEMBLY - REAR",
+        requestQty: 6,
+        price: 4500.00,
+      ),
+      Part(
+        id: '7',
+        partNo: "39132420",
+        description: "BEARING BALL [6305] - CRANKSHAFT",
+        requestQty: 5,
+        price: 320.50,
+      ),
+      Part(
+        id: '4',
+        partNo: "39193120",
+        description: "BEARING BALL - 28 X 68 X 18",
+        requestQty: 4,
+        price: 275.75,
+      ),
+      Part(
+        id: '5',
+        partNo: "AA101108",
+        description: "GEAR SELECTER",
+        requestQty: 5,
+        price: 1890.00,
+      ),
+    ],
+    invoiceAmount: 100000.00,
+    invoiceTime: DateTime.now(),
+  );
+
+  static final dummyRec1 = Receipt(
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    userId: "USR01",
+    receiptNo: 'TestS112111',
+    receiptTime: DateTime.now(),
+    dealerCode: 'TestS112111',
+    chequeNumber: '',
+    chequeAmount: 45200.50,
+    chequeDate: DateTime.now(),
+    bankCode: '7010',
+    branchCode: '001',
+    branchName: 'Bank of Ceylon - Colombo',
+    tins: [
+      TinInvoice(
+        tinNo: 'TINBDM2025011500101',
+        mobileInvNo: 'MIN0020512201400010',
+        invAmount: 45200.50,
+        paymentOnDeliveryStatus: 'Y',
+        dealerAccCode: 'AC2000123306',
+      ),
+    ],
+    creditNotes: [],
+  );
+
+  static final List<Receipt> _sessionReceipts = [dummyRec1];
   static final List<Return> _sessionReturns = [];
   //static final List<ReturnRequest> _returnRequest = [];
 
-  static final List<InvoiceSave> _sessionInvoices = [];
+  static final List<InvoiceSave> _sessionInvoices = [dummyInv2, dummyInv1];
   static final List<DispatchNoteSave> _sessionDispatchNotes = [];
   //static final List<Attendance> _attendance = [];
 
@@ -125,7 +287,7 @@ class DummyData {
     ),
     Screen(
       screenId: '008',
-      screenName: 'reciept',
+      screenName: 'receipt',
       menuId: '01',
       title: 'Receipt',
       iconName: 'article',
@@ -191,7 +353,7 @@ class DummyData {
 
     Screen(
       screenId: '018',
-      screenName: 'dispatchNote',  
+      screenName: 'dispatchNote',
       menuId: '01',
       title: 'Advice of Dispatch Note',
       iconName: 'local_shipping',
@@ -213,7 +375,7 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '006'), // profile
     Perm(RoleId: '001', ScreenId: '007'), // testNotify
     Perm(RoleId: '002', ScreenId: '007'), // testNotify
-    Perm(RoleId: '001', ScreenId: '008'), // reciept
+    Perm(RoleId: '001', ScreenId: '008'), // receipt
     Perm(RoleId: '001', ScreenId: '009'), // returns
     Perm(RoleId: '001', ScreenId: '010'), // reprint
     Perm(RoleId: '001', ScreenId: '011'), // region
@@ -233,7 +395,6 @@ class DummyData {
     Perm(RoleId: '002', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
-
   ];
 
   static final List<User> _users = [
@@ -1123,238 +1284,238 @@ class DummyData {
     ),
   ];
 
-static final List<TinData> _tins = [
-  const TinData(
-    tinNumber: 'TIN987654321',
-    orderNumber: 'PADC202510250001',
-    totalValue: 1500.75,
-    paymentStatus: 'P', // Payment Pending
-    dealercode: 'AC2000123306',
-    payOnDel: 'N',
-    bagCount: 2,
-    tagCount: 4,
-    plasticBCount: 1,
-    remark: 'Handle with care',
-    parts: [],
-  ),
-  const TinData(
-    tinNumber: 'TIN123456789',
-    orderNumber: 'PADC202510250002',
-    totalValue: 899.99,
-    paymentStatus: 'C', // Payment Completed
-    dealercode: 'AC2000123306',
-    payOnDel: 'Y',
-    bagCount: 1,
-    tagCount: 2,
-    plasticBCount: 0,
-    remark: 'Fragile items',
-    parts: [],
-  ),
-  TinData(
-    tinNumber: 'TIN555555555',
-    orderNumber: 'PADC202510250003',
-    totalValue: 12500.00,
-    paymentStatus: 'A', // Payment Approved
-    dealercode: 'AC2000123306',
-    payOnDel: 'N',
-    bagCount: 5,
-    tagCount: 10,
-    plasticBCount: 3,
-    remark: 'Heavy equipment',
-    parts:  [
-      Part(
-        id: 'p3', 
-        partNo: 'AC2000123232', 
-        requestQty: 1, 
-        price: 8000.00,
-        description: 'Engine Assembly',
-      ),
-       Part(
-        id: 'p4', 
-        partNo: 'AC2000123342', 
-        requestQty: 1, 
-        price: 1000.00,
-        description: 'Transmission',
-      ),
-       Part(
-        id: 'p5', 
-        partNo: 'AC2000123932', 
-        requestQty: 6, 
-        price: 3000.00,
-        description: 'Wheel Set',
-      ),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN314159265',
-    orderNumber: 'PADC202510250004',
-    totalValue: 432.50,
-    paymentStatus: 'P', // Another Pending example
-    dealercode: 'AC2000123306',
-    payOnDel: 'Y',
-    bagCount: 1,
-    tagCount: 1,
-    plasticBCount: 1,
-    remark: 'Small parts',
-    parts:  [
-      Part(
-        id: 'p6',
-        partNo: 'AC2000123111',
-        requestQty: 2,
-        price: 150.25,
-        description: 'Oil Filter',
-      ),
-       Part(
-        id: 'p7',
-        partNo: 'AC2000123222',
-        requestQty: 1,
-        price: 132.00,
-        description: 'Air Filter',
-      ),
-    ],
-  ),
-  
-  /// ADDITIONAL PAYMENT APPROVED ENTRIES WITH SAME DEALERCODE
-  
-  // Entry 5: Payment Approved with multiple parts and remark '-'
-  TinData(
-    tinNumber: 'TIN999888777',
-    orderNumber: 'PADC202510250005',
-    totalValue: 8750.25,
-    paymentStatus: 'A', // Payment Approved
-    dealercode: 'AC2000123306',
-    payOnDel: 'N',
-    bagCount: 4,
-    tagCount: 8,
-    plasticBCount: 2,
-    remark: '-',
-    parts:  [
-      Part(
-        id: 'p8',
-        partNo: 'AC2000123555',
-        requestQty: 2,
-        price: 1250.00,
-        description: 'Brake Caliper Set',
-      ),
-      Part(
-        id: 'p9',
-        partNo: 'AC2000123666',
-        requestQty: 4,
-        price: 350.00,
-        description: 'Brake Pads',
-      ),
-      Part(
-        id: 'p10',
-        partNo: 'AC2000123777',
-        requestQty: 2,
-        price: 450.00,
-        description: 'Brake Disc Rotor',
-      ),
-      Part(
-        id: 'p11',
-        partNo: 'AC2000123888',
-        requestQty: 1,
-        price: 2200.00,
-        description: 'ABS Control Module',
-      ),
-    ],
-  ),
-  
-  // Entry 6: Payment Approved with remark '-'
-  TinData(
-    tinNumber: 'TIN444333222',
-    orderNumber: 'PADC202510250006',
-    totalValue: 23450.50,
-    paymentStatus: 'A', // Payment Approved
-    dealercode: 'AC2000123306',
-    payOnDel: 'N',
-    bagCount: 8,
-    tagCount: 16,
-    plasticBCount: 5,
-    remark: '-',
-    parts:  [
-      Part(
-        id: 'p12',
-        partNo: 'AC2000123999',
-        requestQty: 1,
-        price: 8500.00,
-        description: 'Turbocharger Assembly',
-      ),
-      Part(
-        id: 'p13',
-        partNo: 'AC20001231010',
-        requestQty: 1,
-        price: 4200.00,
-        description: 'Intercooler',
-      ),
-      Part(
-        id: 'p14',
-        partNo: 'AC20001231111',
-        requestQty: 4,
-        price: 850.00,
-        description: 'Fuel Injector',
-      ),
-      Part(
-        id: 'p15',
-        partNo: 'AC20001231212',
-        requestQty: 2,
-        price: 950.00,
-        description: 'Fuel Pump',
-      ),
-      Part(
-        id: 'p16',
-        partNo: 'AC20001231313',
-        requestQty: 1,
-        price: 1800.00,
-        description: 'ECU Engine Control Unit',
-      ),
-    ],
-  ),
-  
-  // Entry 7: Payment Approved with remark '-'
-  TinData(
-    tinNumber: 'TIN777666555',
-    orderNumber: 'PADC202510250007',
-    totalValue: 5675.80,
-    paymentStatus: 'A', // Payment Approved
-    dealercode: 'AC2000123306',
-    payOnDel: 'Y',
-    bagCount: 3,
-    tagCount: 6,
-    plasticBCount: 2,
-    remark: '-',
-    parts:  [
-      Part(
-        id: 'p17',
-        partNo: 'AC20001231414',
-        requestQty: 2,
-        price: 675.00,
-        description: 'Alternator',
-      ),
-      Part(
-        id: 'p18',
-        partNo: 'AC20001231515',
-        requestQty: 2,
-        price: 545.00,
-        description: 'Starter Motor',
-      ),
-      Part(
-        id: 'p19',
-        partNo: 'AC20001231616',
-        requestQty: 4,
-        price: 185.00,
-        description: 'Spark Plugs',
-      ),
-      Part(
-        id: 'p20',
-        partNo: 'AC20001231717',
-        requestQty: 1,
-        price: 1250.00,
-        description: 'Ignition Coil Pack',
-      ),
-    ],
-  ),
-];
+  static final List<TinData> _tins = [
+    const TinData(
+      tinNumber: 'TIN987654321',
+      orderNumber: 'PADC202510250001',
+      totalValue: 1500.75,
+      paymentStatus: 'P', // Payment Pending
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 2,
+      tagCount: 4,
+      plasticBCount: 1,
+      remark: 'Handle with care',
+      parts: [],
+    ),
+    const TinData(
+      tinNumber: 'TIN123456789',
+      orderNumber: 'PADC202510250002',
+      totalValue: 899.99,
+      paymentStatus: 'C', // Payment Completed
+      dealercode: 'AC2000123306',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 2,
+      plasticBCount: 0,
+      remark: 'Fragile items',
+      parts: [],
+    ),
+    TinData(
+      tinNumber: 'TIN555555555',
+      orderNumber: 'PADC202510250003',
+      totalValue: 12500.00,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 5,
+      tagCount: 10,
+      plasticBCount: 3,
+      remark: 'Heavy equipment',
+      parts: [
+        Part(
+          id: 'p3',
+          partNo: 'AC2000123232',
+          requestQty: 1,
+          price: 8000.00,
+          description: 'Engine Assembly',
+        ),
+        Part(
+          id: 'p4',
+          partNo: 'AC2000123342',
+          requestQty: 1,
+          price: 1000.00,
+          description: 'Transmission',
+        ),
+        Part(
+          id: 'p5',
+          partNo: 'AC2000123932',
+          requestQty: 6,
+          price: 3000.00,
+          description: 'Wheel Set',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN314159265',
+      orderNumber: 'PADC202510250004',
+      totalValue: 432.50,
+      paymentStatus: 'P', // Another Pending example
+      dealercode: 'AC2000123306',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 1,
+      plasticBCount: 1,
+      remark: 'Small parts',
+      parts: [
+        Part(
+          id: 'p6',
+          partNo: 'AC2000123111',
+          requestQty: 2,
+          price: 150.25,
+          description: 'Oil Filter',
+        ),
+        Part(
+          id: 'p7',
+          partNo: 'AC2000123222',
+          requestQty: 1,
+          price: 132.00,
+          description: 'Air Filter',
+        ),
+      ],
+    ),
+
+    /// ADDITIONAL PAYMENT APPROVED ENTRIES WITH SAME DEALERCODE
+
+    // Entry 5: Payment Approved with multiple parts and remark '-'
+    TinData(
+      tinNumber: 'TIN999888777',
+      orderNumber: 'PADC202510250005',
+      totalValue: 8750.25,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 4,
+      tagCount: 8,
+      plasticBCount: 2,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p8',
+          partNo: 'AC2000123555',
+          requestQty: 2,
+          price: 1250.00,
+          description: 'Brake Caliper Set',
+        ),
+        Part(
+          id: 'p9',
+          partNo: 'AC2000123666',
+          requestQty: 4,
+          price: 350.00,
+          description: 'Brake Pads',
+        ),
+        Part(
+          id: 'p10',
+          partNo: 'AC2000123777',
+          requestQty: 2,
+          price: 450.00,
+          description: 'Brake Disc Rotor',
+        ),
+        Part(
+          id: 'p11',
+          partNo: 'AC2000123888',
+          requestQty: 1,
+          price: 2200.00,
+          description: 'ABS Control Module',
+        ),
+      ],
+    ),
+
+    // Entry 6: Payment Approved with remark '-'
+    TinData(
+      tinNumber: 'TIN444333222',
+      orderNumber: 'PADC202510250006',
+      totalValue: 23450.50,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 8,
+      tagCount: 16,
+      plasticBCount: 5,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p12',
+          partNo: 'AC2000123999',
+          requestQty: 1,
+          price: 8500.00,
+          description: 'Turbocharger Assembly',
+        ),
+        Part(
+          id: 'p13',
+          partNo: 'AC20001231010',
+          requestQty: 1,
+          price: 4200.00,
+          description: 'Intercooler',
+        ),
+        Part(
+          id: 'p14',
+          partNo: 'AC20001231111',
+          requestQty: 4,
+          price: 850.00,
+          description: 'Fuel Injector',
+        ),
+        Part(
+          id: 'p15',
+          partNo: 'AC20001231212',
+          requestQty: 2,
+          price: 950.00,
+          description: 'Fuel Pump',
+        ),
+        Part(
+          id: 'p16',
+          partNo: 'AC20001231313',
+          requestQty: 1,
+          price: 1800.00,
+          description: 'ECU Engine Control Unit',
+        ),
+      ],
+    ),
+
+    // Entry 7: Payment Approved with remark '-'
+    TinData(
+      tinNumber: 'TIN777666555',
+      orderNumber: 'PADC202510250007',
+      totalValue: 5675.80,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'Y',
+      bagCount: 3,
+      tagCount: 6,
+      plasticBCount: 2,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p17',
+          partNo: 'AC20001231414',
+          requestQty: 2,
+          price: 675.00,
+          description: 'Alternator',
+        ),
+        Part(
+          id: 'p18',
+          partNo: 'AC20001231515',
+          requestQty: 2,
+          price: 545.00,
+          description: 'Starter Motor',
+        ),
+        Part(
+          id: 'p19',
+          partNo: 'AC20001231616',
+          requestQty: 4,
+          price: 185.00,
+          description: 'Spark Plugs',
+        ),
+        Part(
+          id: 'p20',
+          partNo: 'AC20001231717',
+          requestQty: 1,
+          price: 1250.00,
+          description: 'Ignition Coil Pack',
+        ),
+      ],
+    ),
+  ];
 
   // static final List<TinData> _tins = [
   //   const TinData(
@@ -1749,123 +1910,124 @@ static final List<TinData> _tins = [
     ),
   ];
 
-static final List<ReturnRequest> _returnRequests = [
-  ReturnRequest(
-    returnId: 'RET00000001',
-    dealerId: 'AC2000123306',
-    userId: '2619',
-    returnType: 'Field Returns',
-    returnReason: 'LEAKAGES (PETROL/OIL)',
-    requestUpdate: DateTime.now().subtract(Duration(days: 1)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
-      ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
-      ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
-      ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
-    ],
-  ),
-  ReturnRequest(
-    returnId: 'RET00000002',
-    dealerId: 'AC2000123306',
-    userId: '2619',
-    returnType: 'Discrepancy Returns',
-    returnReason: 'MANUFACTURING DEFECT',
-    requestUpdate: DateTime.now().subtract(Duration(days: 2)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
-      ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
-    ],
-  ),
-  ReturnRequest(
-    returnId: 'RET00000003',
-    dealerId: 'AC2000123306',
-    userId: '2619',
-    returnType: 'Field Returns',
-    returnReason: 'Bead Failure - BF',
-    requestUpdate: DateTime.now().subtract(Duration(days: 3)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
-      ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
-    ],
-  ),
-  ReturnRequest(
-    returnId: 'RET00000004',
-    dealerId: 'AC2000123306',
-    userId: '2619',
-    returnType: 'Discrepancy Returns',
-    returnReason: 'REFUND',
-    requestUpdate: DateTime.now().subtract(Duration(days: 4)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
-      ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
-    ],
-  ),
-  ReturnRequest(
-    returnId: 'RET00000005',
-    dealerId: 'AC2000123306',
-    userId: '2619',
-    returnType: 'Field Returns',
-    returnReason: 'LOYALTY DISCOUNT',
-    requestUpdate: DateTime.now().subtract(Duration(days: 5)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'HW-6600-JK', requestQty: 8, returnQty: 8),
-      ReturnItem(partNo: 'XY-7766-WX', requestQty: 13, returnQty: 13),
-    ],
-  ),
+  static final List<ReturnRequest> _returnRequests = [
+    ReturnRequest(
+      returnId: 'RET00000001',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'LEAKAGES (PETROL/OIL)',
+      requestUpdate: DateTime.now().subtract(Duration(days: 1)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
+        ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
+        ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+        ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000002',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Discrepancy Returns',
+      returnReason: 'MANUFACTURING DEFECT',
+      requestUpdate: DateTime.now().subtract(Duration(days: 2)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
+        ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000003',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'Bead Failure - BF',
+      requestUpdate: DateTime.now().subtract(Duration(days: 3)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
+        ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000004',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Discrepancy Returns',
+      returnReason: 'REFUND',
+      requestUpdate: DateTime.now().subtract(Duration(days: 4)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+        ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000005',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'LOYALTY DISCOUNT',
+      requestUpdate: DateTime.now().subtract(Duration(days: 5)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'HW-6600-JK', requestQty: 8, returnQty: 8),
+        ReturnItem(partNo: 'XY-7766-WX', requestQty: 13, returnQty: 13),
+      ],
+    ),
 
-   ReturnRequest(
-    returnId: 'RET00000006',
-    dealerId: 'AC2000123307',
-    userId: '2619',
-    returnType: 'Field Returns',
-    returnReason: 'LEAKAGES (PETROL/OIL)',
-    requestUpdate: DateTime.now().subtract(Duration(days: 1)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
-      ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
-      ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
-      ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
-    ],
-  ),
-  ReturnRequest(
-    returnId: 'RET00000007',
-    dealerId: 'AC2000123307',
-    userId: '2619',
-    returnType: 'Discrepancy Returns',
-    returnReason: 'MANUFACTURING DEFECT',
-    requestUpdate: DateTime.now().subtract(Duration(days: 2)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
-      ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
-    ],
-  ),
-  ReturnRequest(
-    returnId: 'RET00000008',
-    dealerId: 'AC2000123307',
-    userId: '2619',
-    returnType: 'Field Returns',
-    returnReason: 'Bead Failure - BF',
-    requestUpdate: DateTime.now().subtract(Duration(days: 3)),
-    returnTime: DateTime.now(),
-    returnItems: [
-      ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
-      ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
-    ],
-  ),
-];
+    ReturnRequest(
+      returnId: 'RET00000006',
+      dealerId: 'AC2000123307',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'LEAKAGES (PETROL/OIL)',
+      requestUpdate: DateTime.now().subtract(Duration(days: 1)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
+        ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
+        ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+        ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000007',
+      dealerId: 'AC2000123307',
+      userId: '2619',
+      returnType: 'Discrepancy Returns',
+      returnReason: 'MANUFACTURING DEFECT',
+      requestUpdate: DateTime.now().subtract(Duration(days: 2)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
+        ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000008',
+      dealerId: 'AC2000123307',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'Bead Failure - BF',
+      requestUpdate: DateTime.now().subtract(Duration(days: 3)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
+        ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
+      ],
+    ),
+  ];
 
   static List<Bank> get banks => _banks;
   static List<BankBranch> get branches => _branches;
   static List<Dealer> get dealers => _dealers;
   static List<Reference> get references => _references;
   static List<Invoice> get invoices => _invoices;
+  static List<InvoiceSave> get savedInvoices => _sessionInvoices;
   static List<TinData> get tins => _tins;
   static List<Region> get regions => _regions;
   static List<ReturnItem> get returnItems => _returnItems;
@@ -1880,7 +2042,7 @@ static final List<ReturnRequest> _returnRequests = [
   static List<Attendance> get attendances => _attendance;
   static List<Employee> get employees => _employees;
   static List<Return> get returns => _sessionReturns;
-  static List<InvoiceSave> get savedInvoices => _sessionInvoices;
+  //static List<InvoiceSave> get savedInvoices => _sessionInvoices;
   static List<DispatchNoteSave> get savedDispatchNotes => _sessionDispatchNotes;
   static List<ReturnRequest> get returnRequests => _returnRequests;
 }

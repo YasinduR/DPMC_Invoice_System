@@ -6,7 +6,7 @@ import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/invoice_model.dart';
-import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
@@ -21,7 +21,8 @@ class MockApiService {
   static const Uuid _uuid = Uuid(); // For generating unique tokens
   static const String _jwtSecretKey = 'DPMC-INV-SYSTEM'; // Change The Key Later
 
-  static const List<String> _publicEndpoints = [        // Where We dont need access token
+  static const List<String> _publicEndpoints = [
+    // Where We dont need access token
     'api/user/login',
     'api/user/request-password-reset',
     'api/user/reset-password',
@@ -42,7 +43,7 @@ class MockApiService {
       final JWT jwt = JWT.verify(accessToken, SecretKey(_jwtSecretKey));
       // Optionally, you could also check 'iss', 'sub', or other claims here
     } on JWTExpiredException {
-     //print('DEBUG: Access token expired.');
+      //print('DEBUG: Access token expired.');
       throw UnauthorisedException(
         'Access token has expired. Please log in again.',
       );
@@ -63,24 +64,24 @@ class MockApiService {
   }
 
   static Future<String> _generateAccessToken(User user) async {
-            final DateTime tokenIssuedAt = DateTime.now();
-            final DateTime tokenExpiresAt = tokenIssuedAt.add(
-              const Duration(seconds: 100),
-            );
+    final DateTime tokenIssuedAt = DateTime.now();
+    final DateTime tokenExpiresAt = tokenIssuedAt.add(
+      const Duration(seconds: 100),
+    );
 
-            final jwt = JWT(
-              {
-                'userId': user.id,
-                'username': user.username,
-                'roles': user.roles,
-                'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
-                'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
-              },
-              issuer: 'mock_api_service',
-              subject: user.id,
-            );
+    final jwt = JWT(
+      {
+        'userId': user.id,
+        'username': user.username,
+        'roles': user.roles,
+        'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
+        'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
+      },
+      issuer: 'mock_api_service',
+      subject: user.id,
+    );
 
-          return jwt.sign(SecretKey(_jwtSecretKey));
+    return jwt.sign(SecretKey(_jwtSecretKey));
   }
 
   static Future<String> _generateRefreshToken(User user) async {
@@ -103,9 +104,6 @@ class MockApiService {
 
     return jwt.sign(SecretKey(_jwtSecretKey));
   }
-
-
-
 
   static Future<List<T>> get<T extends Mappable>(
     String url, {
@@ -143,6 +141,9 @@ class MockApiService {
       case 'api/invoices/list':
         sourceData = DummyData.invoices;
         break;
+      case 'api/invoices-saved/list':
+        sourceData = DummyData.savedInvoices;
+        break;
       case 'api/tins/list':
         sourceData = DummyData.tins;
         break;
@@ -175,6 +176,8 @@ class MockApiService {
         sourceData = DummyData.returnRequests;
       case 'api/employee/list':
         sourceData = DummyData.employees;
+      case 'api/receipts/list':
+        sourceData = DummyData.receipts;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
     }
@@ -250,10 +253,14 @@ class MockApiService {
     return sourceData.cast<T>();
   }
 
-  static Future<dynamic> post(String url, {dynamic body, String? accessToken}) async {
+  static Future<dynamic> post(
+    String url, {
+    dynamic body,
+    String? accessToken,
+  }) async {
     await Future.delayed(const Duration(seconds: 1));
 
-        if (!_publicEndpoints.contains(url)) {
+    if (!_publicEndpoints.contains(url)) {
       await _validateAccessToken(accessToken);
     }
 
@@ -400,13 +407,12 @@ class MockApiService {
             // final String accessToken = jwt.sign(SecretKey(_jwtSecretKey));
             // final String refreshToken = 'refresh-${_uuid.v4()}';
 
-           // final DateTime accessTokenExpiry = tokenExpiresAt;
+            // final DateTime accessTokenExpiry = tokenExpiresAt;
 
-            final String accessToken =  await _generateAccessToken(user);
+            final String accessToken = await _generateAccessToken(user);
             final String refreshToken = await _generateRefreshToken(user);
-           
-           // final DateTime accessTokenExpiry = tokenExpiresAt;
 
+            // final DateTime accessTokenExpiry = tokenExpiresAt;
 
             return {
               'user':
@@ -737,7 +743,7 @@ class MockApiService {
 
         // final updatedreceipt = receipt.copyWith(
         //     // Use copyWith
-        //     recieptNo: generateRecNumber(),
+        //     receiptNo: generateRecNumber(),
         //   );
 
         final isDuplicate = DummyData.receipts.any(
@@ -755,7 +761,7 @@ class MockApiService {
 
         final updatedreceipt = receipt.copyWith(
           // Use copyWith
-          recieptNo: generateRecNumber(),
+          receiptNo: generateRecNumber(),
         );
 
         DummyData.receipts.add(updatedreceipt);
@@ -789,24 +795,27 @@ class MockApiService {
         DummyData.savedInvoices.add(updatedInvoice);
         return updatedInvoice;
 
-        case 'api/dispatchNote/save':
-    if (body is! DispatchNoteSave) {
-      throw Exception('Invalid type for saving a Dispatch Note. Expected a DispatchNoteSave object.');
-    }
-    final dispatchNote = body;
-    final updatedDispatchNote = dispatchNote.copyWith(
-      dispatchNumber: generateDispatchNumber(),
-    );
-    final isDuplicate = DummyData.savedDispatchNotes.any(
-      (existing) => existing.dispatchNumber == updatedDispatchNote.dispatchNumber,
-    );
-    if (isDuplicate) {
-      throw Exception('Dispatch note number already exists.');
-    }
-    DummyData.savedDispatchNotes.add(updatedDispatchNote);
-    return updatedDispatchNote;
+      case 'api/dispatchNote/save':
+        if (body is! DispatchNoteSave) {
+          throw Exception(
+            'Invalid type for saving a Dispatch Note. Expected a DispatchNoteSave object.',
+          );
+        }
+        final dispatchNote = body;
+        final updatedDispatchNote = dispatchNote.copyWith(
+          dispatchNumber: generateDispatchNumber(),
+        );
+        final isDuplicate = DummyData.savedDispatchNotes.any(
+          (existing) =>
+              existing.dispatchNumber == updatedDispatchNote.dispatchNumber,
+        );
+        if (isDuplicate) {
+          throw Exception('Dispatch note number already exists.');
+        }
+        DummyData.savedDispatchNotes.add(updatedDispatchNote);
+        return updatedDispatchNote;
 
-  // Add other cases...
+      // Add other cases...
 
       case 'api/return/save':
         if (body is! Return) {
@@ -923,21 +932,29 @@ class MockApiService {
           DummyData.attendances.add(newAttendance);
         }
         return true;
-      
+
       case 'api/refreshToken':
-        if (body is! Map<String, dynamic> || !body.containsKey('refreshToken')) {
+        if (body is! Map<String, dynamic> ||
+            !body.containsKey('refreshToken')) {
           throw Exception('Invalid refresh token request body.');
         }
 
         final String refreshToken = body['refreshToken'] as String;
 
         try {
-          final JWT decodedJwt = JWT.verify(refreshToken, SecretKey(_jwtSecretKey));
+          final JWT decodedJwt = JWT.verify(
+            refreshToken,
+            SecretKey(_jwtSecretKey),
+          );
           final String userId = decodedJwt.payload['userId'] as String;
 
           final user = DummyData.users.firstWhere(
             (u) => u.id == userId,
-            orElse: () => throw UnauthorisedException('User not found for refresh token.'),
+            orElse:
+                () =>
+                    throw UnauthorisedException(
+                      'User not found for refresh token.',
+                    ),
           );
 
           final newAccessToken = await _generateAccessToken(user);
@@ -946,14 +963,17 @@ class MockApiService {
 
           return {
             'accessToken': newAccessToken,
-            'refreshToken': newRefreshToken, // Include if you want rolling refresh tokens
+            'refreshToken':
+                newRefreshToken, // Include if you want rolling refresh tokens
           };
         } on JWTExpiredException {
           throw UnauthorisedException('Refresh token has expired.');
         } on JWTInvalidException {
           throw UnauthorisedException('Invalid refresh token.');
         } on JWTException catch (e) {
-          throw UnauthorisedException('Failed to process refresh token: ${e.message}');
+          throw UnauthorisedException(
+            'Failed to process refresh token: ${e.message}',
+          );
         }
 
       default:
@@ -981,7 +1001,6 @@ String generateInvoiceNumber() {
   return 'MIN' + formattedDate + formattedTime;
 }
 
-
 String generateDispatchNumber() {
   final now = DateTime.now();
 
@@ -1000,7 +1019,6 @@ String generateDispatchNumber() {
   // Combine to create the DIS
   return 'ADN' + formattedDate + formattedTime;
 }
-
 
 String generateRetNumber() {
   final now = DateTime.now();

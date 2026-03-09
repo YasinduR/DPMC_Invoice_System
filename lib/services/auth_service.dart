@@ -12,7 +12,7 @@ class AuthService {
   final SecureStorageService _secureStorageService =
       SecureStorageService(); // Instantiate SecureStorageService
   String baseUrl = Config.baseUrl;
-  String userPath = 'user/';
+  //String userPath = 'user/';
 
   String get loginUrl => '${baseUrl}user/login';
   String get changePasswordUrl => '${baseUrl}user/changepassword';

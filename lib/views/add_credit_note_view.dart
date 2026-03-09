@@ -10,7 +10,7 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 import 'package:equatable/equatable.dart';
 import 'package:collection/collection.dart'; // Import the collection package for list comparison
 
-// Add Credit Notes to the Reciept ( Used in Reciept Screen)
+// Add Credit Notes to the Receipt ( Used in Receipt Screen)
 class AddCreditNotesView extends StatefulWidget {
   final Function(List<CreditNote>) onSubmit;
   final List<CreditNote> initialNotes;

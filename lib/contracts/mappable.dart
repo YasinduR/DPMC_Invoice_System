@@ -3,4 +3,6 @@
 abstract class Mappable {
   /// Converts the object into a key-value map.
   Map<String, dynamic> toMap();
+
+  
 }

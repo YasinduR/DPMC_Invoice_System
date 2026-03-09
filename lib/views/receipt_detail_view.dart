@@ -17,9 +17,8 @@ import 'package:myapp/widgets/app_date_picker.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
-
-// Main View of Reciept Screen 
-class RecieptDetailsView extends StatefulWidget {
+// Main View of Receipt Screen
+class ReceiptDetailsView extends StatefulWidget {
   final Dealer dealer;
   final VoidCallback onSubmit;
   final VoidCallback addCreditnote;
@@ -51,7 +50,7 @@ class RecieptDetailsView extends StatefulWidget {
   final ValueChanged<bool> onBankCommitChanged;
   final ValueChanged<bool> onBranchCommitChanged;
 
-  const RecieptDetailsView({
+  const ReceiptDetailsView({
     super.key,
     required this.dealer,
     required this.onSubmit,
@@ -84,10 +83,10 @@ class RecieptDetailsView extends StatefulWidget {
   });
 
   @override
-  State<RecieptDetailsView> createState() => RecieptDetailsViewState();
+  State<ReceiptDetailsView> createState() => ReceiptDetailsViewState();
 }
 
-class RecieptDetailsViewState extends State<RecieptDetailsView> {
+class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
   final _formKey = GlobalKey<FormState>();
   bool _isChildFormValid = false;
   bool _isLoading = true;
@@ -104,7 +103,6 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
       }
     });
   }
-
 
   void _validateChildForm() {
     final isValid = _formKey.currentState?.validate() ?? false;
@@ -278,7 +276,7 @@ class RecieptDetailsViewState extends State<RecieptDetailsView> {
                 label: 'Add Credit Note',
                 icon: Icons.add_card,
                 onPressed: widget.addCreditnote,
-                type:ActionButtonType.tertiary,
+                type: ActionButtonType.tertiary,
                 disabled: !widget.dealer.hasBankGuarantee,
               ),
               const SizedBox(height: 16),

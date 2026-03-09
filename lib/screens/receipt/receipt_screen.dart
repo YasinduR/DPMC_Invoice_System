@@ -7,7 +7,7 @@ import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
-import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/user_model.dart';
@@ -15,7 +15,7 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/printer_service.dart';
-import 'package:myapp/views/reciept_detail_view.dart';
+import 'package:myapp/views/receipt_detail_view.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 
@@ -23,21 +23,21 @@ import 'package:myapp/views/add_credit_note_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
-class RecieptScreen extends ConsumerStatefulWidget {
-  const RecieptScreen({super.key});
+class ReceiptScreen extends ConsumerStatefulWidget {
+  const ReceiptScreen({super.key});
 
   @override
-  ConsumerState<RecieptScreen> createState() => _RecieptScreenState();
+  ConsumerState<ReceiptScreen> createState() => _ReceiptScreenState();
 }
 
-class _RecieptScreenState extends ConsumerState<RecieptScreen> {
+class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
   Region? _selectedRegion;
-  final GlobalKey<RecieptDetailsViewState> _receiptDetailsKey =
-      GlobalKey<RecieptDetailsViewState>();
+  final GlobalKey<ReceiptDetailsViewState> _receiptDetailsKey =
+      GlobalKey<ReceiptDetailsViewState>();
   // --- Controllers are now created and managed in the parent's state ---
   late final TextEditingController _chequeNoController;
   late final TextEditingController _amountController;
@@ -172,7 +172,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
     final authState = ref.watch(authProvider);
     final User? currentUser = authState.currentUser;
 
-    if (!_isReceiptFormValid || currentUser ==null) {
+    if (!_isReceiptFormValid || currentUser == null) {
       showSnackBar(
         context: context,
         message:
@@ -192,7 +192,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       Decimal.zero,
       (sum, tin) => sum + Decimal.parse(tin.invAmount.toString()),
     );
-
 
     final totalPayment = Decimal.parse(
       (totalCreditNoteAmount + chequeAmount).toString(),
@@ -236,19 +235,19 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
 
     final receiptData = Receipt(
       // receiptTime: Datetime.now(),
-      recieptNo: 'AAA',
+      receiptNo: 'AAA',
       userId: currentUser.id,
-      dealerName:_selectedDealer!.name,
+      dealerName: _selectedDealer!.name,
       dealerCode: _selectedDealer!.accountCode,
       chequeNumber: _chequeNoController.text,
       chequeAmount: chequeAmount,
       chequeDate: _selectedChequeDate!,
       bankCode: _selectedBank!.bankCode,
       branchCode: _selectedBranch!.branchCode,
-      branchName:_selectedBranch!.branchName,
-      tins:_selectedTins,
-      creditNotes: _creditNotes, 
-      recieptTime: DateTime.now(),
+      branchName: _selectedBranch!.branchName,
+      tins: _selectedTins,
+      creditNotes: _creditNotes,
+      receiptTime: DateTime.now(),
     );
     late Receipt savedReceipt;
 
@@ -256,13 +255,13 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       context: context,
       dataUrl: 'receipts/save',
       dataToSave: receiptData,
-    onReceivedData: (rawReceivedData){
+      onReceivedData: (rawReceivedData) {
         try {
           savedReceipt = rawReceivedData;
         } catch (e) {
           showSnackBar(
             context: context,
-            message: 'Failed to process response for Reciept: $e',
+            message: 'Failed to process response for Receipt: $e',
             type: MessageType.error,
           );
         }
@@ -275,11 +274,8 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         );
         _clearReceiptDetails();
         _receiptDetailsKey.currentState?.loadTinInvoices();
-          final details = PrintFooterDetail(
-                          formNo: 'PA-FO-53',
-                          revNo: '01');
-        _printerService.previewThermalReceiptPdf(savedReceipt,details);
-
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+        _printerService.previewThermalReceiptPdf(savedReceipt, details);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -304,7 +300,6 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       }
     });
   }
-
 
   // void _submitDealer() {
   //   if (_selectedDealer != null) setState(() => _currentStep = 1);
@@ -351,7 +346,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
         type: MessageType.success,
       );
       setState(() {
-        _currentStep = 0; 
+        _currentStep = 0;
       });
     }
   }
@@ -365,7 +360,7 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
       case 0:
         return 'Select Dealer';
       case 1:
-        return 'Reciept Details';
+        return 'Receipt Details';
       case 2:
         return 'Add Credit Notes';
       case 3:
@@ -403,9 +398,9 @@ class _RecieptScreenState extends ConsumerState<RecieptScreen> {
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
         );
-        
+
       case 1:
-        return RecieptDetailsView(
+        return ReceiptDetailsView(
           key: _receiptDetailsKey, // Refresh Tin Data on succussful cheque save
           dealer: _selectedDealer!,
           onSubmit: _onSubmit,
