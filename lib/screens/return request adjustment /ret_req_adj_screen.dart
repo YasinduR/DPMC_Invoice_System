@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/return_request_model.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/views/return_request_adjust_view.dart';
@@ -102,6 +105,9 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
       return;
       }
       
+      final authState = ref.watch(authProvider);
+      final User? currentUser = authState.currentUser;
+
       final retReqData = ReturnRequest(
         requestUpdate: DateTime.now(),
         returnId: _selectedRetReq!.returnId,
@@ -115,6 +121,8 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
 
       await save(
         context: context,
+        user: currentUser,
+        activityType: ActivityType.returnRequestAdjustment,
         dataUrl: 'return-request/update',
         dataToSave: retReqData,
 

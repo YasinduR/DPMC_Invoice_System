@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
@@ -188,10 +189,12 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       returnTime: DateTime.now(),
       returnItems: selectedItems,
     );
-
+    
     late Return savedReturn;
     await save(
       context: context,
+      user: currentUser,
+      activityType: ActivityType.returnSave,
       dataUrl: 'return/save',
       dataToSave: saveReturn,
       onSuccess: () {

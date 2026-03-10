@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
+import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
@@ -253,6 +254,8 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
 
     await save(
       context: context,
+      user: currentUser,
+      activityType: ActivityType.receiptSave,
       dataUrl: 'receipts/save',
       dataToSave: receiptData,
       onReceivedData: (rawReceivedData) {

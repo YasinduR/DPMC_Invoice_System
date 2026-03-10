@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
@@ -173,6 +174,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     await save(
       context: context,
       dataUrl: 'invoice/save',
+      user: currentUser,
+      activityType: ActivityType.invoiceSave,
       dataToSave: invoiceData,
       onReceivedData: (rawReceivedData) {
         try {

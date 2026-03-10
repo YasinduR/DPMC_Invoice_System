@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:myapp/models/activity_model.dart';
 //import 'package:intl/intl.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +64,40 @@ class LocalStorageService {
     await prefs.remove(_kSavedPwd);
   }
 
-  
+  // Activity Loging
+
+static const String _kActivities = "activities";
+
+Future<void> saveActivity(Activity activity) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  List<String> stored = prefs.getStringList(_kActivities) ?? [];
+
+  stored.add(jsonEncode(activity.toMap()));
+
+  await prefs.setStringList(_kActivities, stored);
+}
+
+Future<List<Activity>> getActivities() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  List<String> stored = prefs.getStringList(_kActivities) ?? [];
+
+  return stored
+      .map((e) => Activity.fromJson(jsonDecode(e)))
+      .toList()
+      .reversed
+      .toList();
+}
+
+
+//
+
+
+
+
+
+
   // // --- New methods for Attendance Reminders --- THIS SECTION WAS TO MANAGE ATTENDANCE NOTIFICATION RELATED DATA
   //   // Prefix for attendance reminder keys in SharedPreferences
   // static const String _kScheduledAttendanceRemindersPrefix = 'scheduledAttendanceReminders_';

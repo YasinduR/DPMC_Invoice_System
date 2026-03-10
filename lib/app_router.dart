@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/screens/Initializer/Initializer_screen.dart';
-import 'package:myapp/screens/advice_of_dispatch_note.dart/advice_of_dispatch_note_screen.dart';
+import 'package:myapp/screens/activity_log/activity_log_screen.dart';
+import 'package:myapp/screens/advice_of_dispatch_note/advice_of_dispatch_note_screen.dart';
 import 'package:myapp/screens/attendance/attendance_screen.dart';
 import 'package:myapp/screens/change_password/change_pwd_screen.dart';
 import 'package:myapp/screens/error_screen/error_screen.dart';
@@ -168,6 +169,8 @@ class AppRouter {
         return (context) => const RetReqAdjScreen();
       case '/dispatchNote':
         return (context) => const DispatchNoteScreen();
+      case '/activityLog':
+        return (context) => const ActivityLogScreen();
       default:
         return null; // Return Null for the invalid routes
     }

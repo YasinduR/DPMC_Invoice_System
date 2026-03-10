@@ -358,6 +358,15 @@ class DummyData {
       title: 'Advice of Dispatch Note',
       iconName: 'local_shipping',
     ),
+
+    Screen(
+      screenId: '019',
+      screenName: 'activityLog',
+      menuId: '01',
+      title: 'Activity Log',
+      iconName: 'history',
+    ),
+
   ];
 
   static final List<Role> _roles = [
@@ -395,6 +404,7 @@ class DummyData {
     Perm(RoleId: '002', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
+    Perm(RoleId: '001', ScreenId: '019'), // Actvity Log
   ];
 
   static final List<User> _users = [

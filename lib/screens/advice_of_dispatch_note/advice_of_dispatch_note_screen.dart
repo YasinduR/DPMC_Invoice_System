@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
@@ -143,6 +144,8 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
     late DispatchNoteSave savedDispatchNote;
     await save(
       context: context,
+      user: currentUser,
+      activityType: ActivityType.adviceOfDispatchNote,
       dataUrl: 'dispatchNote/save',
       dataToSave: dispatchNoteData,
       onReceivedData: (rawReceivedData) {
