@@ -9,7 +9,7 @@ import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/app_loading_overlay.dart';
+import 'package:myapp/widgets/app_loading_overlay.dart'; 
 
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
@@ -522,6 +522,7 @@ class _SelectionSheetState<T extends Mappable>
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
+                      showCheckboxColumn: false,
                       columns:
                           widget.displayNames.map((name) {
                             return DataColumn(
@@ -534,20 +535,47 @@ class _SelectionSheetState<T extends Mappable>
                             );
                           }).toList(),
                       rows:
+                          // added data cells merges to row and commented old code by Darshan R on 10/03/2026
+                          // _filteredItems.map((item) {
+                          //   final map = item.toMap();
+                          //   return DataRow(
+                          //     cells:
+                          //         widget.valueFields.map((field) {
+                          //           final cellValue =
+                          //               map[field]?.toString() ?? '';
+                          //           return DataCell(
+                          //             Text(cellValue),
+                          //             onTap: () {
+                          //               Navigator.of(context).pop(item);
+                          //             },
+                          //           );
+                          //         }).toList(),
+                          //   );
+                          // }).toList(),
+
                           _filteredItems.map((item) {
                             final map = item.toMap();
+
+                            final List<Widget> cellWidgets = widget.valueFields.map((field) {
+                              final cellValue = map[field]?.toString() ?? '';
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                                child: Text(
+                                  cellValue,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            }).toList();
+
+                            final List<DataCell> cells = cellWidgets.map((w) => DataCell(w)).toList();
+
                             return DataRow(
-                              cells:
-                                  widget.valueFields.map((field) {
-                                    final cellValue =
-                                        map[field]?.toString() ?? '';
-                                    return DataCell(
-                                      Text(cellValue),
-                                      onTap: () {
-                                        Navigator.of(context).pop(item);
-                                      },
-                                    );
-                                  }).toList(),
+                              cells: cells,
+                              onSelectChanged: (_) {
+                                Navigator.of(context).pop(item);
+                              },
                             );
                           }).toList(),
                     ),

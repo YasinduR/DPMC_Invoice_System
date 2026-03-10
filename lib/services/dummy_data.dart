@@ -217,6 +217,11 @@ class DummyData {
       name: 'SACHITH DANANJAYA',
       compName: 'D P INFOTECH PRIVATE LIMITED',
     ),
+    Employee(
+      id: '2896',
+      name: 'DARSHAN RAVICHANDRAN',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
   ];
 
   static final List<Menu> _menus = [
@@ -453,6 +458,16 @@ class DummyData {
       password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
       roles: ['001', '002', '003'],
     ),
+    User(
+      id: '2896',
+      username: 'darshanr',
+      email: 'darshanr@example.com',
+      telephone: '+94771234567',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['001'],
+      isTemporaryPassword: false,
+      passwordUpdatedAt: DateTime.now(),
+    )
   ];
 
   static final List<Dealer> _dealers = [
