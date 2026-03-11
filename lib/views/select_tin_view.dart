@@ -48,10 +48,10 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
           message: 'Please Select Approved TIN !',
           type: MessageType.warning,
         );
-      _tinController.clear();
-      setState(() {
-        _isTinSelectionCommitted = false;
-      });
+        _tinController.clear();
+        setState(() {
+          _isTinSelectionCommitted = false;
+        });
       }
     }
   }
@@ -88,6 +88,18 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
             dataUrl: 'tins/list',
             filterConditions: [
               ['dealerCode', '=', widget.dealer.accountCode],
+            ],
+            // added color rule for payment status by Darshan R on 10/03/2026
+            colorRules: [
+              DataHelperColorRule<TinData>(
+                shouldColor: (t) => true,
+                startColumnIndex: 0,
+                endColumnIndex: 2,
+                coloredCellBuilder: (ctx, t) => Text(t.tinNumber),
+                decorationBuilder: (ctx, t) => BoxDecoration(
+                      color:t.paymentStatusColor,
+                    ),
+              ),
             ],
           ),
 
