@@ -64,6 +64,9 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
   final bool
   showHelperOnInitialization; // Optional flag to show selection sheet on initialization. automate ? press
 
+// The first rule whoich rows `shouldColor`.
+  final List<DataHelperColorRule<T>>? colorRules;
+
   const AppSelectionField({
     super.key,
     required this.controller,
@@ -84,6 +87,7 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.onFieldSubmitted,
     this.textInputAction,
     this.showHelperOnInitialization = false,
+    this.colorRules,
   });
 
   @override
@@ -314,6 +318,7 @@ class _AppSelectionFieldState<T extends Mappable>
           initialSearchQuery: initialQuery,
           displayNames: widget.displayNames,
           valueFields: widget.valueFields,
+          colorRules: widget.colorRules,
         );
       },
     );
@@ -432,6 +437,7 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
   final List<String> displayNames;
 
   final List<String> valueFields;
+  final List<DataHelperColorRule<T>>? colorRules;
 
   const SelectionSheet({
     super.key,
@@ -440,6 +446,7 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
     this.initialSearchQuery,
     required this.displayNames,
     required this.valueFields,
+    this.colorRules,
   }) : assert(
          displayNames.length == valueFields.length,
          'Error: The number of display names must match the number of value fields.',
@@ -571,7 +578,26 @@ class _SelectionSheetState<T extends Mappable>
 
                             final List<DataCell> cells = cellWidgets.map((w) => DataCell(w)).toList();
 
+                            // find applicable color rule
+                            DataHelperColorRule<T>? appliedRule;
+                            if (widget.colorRules != null) {
+                              for (var rule in widget.colorRules!) {
+                                if (rule.shouldColor(item)) {
+                                  appliedRule = rule;
+                                  break;
+                                }
+                              }
+                            }
+
+                            // apply particular color for the row
+                            Color? rowColor;
+                            if (appliedRule?.decorationBuilder != null) {
+                              final dec = appliedRule!.decorationBuilder!(context, item);
+                              rowColor = dec.color?.withOpacity(0.12);
+                            }
+
                             return DataRow(
+                              color: rowColor != null ? MaterialStateProperty.all(rowColor) : null,
                               cells: cells,
                               onSelectChanged: (_) {
                                 Navigator.of(context).pop(item);
@@ -588,4 +614,31 @@ class _SelectionSheetState<T extends Mappable>
       },
     );
   }
+}
+
+// NEW: Generic Color Rule Definition
+class DataHelperColorRule<T> {
+  /// A predicate function to determine if this rule should apply to a given item.
+  final bool Function(T item) shouldColor;
+  final int startColumnIndex;
+  final int endColumnIndex;
+
+  /// A builder function for the content of the colored cell.
+  final Widget Function(BuildContext context, T item) coloredCellBuilder;
+
+  /// An optional builder for the decoration of the colored cell container.
+  final BoxDecoration Function(BuildContext context, T item)? decorationBuilder;
+
+  DataHelperColorRule({
+    required this.shouldColor,
+    required this.startColumnIndex,
+    required this.endColumnIndex,
+    required this.coloredCellBuilder,
+    this.decorationBuilder,
+  }) : assert(startColumnIndex >= 0, 'startColumnIndex must be non-negative'),
+       assert(endColumnIndex >= 0, 'endColumnIndex must be non-negative'),
+       assert(
+         endColumnIndex >= startColumnIndex,
+         'endColumnIndex must be greater than or equal to startColumnIndex',
+       );
 }

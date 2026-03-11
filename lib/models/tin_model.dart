@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:myapp/contracts/mappable.dart';
-import 'package:myapp/models/part_model.dart'; // Make sure this path is correct for your project
+import 'package:myapp/models/part_model.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 class TinData implements Mappable {
   final String tinNumber;
@@ -40,6 +42,19 @@ class TinData implements Mappable {
         return 'Approved';
       default:
         return paymentStatus;
+    }
+  }
+
+  Color get paymentStatusColor {
+    switch (paymentStatus) {
+      case 'P':
+        return AppColors.warning;
+      case 'C':
+        return AppColors.success;
+      case 'A':
+        return AppColors.primary;
+      default:
+        return AppColors.disabled;
     }
   }
 
