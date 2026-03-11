@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/common_functions.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/credit_note_model.dart';

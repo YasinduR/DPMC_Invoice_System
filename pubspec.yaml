@@ -110,8 +110,12 @@ flutter:
   fonts: # <--- Start of your manual font declarations
   - family: Montserrat # This is the family name you will use in your Dart code
     fonts:
-      - asset: assets/fonts/Montserrat-Bold.ttf # Path to the Regular variant
-      - asset: assets/fonts/Montserrat-Regular.ttf # Path to the Bold variant
+      - asset: assets/fonts/Montserrat/Montserrat-Bold.ttf # Path to the Regular variant
+      - asset: assets/fonts/Montserrat/Montserrat-Regular.ttf # Path to the Bold variant
+  - family: Inter
+    fonts:
+      - asset: assets/fonts/Inter/Inter-Bold.ttf # Path to the Regular variant
+      - asset: assets/fonts/Inter/Inter-Regular.ttf # Path to the Bold variant
   # fonts:
   #   - family: Schyler
   #     fonts:

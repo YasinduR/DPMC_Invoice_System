@@ -50,4 +50,30 @@ class AppColors {
   static const Color removebtnColor = disabled;
   static const Color editbtnColor = disabled;
 
+  // Main Menu Tile Colors
+  static const List<Color> menuTileColors = [
+    Color(0xFF2F80ED), // Blue
+    Color(0xFF27AE60), // Green
+    Color(0xFFF2994A), // Orange
+    Color(0xFFEB5757), // Red
+    Color(0xFF9B51E0), // Purple
+    Color(0xFF56CCF2), // Light Blue
+  ];
+
+//[
+//   Color(0xFF1976D2), // Material Blue
+//   Color(0xFF388E3C), // Material Green
+//   Color(0xFFF57C00), // Material Orange
+//   Color(0xFFD32F2F), // Material Red
+//   Color(0xFF7B1FA2), // Material Purple
+//   Color(0xFF0097A7), // Teal
+// ];
+
+  //  [
+  //     Color(0xFFE3000B), // Red
+  //     Color(0xFFFF8C42), // Orange
+  //     Color(0xFF2C7A4C), // Green
+  //     Color(0xFF1E5F8E), // Blue
+  //   ]
+
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/color_cycler.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/services/icon_mapper.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
@@ -47,7 +49,8 @@ class MainMenuScreen extends ConsumerWidget {
       final sortB = indexB == -1 ? 999 : indexB;
       return sortA.compareTo(sortB);
     });
-
+    
+    final colorCycler = ColorCycler(AppColors.menuTileColors);
     // Dynamically build the list of menu cards
     final List<Widget> menuCards =
         menuItems.map((screen) {
@@ -55,6 +58,7 @@ class MainMenuScreen extends ConsumerWidget {
           if (route == null) return const SizedBox.shrink();
 
           return MenuCard(
+            color: colorCycler.getColor,
             icon: IconMapper.getIcon(screen.iconName),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
@@ -64,6 +68,7 @@ class MainMenuScreen extends ConsumerWidget {
     // Manually add static cards like 'About' and 'Logout'
     menuCards.add(
       MenuCard(
+        color: colorCycler.getColor,
         icon: IconMapper.getIcon('info'),
         label: 'About',
         onTap:
@@ -77,6 +82,7 @@ class MainMenuScreen extends ConsumerWidget {
     menuCards.add(
       MenuCard(
         icon: IconMapper.getIcon('logout'),
+        color: colorCycler.getColor,
         label: 'Logout',
         onTap: () async {
           final confirmed = await showConfirmationDialog(

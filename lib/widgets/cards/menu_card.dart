@@ -153,11 +153,13 @@ class MenuCard extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    required this.color,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color color;
 
   @override
   State<MenuCard> createState() => _MenuCardState();
@@ -165,9 +167,10 @@ class MenuCard extends StatefulWidget {
 
 class _MenuCardState extends State<MenuCard> {
   bool _isPressed = false;
-
+  
   @override
   Widget build(BuildContext context) {
+    Color color = widget.color;
     return GestureDetector(
       // Detect when the finger touches down
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -191,34 +194,38 @@ class _MenuCardState extends State<MenuCard> {
                     _isPressed
                         ? Colors.black.withOpacity(0.15)
                         : Colors.grey.withOpacity(0.2),
-                spreadRadius: _isPressed ? 2 : 1,
-                blurRadius: _isPressed ? 10 : 5,
+                spreadRadius: _isPressed ? 2 : 2,
+                blurRadius: _isPressed ? 10 : 7,
                 offset: _isPressed ? const Offset(0, 4) : const Offset(0, 2),
               ),
             ],
             border: Border.all(
               color:
                   _isPressed
-                      ? AppColors.primary.withOpacity(0.5)
-                      : Colors.transparent,
+                      //? AppColors.primary.withOpacity(0.5)
+                      ? color.withOpacity(0.6)
+                      : color.withOpacity(0.4),
               width: 1.5,
             ),
           ),
+          child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon, size: 40, color: AppColors.primary),
-              const SizedBox(height: 10),
+              Icon(widget.icon, size: 40, color: color),
+              const SizedBox(height: 8),
               AutoSizeText(
-                maxLines: 2,
                 widget.label,
+                maxLines: 2,
+                wrapWords: false,
                 textAlign: TextAlign.center,
-                minFontSize: 8,
+                minFontSize: 10,
                 style: Theme.of(context).textTheme.labelMedium,
               ),
             ],
           ),
-        ),
+        )),
       ),
     );
   }

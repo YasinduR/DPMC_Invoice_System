@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/contracts/common_functions.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/theme/app_colors.dart';
 
