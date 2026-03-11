@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_theme_helper.dart';
+//import 'package:myapp/theme/app_colors.dart';
 
 // Common Text field
 class AppTextField extends StatelessWidget {
@@ -14,15 +15,14 @@ class AppTextField extends StatelessWidget {
   final bool isEmail; // Flag for Email
   final bool isFinanceNum; // A flag for financial number validation.
   final bool hideBorder; // Toggles the visibility of the field's border.
-  final EdgeInsetsGeometry?
-  contentPadding; // Custom padding inside the text field.
+  //final EdgeInsetsGeometry?contentPadding; // Custom padding inside the text field.
   final String? Function(String?)? validator; // Custom validation logic.
   final void Function(String)?
   onFieldSubmitted; // Callback when the user submits the field.
   final void Function(String)? onChanged; // Callback on every character change.
   final TextInputAction?
   textInputAction; // The action button on the keyboard (e.g., next, done).
-
+  final FocusNode? focusNode; // Manages the focus state of the field.
   const AppTextField({
     super.key,
     this.controller,
@@ -33,20 +33,21 @@ class AppTextField extends StatelessWidget {
     this.isPin = false,
     this.isPassword = false,
     this.isFinanceNum = false,
-    this.isEmail =false, 
-    this.hideBorder =false, 
-    this.contentPadding,
+    this.isEmail = false,
+    this.hideBorder = false,
+    //this.contentPadding,
     this.validator,
     this.onFieldSubmitted,
     this.onChanged,
     this.textInputAction,
+    this.focusNode,
   });
 
   String? _internalValidator(String? value) {
     if (validator != null)
       return validator!(value); // Use the provided validator as priority
 
-    if(isEmail){
+    if (isEmail) {
       if (value?.isEmpty ?? true) return null;
       if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value!)) {
         return 'Please enter a valid email address';
@@ -83,68 +84,35 @@ class AppTextField extends StatelessWidget {
     final TextInputType effectiveKeyboardType =
         isPin ? TextInputType.number : keyboardType;
 
+    InputDecoration baseDecoration = InputDecoration(
+      labelText: labelText,
+      hintText: hintText,
+    );
+
+    // Apply specific border overrides if hideBorder is true
+    if (hideBorder) {
+      OutlineInputBorder baseOut = AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.none);
+      baseDecoration = baseDecoration.copyWith(
+        border: baseOut,
+        enabledBorder: baseOut,
+        focusedBorder: baseOut,
+        errorBorder: baseOut,
+        focusedErrorBorder: baseOut,
+        disabledBorder: baseOut,
+      );
+    }
+    InputDecoration effectiveDecoration = baseDecoration.applyDefaults(
+      Theme.of(context).inputDecorationTheme,
+    );
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       keyboardType: effectiveKeyboardType,
       obscureText: shouldObscure,
-      onFieldSubmitted: onFieldSubmitted, // 3. PASS THE CALLBACK HERE
-      //textInputAction: TextInputAction.done, // 4. SET THE KEYBOARD ACTION
-      onChanged: onChanged, // 5. PASS the onChanged callback here
-      textInputAction:
-          textInputAction ??
-          TextInputAction.done, // Use provided action or default to 'done'
-      style: const TextStyle(color: Colors.black),
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        labelStyle: const TextStyle(color: AppColors.borderDark),
-        filled: true,
-        fillColor: AppColors.white,
-        contentPadding: contentPadding,
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              hideBorder
-                  ? BorderSide.none
-                  : const BorderSide(color: AppColors.borderDark),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              hideBorder
-                  ? BorderSide.none
-                  : const BorderSide(color: AppColors.primary, width: 2.0),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              hideBorder
-                  ? BorderSide.none
-                  : const BorderSide(color: AppColors.danger, width: 2.0),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              hideBorder
-                  ? BorderSide.none
-                  : const BorderSide(color: AppColors.danger, width: 2.0),
-        ),
-
-        // --- End of Conditional Border Logic ---
-        floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(MaterialState.error)) {
-            return const TextStyle(color: AppColors.danger);
-          }
-          // Use primary color when the field is focused.
-          if (states.contains(MaterialState.focused)) {
-            return const TextStyle(color: AppColors.primary);
-          }
-          // Use border color when unfocused (but has content, so it's floating).
-          return const TextStyle(color: AppColors.borderDark);
-        }),
-        errorStyle: const TextStyle(color: AppColors.danger),
-      ),
+      onFieldSubmitted: onFieldSubmitted,
+      onChanged: onChanged,
+      textInputAction: textInputAction ?? TextInputAction.done,
+      decoration: effectiveDecoration,
       validator: _internalValidator,
     );
   }

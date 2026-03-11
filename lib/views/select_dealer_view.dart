@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
-//import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 
+// Dealer Selection View
 class SelectDealerView extends StatefulWidget {
-  //final List<Dealer> dealers;
   final Function(Dealer) onDealerSelected;
-  final VoidCallback onSubmit;
+  // final VoidCallback onSubmit;
   final Dealer? selectedDealer;
   final Region? selectedRegion;
   final VoidCallback onRegionSelectionRequested;
 
   const SelectDealerView({
     super.key,
-    //required this.dealers,
     required this.onDealerSelected,
-    required this.onSubmit,
+    //required this.onSubmit,
     this.selectedDealer,
     this.selectedRegion,
-    required this.onRegionSelectionRequested
+    required this.onRegionSelectionRequested,
   });
 
   @override
@@ -30,15 +31,13 @@ class SelectDealerView extends StatefulWidget {
 
 class _SelectDealerViewState extends State<SelectDealerView> {
   final TextEditingController _dealerController = TextEditingController();
-  // 1. This is the only state we need to track now.
   bool _isDealerSelectionCommitted = false;
-
-  
+  bool _isDealerAccountLocked = false;
+  Dealer? _currentSelectedDealer; // Track the currently selected dealer
 
   @override
   void initState() {
     super.initState();
-    // If a dealer is pre-selected, the state is initially valid.
     if (widget.selectedDealer != null) {
       _dealerController.text = widget.selectedDealer!.name;
       _isDealerSelectionCommitted = true;
@@ -51,27 +50,81 @@ class _SelectDealerViewState extends State<SelectDealerView> {
     super.dispose();
   }
 
-  // MODIFIED: This function no longer navigates. It just calls the callback.
   Future<bool> _handlePreRequest() async {
     if (widget.selectedRegion == null) {
       final bool wantsToSelectRegion = await showConfirmationDialog(
         context: context,
         title: 'No Region Selected',
-        content: 'You must select a region before choosing a dealer. Navigate to the region selection page?',
+        content:
+            'You must select a region before choosing a dealer. Navigate to the region selection page?',
         confirmButtonText: 'Yes, Select Region',
         cancelButtonText: 'Cancel',
       );
 
-      // --- If user says yes, notify the parent widget ---
       if (wantsToSelectRegion) {
         widget.onRegionSelectionRequested();
       }
 
-      // Prevent the selection sheet from opening
       return false;
     }
-    // Proceed if region is selected
     return true;
+  }
+
+  void _handleAuthentication() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isDealerAccountLocked = false;
+    });
+
+    if (_currentSelectedDealer == null) {
+      return;
+    }
+    if (_currentSelectedDealer!.isLocked == true) {
+      return;
+    }
+
+    final String? pin = await showPinVerificationDialog(
+      context: context,
+      title: 'Authenticate Dealer',
+    );
+    if (pin == null) {
+      FocusScope.of(context).unfocus();
+      return;
+    } else {
+      dealerLogin(
+        context: context,
+        dealerCode: _currentSelectedDealer?.accountCode ?? ' ',
+        pin: pin,
+        onSuccess: () async {
+          await Future.delayed(const Duration(milliseconds: 200));
+          if (mounted) {
+            FocusScope.of(context).unfocus();
+            widget.onDealerSelected(_currentSelectedDealer!);
+          }
+        },
+        onError: (e) {
+          if (mounted) {
+            FocusScope.of(context).unfocus();
+            String errorMessage;
+            if (e is AccountLockedException) {
+              errorMessage = e.getMessage();
+              setState(() {
+                _isDealerAccountLocked = true;
+              });
+            } else if (e is AppException) {
+              errorMessage = e.getMessage();
+            } else {
+              errorMessage = e.toString().replaceFirst('Exception: ', '');
+            }
+            showSnackBar(
+              context: context,
+              message: errorMessage,
+              type: MessageType.error,
+            );
+          }
+        },
+      );
+    }
   }
 
   @override
@@ -87,19 +140,24 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             selectionSheetTitle: 'Select a Dealer',
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
-
-            //items: widget.dealers,
-            onSelected: widget.onDealerSelected,
-            //displayString: (dealer) => dealer.name,
+            onSelected: (dealer) {
+              setState(() {
+                _currentSelectedDealer = dealer;
+              });
+              //widget.onDealerSelected(dealer);
+              _handleAuthentication();
+            },
             onCommitStateChanged: (isCommitted) {
+              FocusManager.instance.primaryFocus?.unfocus();
               setState(() {
                 _isDealerSelectionCommitted = isCommitted;
               });
             },
+            showHelperOnInitialization: true,
             displayNames: const ['Account Code', 'Name', 'Address', 'City'],
             valueFields: const ['accountCode', 'name', 'address', 'city'],
             mainField: 'name',
-            dataUrl: 'api/dealers/list',
+            dataUrl: 'dealers/list',
             filterConditions:
                 widget.selectedRegion != null
                     ? [
@@ -110,11 +168,13 @@ class _SelectDealerViewState extends State<SelectDealerView> {
           const Spacer(),
           ActionButton(
             icon: Icons.check_circle_outline,
-            label: 'Submit',
-            onPressed: widget.onSubmit,
-            disabled: !_isDealerSelectionCommitted,
+            label: 'Authenticate',
+            onPressed: _handleAuthentication,
+            disabled:
+                  _isDealerAccountLocked ||
+                !_isDealerSelectionCommitted ||
+                _currentSelectedDealer!.isLocked,
           ),
-        // 
         ],
       ),
     );

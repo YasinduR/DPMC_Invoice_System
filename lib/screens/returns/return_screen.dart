@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myapp/models/column_model.dart';
+import 'package:myapp/models/activity_model.dart';
+import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/return_save_model.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
-import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/printer_service.dart';
+import 'package:myapp/views/add_return_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
-import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/app_data_grid.dart';
-import 'package:myapp/widgets/cards/dealer_info_card.dart';
-import 'package:myapp/widgets/app_option_picker.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
-import 'package:myapp/widgets/cards/tin_info_card.dart';
-import 'package:myapp/widgets/app_radio_group.dart';
+//import 'package:myapp/views/auth_dealer_view.dart';
 
 class ReturnScreen extends ConsumerStatefulWidget {
   const ReturnScreen({super.key});
@@ -29,6 +28,7 @@ class ReturnScreen extends ConsumerStatefulWidget {
 }
 
 class _ReturnScreenState extends ConsumerState<ReturnScreen> {
+  final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   Dealer? _selectedDealer;
   TinData? _selectedTin;
@@ -63,25 +63,34 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   }
   //--- Regional Settings
 
+  // void _onDealerSelected(Dealer dealer) {
+  //   setState(() {
+  //     _selectedDealer = dealer;
+  //   });
+  // }
+
   void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
     });
   }
 
-  void _submitDealer() {
-    if (_selectedDealer != null) {
-      setState(() {
-        _currentStep = 1; // Move to Authenticate step
-      });
-    }
-  }
+  // void _submitDealer() {
+  //   if (_selectedDealer != null) {
+  //     setState(() {
+  //       _currentStep = 1; // Move to Authenticate step
+  //     });
+  //   }
+  // }
 
-  void _onAuthenticated() {
-    setState(() {
-      _currentStep = 2; // Move selct tin
-    });
-  }
+  // void _onAuthenticated() {
+  //   setState(() {
+  //     _currentStep = 2; // Move selct tin
+  //   });
+  // }
 
   // MODIFIED: Added callbacks for TIN selection
   void _onTinSelected(TinData tin) {
@@ -93,20 +102,139 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   void _submitTin() {
     if (_selectedTin != null) {
       setState(() {
-        _currentStep = 3; // Move to Create Invoice step
+        _currentStep = 2; // Move to Create Invoice step
       });
     }
   }
 
-  void _saveReturn() {
-    setState(() {
-      _currentStep = 2; // Move to the tinselaction
-    });
-    showSnackBar(
-      context: context,
-      message: "Invoice Saved !",
-      type: MessageType.success,
+  void _saveReturn(
+    List<ReturnItem> selectedItems,
+    String selectedReturnType,
+    String selectedReason,
+  ) async {
+    final authState = ref.watch(authProvider);
+    final User? currentUser = authState.currentUser;
+    final Region? currentRegion = ref.watch(regionProvider).selectedRegion;
+
+    // if (currentUser == null ||
+    //     _selectedTin == null ||
+    //     currentRegion == null ||
+    //     _selectedDealer == null) {
+    //   showSnackBar(
+    //     context: context,
+    //     message: "No data to save. Please try again !",
+    //     type: MessageType.error,
+    //   );
+    //   return;
+    // }
+  if (
+        selectedItems.isEmpty
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No parts to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+
+     if (
+        _selectedDealer == null 
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No dealer to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+            if (
+        currentRegion == null 
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No region to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+        if (
+        _selectedTin == null 
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No tin to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+    if (currentUser == null
+        ) {
+      showSnackBar(
+        context: context,
+        message: "No user to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+    final saveReturn = Return(
+      returnId: 'AAA',
+      tinNo: _selectedTin!.tinNumber,
+      route: currentRegion.region,
+      dealerName: _selectedDealer!.name,
+      dealerId: _selectedDealer!.accountCode,
+      userId: currentUser.id,
+      returnType: selectedReturnType,
+      returnReason: selectedReason,
+      returnTime: DateTime.now(),
+      returnItems: selectedItems,
     );
+    
+    late Return savedReturn;
+    await save(
+      context: context,
+      user: currentUser,
+      activityType: ActivityType.returnSave,
+      dataUrl: 'return/save',
+      dataToSave: saveReturn,
+      onSuccess: () {
+        showSnackBar(
+          context: context,
+          message: 'Return saved successfully!',
+          type: MessageType.success,
+        );
+                final details = PrintFooterDetail(
+                          formNo: 'PA-FO-53',
+                          revNo: '01');
+        _printerService.previewThermalReturnPdf(savedReturn,details);
+      },
+      onError: (e) {
+        String errorMessage = e.toString().replaceFirst('Exception: ', '');
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      },
+      // rawReceivedData is extrcted from the API BODY on post request response
+      onReceivedData: (rawReceivedData) {
+        try {
+          // Parse the raw map back into a Return object
+          savedReturn = rawReceivedData;
+        } catch (e) {
+          // Handle this error appropriately, perhaps showing an error snackbar
+          showSnackBar(
+            context: context,
+            message: 'Failed to process response for Return: $e',
+            type: MessageType.error,
+          );
+          // Optionally, rethrow or set savedReturn to null to prevent onSuccess from running
+        }
+      },
+    );
+    setState(() {
+      _currentStep = 1; // Move to the tinselaction
+    });
   }
 
   void _goBack() {
@@ -135,18 +263,18 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
         currentView = SelectDealerView(
           onRegionSelectionRequested: _onRegionSelectionRequested,
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer: null,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer,
+          //onSubmit: _submitDealer,
         );
         break;
+      // case 1:
+      //   currentView = AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
+      //   break;
       case 1:
-        currentView = AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-        break;
-      case 2:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
           selectedTin: _selectedTin,
@@ -154,7 +282,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           onSubmit: _submitTin,
         );
         break;
-      case 3:
+      case 2:
         currentView = ReturnsView(
           dealer: _selectedDealer!,
           tinData: _selectedTin!,
@@ -172,13 +300,13 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
+      // case 1:
+      //   currentTitle = 'Authenticate Dealer';
+      //   break;
       case 1:
-        currentTitle = 'Authenticate Dealer';
-        break;
-      case 2:
         currentTitle = 'Select TIN';
         break;
-      case 3:
+      case 2:
         currentTitle = 'Returns';
         break;
       default:
@@ -190,221 +318,6 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,
-    );
-  }
-}
-
-class ReturnsView extends StatefulWidget {
-  final Dealer dealer;
-  final TinData tinData;
-  final VoidCallback onSubmit;
-
-  const ReturnsView({
-    super.key,
-    required this.dealer,
-    required this.tinData,
-    required this.onSubmit,
-  });
-
-  @override
-  State<ReturnsView> createState() => _ReturnsViewState();
-}
-
-class _ReturnsViewState extends State<ReturnsView> {
-  
-  List<ReturnItem> _items = []; // Initialize with an empty list
-  bool _isLoading = true; // Flag to manage loading state
-  String? _errorMessage; // To store any potential error message
-
-  String _selectedReturnType = 'Discrepancy Returns';
-  String? _selectedReason;
-  final List<String> _reasonOptions = [
-    'LEAKAGES (PETROL/OIL)',
-    'LOYALTY DISCOUNT',
-    'MANUFACTURING DEFECT',
-    'REFUND',
-    'OTHERS',
-    'Bead Failure - BF',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadReturnItems());
-  }
-
-  /// Fetches the list of returnable items using the reusable 'inquire' function.
-  Future<void> _loadReturnItems() async {
-    // Set the initial loading state before making the API call
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    // Use the generic data loading function
-    await inquire<ReturnItem>(
-      context: context,
-      dataUrl: 'api/return-items/list', // The API endpoint for return items
-      onSuccess: (List<ReturnItem> data) {
-        // If the widget is still mounted, update the state with the fetched data.
-        if (mounted) {
-          setState(() {
-            _items = data;
-            _isLoading = false;
-          });
-        }
-      },
-      onError: (String message) {
-        // If the widget is still mounted, update the state with the error message.
-        if (mounted) {
-          setState(() {
-            _errorMessage = message;
-            _isLoading = false;
-
-            showSnackBar(
-              context: context,
-              message: _errorMessage!,
-              type: MessageType.success,
-            );
-          });
-        }
-      },
-    );
-  }
-
-  void _togglePartSelection(String partNo) {
-    setState(() {
-      final part = _items.firstWhere((p) => p.partNo == partNo);
-      part.isSelected = !part.isSelected;
-    });
-  }
-
-  Future<void> _showReasonPicker() async {
-    final result = await showDialog<String>(
-      context: context,
-      builder:
-          (context) => SelectionModal(
-            title: 'Reason',
-            options: _reasonOptions,
-            initialValue: _selectedReason,
-          ),
-    );
-
-    if (result != null) {
-      setState(() {
-        _selectedReason = result;
-      });
-    }
-  }
-
-  bool get isAnyItemSelected {
-    return _items.any((item) => item.isSelected);
-  }
-
-  Widget _buildItemsList() {
-    // First, check if the data is still loading.
-    if (_isLoading) {
-      return const Center(child: Text("Loading items..."));
-    }
-
-    // Next, check if an error has occurred.
-    if (_errorMessage != null) {
-      return const Center(child: Text("No data Found"));
-    }
-
-    // If there is no error and loading is complete, show the list.
-    return AppDataGrid<ReturnItem>(
-      searchHintText: 'Search by Part No or Quantity',
-      onFilterPressed: () {},
-      filterableFields: const ['partNo', 'requestQty'],
-      items: _items,
-      columns: [
-        DynamicColumn<ReturnItem>(
-          label: 'Part No',
-          flex: 3,
-          cellBuilder:
-              (context, part) => Text(
-                part.partNo,
-                style: const TextStyle(fontSize: 12),
-                overflow: TextOverflow.ellipsis,
-              ),
-        ),
-        DynamicColumn<ReturnItem>(
-          label: 'Request Qty',
-          flex: 2,
-          cellBuilder:
-              (context, part) =>
-                  Center(child: Text(part.requestQty.toString())),
-        ),
-        DynamicColumn<ReturnItem>(
-          label: 'Select',
-          flex: 2,
-          cellBuilder:
-              (context, part) => Center(
-                child: Checkbox(
-                  value: part.isSelected,
-                  activeColor: AppColors.primary,
-                  checkColor: Colors.white,
-                  onChanged: (value) => _togglePartSelection(part.partNo),
-                ),
-              ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              DealerInfoCard(dealer: widget.dealer),
-              const SizedBox(height: 12),
-              TinInfoDisplay(tinData: widget.tinData),
-              const SizedBox(height: 16),
-
-              SizedBox(height: 250.0, child: _buildItemsList()),
-
-              const SizedBox(height: 24),
-              TitledRadioGroup(
-                title: 'Return Type',
-                options: const ['Field Returns', 'Discrepancy Returns'],
-                selectedValue: _selectedReturnType,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedReturnType = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 24),
-              PickerFormField(
-                headerLabelText: 'Reason',
-                inputFieldLabelText: 'Select a reason',
-                selectedOption: _selectedReason,
-                onTap: _showReasonPicker,
-              ),
-            ],
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            24,
-          ), // Adjust padding as needed
-          child: ActionButton(
-            icon: Icons.check_circle_outline,
-            label: 'Save',
-            disabled: !isAnyItemSelected || _selectedReason == null,
-            onPressed: widget.onSubmit,
-          ),
-        ),
-      ],
     );
   }
 }

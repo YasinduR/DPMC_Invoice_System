@@ -1,13 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/user_model.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
 import 'package:myapp/widgets/app_page.dart';
 
-class ProfileScreen extends ConsumerWidget {
+// User Profile Info Screen
+class ProfileScreen extends ConsumerWidget { 
+  // View is not separted like in other screens
   const ProfileScreen({super.key});
 
   @override
@@ -24,17 +26,13 @@ class ProfileScreen extends ConsumerWidget {
     }
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
-
-    //final roleNames = currentUser?.rolenames.join(', ') ?? 'No roles assigned';
-
     return AppPage(
       title: 'User Profile',
       child: SingleChildScrollView(
-        // Wrapped the Column with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 16.0,
-          ), // Added some horizontal padding
+          ), 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -107,7 +105,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20), // Added some bottom padding
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -119,7 +117,7 @@ class ProfileScreen extends ConsumerWidget {
     required IconData icon,
     required String label,
     required String value,
-        int? maxLinesValue, // New optional parameter
+    int? maxLinesValue,
 
   }) {
     return ListTile(
@@ -139,9 +137,11 @@ class ProfileScreen extends ConsumerWidget {
         style: const TextStyle(
           fontSize: 16,
           color: AppColors.text,
-          // fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
 }
+
+
+

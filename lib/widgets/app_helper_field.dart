@@ -1,14 +1,15 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree is built and stable before any state updates are attempted. back button press
+import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/exceptions/app_exceptions.dart';
+//import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/services/secure_storage_services.dart';
+import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/app_loading_overlay.dart';
-
-
+import 'package:myapp/widgets/app_loading_overlay.dart'; 
 
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
@@ -16,30 +17,55 @@ typedef FilterConditions = List<List<dynamic>>;
 // Common Helper of the Application
 
 class AppSelectionField<T extends Mappable> extends StatefulWidget {
-
-  final TextEditingController controller; // The controller for the text field to manage its content. 
-  final String labelText; // The text that appears as the label for the input field.
-  final IconData icon;   // The icon displayed on the button next to the text field. Defaults to a question mark.
-  final String dataUrl;   // The API endpoint URL from where to fetch the list of selectable items.
-  final void Function(T) onSelected;   // Callback function that is triggered when an item is selected from the list.
-  final CommitStateChangedCallback? onCommitStateChanged; // Callback to notify the parent widget whether the current value is a valid, selected item.
+  final TextEditingController
+  controller; // The controller for the text field to manage its content.
+  final String
+  labelText; // The text that appears as the label for the input field.
+  final IconData
+  icon; // The icon displayed on the button next to the text field. Defaults to a question mark.
+  final String
+  dataUrl; // The API endpoint URL from where to fetch the list of selectable items.
+  final void Function(T)
+  onSelected; // Callback function that is triggered when an item is selected from the list.
+  final CommitStateChangedCallback?
+  onCommitStateChanged; // Callback to notify the parent widget whether the current value is a valid, selected item.
   // This is useful for enabling/disabling buttons based on a committed selection.
 
-  final String selectionSheetTitle;  // The title displayed at the top of the modal bottom sheet.
-  final List<String> displayNames;   // The list of column headers to show in the data table on the selection sheet.
-  final List<String> valueFields; // The list of field names from the data model (T) to get the values for the columns.  
+  final String
+  selectionSheetTitle; // The title displayed at the top of the modal bottom sheet.
+  final List<String>
+  displayNames; // The list of column headers to show in the data table on the selection sheet.
+  final List<String>
+  valueFields; // The list of field names from the data model (T) to get the values for the columns.
   // The order must correspond to `displayNames`.
 
-  final String mainField; // The specific field name from the data model (T) whose value should be displayed in the text field.
-  final T? initialValue; // The initial value to populate the field with when the widget is first built.
-  final FilterConditions? filterConditions; // Optional list of filters to be sent with the API request to narrow down the data.
+  final String
+  mainField; // The specific field name from the data model (T) whose value should be displayed in the text field.
+  final T?
+  initialValue; // The initial value to populate the field with when the widget is first built.
+  final FilterConditions?
+  filterConditions; // Optional list of filters to be sent with the API request to narrow down the data.
   // Example: [['status', '=', 'active'], ['department', '=', 'sales']]
-  
-  final Future<bool> Function()? preRequest;/// An optional asynchronous function to run before fetching data.If it returns `false`, the data fetching process is cancelled.
-  final String? Function(String?)? validator; // A standard validator function for the underlying TextFormField.
-  final void Function(String)? onChanged; /// A standard onChanged callback for the underlying TextFormField.
-  final void Function(String)? onFieldSubmitted; // A standard onFieldSubmitted callback for the underlying TextFormField.
-  final TextInputAction? textInputAction; /// The type of action button to display on the keyboard (e.g., next, done).
+
+  final Future<bool> Function()? preRequest;
+
+  /// An optional asynchronous function to run before fetching data.If it returns `false`, the data fetching process is cancelled.
+  final String? Function(String?)?
+  validator; // A standard validator function for the underlying TextFormField.
+  final void Function(String)? onChanged;
+
+  /// A standard onChanged callback for the underlying TextFormField.
+  final void Function(String)?
+  onFieldSubmitted; // A standard onFieldSubmitted callback for the underlying TextFormField.
+  final TextInputAction? textInputAction;
+
+  /// The type of action button to display on the keyboard (e.g., next, done).
+
+  final bool
+  showHelperOnInitialization; // Optional flag to show selection sheet on initialization. automate ? press
+
+// The first rule whoich rows `shouldColor`.
+  final List<DataHelperColorRule<T>>? colorRules;
 
   const AppSelectionField({
     super.key,
@@ -55,11 +81,13 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     required this.mainField,
     this.initialValue,
     this.filterConditions,
-    this.preRequest, 
-    this.validator, 
-    this.onChanged, 
-    this.onFieldSubmitted, 
+    this.preRequest,
+    this.validator,
+    this.onChanged,
+    this.onFieldSubmitted,
     this.textInputAction,
+    this.showHelperOnInitialization = false,
+    this.colorRules,
   });
 
   @override
@@ -71,6 +99,8 @@ class _AppSelectionFieldState<T extends Mappable>
   T? _lastSelectedItem;
   List<T> _fetchedItems = [];
   late final AppLoadingOverlay _loadingOverlay;
+  final SecureStorageService _secureStorageService =
+      SecureStorageService(); // Instantiate SecureStorageService
 
   @override
   void initState() {
@@ -91,6 +121,20 @@ class _AppSelectionFieldState<T extends Mappable>
           // Always check if the widget is still in the tree
           widget.onSelected(widget.initialValue as T);
           widget.onCommitStateChanged?.call(true);
+        }
+        // //  Optionally show the selection sheet on initialization even if value selected
+        // Consider enablaling this later
+
+        // if (widget.showHelperOnInitialization == true) {
+        //   _showSelectionSheet(context);
+        // }
+        //---------
+      });
+    } else if (widget.showHelperOnInitialization == true) {
+      // If no initialValue and helper on init required sheet should still show
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showSelectionSheet(context);
         }
       });
     }
@@ -116,6 +160,60 @@ class _AppSelectionFieldState<T extends Mappable>
     }
   }
 
+  // Future<void> _showSelectionSheet(BuildContext context) async {
+  //   if (widget.preRequest != null) {
+  //     final shouldProceed = await widget.preRequest!();
+  //     if (!shouldProceed) {
+  //       return;
+  //     }
+
+  //     try {
+  //       String fullUrl = widget.dataUrl;
+  //       if (widget.filterConditions != null &&
+  //           widget.filterConditions!.isNotEmpty) {
+  //         final String filterJson = jsonEncode(widget.filterConditions);
+  //         final String encodedFilters = Uri.encodeComponent(filterJson);
+  //         fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
+  //       }
+
+  //       await inquire<T>(
+  //         context: context,
+  //         dataUrl: fullUrl,
+  //         onSuccess: (items) async {
+  //           if (mounted) {
+  //             setState(() {
+  //               _fetchedItems = items;
+  //               print(_fetchedItems);
+  //             });
+  //             await _presentSelectionSheet(context, _fetchedItems);
+  //           }
+  //         },
+  //         onError: (errorMessage) {
+  //           if (mounted) {
+  //             showSnackBar(
+  //               context: context,
+  //               message: errorMessage,
+  //               type: MessageType.error,
+  //             );
+  //           }
+  //         },
+  //       );
+  //     } catch (e) {
+  //       if (mounted) {
+  //         String errorMessage = e.toString();
+  //         if (errorMessage.startsWith('Exception: ')) {
+  //           errorMessage = errorMessage.substring('Exception: '.length);
+  //         }
+  //         showSnackBar(
+  //           context: context,
+  //           message: errorMessage,
+  //           type: MessageType.error,
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
+
   Future<void> _showSelectionSheet(BuildContext context) async {
     // // If items are already fetched, just show the selection sheet WITH OUT REFETCH
     // if (_fetchedItems.isNotEmpty) {
@@ -129,25 +227,33 @@ class _AppSelectionFieldState<T extends Mappable>
         return;
       }
     }
-
     _loadingOverlay.show(context); // Use the common overlay
     try {
-      // --- Build the full URL with filters ---
-      String fullUrl = widget.dataUrl;
+      //Sring baseUrl =;
+      String baseUrl = Config.baseUrl;
+      String fullUrl = baseUrl + widget.dataUrl;
       if (widget.filterConditions != null &&
           widget.filterConditions!.isNotEmpty) {
-        // 1. Encode the filter list into a JSON string
         final String filterJson = jsonEncode(widget.filterConditions);
-        // 2. URL-encode the JSON string to make it safe for a URL
         final String encodedFilters = Uri.encodeComponent(filterJson);
-        // 3. Append it as a query parameter
-        fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
+        fullUrl = '${fullUrl}?filters=$encodedFilters';
       }
-      // --- End of URL building ---
-      final items = await MockApiService.get<T>(fullUrl);
+      print(fullUrl);
+      final String? accessToken = await _secureStorageService.getAccessToken();
 
+      if (accessToken == null) {
+        // Handle case where no token is found (e.g., user not logged in)
+        print('Error: No access token found. User is not authenticated.');
+        // You might want to navigate to a login screen or show an error message
+        throw UnauthorisedException('Please log in to access this data.');
+      }
+
+      final items = await MockApiService.get<T>(
+        fullUrl,
+        authToken: accessToken, // Pass the retrieved access token
+      );
+      //final items = await MockApiService.get<T>(fullUrl);
       _loadingOverlay.hide();
-
       if (mounted) {
         setState(() {
           _fetchedItems = items;
@@ -157,10 +263,7 @@ class _AppSelectionFieldState<T extends Mappable>
     } catch (e) {
       _loadingOverlay.hide();
       if (mounted) {
-        // Convert the exception to a string.
         String errorMessage = e.toString();
-
-        // Remove the "Exception: " prefix, if it exists, for a cleaner message.
         if (errorMessage.startsWith('Exception: ')) {
           errorMessage = errorMessage.substring('Exception: '.length);
         }
@@ -178,6 +281,7 @@ class _AppSelectionFieldState<T extends Mappable>
     BuildContext context,
     List<T> items,
   ) async {
+    print('Openning sheet');
     final initialQuery = widget.controller.text;
 
     if (initialQuery.isNotEmpty) {
@@ -210,10 +314,11 @@ class _AppSelectionFieldState<T extends Mappable>
       builder: (_) {
         return SelectionSheet<T>(
           title: widget.selectionSheetTitle,
-          items: items, // Pass the fetched items
+          items: items,
           initialSearchQuery: initialQuery,
           displayNames: widget.displayNames,
           valueFields: widget.valueFields,
+          colorRules: widget.colorRules,
         );
       },
     );
@@ -230,7 +335,6 @@ class _AppSelectionFieldState<T extends Mappable>
 
   @override
   Widget build(BuildContext context) {
-    // Remove the Stack and Positioned.fill loading indicator
     return AppHelpTextField(
       controller: widget.controller,
       labelText: widget.labelText,
@@ -277,71 +381,41 @@ class AppHelpTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    InputDecoration baseDecoration = InputDecoration(labelText: labelText);
+
+    // Apply specific border overrides if hideBorder is true
+    if (hideBorder) {
+      OutlineInputBorder baseOut = AppThemeHelpers.getAppRoundedBorder(
+        type: AppBorderType.none,
+      );
+
+      baseDecoration = baseDecoration.copyWith(
+        border: baseOut,
+        enabledBorder: baseOut,
+        focusedBorder: baseOut,
+        errorBorder: baseOut,
+        focusedErrorBorder: baseOut,
+        disabledBorder: baseOut,
+      );
+    }
+    InputDecoration effectiveDecoration = baseDecoration.applyDefaults(
+      Theme.of(context).inputDecorationTheme,
+    );
+
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment
-              .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: TextFormField(
             onChanged: onChanged,
             textInputAction: textInputAction,
+            // cursorColor: AppColors.primary, // Add this line
             //autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
             onFieldSubmitted: (_) => onIconPressed!(),
             keyboardType: keyboardType,
             validator: validator,
-            decoration: InputDecoration(
-              labelText: labelText,
-              labelStyle: const TextStyle(color: AppColors.borderDark),
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding: contentPadding,
-
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.borderDark),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(
-                          color: AppColors.primary,
-                          width: 2.0,
-                        ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.danger, width: 2.0),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    hideBorder
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.danger, width: 2.0),
-              ),
-              floatingLabelStyle: MaterialStateTextStyle.resolveWith((states) {
-                if (states.contains(MaterialState.error)) {
-                  return const TextStyle(color: AppColors.danger);
-                }
-                // Use primary color when the field is focused.
-                if (states.contains(MaterialState.focused)) {
-                  return const TextStyle(color: AppColors.primary);
-                }
-                // Use border color when unfocused (but has content, so it's floating).
-                return const TextStyle(color: AppColors.borderDark);
-              }),
-              errorStyle: const TextStyle(color: AppColors.danger),
-            ),
+            decoration: effectiveDecoration,
           ),
         ),
         const SizedBox(width: 8),
@@ -349,11 +423,7 @@ class AppHelpTextField extends StatelessWidget {
         IconButton(
           onPressed: onIconPressed,
           icon: Icon(icon), // Use the customizable icon
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.white,
-            padding: const EdgeInsets.all(14),
-          ),
+          style: AppThemeHelpers.getHelperIconButtonStyle(),
         ),
       ],
     );
@@ -367,6 +437,7 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
   final List<String> displayNames;
 
   final List<String> valueFields;
+  final List<DataHelperColorRule<T>>? colorRules;
 
   const SelectionSheet({
     super.key,
@@ -375,6 +446,7 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
     this.initialSearchQuery,
     required this.displayNames,
     required this.valueFields,
+    this.colorRules,
   }) : assert(
          displayNames.length == valueFields.length,
          'Error: The number of display names must match the number of value fields.',
@@ -442,33 +514,22 @@ class _SelectionSheetState<T extends Mappable>
                 child: TextField(
                   controller: _searchController,
                   autofocus: true,
+                  //cursorColor: AppColors.primary,
                   decoration: InputDecoration(
                     hintText: 'Search by any field...',
                     prefixIcon: const Icon(Icons.search),
                     isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor,
-                        width: 2.0,
-                      ),
-                    ),
                   ),
                 ),
               ),
               const Divider(height: 1),
               Expanded(
                 child: SingleChildScrollView(
-                  controller:
-                      scrollController, 
+                  controller: scrollController,
                   child: SingleChildScrollView(
-                    scrollDirection:
-                        Axis.horizontal, 
+                    scrollDirection: Axis.horizontal,
                     child: DataTable(
+                      showCheckboxColumn: false,
                       columns:
                           widget.displayNames.map((name) {
                             return DataColumn(
@@ -481,20 +542,66 @@ class _SelectionSheetState<T extends Mappable>
                             );
                           }).toList(),
                       rows:
+                          // added data cells merges to row and commented old code by Darshan R on 10/03/2026
+                          // _filteredItems.map((item) {
+                          //   final map = item.toMap();
+                          //   return DataRow(
+                          //     cells:
+                          //         widget.valueFields.map((field) {
+                          //           final cellValue =
+                          //               map[field]?.toString() ?? '';
+                          //           return DataCell(
+                          //             Text(cellValue),
+                          //             onTap: () {
+                          //               Navigator.of(context).pop(item);
+                          //             },
+                          //           );
+                          //         }).toList(),
+                          //   );
+                          // }).toList(),
+
                           _filteredItems.map((item) {
                             final map = item.toMap();
+
+                            final List<Widget> cellWidgets = widget.valueFields.map((field) {
+                              final cellValue = map[field]?.toString() ?? '';
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                                child: Text(
+                                  cellValue,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            }).toList();
+
+                            final List<DataCell> cells = cellWidgets.map((w) => DataCell(w)).toList();
+
+                            // find applicable color rule
+                            DataHelperColorRule<T>? appliedRule;
+                            if (widget.colorRules != null) {
+                              for (var rule in widget.colorRules!) {
+                                if (rule.shouldColor(item)) {
+                                  appliedRule = rule;
+                                  break;
+                                }
+                              }
+                            }
+
+                            // apply particular color for the row
+                            Color? rowColor;
+                            if (appliedRule?.decorationBuilder != null) {
+                              final dec = appliedRule!.decorationBuilder!(context, item);
+                              rowColor = dec.color?.withOpacity(0.12);
+                            }
+
                             return DataRow(
-                              cells:
-                                  widget.valueFields.map((field) {
-                                    final cellValue =
-                                        map[field]?.toString() ?? '';
-                                    return DataCell(
-                                      Text(cellValue),
-                                      onTap: () {
-                                        Navigator.of(context).pop(item);
-                                      },
-                                    );
-                                  }).toList(),
+                              color: rowColor != null ? MaterialStateProperty.all(rowColor) : null,
+                              cells: cells,
+                              onSelectChanged: (_) {
+                                Navigator.of(context).pop(item);
+                              },
                             );
                           }).toList(),
                     ),
@@ -507,4 +614,31 @@ class _SelectionSheetState<T extends Mappable>
       },
     );
   }
+}
+
+// NEW: Generic Color Rule Definition
+class DataHelperColorRule<T> {
+  /// A predicate function to determine if this rule should apply to a given item.
+  final bool Function(T item) shouldColor;
+  final int startColumnIndex;
+  final int endColumnIndex;
+
+  /// A builder function for the content of the colored cell.
+  final Widget Function(BuildContext context, T item) coloredCellBuilder;
+
+  /// An optional builder for the decoration of the colored cell container.
+  final BoxDecoration Function(BuildContext context, T item)? decorationBuilder;
+
+  DataHelperColorRule({
+    required this.shouldColor,
+    required this.startColumnIndex,
+    required this.endColumnIndex,
+    required this.coloredCellBuilder,
+    this.decorationBuilder,
+  }) : assert(startColumnIndex >= 0, 'startColumnIndex must be non-negative'),
+       assert(endColumnIndex >= 0, 'endColumnIndex must be non-negative'),
+       assert(
+         endColumnIndex >= startColumnIndex,
+         'endColumnIndex must be greater than or equal to startColumnIndex',
+       );
 }

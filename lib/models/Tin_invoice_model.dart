@@ -18,7 +18,6 @@ class TinInvoice implements Mappable {
   });
 
   /// Converts the TinInvoice instance into a map.
-  /// This can be useful for serialization or dynamic data handling.
   @override
   Map<String, dynamic> toMap() {
     return {

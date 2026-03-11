@@ -6,28 +6,6 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  //   static Future<void> initialize() async {
-
-  //   // --- 2. ADD PERMISSION REQUEST LOGIC ---
-  //   final PermissionStatus status = await Permission.notification.request();
-  //   if (status.isDenied || status.isPermanentlyDenied) {
-  //     // Handle the case where the user denies the permission.
-  //     // You might want to show a dialog explaining why the permission is needed.
-  //     print('Notification permission denied.');
-  //     // You could open app settings here for the user to manually enable it.
-  //     // openAppSettings();
-  //     return; // Exit if permission is not granted
-  //   }
-
-  // static Future<void> initialize() async {
-  //   const AndroidInitializationSettings initializationSettingsAndroid =
-  //       AndroidInitializationSettings('@mipmap/launcher_icon');
-
-  //   const InitializationSettings initializationSettings =
-  //       InitializationSettings(android: initializationSettingsAndroid);
-
-  //   await _notificationsPlugin.initialize(initializationSettings);
-  // }
 
   static Future<void> initialize() async {
     // First, ask for permission
@@ -39,26 +17,17 @@ class NotificationService {
     }
   }
 
-  /// --- 2. A PRIVATE METHOD FOR PERMISSIONS ---
-  /// This method is only responsible for checking and requesting notification permissions.
-  /// It returns `true` if permission is granted, and `false` otherwise.
+
   static Future<bool> _requestPermissions() async {
     final PermissionStatus status = await Permission.notification.request();
     if (status.isGranted) {
-      //print('Notification permission granted.');
       return true;
     } else {
-      // Handle the case where the user denies the permission.
-      //print('Notification permission denied.');
-      // You could open app settings here for the user to manually enable it.
-      // openAppSettings();
       return false;
     }
   }
 
-  /// --- 3. A PRIVATE METHOD FOR PLUGIN INITIALIZATION ---
-  /// This is the code you wanted to separate. It's now in its own method
-  /// and only runs if permissions are successfully granted.
+
   static Future<void> _initializePlugin() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
@@ -67,7 +36,6 @@ class NotificationService {
         InitializationSettings(android: initializationSettingsAndroid);
 
     await _notificationsPlugin.initialize(initializationSettings);
-    // print('FlutterLocalNotificationsPlugin initialized.');
   }
 
   static Future<void> showNotification({
@@ -83,7 +51,8 @@ class NotificationService {
           priority: Priority.high,
           showWhen: false,
         );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    const NotificationDetails platformChannelSpecifics = 
+    NotificationDetails(
       android: androidPlatformChannelSpecifics,
     );
     await _notificationsPlugin.show(
@@ -95,7 +64,7 @@ class NotificationService {
     );
   }
 
-  // --- NEW: METHOD FOR SCHEDULED NOTIFICATIONS ---
+  // --- FOR SCHEDULED NOTIFICATIONS ---//
   static Future<void> showScheduledNotification({
     required String title,
     required String body,
@@ -114,8 +83,87 @@ class NotificationService {
           priority: Priority.high,
         ),
       ),
-      // --- ADD THIS REQUIRED PARAMETER ---
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
+
+  // --- FOR SCHEDULED NOTIFICATIONS ---//
+  static Future<void> scheduleNotification({
+    required int id, // Unique ID for each scheduled notification
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledTime,
+  }) async {
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'DPMC-Invoice-System',
+          'Notification Channel',
+          channelDescription: 'DPMC Invoice System',
+          importance: Importance.max,
+          priority: Priority.high,
+          
+          //visibility: NotificationVisibility.public, // Ensure visible on lock screen
+          // icon: '@mipmap/ic_launcher', // Optional: Custom small icon
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      //payload: payload,
+     // matchDateTimeComponents: DateTimeComponents.time, // Match time component only for daily repeats if needed
+    );
+  }
+
+ static Future<void> periodicallyShow({
+    required int id, // Unique ID for this periodic notification
+    required String title,
+    required String body,
+    required RepeatInterval repeatInterval,
+    //String? payload,
+  }) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+          'DPMC-Invoice-System',
+          'Notification Channel',
+          channelDescription: 'DPMC Invoice System',
+          importance: Importance.max,
+          priority: Priority.high,
+          showWhen: false, // Typically not shown for repeating notifications
+        );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await _notificationsPlugin.periodicallyShow(
+      id,
+      title,
+      body,
+      repeatInterval,
+      platformChannelSpecifics,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+     // payload: payload,
+    );
+  }
+  /// Cancels a specific scheduled notification by its ID.
+  static Future<void> cancelNotification(int id) async {
+    await _notificationsPlugin.cancel(id);
+  }
+
+  /// Cancels all pending notifications. Use with caution as it clears all types.
+  static Future<void> cancelAllNotifications() async {
+    await _notificationsPlugin.cancelAll();
+  }
+
+  /// Retrieves a list of all pending scheduled notifications.
+  static Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    return await _notificationsPlugin.pendingNotificationRequests();
+  }
+
+
+
+
 }

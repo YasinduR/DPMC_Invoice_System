@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_page.dart';
 
+// Common Screen For Errors
 class ErrorScreen extends StatelessWidget {
   final String title;
   final String message;

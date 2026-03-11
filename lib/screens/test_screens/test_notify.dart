@@ -1,6 +1,7 @@
 
 // -- IMPORTANT : REMOVE THIS LATER---//
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:myapp/services/notification_services.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
@@ -49,8 +50,26 @@ class TestPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ActionButton(
+              label: 'Period Notification (1m)',
+              onPressed: () {
+                NotificationService.periodicallyShow(
+                  title: 'Period Notification',
+                  body: 'This notification was scheduled periodically!', 
+                  id: 10, 
+                  repeatInterval: RepeatInterval.everyMinute,
+
+                );
+                showSnackBar(
+                  context: context,
+                  message: 'Notification scheduled for 5s from now!',
+                  type: MessageType.success,
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            ActionButton(
               label: 'Test Snack Error',
-              color: Colors.red, // Example of overriding color
+             // color: Colors.red, // Example of overriding color
               onPressed: () {
                 showSnackBar(
                   context: context,
@@ -62,7 +81,7 @@ class TestPage extends StatelessWidget {
             const SizedBox(height: 16),
             ActionButton(
               label: 'Test Snack Success',
-              color: Colors.green, // Example of overriding color
+            //  color: Colors.green, // Example of overriding color
               onPressed: () {
                 showSnackBar(
                   context: context,
@@ -74,7 +93,7 @@ class TestPage extends StatelessWidget {
             const SizedBox(height: 16),
             ActionButton(
               label: 'Test Snack Warning',
-              color: Colors.orange, // Example of overriding color
+              //color: Colors.orange, // Example of overriding color
               onPressed: () {
                 showSnackBar(
                   context: context,

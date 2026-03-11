@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart'; // FOR THERMAL PRINTER TEST PRINT
 import 'package:esc_pos_utils_plus/src/capability_profile.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 //import 'package:myapp/widgets/app_footer.dart';
@@ -304,7 +303,7 @@ class _SetupPrintScreenState extends State<SetupPrintScreen> {
           ActionButton(
             icon: Icons.print,
             label: 'Test Print',
-            color: AppColors.success,
+            type:ActionButtonType.tertiary,
             onPressed: _testPrint,
           ),
           const SizedBox(height: 12),
@@ -312,13 +311,12 @@ class _SetupPrintScreenState extends State<SetupPrintScreen> {
               ? ActionButton(
                 icon: Icons.stop_circle,
                 label: 'Stop Searching',
-                color: AppColors.danger,
+            type:ActionButtonType.secondary,
                 onPressed: _stopSearch,
               )
               : ActionButton(
                 icon: Icons.bluetooth_searching,
                 label: 'Search Bluetooth Devices',
-                color: AppColors.primary,
                 onPressed: _startSearch,
               ),
           const SizedBox(height: 16),

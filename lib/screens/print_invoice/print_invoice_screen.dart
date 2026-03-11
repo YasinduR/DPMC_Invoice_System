@@ -8,7 +8,6 @@ import 'package:myapp/views/print_invoice_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/views/select_dealer_view.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 
 
@@ -22,7 +21,6 @@ class PrintInvoiceScreen extends ConsumerStatefulWidget {
 
 class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
   int _currentStep = 0;
-  //Dealer? _selectedDealer;
 
   // Regional settings
   Region? _selectedRegion;
@@ -59,22 +57,25 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
   void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
     });
   }
 
-  void _submitDealer() {
-    if (_selectedDealer != null) {
-      setState(() {
-        _currentStep = 1; // Move to Authenticate step
-      });
-    }
-  }
+  // void _submitDealer() {
+  //   if (_selectedDealer != null) {
+  //     setState(() {
+  //       _currentStep = 1; // Move to Authenticate step
+  //     });
+  //   }
+  // }
 
-  void _onAuthenticated() {
-    setState(() {
-      _currentStep = 2; // Move to Create Invoice step
-    });
-  }
+  // void _onAuthenticated() {
+  //   setState(() {
+  //     _currentStep = 2; // Move to Create Invoice step
+  //   });
+  // }
   //--- Dealer Selection
 
   void _goBack() {
@@ -104,19 +105,19 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
         currentView = SelectDealerView(
           //dealers: _dealers,
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer: null,
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer, // Pass submit callback
+          //onSubmit: _submitDealer, // Pass submit callback
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
+      // case 1:
+      //   currentView = AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
+      //   break;
       case 1:
-        currentView = AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-        break;
-      case 2:
         currentView = PrintInvoiceMainScreen(dealer: _selectedDealer!);
         break;
       default:
@@ -131,10 +132,10 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
+      // case 1:
+      //   currentTitle = 'Authenticate Dealer';
+      //   break;
       case 1:
-        currentTitle = 'Authenticate Dealer';
-        break;
-      case 2:
         currentTitle = 'Print Invoice';
         break;
       default:
@@ -148,150 +149,3 @@ class _PrintInvoiceScreenState extends ConsumerState<PrintInvoiceScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// class PrintInvoiceMainScreen extends StatelessWidget {
-
-
-
-  
-//   final Dealer dealer;
-//   const PrintInvoiceMainScreen({super.key, required this.dealer});
-
-//   final List<InvoiceItem> _invoiceItems = const [
-//     InvoiceItem(invoiceNumber: 'MIN2025111700000567', invoiceAmount: '24000'),
-//     InvoiceItem(invoiceNumber: 'MIN2025111700000444', invoiceAmount: '24000'),
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), // No top padding
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const SizedBox(height: 24),
-//           DealerInfoCard(dealer: dealer),
-//           const SizedBox(height: 16),
-//           _buildInvoiceTable(),
-//           const Spacer(),
-//           _buildConfirmationBox(),
-//           const SizedBox(height: 20),
-
-//           ActionButton(
-//             icon: Icons.handshake_outlined,
-//             label: 'Agree',
-//             onPressed: () {
-//               showSnackBar(
-//                 context: context,
-//                 message: "Print Success !",
-//                 type: MessageType.success,
-//               );
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // Helper method to build the invoice list
-//   Widget _buildInvoiceTable() {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-//       decoration: BoxDecoration(
-//         color: AppColors.white,
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       child: Column(
-//         children: [
-//           // Table Header
-//           const Row(
-//             children: [
-//               Expanded(
-//                 flex: 3,
-//                 child: Text(
-//                   'Invoice Number',
-//                   style: TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     color: AppColors.textSecondary,
-//                   ),
-//                 ),
-//               ),
-//               Expanded(
-//                 flex: 2,
-//                 child: Text(
-//                   'Invoice Amount',
-//                   textAlign: TextAlign.right,
-//                   style: TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     color: AppColors.textSecondary,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           const Divider(thickness: 1.5),
-
-//           // Table Rows from data
-//           ..._invoiceItems
-//               .map(
-//                 (item) => Padding(
-//                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-//                   child: Row(
-//                     children: [
-//                       Expanded(
-//                         flex: 3,
-//                         child: Text(
-//                           item.invoiceNumber,
-//                           style: const TextStyle(fontSize: 14),
-//                         ),
-//                       ),
-//                       Expanded(
-//                         flex: 2,
-//                         child: Text(
-//                           item.invoiceAmount,
-//                           textAlign: TextAlign.right,
-//                           style: const TextStyle(fontSize: 14),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               )
-//               .toList(),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildConfirmationBox() {
-//     return Container(
-//       width: double.infinity,
-//       padding: const EdgeInsets.all(16.0),
-//       decoration: BoxDecoration(
-//         color: AppColors.success.withOpacity(0.15),
-//         borderRadius: BorderRadius.circular(8),
-//         border: Border.all(color: AppColors.success.withOpacity(0.5)),
-//       ),
-//       child: const Text(
-//         'Above all items were received in good condition',
-//         style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w500),
-//       ),
-//     );
-//   }
-// }

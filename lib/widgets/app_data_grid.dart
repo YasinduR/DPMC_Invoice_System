@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/column_model.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 // Common Data Grid of the Application
 
@@ -25,6 +25,14 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
   // Visibilty of filter bar over the table by Default true
   final bool hasFilter;
 
+  final Color fillColor;
+
+  /// A list of merge rules to apply to the grid rows.
+  /// The first rule whose `shouldMerge` predicate returns true for an item will be applied.
+  final List<DataGridMergeRule<T>>? mergeRules;
+
+  final String? noDataMessage;
+
   const AppDataGrid({
     super.key,
     required this.items,
@@ -33,6 +41,9 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
     this.onFilterPressed,
     this.hasFilter = true,
     this.searchHintText = 'Search...',
+    this.mergeRules,
+    this.fillColor = AppColors.lightLavender,
+    this.noDataMessage,
   });
 
   @override
@@ -101,7 +112,8 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
 
   Widget _buildBody() {
     if (_filteredItems.isEmpty) {
-      return const Center(child: Text('No items found.'));
+      final message = widget.noDataMessage ?? 'No Data Found';
+      return Center(child: Text(message));
     }
 
     return ListView.builder(
@@ -116,7 +128,7 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: widget.fillColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border),
       ),
@@ -147,7 +159,7 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-      color: AppColors.white,
+      color: widget.fillColor,
       child: Row(
         children:
             widget.columns.map((column) {
@@ -175,23 +187,181 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
     );
   }
 
+  // Widget _buildRow(T item) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border(bottom: BorderSide(color: AppColors.border)),
+  //     ),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children:
+  //           widget.columns.map((column) {
+  //             return Expanded(
+  //               flex: column.flex,
+  //               child: column.cellBuilder(context, item),
+  //             );
+  //           }).toList(),
+  //     ),
+  //   );
+  // }
+
+  // UPDATED: _buildRow to generically handle merge rules
   Widget _buildRow(T item) {
+    DataGridMergeRule<T>? appliedRule;
+
+    // Find the first matching merge rule for this item
+    if (widget.mergeRules != null) {
+      for (var rule in widget.mergeRules!) {
+        if (rule.shouldMerge(item)) {
+          appliedRule = rule;
+          break; // Apply only the first matching rule
+        }
+      }
+    }
+
+    // Build the list of children for the Row widget
+    List<Widget> rowChildren = [];
+    int currentColumnIndex = 0;
+
+    if (appliedRule != null) {
+      // Add columns before the merged section
+      for (int i = 0; i < appliedRule.startColumnIndex; i++) {
+        rowChildren.add(
+          Expanded(
+            flex: widget.columns[i].flex,
+            child: widget.columns[i].cellBuilder(context, item),
+          ),
+        );
+        currentColumnIndex++;
+      }
+
+      // Calculate total flex for the merged section
+      int mergedFlex = 0;
+      for (
+        int i = appliedRule.startColumnIndex;
+        i <= appliedRule.endColumnIndex;
+        i++
+      ) {
+        mergedFlex += widget.columns[i].flex;
+      }
+
+      // Add the merged cell
+      rowChildren.add(
+        Expanded(
+          flex: mergedFlex,
+          child: appliedRule.mergedCellBuilder(context, item),
+        ),
+      );
+      currentColumnIndex =
+          appliedRule.endColumnIndex + 1; // Move past merged columns
+    }
+
+    // Add remaining columns (either after merged section or all if no rule applied)
+    for (int i = currentColumnIndex; i < widget.columns.length; i++) {
+      rowChildren.add(
+        Expanded(
+          flex: widget.columns[i].flex,
+          child: widget.columns[i].cellBuilder(context, item),
+        ),
+      );
+    }
+
+    // Determine the row's decoration
+    BoxDecoration rowDecoration = BoxDecoration(
+      color: widget.fillColor,
+      border: Border(bottom: BorderSide(color: AppColors.border)),
+    );
+    if (appliedRule?.decorationBuilder != null) {
+      rowDecoration = appliedRule!.decorationBuilder!(context, item);
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
-      ),
+      decoration: rowDecoration,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children:
-            widget.columns.map((column) {
-              return Expanded(
-                flex: column.flex,
-                child: column.cellBuilder(context, item),
-              );
-            }).toList(),
+        children: rowChildren,
       ),
     );
   }
+}
+
+// NEW: Generic Merge Rule Definition
+class DataGridMergeRule<T> {
+  /// A predicate function to determine if this rule should apply to a given item.
+  final bool Function(T item) shouldMerge;
+  final int startColumnIndex;
+  final int endColumnIndex;
+
+  /// A builder function for the content of the merged cell.
+  final Widget Function(BuildContext context, T item) mergedCellBuilder;
+
+  /// An optional builder for the decoration of the merged cell container.
+  final BoxDecoration Function(BuildContext context, T item)? decorationBuilder;
+
+  DataGridMergeRule({
+    required this.shouldMerge,
+    required this.startColumnIndex,
+    required this.endColumnIndex,
+    required this.mergedCellBuilder,
+    this.decorationBuilder,
+  }) : assert(startColumnIndex >= 0, 'startColumnIndex must be non-negative'),
+       assert(endColumnIndex >= 0, 'endColumnIndex must be non-negative'),
+       assert(
+         endColumnIndex >= startColumnIndex,
+         'endColumnIndex must be greater than or equal to startColumnIndex',
+       );
+}
+
+// Grid Icon Button
+
+enum IconButtonType {
+  remove,
+  edit
+}
+
+Widget buildGridIconButton({
+  required VoidCallback onPressed,
+  required IconButtonType buttonType,
+  Color? iconColor,
+  double iconSize = 24.0,
+  EdgeInsetsGeometry padding = EdgeInsets.zero,
+}) {
+  // Get icon based on button type
+  IconData getIcon() {
+    switch (buttonType) {
+      case IconButtonType.remove:
+        return Icons.close;
+      case IconButtonType.edit:
+        return Icons.edit;
+      // default:
+      //   return Icons.close;
+    }
+  }
+
+  // Default colors for different button types
+  Color _getDefaultColor() {
+    switch (buttonType) {
+      case IconButtonType.remove:
+        return AppColors.removebtnColor;
+      case IconButtonType.edit:
+        return AppColors.editbtnColor;
+      // default:
+      //   return Colors.grey;
+    }
+  }
+
+  return IconButton(
+    icon: Icon(
+      getIcon(),
+      color: iconColor ?? _getDefaultColor(),
+      size: iconSize,
+    ),
+    onPressed: onPressed,
+    padding: padding,
+    constraints: const BoxConstraints(),
+    tooltip: buttonType.name.toUpperCase(), // Adds accessibility
+  );
 }

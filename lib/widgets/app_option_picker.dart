@@ -1,7 +1,9 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_theme.dart';
+import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/widgets/app_action_button.dart';
 
-// Options Picker field and releated show model  ( note: used in reasons for returns and attendence)
+// Options Picker field and releated show model  ( note: used in reasons for returns and attendance)
 
 class SelectionModal extends StatefulWidget {
   final String title; // Text displayed at the top of the modal.
@@ -52,11 +54,15 @@ class _SelectionModalState extends State<SelectionModal> {
                 itemBuilder: (context, index) {
                   final option = widget.options[index];
                   return RadioListTile<String>(
-                    title: Text(
+                    title: AutoSizeText(
+                      // <--- AutoSizeText
                       option,
                       style: const TextStyle(fontSize: 14),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1, // Restrict to one line
+                      minFontSize: 8, // Minimum font size before overflow
+                      overflow:
+                          TextOverflow
+                              .ellipsis, // Show ellipsis if it still overflows
                     ),
                     value: option,
                     groupValue: _selectedValue,
@@ -70,18 +76,13 @@ class _SelectionModalState extends State<SelectionModal> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed:
-                  _selectedValue == null
-                      ? null // Disable button if nothing is selected
-                      : () => Navigator.of(context).pop(_selectedValue),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              icon: const Icon(Icons.check_circle_outline),
-              label: const Text('Submit'),
+            ActionButton(
+              label: 'Submit',
+              icon: Icons.check_circle_outline,
+              onPressed: () {
+                Navigator.of(context).pop(_selectedValue);
+              },
+              disabled: _selectedValue == null,
             ),
           ],
         ),
@@ -91,10 +92,14 @@ class _SelectionModalState extends State<SelectionModal> {
 }
 
 class PickerFormField extends StatelessWidget {
-  final String? headerLabelText; // Optional label text displayed above the field.
-  final String? inputFieldLabelText; // Optional label text for the InputDecorator.
-  final String? selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
+  final String?
+  headerLabelText; // Optional label text displayed above the field.
+  final String?
+  inputFieldLabelText; // Optional label text for the InputDecorator.
+  final String?
+  selectedOption; // The current Option picked if non shows inputFieldLabelText in shaded.
   final VoidCallback onTap; // The function to call when the field is tapped.
+  final bool isDisabled;
 
   const PickerFormField({
     super.key,
@@ -102,11 +107,12 @@ class PickerFormField extends StatelessWidget {
     this.inputFieldLabelText,
     required this.selectedOption,
     required this.onTap,
+    this.isDisabled=false
   });
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =  AppColors.borderDark;
+    //final borderColor = AppColors.borderDark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,44 +120,43 @@ class PickerFormField extends StatelessWidget {
         // Optional header label above the field
         if (headerLabelText != null && headerLabelText!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0), // Spacing between header label and input
+            padding: const EdgeInsets.only(
+              bottom: 8.0,
+            ), // Spacing between header label and input
             child: Center(
-              child:Text(
-              headerLabelText!,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppColors.primary, // Using primary color for header label
+              child: Text(
+                headerLabelText!,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color:
+                      AppColors.primary, // Using primary color for header label
+                ),
               ),
-            )),
+            ),
           ),
         InkWell(
-          onTap: onTap,
+          onTap: isDisabled ? null:onTap,
           borderRadius: BorderRadius.circular(12),
           child: InputDecorator(
             isEmpty: selectedOption == null,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColors.white,
-              labelText: inputFieldLabelText, // Use the optional input field label
-              labelStyle: const TextStyle(color: AppColors.borderDark),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: borderColor),
-              ),
-            ),
+            decoration: InputDecoration(labelText: inputFieldLabelText),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    selectedOption == null ? '':selectedOption!,
-                    style: const TextStyle(fontSize: 16, color: AppColors.text),
+                  Expanded(
+                    child: AutoSizeText(
+                      selectedOption == null ? '' : selectedOption!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: AppColors.text,
+                      ),
+                      maxLines: 1, // Ensure it stays on one line
+                      minFontSize: 8, // Minimum font size before truncation
+                      overflow:TextOverflow.ellipsis, // Add ellipsis if it still overflows
+                    ),
                   ),
                   const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
                 ],

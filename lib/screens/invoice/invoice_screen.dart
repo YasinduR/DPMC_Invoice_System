@@ -1,25 +1,24 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myapp/models/column_model.dart';
+import 'package:myapp/models/activity_model.dart';
+import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
+import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
-import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/printer_service.dart';
+import 'package:myapp/views/create_invoice_view.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/views/region_selection_view.dart';
-import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/app_data_grid.dart';
-import 'package:myapp/widgets/cards/dealer_info_card.dart';
-import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/views/auth_dealer_view.dart';
-import 'package:myapp/widgets/cards/tin_info_card.dart';
+//import 'package:myapp/views/auth_dealer_view.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -29,6 +28,7 @@ class InvoiceScreen extends ConsumerStatefulWidget {
 }
 
 class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
+  final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
   TinData? _selectedTin;
 
@@ -67,22 +67,25 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   void _onDealerSelected(Dealer dealer) {
     setState(() {
       _selectedDealer = dealer;
+      if (_selectedDealer != null) {
+        _currentStep = 1;
+      }
     });
   }
 
-  void _submitDealer() {
-    if (_selectedDealer != null) {
-      setState(() {
-        _currentStep = 1; // Move to Authenticate step
-      });
-    }
-  }
+  // void _submitDealer(Dealer dealer) {
+  //   if (_selectedDealer != null) {
+  //     setState(() {
+  //       _currentStep = 1; // Move to Tin selection
+  //     });
+  //   }
+  // }
 
-  void _onAuthenticated() {
-    setState(() {
-      _currentStep = 2; // Move to Create Invoice step
-    });
-  }
+  // void _onAuthenticated() {
+  //   setState(() {
+  //     _currentStep = 2; // Move to Create Invoice step
+  //   });
+  // }
   //--- Dealer Selection
 
   void _onTinSelected(TinData tin) {
@@ -94,20 +97,137 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   void _submitTin() {
     if (_selectedTin != null) {
       setState(() {
-        _currentStep = 3; // Move to Create Invoice step
+        _currentStep = 2; // Move to Create Invoice step
       });
     }
   }
 
-  void _saveinvoice() {
-    setState(() {
-      _currentStep = 2; // Move to the initial page
-    });
-    showSnackBar(
-      context: context,
-      message: "Invoice Saved !",
-      type: MessageType.success,
+  Future<void> _saveinvoice(List<Part> selectedParts) async {
+    final authState = ref.watch(authProvider);
+    final User? currentUser = authState.currentUser;
+    final Region? currentRegion = ref.watch(regionProvider).selectedRegion;
+    if (selectedParts.isEmpty) {
+      showSnackBar(
+        context: context,
+        message: "No parts to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+
+    if (_selectedDealer == null) {
+      showSnackBar(
+        context: context,
+        message: "No dealer to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+    if (currentRegion == null) {
+      showSnackBar(
+        context: context,
+        message: "No region to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+    if (_selectedTin == null) {
+      showSnackBar(
+        context: context,
+        message: "No tin to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+    if (currentUser == null) {
+      showSnackBar(
+        context: context,
+        message: "No user to save. Please try again !",
+        type: MessageType.error,
+      );
+      return;
+    }
+
+    double total = 0;
+    for (var part in selectedParts) {
+      final qty = part.receivedQty;
+      final price = part.price;
+      total += (qty * price);
+    }
+    final invoiceData = InvoiceSave(
+      invoiceNumber: 'AAA',
+      tinNo: _selectedTin!.tinNumber,
+      route: currentRegion.region,
+      dealerName: _selectedDealer!.name,
+      dealerId: _selectedDealer!.accountCode,
+      userId: currentUser.id,
+      invoiceAmount: total,
+      invoiceTime: DateTime.now(),
+      parts: selectedParts,
+      orderNo: _selectedTin!.orderNumber,
+      dealerVatNo: _selectedDealer!.vatNo,
+      dealerAddress: _selectedDealer!.address + ', ' + _selectedDealer!.city,
+      payOndel: _selectedTin!.payOnDel,
     );
+
+    late InvoiceSave savedInvoice;
+    await save(
+      context: context,
+      dataUrl: 'invoice/save',
+      user: currentUser,
+      activityType: ActivityType.invoiceSave,
+      dataToSave: invoiceData,
+      onReceivedData: (rawReceivedData) {
+        try {
+          savedInvoice = rawReceivedData;
+        } catch (e) {
+          showSnackBar(
+            context: context,
+            message: 'Failed to process response for Invoice: $e',
+            type: MessageType.error,
+          );
+        }
+      },
+      onSuccess: () {
+        showSnackBar(
+          context: context,
+          message: 'Invoice saved successfully!',
+          type: MessageType.success,
+        );
+        //final details = PrintFooterDetail({revNo:'PA-FO-53'});
+        final details = PrintFooterDetail(
+                          formNo: 'PA-FO-53',
+                          revNo: '01');
+                          
+        _printerService.previewThermalInvoicePdf(savedInvoice, details);
+      },
+      onError: (e) {
+        String errorMessage = e.toString().replaceFirst('Exception: ', '');
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      },
+    );
+
+    // Add print preview. // Pass Dealer Info
+    // User Info Tin Info and selected parts to print preview
+    //String dealerName = _selectedDealer == null ? '' : _selectedDealer?.name;
+    // _printerService.previewThermalInvoicePdf(
+    //   selectedParts,
+    //   _selectedDealer!.name,
+    // );
+
+    // // ADD API request later here
+    // showSnackBar(
+    //   context: context,
+    //   message: "Invoice Saved !",
+    //   type: MessageType.success,
+    // );
+    setState(() {
+      _currentStep = 1; // Move to the initial page
+    });
   }
 
   void _goBack() {
@@ -137,19 +257,20 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer: _selectedDealer,
+          selectedDealer:
+              null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
-          onSubmit: _submitDealer,
+          //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
         );
         break;
+      // case 1:
+      //   currentView = AuthenticateDealerView(
+      //     dealer: _selectedDealer!,
+      //     onAuthenticated: _onAuthenticated,
+      //   );
+      //   break;
       case 1:
-        currentView = AuthenticateDealerView(
-          dealer: _selectedDealer!,
-          onAuthenticated: _onAuthenticated,
-        );
-        break;
-      case 2:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
           selectedTin: _selectedTin,
@@ -157,7 +278,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           onSubmit: _submitTin,
         );
         break;
-      case 3:
+      case 2:
         currentView = CreateInvoiceView(
           dealer: _selectedDealer!,
           tindata: _selectedTin!,
@@ -175,13 +296,13 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentTitle = 'Select Dealer';
         break;
+      // case 1:
+      //   currentTitle = 'Authenticate Dealer';
+      //   break;
       case 1:
-        currentTitle = 'Authenticate Dealer';
-        break;
-      case 2:
         currentTitle = 'Select TIN';
         break;
-      case 3:
+      case 2:
         currentTitle = 'Invoice';
         break;
       default:
@@ -193,235 +314,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,
-    );
-  }
-}
-
-class CreateInvoiceView extends StatefulWidget {
-  final Dealer dealer;
-  final TinData tindata;
-  final VoidCallback onSubmit;
-
-  const CreateInvoiceView({
-    super.key,
-    required this.dealer,
-    required this.tindata,
-    required this.onSubmit,
-  });
-
-  @override
-  State<CreateInvoiceView> createState() => _CreateInvoiceViewState();
-}
-
-class _CreateInvoiceViewState extends State<CreateInvoiceView> {
-  List<Part> _parts = [];
-  List<Part> _selectedParts = [];
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  double get totalAmount {
-    return _selectedParts.fold(
-      0.0,
-      (sum, part) => sum + (part.price * part.receivedQty),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadParts());
-  }
-
-  Future<void> _loadParts() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    await inquire<Part>(
-      context: context,
-      dataUrl: 'api/parts/list',
-      onSuccess: (List<Part> data) {
-        if (mounted) {
-          setState(() {
-            _parts = data;
-            _isLoading = false;
-          });
-        }
-      },
-      onError: (String message) {
-        if (mounted) {
-          setState(() {
-            _errorMessage = message;
-            _isLoading = false;
-          });
-        }
-        showSnackBar(
-          context: context,
-          message: _errorMessage!,
-          type: MessageType.success,
-        );
-      },
-    );
-  }
-
-  Widget _buildPartList() {
-    if (_isLoading) {
-      return const Center(child: Text("Loading parts..."));
-    }
-
-    if (_errorMessage != null) {
-      return const Center(child: Text("No data Found"));
-    }
-
-    return AppDataGrid<Part>(
-      searchHintText: 'Search by Part No or ID',
-      onFilterPressed: () {},
-      filterableFields: ['partNo', 'id'],
-      columns: [
-        DynamicColumn<Part>(
-          label: 'Part No',
-          flex: 3,
-          cellBuilder:
-              (context, part) => Text(
-                part.partNo,
-                style: const TextStyle(fontSize: 12),
-                overflow: TextOverflow.ellipsis,
-              ),
-        ),
-        DynamicColumn<Part>(
-          label: 'Request Qty',
-          flex: 2,
-          cellBuilder:
-              (context, part) =>
-                  Center(child: Text(part.requestQty.toString())),
-        ),
-        DynamicColumn<Part>(
-          label: 'Select',
-          flex: 2,
-          cellBuilder:
-              (context, part) => Center(
-                child: Checkbox(
-                  value: _selectedParts.any((p) => p.id == part.id),
-                  activeColor: AppColors.primary,
-                  checkColor: Colors.white,
-                  onChanged: (value) => _togglePartSelection(part.id),
-                ),
-              ),
-        ),
-        DynamicColumn<Part>(
-          label: 'Receive Qty',
-          flex: 3,
-          cellBuilder: (context, part) {
-            final selectedPart = _selectedParts.firstWhereOrNull(
-              (p) => p.id == part.id,
-            );
-            return QuantitySelector(
-              value: selectedPart?.receivedQty ?? 0,
-              enabled:
-                  selectedPart != null, 
-              dialogTitle: 'Delivered Quantity',
-              maxQuantity: part.requestQty,
-              onChanged: (newValue) {
-                setState(() => selectedPart!.receivedQty = newValue);
-              },
-            );
-          },
-        ),
-      ],
-      items: _parts,
-    );
-  }
-
-  Future<void> _togglePartSelection(String partId) async {
-    final sourcePart = _parts.firstWhere((p) => p.id == partId);
-    final isCurrentlySelected = _selectedParts.any((p) => p.id == partId);
-
-    if (isCurrentlySelected) {
-      setState(() {
-        _selectedParts.removeWhere((p) => p.id == partId);
-      });
-    } else {
-      final newSelectedPart = sourcePart.copyWith(receivedQty: 1);
-      setState(() {
-        _selectedParts.add(newSelectedPart);
-      });
-      await _showQuantityDialog(newSelectedPart);
-    }
-  }
-
-  Future<void> _showQuantityDialog(Part selectedPart) async {
-    final newQuantity = await showDialog<int>(
-      context: context,
-      builder:
-          (context) => QuantityEditDialog(
-            initialQuantity: selectedPart.receivedQty,
-            title: 'Delivered Quantity',
-            maxQuantity: selectedPart.requestQty,
-          ),
-    );
-
-    if (newQuantity != null && mounted) {
-      setState(() {
-        selectedPart.receivedQty = newQuantity;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              DealerInfoCard(dealer: widget.dealer),
-              const SizedBox(height: 12),
-              TinInfoDisplay(tinData: widget.tindata),
-              const SizedBox(height: 12),
-              SizedBox(height: 300.0, child: _buildPartList()),
-            ],
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildTotalAmountSection(totalAmount),
-              const SizedBox(height: 16),
-              ActionButton(
-                icon: Icons.check_circle_outline,
-                label: 'Save',
-                disabled: totalAmount == 0,
-                onPressed: widget.onSubmit,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTotalAmountSection(double totalAmount) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Total Amount',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          totalAmount.toStringAsFixed(2),
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
     );
   }
 }

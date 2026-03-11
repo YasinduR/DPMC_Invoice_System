@@ -1,17 +1,23 @@
+import 'dart:math';
+
 import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
-import 'package:myapp/models/attendence_model.dart';
+import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/models/invoic_model.dart';
+import 'package:myapp/models/dispatch_note_model.dart';
+import 'package:myapp/models/employee_model.dart';
+import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/menu_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/permission_model.dart';
-import 'package:myapp/models/reciept_model.dart';
+import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/return_request_model.dart';
+import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/role_model.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/models/tin_model.dart';
@@ -21,8 +27,202 @@ import 'package:myapp/models/user_model.dart';
 //// IMPORTANT :  This works as the DataBase remove later
 
 class DummyData {
-  static final List<Receipt> _sessionReceipts = [];
-  static final List<Attendence> _attendence = [];
+  static final dummyInv1 = InvoiceSave(
+    invoiceNumber: "DN20260224002",
+    tinNo: "PTIBDM202602170463",
+    orderNo: "PADC2026021605834",
+    payOndel: "N",
+    route: "R01",
+
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    dealerVatNo: "VAT123456789",
+    dealerAddress: "No 199/4 Kanaththa Road, Molligoda, Wadduwa",
+    dealerId: "AC2018023904",
+
+    userId: "USR01",
+
+    parts: [
+      Part(
+        id: '1',
+        partNo: "03100335",
+        description: "BEARING NEEDLE [SCE188] - MAINSHAFT",
+        requestQty: 10,
+        price: 21.3,
+      ),
+      Part(
+        id: '2',
+        partNo: "24171094",
+        description: "SHOCKABSORBER ASSEMBLY - REAR",
+        requestQty: 6,
+        price: 4500.00,
+      ),
+      Part(
+        id: '3',
+        partNo: "39132420",
+        description: "BEARING BALL [6305] - CRANKSHAFT",
+        requestQty: 5,
+        price: 320.50,
+      ),
+      Part(
+        id: '4',
+        partNo: "39193120",
+        description: "BEARING BALL - 28 X 68 X 18",
+        requestQty: 4,
+        price: 275.75,
+      ),
+      Part(
+        id: '5',
+        partNo: "AA101108",
+        description: "GEAR SELECTER",
+        requestQty: 5,
+        price: 1890.00,
+      ),
+      Part(
+        id: '6',
+        partNo: "AA101481",
+        description: "INNER CLUTCH RELEASE COMPLETE",
+        requestQty: 5,
+        price: 2150.00,
+      ),
+      Part(
+        id: '7',
+        partNo: "AB171044",
+        description: "SHOCKABSORBER ASSEMBLY COMPLETE - FRONT",
+        requestQty: 4,
+        price: 5600.00,
+      ),
+      Part(
+        id: '8',
+        partNo: "AS00304013",
+        description: "N/A",
+        requestQty: 50,
+        price: 12.00,
+      ),
+      Part(
+        id: '9',
+        partNo: "DS101277",
+        description: "TENSIONER ASSEMBLY",
+        requestQty: 5,
+        price: 1340.00,
+      ),
+    ],
+    invoiceAmount: 100000.00,
+    invoiceTime: DateTime.now(),
+  );
+
+  static final dummyInv2 = InvoiceSave(
+    invoiceNumber: "DN20260224001",
+    tinNo: "PTIBDM202602170463",
+    orderNo: "PADC2026021605834",
+    payOndel: "N",
+    route: "R01",
+
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    dealerVatNo: "VAT123456789",
+    dealerAddress: "No 199/4 Kanaththa Road, Molligoda, Wadduwa",
+    dealerId: "AC2018023904",
+
+    userId: "USR01",
+
+    parts: [
+      Part(
+        id: '1',
+        partNo: "03100335",
+        description: "BEARING NEEDLE [SCE188] - MAINSHAFT",
+        requestQty: 10,
+        price: 21.3,
+      ),
+      Part(
+        id: '2',
+        partNo: "24171094",
+        description: "SHOCKABSORBER ASSEMBLY - REAR",
+        requestQty: 6,
+        price: 4500.00,
+      ),
+      Part(
+        id: '7',
+        partNo: "39132420",
+        description: "BEARING BALL [6305] - CRANKSHAFT",
+        requestQty: 5,
+        price: 320.50,
+      ),
+      Part(
+        id: '4',
+        partNo: "39193120",
+        description: "BEARING BALL - 28 X 68 X 18",
+        requestQty: 4,
+        price: 275.75,
+      ),
+      Part(
+        id: '5',
+        partNo: "AA101108",
+        description: "GEAR SELECTER",
+        requestQty: 5,
+        price: 1890.00,
+      ),
+    ],
+    invoiceAmount: 100000.00,
+    invoiceTime: DateTime.now(),
+  );
+
+  static final dummyRec1 = Receipt(
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    userId: "USR01",
+    receiptNo: 'TestS112111',
+    receiptTime: DateTime.now(),
+    dealerCode: 'TestS112111',
+    chequeNumber: '',
+    chequeAmount: 45200.50,
+    chequeDate: DateTime.now(),
+    bankCode: '7010',
+    branchCode: '001',
+    branchName: 'Bank of Ceylon - Colombo',
+    tins: [
+      TinInvoice(
+        tinNo: 'TINBDM2025011500101',
+        mobileInvNo: 'MIN0020512201400010',
+        invAmount: 45200.50,
+        paymentOnDeliveryStatus: 'Y',
+        dealerAccCode: 'AC2000123306',
+      ),
+    ],
+    creditNotes: [],
+  );
+
+  static final List<Receipt> _sessionReceipts = [dummyRec1];
+  static final List<Return> _sessionReturns = [];
+  //static final List<ReturnRequest> _returnRequest = [];
+
+  static final List<InvoiceSave> _sessionInvoices = [dummyInv2, dummyInv1];
+  static final List<DispatchNoteSave> _sessionDispatchNotes = [];
+  //static final List<Attendance> _attendance = [];
+
+  static final List<Attendance> _attendance = generateDummyAttendanceData(
+    userId: "8108",
+    numberOfWorkingDays: 30,
+  );
+  static final List<Employee> _employees = [
+    Employee(
+      id: '2619',
+      name: 'YASINDU GANEGODA',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
+    Employee(
+      id: '8108',
+      name: 'NIMESH KALPANA',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
+    Employee(
+      id: '1122',
+      name: 'SACHITH DANANJAYA',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
+    Employee(
+      id: '2896',
+      name: 'DARSHAN RAVICHANDRAN',
+      compName: 'D P INFOTECH PRIVATE LIMITED',
+    ),
+  ];
 
   static final List<Menu> _menus = [
     Menu(MenuId: '01', MenuName: 'Sales'),
@@ -52,14 +252,6 @@ class DummyData {
       menuId: 'N/A',
       title: 'Forget Password',
       iconName: 'lock_open',
-    ),
-
-    Screen(
-      screenId: '015',
-      screenName: 'forgetPassword',
-      menuId: 'N/A',
-      title: 'Main Menu',
-      iconName: 'apps',
     ),
 
     // Menu screens
@@ -100,7 +292,7 @@ class DummyData {
     ),
     Screen(
       screenId: '008',
-      screenName: 'reciept',
+      screenName: 'receipt',
       menuId: '01',
       title: 'Receipt',
       iconName: 'article',
@@ -126,6 +318,22 @@ class DummyData {
       title: 'Route Selection',
       iconName: 'route',
     ),
+
+    Screen(
+      screenId: '014',
+      screenName: 'attendance',
+      menuId: '02',
+      title: 'Attendance',
+      iconName: 'checklist',
+    ),
+
+    Screen(
+      screenId: '015',
+      screenName: 'securitySetting',
+      menuId: '00', // availble under each menu
+      title: 'Security',
+      iconName: 'security_settings',
+    ),
     Screen(
       screenId: '012',
       screenName: 'changePassword',
@@ -133,14 +341,37 @@ class DummyData {
       title: 'Change Password',
       iconName: 'lock_reset',
     ),
+    Screen(
+      screenId: '016',
+      screenName: 'testPrint',
+      menuId: '01',
+      title: 'Test',
+      iconName: 'print',
+    ),
+    Screen(
+      screenId: '017',
+      screenName: 'returnRequestAdjust',
+      menuId: '01',
+      title: 'Return Request Adjustment',
+      iconName: 'account_tree_sharp',
+    ),
 
     Screen(
-      screenId: '014',
-      screenName: 'attendence',
-      menuId: '02',
-      title: 'Attendence',
-      iconName: 'checklist',
+      screenId: '018',
+      screenName: 'dispatchNote',
+      menuId: '01',
+      title: 'Advice of Dispatch Note',
+      iconName: 'local_shipping',
     ),
+
+    Screen(
+      screenId: '019',
+      screenName: 'activityLog',
+      menuId: '01',
+      title: 'Activity Log',
+      iconName: 'history',
+    ),
+
   ];
 
   static final List<Role> _roles = [
@@ -158,7 +389,7 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '006'), // profile
     Perm(RoleId: '001', ScreenId: '007'), // testNotify
     Perm(RoleId: '002', ScreenId: '007'), // testNotify
-    Perm(RoleId: '001', ScreenId: '008'), // reciept
+    Perm(RoleId: '001', ScreenId: '008'), // receipt
     Perm(RoleId: '001', ScreenId: '009'), // returns
     Perm(RoleId: '001', ScreenId: '010'), // reprint
     Perm(RoleId: '001', ScreenId: '011'), // region
@@ -166,8 +397,19 @@ class DummyData {
     Perm(RoleId: '002', ScreenId: '012'), // changePassword
     Perm(RoleId: '003', ScreenId: '012'), // changePassword
     Perm(RoleId: '002', ScreenId: '012'), // changePassword
-    Perm(RoleId: '002', ScreenId: '014'), // Attendence
-    Perm(RoleId: '003', ScreenId: '014'), // Attendence
+    Perm(RoleId: '002', ScreenId: '014'), // Attendance
+    Perm(RoleId: '003', ScreenId: '014'), // Attendance
+    Perm(RoleId: '001', ScreenId: '015'), // Security Settings
+    Perm(RoleId: '002', ScreenId: '015'), // Security Settings
+    Perm(RoleId: '003', ScreenId: '015'), // Security Settings
+    Perm(RoleId: '001', ScreenId: '016'), // Test Print
+    Perm(RoleId: '002', ScreenId: '016'), // Test Print
+    Perm(RoleId: '003', ScreenId: '016'), // Test Print
+    Perm(RoleId: '001', ScreenId: '017'), // Return Request Adjustment
+    Perm(RoleId: '002', ScreenId: '017'), // Return Request Adjustment
+    Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
+    Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
+    Perm(RoleId: '001', ScreenId: '019'), // Actvity Log
   ];
 
   static final List<User> _users = [
@@ -175,20 +417,28 @@ class DummyData {
       id: '2619',
       username: 'yasindu',
       email: 'yasindu@example.com',
+      telephone: '+94771234567',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001'],
+      isTemporaryPassword: false,
+      passwordUpdatedAt: DateTime.now(),
     ),
     User(
       id: '8108',
       username: 'nimesh',
       email: 'nimesh@example.com',
+      telephone: '+94761234566',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['001', '002'],
+      isTemporaryPassword: false,
+      passwordUpdatedAt: DateTime.now(),
     ),
     User(
       id: '1122',
       username: 'sachith',
       email: 'sachith@example.com',
+      telephone: '+94711234567',
+      isTemporaryPassword: true,
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002'],
     ),
@@ -196,6 +446,7 @@ class DummyData {
       id: '1111',
       username: 'sameera',
       email: 'sameera@example.com',
+      telephone: '+94771234568',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
       roles: ['002', '003'],
     ),
@@ -203,10 +454,22 @@ class DummyData {
       id: '1000',
       username: 'admin',
       email: 'admin@example.com',
+      telephone: '+94771234555',
       password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
       roles: ['001', '002', '003'],
     ),
+    User(
+      id: '2896',
+      username: 'darshanr',
+      email: 'darshanr@example.com',
+      telephone: '+94771234567',
+      password: BCrypt.hashpw('12345', BCrypt.gensalt()),
+      roles: ['001'],
+      isTemporaryPassword: false,
+      passwordUpdatedAt: DateTime.now(),
+    )
   ];
+
   static final List<Dealer> _dealers = [
     // COLOMBO REGION
     Dealer(
@@ -1047,11 +1310,260 @@ class DummyData {
   ];
 
   static final List<TinData> _tins = [
-    const TinData(tinNumber: 'TIN987654321', totalValue: 1500.75),
-    const TinData(tinNumber: 'TIN123456789', totalValue: 899.99),
-    const TinData(tinNumber: 'TIN555555555', totalValue: 12500.00),
-    const TinData(tinNumber: 'TIN314159265', totalValue: 432.50),
+    const TinData(
+      tinNumber: 'TIN987654321',
+      orderNumber: 'PADC202510250001',
+      totalValue: 1500.75,
+      paymentStatus: 'P', // Payment Pending
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 2,
+      tagCount: 4,
+      plasticBCount: 1,
+      remark: 'Handle with care',
+      parts: [],
+    ),
+    const TinData(
+      tinNumber: 'TIN123456789',
+      orderNumber: 'PADC202510250002',
+      totalValue: 899.99,
+      paymentStatus: 'C', // Payment Completed
+      dealercode: 'AC2000123306',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 2,
+      plasticBCount: 0,
+      remark: 'Fragile items',
+      parts: [],
+    ),
+    TinData(
+      tinNumber: 'TIN555555555',
+      orderNumber: 'PADC202510250003',
+      totalValue: 12500.00,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 5,
+      tagCount: 10,
+      plasticBCount: 3,
+      remark: 'Heavy equipment',
+      parts: [
+        Part(
+          id: 'p3',
+          partNo: 'AC2000123232',
+          requestQty: 1,
+          price: 8000.00,
+          description: 'Engine Assembly',
+        ),
+        Part(
+          id: 'p4',
+          partNo: 'AC2000123342',
+          requestQty: 1,
+          price: 1000.00,
+          description: 'Transmission',
+        ),
+        Part(
+          id: 'p5',
+          partNo: 'AC2000123932',
+          requestQty: 6,
+          price: 3000.00,
+          description: 'Wheel Set',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN314159265',
+      orderNumber: 'PADC202510250004',
+      totalValue: 432.50,
+      paymentStatus: 'P', // Another Pending example
+      dealercode: 'AC2000123306',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 1,
+      plasticBCount: 1,
+      remark: 'Small parts',
+      parts: [
+        Part(
+          id: 'p6',
+          partNo: 'AC2000123111',
+          requestQty: 2,
+          price: 150.25,
+          description: 'Oil Filter',
+        ),
+        Part(
+          id: 'p7',
+          partNo: 'AC2000123222',
+          requestQty: 1,
+          price: 132.00,
+          description: 'Air Filter',
+        ),
+      ],
+    ),
+
+    /// ADDITIONAL PAYMENT APPROVED ENTRIES WITH SAME DEALERCODE
+
+    // Entry 5: Payment Approved with multiple parts and remark '-'
+    TinData(
+      tinNumber: 'TIN999888777',
+      orderNumber: 'PADC202510250005',
+      totalValue: 8750.25,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 4,
+      tagCount: 8,
+      plasticBCount: 2,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p8',
+          partNo: 'AC2000123555',
+          requestQty: 2,
+          price: 1250.00,
+          description: 'Brake Caliper Set',
+        ),
+        Part(
+          id: 'p9',
+          partNo: 'AC2000123666',
+          requestQty: 4,
+          price: 350.00,
+          description: 'Brake Pads',
+        ),
+        Part(
+          id: 'p10',
+          partNo: 'AC2000123777',
+          requestQty: 2,
+          price: 450.00,
+          description: 'Brake Disc Rotor',
+        ),
+        Part(
+          id: 'p11',
+          partNo: 'AC2000123888',
+          requestQty: 1,
+          price: 2200.00,
+          description: 'ABS Control Module',
+        ),
+      ],
+    ),
+
+    // Entry 6: Payment Approved with remark '-'
+    TinData(
+      tinNumber: 'TIN444333222',
+      orderNumber: 'PADC202510250006',
+      totalValue: 23450.50,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'N',
+      bagCount: 8,
+      tagCount: 16,
+      plasticBCount: 5,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p12',
+          partNo: 'AC2000123999',
+          requestQty: 1,
+          price: 8500.00,
+          description: 'Turbocharger Assembly',
+        ),
+        Part(
+          id: 'p13',
+          partNo: 'AC20001231010',
+          requestQty: 1,
+          price: 4200.00,
+          description: 'Intercooler',
+        ),
+        Part(
+          id: 'p14',
+          partNo: 'AC20001231111',
+          requestQty: 4,
+          price: 850.00,
+          description: 'Fuel Injector',
+        ),
+        Part(
+          id: 'p15',
+          partNo: 'AC20001231212',
+          requestQty: 2,
+          price: 950.00,
+          description: 'Fuel Pump',
+        ),
+        Part(
+          id: 'p16',
+          partNo: 'AC20001231313',
+          requestQty: 1,
+          price: 1800.00,
+          description: 'ECU Engine Control Unit',
+        ),
+      ],
+    ),
+
+    // Entry 7: Payment Approved with remark '-'
+    TinData(
+      tinNumber: 'TIN777666555',
+      orderNumber: 'PADC202510250007',
+      totalValue: 5675.80,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123306',
+      payOnDel: 'Y',
+      bagCount: 3,
+      tagCount: 6,
+      plasticBCount: 2,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p17',
+          partNo: 'AC20001231414',
+          requestQty: 2,
+          price: 675.00,
+          description: 'Alternator',
+        ),
+        Part(
+          id: 'p18',
+          partNo: 'AC20001231515',
+          requestQty: 2,
+          price: 545.00,
+          description: 'Starter Motor',
+        ),
+        Part(
+          id: 'p19',
+          partNo: 'AC20001231616',
+          requestQty: 4,
+          price: 185.00,
+          description: 'Spark Plugs',
+        ),
+        Part(
+          id: 'p20',
+          partNo: 'AC20001231717',
+          requestQty: 1,
+          price: 1250.00,
+          description: 'Ignition Coil Pack',
+        ),
+      ],
+    ),
   ];
+
+  // static final List<TinData> _tins = [
+  //   const TinData(
+  //     tinNumber: 'TIN987654321',
+  //     totalValue: 1500.75,
+  //     orderNumber: 'PADC202510250001',
+  //   ),
+  //   const TinData(
+  //     tinNumber: 'TIN123456789',
+  //     totalValue: 899.99,
+  //     orderNumber: 'PADC202510250002',
+  //   ),
+  //   const TinData(
+  //     tinNumber: 'TIN555555555',
+  //     totalValue: 12500.00,
+  //     orderNumber: 'PADC202510250003',
+  //   ),
+  //   const TinData(
+  //     tinNumber: 'TIN314159265',
+  //     totalValue: 432.50,
+  //     orderNumber: 'PADC202510250004',
+  //   ),
+  // ];
 
   static final List<Region> _regions = [
     Region(region: 'COLOMBO', head: 'Mr. Chamila Galketiya'),
@@ -1103,6 +1615,7 @@ class DummyData {
     ReturnItem(partNo: 'AC2000125556', requestQty: 20),
     ReturnItem(partNo: 'HW-6600-JK', requestQty: 8),
   ];
+
   static final List<Part> _parts = [
     Part(id: 'p1', partNo: 'AC2000123230', requestQty: 2, price: 12000.00),
     Part(id: 'p2', partNo: 'AC2000123231', requestQty: 5, price: 5500.50),
@@ -1118,6 +1631,7 @@ class DummyData {
     Part(id: 'p11', partNo: 'XY-7766-WX', requestQty: 12, price: 6500.00),
     Part(id: 'p12', partNo: 'XY-9988-ZZ', requestQty: 7, price: 125.50),
   ];
+
   static final List<Bank> _banks = [
     Bank(bankCode: '7010', bankName: 'Bank of Ceylon'),
     Bank(bankCode: '7056', bankName: 'Commercial Bank of Ceylon'),
@@ -1421,11 +1935,124 @@ class DummyData {
     ),
   ];
 
+  static final List<ReturnRequest> _returnRequests = [
+    ReturnRequest(
+      returnId: 'RET00000001',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'LEAKAGES (PETROL/OIL)',
+      requestUpdate: DateTime.now().subtract(Duration(days: 1)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
+        ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
+        ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+        ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000002',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Discrepancy Returns',
+      returnReason: 'MANUFACTURING DEFECT',
+      requestUpdate: DateTime.now().subtract(Duration(days: 2)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
+        ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000003',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'Bead Failure - BF',
+      requestUpdate: DateTime.now().subtract(Duration(days: 3)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
+        ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000004',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Discrepancy Returns',
+      returnReason: 'REFUND',
+      requestUpdate: DateTime.now().subtract(Duration(days: 4)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+        ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000005',
+      dealerId: 'AC2000123306',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'LOYALTY DISCOUNT',
+      requestUpdate: DateTime.now().subtract(Duration(days: 5)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'HW-6600-JK', requestQty: 8, returnQty: 8),
+        ReturnItem(partNo: 'XY-7766-WX', requestQty: 13, returnQty: 13),
+      ],
+    ),
+
+    ReturnRequest(
+      returnId: 'RET00000006',
+      dealerId: 'AC2000123307',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'LEAKAGES (PETROL/OIL)',
+      requestUpdate: DateTime.now().subtract(Duration(days: 1)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'AC2000123230', requestQty: 5, returnQty: 5),
+        ReturnItem(partNo: 'PN-1122-AB', requestQty: 12, returnQty: 12),
+        ReturnItem(partNo: 'AC2000125555', requestQty: 19, returnQty: 19),
+        ReturnItem(partNo: 'AC2000123266', requestQty: 8, returnQty: 8),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000007',
+      dealerId: 'AC2000123307',
+      userId: '2619',
+      returnType: 'Discrepancy Returns',
+      returnReason: 'MANUFACTURING DEFECT',
+      requestUpdate: DateTime.now().subtract(Duration(days: 2)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'HW-5500-FG', requestQty: 9, returnQty: 9),
+        ReturnItem(partNo: 'AC2000124005', requestQty: 11, returnQty: 11),
+      ],
+    ),
+    ReturnRequest(
+      returnId: 'RET00000008',
+      dealerId: 'AC2000123307',
+      userId: '2619',
+      returnType: 'Field Returns',
+      returnReason: 'Bead Failure - BF',
+      requestUpdate: DateTime.now().subtract(Duration(days: 3)),
+      returnTime: DateTime.now(),
+      returnItems: [
+        ReturnItem(partNo: 'XY-9988-ZZ', requestQty: 18, returnQty: 18),
+        ReturnItem(partNo: 'PN-3355-IJ', requestQty: 10, returnQty: 10),
+      ],
+    ),
+  ];
+
   static List<Bank> get banks => _banks;
   static List<BankBranch> get branches => _branches;
   static List<Dealer> get dealers => _dealers;
   static List<Reference> get references => _references;
   static List<Invoice> get invoices => _invoices;
+  static List<InvoiceSave> get savedInvoices => _sessionInvoices;
   static List<TinData> get tins => _tins;
   static List<Region> get regions => _regions;
   static List<ReturnItem> get returnItems => _returnItems;
@@ -1437,5 +2064,117 @@ class DummyData {
   static List<Screen> get screens => _screens;
   static List<Role> get roles => _roles;
   static List<Perm> get perms => _perms;
-  static List<Attendence> get attendences => _attendence;
+  static List<Attendance> get attendances => _attendance;
+  static List<Employee> get employees => _employees;
+  static List<Return> get returns => _sessionReturns;
+  //static List<InvoiceSave> get savedInvoices => _sessionInvoices;
+  static List<DispatchNoteSave> get savedDispatchNotes => _sessionDispatchNotes;
+  static List<ReturnRequest> get returnRequests => _returnRequests;
+}
+
+List<Attendance> generateDummyAttendanceData({
+  required String userId,
+  int numberOfWorkingDays = 30,
+}) {
+  final List<Attendance> attendanceRecords = [];
+  final Random random = Random();
+  DateTime currentDate = DateTime.now(); // Starts from today's date
+
+  while (attendanceRecords.length < numberOfWorkingDays) {
+    // Go back one day at a time
+    currentDate = currentDate.subtract(const Duration(days: 1));
+
+    // Skip weekends (Saturday and Sunday)
+    if (currentDate.weekday == DateTime.saturday ||
+        currentDate.weekday == DateTime.sunday) {
+      continue;
+    }
+
+    // This is a working day, generate attendance for it
+    String attendanceType;
+    String workMode;
+    DateTime? startTime;
+    DateTime? endTime;
+    String? remark;
+
+    // Distribute attendance types: ~80% PRESENT, ~10% LEAVE, ~10% HOLIDAY
+    final int typeRoll = random.nextInt(100); // 0-99
+    if (typeRoll < 60) {
+      // High chance for PRESENT
+      attendanceType = "PRESENT";
+      List<String> _workOptions = ['Home', 'Office', 'Field'];
+      int randomIndex = random.nextInt(_workOptions.length);
+
+      // 3. Access the random element
+      workMode = _workOptions[randomIndex];
+
+      // Generate start time around 8:00 AM +/- 15 minutes
+      startTime = DateTime(
+        currentDate.year,
+        currentDate.month,
+        currentDate.day,
+        8,
+        0,
+      ).add(Duration(minutes: random.nextInt(31) - 15)); // -15 to +15 minutes
+
+      // Generate end time around 5:00 PM +/- 15 minutes
+      endTime = DateTime(
+        currentDate.year,
+        currentDate.month,
+        currentDate.day,
+        17,
+        0,
+      ).add(Duration(minutes: random.nextInt(31) - 15)); // -15 to +15 minutes
+
+      // Ensure end time is at least 6 hours after start time for a plausible work day
+      if (endTime.isBefore(startTime.add(const Duration(hours: 6)))) {
+        endTime = startTime.add(
+          Duration(hours: 8, minutes: random.nextInt(60)),
+        ); // ~8 to 9 hour shift
+      }
+
+      // Add a remark occasionally for PRESENT days
+      final int remarkRoll = random.nextInt(10); // 0-9
+      if (remarkRoll < 2) {
+        // 20% chance
+        remark = random.nextBool() ? "Early arrival" : "Late departure";
+      } else if (remarkRoll == 3) {
+        // 10% chance
+        remark = "Working remotely today";
+      } else {
+        remark = null;
+      }
+    } else if (typeRoll < 80) {
+      // 10% chance for LEAVE
+      attendanceType = "LEAVE";
+      workMode = ""; // Not applicable
+      startTime = null;
+      endTime = null;
+      remark = random.nextBool() ? "Annual Leave" : "Sick Leave";
+    } else {
+      // 10% chance for HOLIDAY
+      attendanceType = "HOLIDAY";
+      workMode = ""; // Not applicable
+      startTime = null;
+      endTime = null;
+      remark = "Public Holiday";
+    }
+
+    attendanceRecords.add(
+      Attendance(
+        userID: userId,
+        date: DateTime(
+          currentDate.year,
+          currentDate.month,
+          currentDate.day,
+        ), // Normalize to date only
+        attendanceType: attendanceType,
+        workMode: workMode,
+        start: startTime,
+        end: endTime,
+        remark: remark,
+      ),
+    );
+  }
+  return attendanceRecords;
 }

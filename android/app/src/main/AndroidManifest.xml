@@ -75,12 +75,18 @@
     <!-- Needed for Bluetooth scanning on many devices. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Required for background location (if your app needs it after login) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
    <!-- Permissions for scheduled notifications -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Use maxSdkVersion="32" for older versions -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
     <!-- Required for Android 14+ -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/> <!-- For older Android versions -->
 <!--
   If you don't use Bluetooth to determine physical location, you can add this line to the ACCESS_FINE_LOCATION permission:
   android:usesPermissionFlags="neverForLocation"
