@@ -234,6 +234,7 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
 
     return AppPage(
       title: 'Security Settings', 
+      currentRouteName: 'securitySetting',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: SecuritySettingView(

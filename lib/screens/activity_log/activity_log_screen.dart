@@ -62,6 +62,7 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
 
     return AppPage(
       title: currentTitle,
+      currentRouteName: 'activityLog',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,

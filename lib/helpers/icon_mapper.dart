@@ -23,7 +23,9 @@ class IconMapper {
     'security_settings': Icons.security,
     'account_tree_sharp':Icons.account_tree_sharp,
     'local_shipping': Icons.local_shipping,
-    'history':Icons.history
+    'history':Icons.history,
+    'home': Icons.home,
+    'task': Icons.task, 
     // Added for general security settings
     // add icon name defined : Icon files
   };

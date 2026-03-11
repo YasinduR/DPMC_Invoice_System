@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/helpers/color_cycler.dart';
 import 'package:myapp/models/screen_model.dart';
-import 'package:myapp/services/icon_mapper.dart';
+import 'package:myapp/helpers/icon_mapper.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
@@ -106,8 +106,9 @@ class MainMenuScreen extends ConsumerWidget {
     return AppPage(
       title: 'Main Menu', 
       showAppBar: false,
+      currentRouteName: 'mainMenu',
       canPop: false, // Prevent default pop behavior
-      contentPadding: const EdgeInsets.fromLTRB(24,60,24,20),
+      contentPadding: const EdgeInsets.fromLTRB(12,50,12,0),
           child: Column(
             children: [
               Text(
@@ -117,6 +118,7 @@ class MainMenuScreen extends ConsumerWidget {
               const SizedBox(height: 30),
               Expanded(
                 child: GridView.count(
+                  padding: const EdgeInsets.all(12), // <-- Add padding here
                   crossAxisCount: 3,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,

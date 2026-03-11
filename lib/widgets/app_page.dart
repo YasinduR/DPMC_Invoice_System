@@ -1,13 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/helpers/app_nav_items.dart';
+import 'package:myapp/providers/auth_provider.dart';
 //import 'package:flutter/services.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
+import 'package:myapp/widgets/app_navigation_bar.dart';
 import 'app_header.dart';
 import 'app_footer.dart';
 //import 'package:myapp/theme/app_theme.dart';
 
 // Common Setup of an app page
-class AppPage extends StatelessWidget {
+class AppPage extends ConsumerWidget {
   final String title; // The text for the app bar title.
   final Widget child; // The main content of the page.
   final VoidCallback? onBack; // Custom action for the back button.
@@ -22,7 +26,8 @@ class AppPage extends StatelessWidget {
   canPop; // override Back Button behavior Set this false to prevent pop
   final Future<void> Function(bool didPop)?
   onPopInvoked; // Optional handler for pop default one asks whether to close the app
-
+  final String? currentRouteName;
+  final bool confirmOnNavigate;
   const AppPage({
     super.key,
     required this.title,
@@ -38,11 +43,17 @@ class AppPage extends StatelessWidget {
       vertical: 16.0,
     ),
     this.onPopInvoked,
-    
+    this.currentRouteName,
+    this.confirmOnNavigate = false,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+        // Determine currentIndex for footer based on currentRouteName
+    final int? currentIndex = currentRouteName != null
+        ? AppNavItems.getNavIndex(currentRouteName!)
+        : null;
     return PopScope(
       canPop: canPop,
       onPopInvoked: (didPop) async {
@@ -86,13 +97,19 @@ class AppPage extends StatelessWidget {
                 child: child, // Your screen's unique content is injected here.
               ),
             ),
-            if (showFooter)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: const AppFooter(), // The AppFooter is now the child
-              ),
+            // if (showFooter)
+            //   Padding(
+            //     padding: EdgeInsets.symmetric(horizontal: 24),
+            //     child: const AppFooter(), // The AppFooter is now the child
+            //   ),
           ],
         ),
+        bottomNavigationBar: showFooter && authState.isLoggedIn
+            ? AppNavFooter(
+                currentIndex: currentIndex,
+                confirmOnNavigate: confirmOnNavigate,
+              )
+            : null,
       ),
     );
   }

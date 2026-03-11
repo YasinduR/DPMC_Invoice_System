@@ -375,9 +375,11 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool confirmOnNavigate = _currentStep >= 1;
     return AppPage(
       title: _getCurrentTitle(),
       onBack: _onback,
+      confirmOnNavigate: confirmOnNavigate,
       contentPadding: EdgeInsets.zero,
       child: _buildCurrentView(),
     );
