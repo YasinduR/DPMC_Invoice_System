@@ -195,10 +195,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           type: MessageType.success,
         );
         //final details = PrintFooterDetail({revNo:'PA-FO-53'});
-        final details = PrintFooterDetail(
-                          formNo: 'PA-FO-53',
-                          revNo: '01');
-                          
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+
         _printerService.previewThermalInvoicePdf(savedInvoice, details);
       },
       onError: (e) {
@@ -245,6 +243,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   @override
   Widget build(BuildContext context) {
     Widget currentView;
+    bool confirmOnNavigate = _currentStep > 1;
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
     switch (_currentStep) {
       case -1:
@@ -311,6 +310,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
 
     return AppPage(
       title: currentTitle,
+      confirmOnNavigate: confirmOnNavigate,
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,

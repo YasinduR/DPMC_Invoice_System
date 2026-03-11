@@ -251,6 +251,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   Widget build(BuildContext context) {
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
     Widget currentView;
+    bool confirmOnNavigate = _currentStep > 1;
     switch (_currentStep) {
       case -1:
         currentView = SelectRegionView(
@@ -280,6 +281,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           selectedTin: _selectedTin,
           onTinNumberSelected: _onTinSelected,
           onSubmit: _submitTin,
+          
         );
         break;
       case 2:
@@ -315,6 +317,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
 
     return AppPage(
       title: currentTitle,
+      confirmOnNavigate: confirmOnNavigate,
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,
