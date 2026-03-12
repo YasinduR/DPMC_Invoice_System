@@ -14,7 +14,9 @@ class ActionButton extends StatelessWidget {
   final bool disabled; // Disabled state
   final bool? minsize;
   final bool isInDialog; // whether it is in a dialog box or not
-  
+    // New: Secondary action
+  final VoidCallback? onSecondaryPressed;
+  final IconData? secondaryIcon;
 
   const ActionButton({
     super.key,
@@ -26,6 +28,8 @@ class ActionButton extends StatelessWidget {
     this.minsize = false,
     this.disabled = false,
     this.isInDialog = false,
+      this.onSecondaryPressed,
+    this.secondaryIcon,
   });
 
   @override
@@ -65,47 +69,115 @@ class ActionButton extends StatelessWidget {
       );
     }
 
-return Center(
-  child: FractionallySizedBox(
-    widthFactor: isInDialog ? 0.9 : 0.65, // x100% of available width
-    child: (icon != null)
-        ? ElevatedButton.icon(
-            icon: Icon(icon),
-            label: 
-            // Text(
-            //   label,
-            //   style: AppThemeHelpers.getActionButtonTextStyle(),
-            // )
-            AutoSizeText(
-              label,
-              maxLines: 1,
-              minFontSize: 8,
-              overflow: TextOverflow.ellipsis,
-              style: AppThemeHelpers.getActionButtonTextStyle(),
-              )
-            ,
-            onPressed: disabled ? null : onPressed,
-            style: effectiveButtonStyle,
-          )
-        : ElevatedButton(
-            onPressed: disabled ? null : onPressed,
-            style: effectiveButtonStyle,
-            child: 
-            // Text(
-            //   label,
-            //   style: AppThemeHelpers.getActionButtonTextStyle(),
-            // )
-            AutoSizeText(
-  label,
-  maxLines: 1,
-  minFontSize: 8,
-  overflow: TextOverflow.ellipsis,
-  style: AppThemeHelpers.getActionButtonTextStyle(),
-    )
-            ,
-          ),
-  ),
-);
+        // Build the main button
+    Widget buildMainButton() {
+      return (icon != null)
+          ? ElevatedButton.icon(
+              icon: Icon(icon),
+              label: AutoSizeText(
+                label,
+                maxLines: 1,
+                minFontSize: 8,
+                overflow: TextOverflow.ellipsis,
+                style: AppThemeHelpers.getActionButtonTextStyle(),
+              ),
+              onPressed: disabled ? null : onPressed,
+              style: effectiveButtonStyle,
+            )
+          : ElevatedButton(
+              onPressed: disabled ? null : onPressed,
+              style: effectiveButtonStyle,
+              child: AutoSizeText(
+                label,
+                maxLines: 1,
+                minFontSize: 8,
+                overflow: TextOverflow.ellipsis,
+                style: AppThemeHelpers.getActionButtonTextStyle(),
+              ),
+            );
+    }
+
+    // If no secondary action, just return the main button
+    if (onSecondaryPressed == null && secondaryIcon == null) {
+      return Center(
+        child: FractionallySizedBox(
+          widthFactor: isInDialog ? 0.9 : 0.65,
+          child: buildMainButton(),
+        ),
+      );
+    }
+
+    // With secondary action on the right
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: isInDialog ? 1.0 : 0.75,
+        child: Row(
+          children: [
+            Expanded(child: buildMainButton()),
+            const SizedBox(width: 18),
+            Container(
+              // width: 36,
+              // height: 36,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: Colors.grey.shade200,
+              ),
+              child: IconButton(
+                icon: Icon(secondaryIcon),
+                color: baseColor,
+
+                onPressed: onSecondaryPressed,
+                //iconSize: 20,
+                //padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+// return Center(
+//   child: FractionallySizedBox(
+//     widthFactor: isInDialog ? 0.9 : 0.65, // x100% of available width
+//     child: (icon != null)
+//         ? ElevatedButton.icon(
+//             icon: Icon(icon),
+//             label: 
+//             // Text(
+//             //   label,
+//             //   style: AppThemeHelpers.getActionButtonTextStyle(),
+//             // )
+//             AutoSizeText(
+//               label,
+//               maxLines: 1,
+//               minFontSize: 8,
+//               overflow: TextOverflow.ellipsis,
+//               style: AppThemeHelpers.getActionButtonTextStyle(),
+//               )
+//             ,
+//             onPressed: disabled ? null : onPressed,
+//             style: effectiveButtonStyle,
+//           )
+//         : ElevatedButton(
+//             onPressed: disabled ? null : onPressed,
+//             style: effectiveButtonStyle,
+//             child: 
+//             // Text(
+//             //   label,
+//             //   style: AppThemeHelpers.getActionButtonTextStyle(),
+//             // )
+//             AutoSizeText(
+//   label,
+//   maxLines: 1,
+//   minFontSize: 8,
+//   overflow: TextOverflow.ellipsis,
+//   style: AppThemeHelpers.getActionButtonTextStyle(),
+//     )
+//             ,
+//           ),
+//   ),
+// );
 
 
     // return (icon != null)
