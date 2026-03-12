@@ -3,10 +3,15 @@ import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/views/new_password_setup_view.dart';
+import 'package:myapp/views/otp_view.dart';
 import 'package:myapp/views/user_info_request_view.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
+import 'package:myapp/services/dummy_data.dart';
+import 'package:myapp/helpers/common_functions.dart';
+
+import 'package:myapp/services/mock_api_service.dart'; // DEV ONLY
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
@@ -18,7 +23,11 @@ class ForgetPasswordScreen extends StatefulWidget {
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   int _currentStep = 0;
   String _username = '';
-  // String _token = '';
+  String _contactHint = '';
+  String _token = '';
+  String _maskedPhone = '';
+  String _maskedEmail = '';
+  String _devOtp = '';    // DEV ONLY
 
   final AuthService _authService = AuthService();
   final LocalStorageService _storageService = LocalStorageService();
@@ -32,18 +41,26 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       final resetTokenmsg = await _authService.requestPasswordReset(
         context: context,
         username: username,
-        // email: email,
       );
 
       if (resetTokenmsg != null) {
-        if (mounted) {
-          await showInfoDialog(
-            context: context,
-            title: 'Check Your Email',
-            content: resetTokenmsg,
-          );
+        // Added by Darshan R on 12/03/2026
+        final userMatches = DummyData.users
+            .where((u) => u.username == _username.toLowerCase());
+        final user = userMatches.isNotEmpty ? userMatches.first : null;
+
+        String phoneHint = '';
+        String emailHint = '';
+
+        if (user != null) {
+          phoneHint = maskPhoneNumber(user.telephone);
+          emailHint = maskEmail(user.email);
         }
+
         setState(() {
+          _maskedPhone = phoneHint;
+          _maskedEmail = emailHint;
+          _devOtp = MockApiService.devOtp; // DEV ONLY
           _currentStep = 1;
         });
       } else {
@@ -157,8 +174,39 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       //     onSubmit: _submitOnetimePassword,
       //   );
       case 1:
-        currentView = NewPasswordSetupView(onSubmit: _resetPassword);
-
+        // Added by Darshan R on 12/03/2026
+        currentView = OtpView(
+          contactPhone: _maskedPhone,  
+          contactEmail: _maskedEmail,  
+          devOtp: _devOtp,            // DEV ONLY
+          onSubmit: (token) async {
+            try {
+              final resetToken = await _authService.verifyOtp(
+                context: context,
+                username: _username,
+                token: token,
+              );
+              if (mounted) {
+                setState(() {
+                  _token = resetToken;     // stores the signed reset JWT
+                  _currentStep = 2;
+                });
+              }
+            } catch (e) {
+              if (mounted) {
+              showSnackBar(
+                context: context,
+                message: e is UnauthorisedException
+                    ? e.getMessage()
+                    : 'Invalid or expired OTP.',
+                type: MessageType.error,
+              );
+            }
+          }
+        });
+        break;
+      case 2:
+        currentView = NewPasswordSetupView(onSubmit: (newPassword) => _resetPassword(_token, newPassword));
         break;
       default:
         currentView = const Center(child: Text('Error'));
@@ -168,9 +216,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       case 0:
         currentTitle = 'Provide Your Information';
         break;
-      // case 1:
-      //   currentTitle = 'One-time Password';
       case 1:
+        currentTitle = 'Enter One-time Password';
+        break;
+      case 2:
         currentTitle = 'New Password Setup';
         break;
       default:
