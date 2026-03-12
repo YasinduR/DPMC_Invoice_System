@@ -9,11 +9,17 @@ class AppNavItems {
     NavItem(name: "Settings", iconName: "security_settings", route: "/securitySetting"),
     NavItem(name: "Profile", iconName: "person", route: "/profile"),
   ];
-static int? getNavIndex(String name) {
+  static int? getNavIndex(String name) {
   final route = '/$name';
   final index = items.indexWhere((item) => item.route == route);
   return index == -1 ? null : index; 
-}
+  }
+  
+
+
+
+
+
 }
 
 
