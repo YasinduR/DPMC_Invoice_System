@@ -4,7 +4,7 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 
 // last step of Forget Password : New Password Setup
 class NewPasswordSetupView extends StatefulWidget {
-  final Future<void> Function(String token,String newPassword) onSubmit;
+  final Future<void> Function(String newPassword) onSubmit;
   const NewPasswordSetupView({super.key, required this.onSubmit});
 
   @override
@@ -15,11 +15,9 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
   final _formKey = GlobalKey<FormState>();
   final _newPwdController = TextEditingController();
   final _confirmPwdController = TextEditingController();
-    final _otpController = TextEditingController();
   
   late FocusNode _newPwdFocusNode;
   late FocusNode _confirmPwdFocusNode;
-  late FocusNode _otpFocusNode;
 
 
   @override
@@ -27,13 +25,11 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
     super.initState();
     _newPwdFocusNode = FocusNode();
     _confirmPwdFocusNode = FocusNode();
-    _otpFocusNode = FocusNode();
 
     _newPwdController.addListener(() => setState(() {}));
     _confirmPwdController.addListener(() => setState(() {}));
-    _otpController.addListener(() => setState(() {}));
 
-    _otpFocusNode.requestFocus(); // Set initial focus
+    _newPwdFocusNode.requestFocus(); // Set initial focus
 
   }
 
@@ -41,18 +37,16 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
   void dispose() {
     _newPwdController.dispose();
     _confirmPwdController.dispose();
-    _otpController.dispose();
 
     _newPwdFocusNode.dispose();
     _confirmPwdFocusNode.dispose();
-    _otpFocusNode.dispose();
 
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await widget.onSubmit(_otpController.text,_newPwdController.text);
+      await widget.onSubmit(_newPwdController.text);
     }
   }
 
@@ -61,7 +55,6 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
     final bool isPwdSame = _newPwdController.text == _confirmPwdController.text;
     final bool isButtonDisabled =
-        _otpController.text.isEmpty||
         _newPwdController.text.isEmpty ||
         _confirmPwdController.text.isEmpty ||
         !isFormValid ||
@@ -76,22 +69,6 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                AppTextField(
-                  controller: _otpController,
-                  labelText: 'Password Reset Code',
-                  focusNode: _otpFocusNode,
-                  onFieldSubmitted: (_) {
-                        _newPwdFocusNode.requestFocus();
-                      },
-                  isPassword: true,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'The Reset Code is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
                 AppTextField(
                   controller: _newPwdController,
                   focusNode: _newPwdFocusNode,

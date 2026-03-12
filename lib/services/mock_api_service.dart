@@ -14,17 +14,22 @@ import 'package:myapp/services/dummy_data.dart';
 
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:math';
 
 //// IMPORTANT :  This works as the Back-End remove later
 
 class MockApiService {
   static const Uuid _uuid = Uuid(); // For generating unique tokens
   static const String _jwtSecretKey = 'DPMC-INV-SYSTEM'; // Change The Key Later
+  // static String _pendingOtp = '';
+  static final Map<String, Map<String, dynamic>> _otpStore = {};
+  static String devOtp = ''; // DEV ONLY 
 
   static const List<String> _publicEndpoints = [
     // Where We dont need access token
     'api/user/login',
     'api/user/request-password-reset',
+    'api/user/verify-otp',
     'api/user/reset-password',
     'api/user/set-password',
     'api/user/renew-password',
@@ -100,6 +105,24 @@ class MockApiService {
       },
       issuer: 'mock_api_service',
       subject: user.id,
+    );
+
+    return jwt.sign(SecretKey(_jwtSecretKey));
+  }
+
+  /// verify both token authenticity and user ownership before allowing a reset.
+  static Future<String> _generateResetToken(String username) async {
+    final DateTime issuedAt = DateTime.now();
+    final DateTime expiresAt = issuedAt.add(const Duration(minutes: 15));
+
+    final jwt = JWT(
+      {
+        'type': 'password_reset',
+        'iat': issuedAt.millisecondsSinceEpoch ~/ 1000,
+        'exp': expiresAt.millisecondsSinceEpoch ~/ 1000,
+      },
+      issuer: 'mock_api_service',
+      subject: username,
     );
 
     return jwt.sign(SecretKey(_jwtSecretKey));
@@ -681,12 +704,61 @@ class MockApiService {
             // Handle cases where phone number is less than 3 digits
             lastThreeDigits = phoneNumber;
           }
+          
+          // generate pending OTP - Added By Darshan R on 12/03/2026
+          final String otp = (Random().nextInt(900000) + 100000).toString();
+          _otpStore[username!] = {
+            'otp': otp,
+            'expiry': DateTime.now().add(const Duration(minutes: 5)),
+            'used': false,
+            'failedAttempts': 0,
+          };
+          devOtp = otp; // DEV ONLY 
 
           // Construct the message
           return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
         } catch (e) {
           rethrow;
         }
+      
+      case 'api/user/verify-otp':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body for OTP verification.');
+        }
+        final otpUsername = (body['username'] as String?)?.toLowerCase();
+        final otpToken = body['token'] as String?;
+        if (otpUsername == null || otpToken == null) {
+          throw Exception('Username and token are required.');
+        }
+        final otpRecord = _otpStore[otpUsername];
+        if (otpRecord == null) {
+          throw UnauthorisedException('No OTP request found. Please try again.');
+        }
+        if (otpRecord['used'] as bool) {
+          throw UnauthorisedException('OTP has already been used.');
+        }
+        if (DateTime.now().isAfter(otpRecord['expiry'] as DateTime)) {
+          _otpStore.remove(otpUsername);
+          throw UnauthorisedException('OTP has expired. Please request a new one.');
+        }
+        if (otpRecord['otp'] as String != otpToken) {
+          final int attempts = (otpRecord['failedAttempts'] as int) + 1;
+        _otpStore[otpUsername]!['failedAttempts'] = attempts;
+
+        if (attempts >= 3) {
+          _otpStore.remove(otpUsername);
+          throw UnauthorisedException(
+            'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+          );
+        }
+
+        final int remaining = 3 - attempts;
+        throw UnauthorisedException(
+          'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
+        );
+        }
+        _otpStore[otpUsername]!['used'] = true;
+        return await _generateResetToken(otpUsername);
 
       case 'api/user/reset-password':
         if (body is! Map<String, dynamic>) {
@@ -695,10 +767,24 @@ class MockApiService {
         final username = (body['username'] as String?)?.toLowerCase();
         final token = body['token'];
         final newPassword = body['newPassword'];
-        if (token != '12345') {
-          throw UnauthorisedException(
-            'Invalid or expired password reset token.',
-          );
+
+        try {
+          final JWT resetJwt = JWT.verify(token, SecretKey(_jwtSecretKey));
+          final payload = resetJwt.payload as Map<String, dynamic>;
+          if (payload['type'] != 'password_reset') {
+            throw UnauthorisedException('Invalid reset token.');
+          }
+          if (resetJwt.subject != username) {
+            throw UnauthorisedException('Reset token does not match the user.');
+          }
+        } on JWTExpiredException {
+          throw UnauthorisedException('Reset token has expired. Please start over.');
+        } on UnauthorisedException {
+          rethrow;
+        }on AccountLockedException {
+          rethrow; 
+        } catch (_) {
+          throw UnauthorisedException('Invalid reset token. Please start over.');
         }
 
         try {
