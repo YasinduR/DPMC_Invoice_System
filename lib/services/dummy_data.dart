@@ -1178,6 +1178,22 @@ class DummyData {
       region: 'KANDY',
     ),
     Dealer(
+      accountCode: 'AC2001123390',
+      name: 'KARUNANAYAKA MUDIYANSELAGE DHANUSHKA KUMARAtesssssstttttttttttttttttttttttttttt',
+      surname: 'Avissawella',
+      address: 'Main Road',
+      city: 'Avissawella',
+      region: 'MADAPATHA',
+    ),
+    Dealer(
+      accountCode: 'AC2000123390',
+      name: 'UTHUM PATHUM GREETING AND GIFT (PVT) LTD',
+      surname: 'Avissawella',
+      address: 'Main Road',
+      city: 'Avissawella',
+      region: 'MADAPATHA',
+    ),
+    Dealer(
       accountCode: 'AC2000123390',
       name: 'Avissawella Auto',
       surname: 'Avissawella',
