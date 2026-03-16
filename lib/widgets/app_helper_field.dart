@@ -9,10 +9,17 @@ import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/app_loading_overlay.dart'; 
+import 'package:myapp/widgets/app_loading_overlay.dart';
+import 'package:myapp/widgets/cards/dealer_selection_view.dart';
 
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
+
+// Added enum for choosing type of helper to be loaded - By Darshan R on 16/03/2026
+enum SelectionSheetLayoutType {
+  table,
+  card,
+}
 
 // Common Helper of the Application
 
@@ -67,6 +74,12 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
 // The first rule whoich rows `shouldColor`.
   final List<DataHelperColorRule<T>>? colorRules;
 
+  // Selection sheet layout type (table or card)  - Added by Darshan R on 16/03/2026
+  final SelectionSheetLayoutType layoutType;
+  
+  // Optional builder for custom selection sheet (overrides layout type)  - - Added by Darshan R on 16/03/2026
+  final Widget Function(BuildContext, List<T>, String?)? customSheetBuilder;
+
   const AppSelectionField({
     super.key,
     required this.controller,
@@ -88,6 +101,8 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.textInputAction,
     this.showHelperOnInitialization = false,
     this.colorRules,
+    this.layoutType = SelectionSheetLayoutType.table,  // default to table
+    this.customSheetBuilder,
   });
 
   @override
@@ -312,14 +327,32 @@ class _AppSelectionFieldState<T extends Mappable>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) {
-        return SelectionSheet<T>(
-          title: widget.selectionSheetTitle,
-          items: items,
-          initialSearchQuery: initialQuery,
-          displayNames: widget.displayNames,
-          valueFields: widget.valueFields,
-          colorRules: widget.colorRules,
-        );
+        // Use custom sheet if provided - Added by Darshan R on 16/03/2026
+        if (widget.customSheetBuilder != null) {
+          return widget.customSheetBuilder!(context, items, initialQuery);
+        }
+
+        // Switch based on layout type  - Added by Darshan R on 16/03/2026
+        switch (widget.layoutType) {
+          case SelectionSheetLayoutType.card:
+            return DealerSelectionSheet<T>(
+              title: widget.selectionSheetTitle,
+              items: items,
+              initialSearchQuery: initialQuery,
+              displayNames: widget.displayNames,
+              valueFields: widget.valueFields,
+              mainField: widget.mainField,
+            );
+          case SelectionSheetLayoutType.table:
+            return SelectionSheet<T>(
+              title: widget.selectionSheetTitle,
+              items: items,
+              initialSearchQuery: initialQuery,
+              displayNames: widget.displayNames,
+              valueFields: widget.valueFields,
+              colorRules: widget.colorRules,
+            );
+        }
       },
     );
 

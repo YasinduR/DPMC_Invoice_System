@@ -5,7 +5,7 @@ import 'package:myapp/models/region_model.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_action_button.dart';
-import 'package:myapp/widgets/app_helper_field_card.dart';
+import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
 // Dealer Selection View
@@ -134,10 +134,11 @@ class _SelectDealerViewState extends State<SelectDealerView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppSelectionFieldCard(
+          AppSelectionField<Dealer>(
             controller: _dealerController,
             labelText: 'Select Dealer',
             selectionSheetTitle: 'Select a Dealer',
+            layoutType: SelectionSheetLayoutType.card, // use card layout for dealer's view - Added by Darshan R on 16/03/2026
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
             onSelected: (dealer) {
@@ -153,7 +154,7 @@ class _SelectDealerViewState extends State<SelectDealerView> {
                 _isDealerSelectionCommitted = isCommitted;
               });
             },
-            showSelectionSheetOnInit: true,
+            showHelperOnInitialization: true,
             displayNames: const ['Account Code', 'Name', 'Address', 'City'],
             valueFields: const ['accountCode', 'name', 'address', 'city'],
             mainField: 'name',
