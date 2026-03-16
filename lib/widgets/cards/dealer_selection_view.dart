@@ -1,12 +1,25 @@
+//-------------------- Added by Darshan R on 16/03/2026 ------------------------//
 import 'package:flutter/material.dart';
 import 'package:myapp/contracts/mappable.dart';
 
+// Type parameter [T] must implement [Mappable] interface for data mapping.
 class DealerSelectionSheet<T extends Mappable> extends StatefulWidget {
+  // Title displayed at the top of the selection sheet.
   final String title;
+
+  // List of items to display in cards.
   final List<T> items;
+
+  // Optional initial search query to pre-populate the search field.
   final String? initialSearchQuery;
+
+  // Order must correspond to [valueFields].
   final List<String> displayNames;
+
+  // Order must correspond to [displayNames].
   final List<String> valueFields;
+
+  // This field is shown inline with the first value field in the header row.
   final String mainField;
 
   const DealerSelectionSheet({
@@ -25,7 +38,10 @@ class DealerSelectionSheet<T extends Mappable> extends StatefulWidget {
 
 class _DealerSelectionSheetState<T extends Mappable>
     extends State<DealerSelectionSheet<T>> {
+  // Controller managing search input text.
   late TextEditingController _searchController;
+
+  // Filtered list of items based on current search query.
   late List<T> _filteredItems;
 
   @override
@@ -45,6 +61,7 @@ class _DealerSelectionSheetState<T extends Mappable>
     super.dispose();
   }
 
+  // Search is case-insensitive and searches across all fields defined in [valueFields].
   void _performFilter() {
     final query = _searchController.text.toLowerCase();
     setState(() {
@@ -60,20 +77,6 @@ class _DealerSelectionSheetState<T extends Mappable>
         }).toList();
       }
     });
-  }
-
-  int _getResponsiveColumnCount(BuildContext context) {
-    return 1;
-  }
-
-  double _getResponsiveAspectRatio(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
-    if (isLandscape) {
-      return 4.0;
-    } else {
-      return 5.0; 
-    }
   }
 
   @override
@@ -119,7 +122,7 @@ class _DealerSelectionSheetState<T extends Mappable>
                 ),
               ),
               const Divider(height: 1),
-              // Cards list
+              // Cards list - displays filtered items in responsive card layout
               Expanded(
                 child: _filteredItems.isEmpty
                     ? Center(
@@ -153,6 +156,7 @@ class _DealerSelectionSheetState<T extends Mappable>
     );
   }
 
+  // The card becomes selectable on tap and returns the selected item to the caller.
   Widget _buildDealerCard(
     BuildContext context,
     T item,
@@ -160,6 +164,7 @@ class _DealerSelectionSheetState<T extends Mappable>
   ) {
     return GestureDetector(
       onTap: () {
+        // Return selected item to the caller (closes modal and passes selection)
         Navigator.of(context).pop(item);
       },
       child: Card(
@@ -173,41 +178,51 @@ class _DealerSelectionSheetState<T extends Mappable>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // First row: Account Code | Name
+              // Top row: First value field | Main field
+              // Uses Expanded + Align for precise positioning:
+              // - Left side: Account Code (right-aligned within its space)
+              // - Center: "|" separator (pinned to top line)
+              // - Right side: Name/Main field (left-aligned within its space)
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    map[widget.valueFields[0]]?.toString() ?? 'N/A',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(width: 4),  // ← Single whitespace
-                  const Text('|', style: TextStyle(fontSize: 14)),
-                  const SizedBox(width: 4),  // ← Single whitespace
-                  Flexible(
-                    fit: FlexFit.loose,  // ← Only takes needed space
-                    child: Text(
-                      map[widget.mainField]?.toString() ?? 'N/A',  // Show Name, not Account Code
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        map[widget.valueFields[0]]?.toString() ?? 'N/A',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
                       ),
-                      maxLines: 2,  // Name can wrap to 2 lines
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(width: 4), // Single whitespace gap
+                  const Text('|', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 4), // Single whitespace gap
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        map[widget.mainField]?.toString() ?? 'N/A',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 5),
-              // Remaining fields
+              // Remaining fields - displayed below the header row
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -215,6 +230,7 @@ class _DealerSelectionSheetState<T extends Mappable>
                     if (widget.valueFields[i] != widget.mainField)
                       Column(
                         children: [
+                          // Check if field should be centered based on field name
                           _isCenteredField(widget.displayNames[i])
                             ? Center(
                                 child: _buildFieldInfo(
@@ -224,9 +240,10 @@ class _DealerSelectionSheetState<T extends Mappable>
                             : _buildFieldInfo(
                                 map[widget.valueFields[i]]?.toString() ?? 'N/A',
                               ),
-                        if (i < widget.valueFields.length - 1 && 
-                            widget.valueFields[i + 1] != widget.mainField)
-                          const SizedBox(height: 2),
+                          // Add spacing between fields (except last field)
+                          if (i < widget.valueFields.length - 1 && 
+                              widget.valueFields[i + 1] != widget.mainField)
+                            const SizedBox(height: 2),
                         ],
                       ),
                 ],
@@ -238,11 +255,13 @@ class _DealerSelectionSheetState<T extends Mappable>
     );
   }
 
+  // Determines if a field should be center-aligned based on its display name.
   bool _isCenteredField(String label) {
     return label.toLowerCase().contains('address') || 
            label.toLowerCase().contains('city');
   }
 
+  // Used for displaying remaining fields below the header row.
   Widget _buildFieldInfo(String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
