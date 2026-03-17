@@ -326,7 +326,7 @@ Future<void> _presentSelectionSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) {
-        // Switch based on layout type
+        // Switch based on layout type - Added by Darshan R on 16/03/2026
         switch (widget.layoutType) {
           case SelectionSheetLayoutType.card:
             if (T == Dealer) {
@@ -342,6 +342,7 @@ Future<void> _presentSelectionSheet(
             break;
         }
 
+        //or default table - Added by Darshan R on 16/03/2026
         return SelectionSheet<T>(
           title: widget.selectionSheetTitle,
           items: items,
@@ -669,6 +670,7 @@ class DataHelperColorRule<T> {
        );
 }
 
+//Used for card view in helper - Added by Darshan R on 17/03/2026
 class CardSelectionSheet<T extends Mappable> extends StatefulWidget {
   final String title;
   final List<T> items;
@@ -738,17 +740,7 @@ class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSh
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 child: SearchTextField(
                   controller: _searchController,
                   onChanged: (_) => _performFilter(),
@@ -756,14 +748,14 @@ class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSh
               ),
               const Divider(height: 1),
               Expanded(
-                child: widget.items.isEmpty
+                child: _filteredItems.isEmpty
                     ? const EmptyListWidget()
                     : ListView.builder(
                         controller: scrollController,
                         padding: const EdgeInsets.all(12),
-                        itemCount: widget.items.length,
+                        itemCount: _filteredItems.length,
                         itemBuilder: (context, index) {
-                          final item = widget.items[index];
+                          final item = _filteredItems[index];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: widget.cardBuilder(
@@ -782,6 +774,3 @@ class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSh
     );
   }
 }
-
-
-

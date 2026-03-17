@@ -1,7 +1,7 @@
+// Added by Darshan R on 16/03/2026
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/theme/app_colors.dart';
-import 'package:myapp/theme/app_fonts.dart';
 
 /// Card widget that displays a single dealer in a responsive card layout.
 class DealerSelectionCard extends StatelessWidget {
@@ -40,7 +40,6 @@ class DealerSelectionCard extends StatelessWidget {
                       child: Text(
                         map['accountCode']?.toString() ?? 'N/A',
                         style: const TextStyle(
-                          fontFamily: AppFonts.primaryFont,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.text,
@@ -54,7 +53,6 @@ class DealerSelectionCard extends StatelessWidget {
                   const Text(
                     '|', 
                     style: TextStyle(
-                      fontFamily: AppFonts.primaryFont,
                       fontSize: 14,
                       color: AppColors.text,
                       ),
@@ -66,7 +64,6 @@ class DealerSelectionCard extends StatelessWidget {
                       child: Text(
                         map['name']?.toString() ?? 'N/A',
                         style: const TextStyle(
-                          fontFamily: AppFonts.primaryFont,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.text,
@@ -90,7 +87,6 @@ class DealerSelectionCard extends StatelessWidget {
                     child: Text(
                       map['address']?.toString() ?? 'N/A',
                       style: const TextStyle(
-                        fontFamily: AppFonts.primaryFont,
                         fontSize: 13,
                         color: AppColors.text,
                         fontWeight: FontWeight.w500,
@@ -107,7 +103,6 @@ class DealerSelectionCard extends StatelessWidget {
                     child: Text(
                       map['city']?.toString() ?? 'N/A',
                       style: const TextStyle(
-                        fontFamily: AppFonts.primaryFont,
                         fontSize: 13,
                         color: AppColors.text,
                         fontWeight: FontWeight.w500,
