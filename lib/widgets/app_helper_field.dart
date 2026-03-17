@@ -10,12 +10,14 @@ import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
-import 'package:myapp/widgets/cards/dealer_selection_view.dart';
+import 'package:myapp/widgets/cards/dealer_selection_card.dart';
+import 'package:myapp/widgets/app_empty_list.dart';
+import 'package:myapp/widgets/app_search_text_field.dart';
+import 'package:myapp/models/dealer_model.dart';
 
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
 
-// Added enum for choosing type of helper to be loaded - By Darshan R on 16/03/2026
 enum SelectionSheetLayoutType {
   table,
   card,
@@ -74,11 +76,8 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
 // The first rule whoich rows `shouldColor`.
   final List<DataHelperColorRule<T>>? colorRules;
 
-  // Selection sheet layout type (table or card)  - Added by Darshan R on 16/03/2026
+  // Selection sheet layout type (table or card)
   final SelectionSheetLayoutType layoutType;
-  
-  // Optional builder for custom selection sheet (overrides layout type)  - - Added by Darshan R on 16/03/2026
-  final Widget Function(BuildContext, List<T>, String?)? customSheetBuilder;
 
   const AppSelectionField({
     super.key,
@@ -102,7 +101,6 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.showHelperOnInitialization = false,
     this.colorRules,
     this.layoutType = SelectionSheetLayoutType.table,  // default to table
-    this.customSheetBuilder,
   });
 
   @override
@@ -292,9 +290,10 @@ class _AppSelectionFieldState<T extends Mappable>
   }
 
   // Helper to present the actual selection sheet after data is ready
-  Future<void> _presentSelectionSheet(
-    BuildContext context,
-    List<T> items,
+  // Helper to present the actual selection sheet after data is ready
+Future<void> _presentSelectionSheet(
+  BuildContext context,
+  List<T> items,
   ) async {
     print('Openning sheet');
     final initialQuery = widget.controller.text;
@@ -327,32 +326,30 @@ class _AppSelectionFieldState<T extends Mappable>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) {
-        // Use custom sheet if provided - Added by Darshan R on 16/03/2026
-        if (widget.customSheetBuilder != null) {
-          return widget.customSheetBuilder!(context, items, initialQuery);
-        }
-
-        // Switch based on layout type  - Added by Darshan R on 16/03/2026
+        // Switch based on layout type
         switch (widget.layoutType) {
           case SelectionSheetLayoutType.card:
-            return DealerSelectionSheet<T>(
-              title: widget.selectionSheetTitle,
-              items: items,
-              initialSearchQuery: initialQuery,
-              displayNames: widget.displayNames,
-              valueFields: widget.valueFields,
-              mainField: widget.mainField,
-            );
+            if (T == Dealer) {
+              return CardSelectionSheet(
+                title: widget.selectionSheetTitle,
+                items: items as List<Dealer>,
+                cardBuilder: (context, dealer, onTap) {
+                  return DealerSelectionCard(dealer: dealer, onTap: onTap);
+                },
+              );
+            }
           case SelectionSheetLayoutType.table:
-            return SelectionSheet<T>(
-              title: widget.selectionSheetTitle,
-              items: items,
-              initialSearchQuery: initialQuery,
-              displayNames: widget.displayNames,
-              valueFields: widget.valueFields,
-              colorRules: widget.colorRules,
-            );
+            break;
         }
+
+        return SelectionSheet<T>(
+          title: widget.selectionSheetTitle,
+          items: items,
+          initialSearchQuery: initialQuery,
+          displayNames: widget.displayNames,
+          valueFields: widget.valueFields,
+          colorRules: widget.colorRules,
+        );
       },
     );
 
@@ -544,20 +541,16 @@ class _SelectionSheetState<T extends Mappable>
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: TextField(
+                child: SearchTextField(
                   controller: _searchController,
-                  autofocus: true,
-                  //cursorColor: AppColors.primary,
-                  decoration: InputDecoration(
-                    hintText: 'Search by any field...',
-                    prefixIcon: const Icon(Icons.search),
-                    isDense: true,
-                  ),
+                  onChanged: (_) => _performFilter(),
                 ),
               ),
               const Divider(height: 1),
               Expanded(
-                child: SingleChildScrollView(
+                child: _filteredItems.isEmpty
+                ? const EmptyListWidget()
+                : SingleChildScrollView(
                   controller: scrollController,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -675,3 +668,120 @@ class DataHelperColorRule<T> {
          'endColumnIndex must be greater than or equal to startColumnIndex',
        );
 }
+
+class CardSelectionSheet<T extends Mappable> extends StatefulWidget {
+  final String title;
+  final List<T> items;
+
+  // Builder function to create a card widget for each item
+  final Widget Function(BuildContext context, T item, VoidCallback onTap) cardBuilder;
+
+  const CardSelectionSheet({
+    required this.title,
+    required this.items,
+    required this.cardBuilder,
+  });
+
+  @override
+  State<CardSelectionSheet<T>> createState() => _CardSelectionSheetState<T>();
+}
+
+class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSheet<T>> {
+  late TextEditingController _searchController;
+  late List<T> _filteredItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    _filteredItems = widget.items;
+    _searchController.addListener(_performFilter);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_performFilter);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _performFilter() {
+    // Note: This is a basic implementation. You may need to customize
+    // the search logic based on what fields to search
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        _filteredItems = widget.items;
+      } else {
+        _filteredItems = widget.items.where((item) {
+          final map = item.toMap();
+          return map.values.any((value) {
+            return value.toString().toLowerCase().contains(query);
+          });
+        }).toList();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.7,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: SearchTextField(
+                  controller: _searchController,
+                  onChanged: (_) => _performFilter(),
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: widget.items.isEmpty
+                    ? const EmptyListWidget()
+                    : ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(12),
+                        itemCount: widget.items.length,
+                        itemBuilder: (context, index) {
+                          final item = widget.items[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: widget.cardBuilder(
+                              context,
+                              item,
+                              () => Navigator.of(context).pop(item),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+

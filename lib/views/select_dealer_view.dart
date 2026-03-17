@@ -138,7 +138,7 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             controller: _dealerController,
             labelText: 'Select Dealer',
             selectionSheetTitle: 'Select a Dealer',
-            layoutType: SelectionSheetLayoutType.card, // use card layout for dealer's view - Added by Darshan R on 16/03/2026
+            layoutType: SelectionSheetLayoutType.card, // use card layout for dealer's view
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
             onSelected: (dealer) {
