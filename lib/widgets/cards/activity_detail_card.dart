@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/helpers/common_functions.dart';
@@ -107,7 +106,6 @@ class ActivityDetailCard extends StatelessWidget {
     );
   }
 
-  // ✅ TYPE-SPECIFIC UI
   Widget _buildTypeSpecificDetails(Map<String, dynamic> data) {
     switch (activity.type) {
       case ActivityType.invoiceSave:
@@ -169,7 +167,6 @@ class ActivityDetailCard extends StatelessWidget {
     }
   }
 
-  // ✅ HELPER ROW
   Widget _row(String label, dynamic value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -251,7 +248,7 @@ Widget _buildReturnItemsList(dynamic returnItemsData) {
           margin: const EdgeInsets.only(bottom: 8, left: 8),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.borderDark),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Column(
@@ -270,206 +267,6 @@ Widget _buildReturnItemsList(dynamic returnItemsData) {
     ],
   );
 }
-
-
-  // Widget _listSection(
-  //   String title,
-  //   List<Map<String, dynamic>> list, {
-  //   required List<String> displayParams, // Parameters to display
-  // }) {
-  //   if (list.isEmpty) return const SizedBox.shrink();
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const SizedBox(height: 6),
-  //       Text(
-  //         "$title:",
-  //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-  //       ),
-  //       const SizedBox(height: 4),
-  //       ...list.asMap().entries.map((entry) {
-  //         //int index = entry.key;
-  //         Map<String, dynamic> item = entry.value;
-
-  //         // Filter only the specified parameters that exist in the item
-  //         // final displayItems =
-  //         //     item.entries
-  //         //         .where((property) => displayParams.contains(property.key))
-  //         //         .toList();
-
-  //         final displayItems = item.entries.toList();
-
-  //         // Skip if nothing to show
-  //         if (displayItems.isEmpty) return const SizedBox.shrink();
-
-
-  //         return Container(
-  //           margin: const EdgeInsets.only(bottom: 12),
-  //           padding: const EdgeInsets.all(8),
-  //           decoration: BoxDecoration(
-  //             border: Border.all(color: Colors.grey.shade300),
-  //             borderRadius: BorderRadius.circular(4),
-  //           ),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               // Item header with index number
-  //               // Text(
-  //               //   "Item ${index + 1}:",
-  //               //   style: const TextStyle(
-  //               //     fontWeight: FontWeight.w600,
-  //               //     color: Colors.blue,
-  //               //   ),
-  //               // ),
-  //               const SizedBox(height: 6),
-  //               // Display only specified properties line by line
-  //               ...displayItems.map((property) {
-  //                 return Padding(
-  //                   padding: const EdgeInsets.only(left: 8, top: 4),
-  //                   child: Row(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Expanded(
-  //                         flex: 2,
-  //                         child: Text(
-  //                           "${_getPropertyDisplayName(property.key)}:",
-  //                           style: const TextStyle(
-  //                             fontWeight: FontWeight.w500,
-  //                             color: Colors.grey,
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       Expanded(
-  //                         flex: 3,
-  //                         child: Text(
-  //                           _formatValue(property.value),
-  //                           style: const TextStyle(fontWeight: FontWeight.w400),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 );
-  //               }).toList(),
-  //             ],
-  //           ),
-  //         );
-  //       }).toList(),
-  //     ],
-  //   );
-  // }
-
-  // Widget _listSection(String title, List<Map<String, dynamic>> list) {
-  //   if (list.isEmpty) return const SizedBox.shrink();
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const SizedBox(height: 6),
-  //       Text(
-  //         "$title:",
-  //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-  //       ),
-  //       const SizedBox(height: 4),
-  //       ...list.asMap().entries.map((entry) {
-  //         int index = entry.key;
-  //         Map<String, dynamic> item = entry.value;
-
-  //         return Container(
-  //           margin: const EdgeInsets.only(bottom: 12),
-  //           padding: const EdgeInsets.all(8),
-  //           decoration: BoxDecoration(
-  //             border: Border.all(color: Colors.grey.shade300),
-  //             borderRadius: BorderRadius.circular(4),
-  //           ),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               // Item header with index number
-  //               Text(
-  //                 "Item ${index + 1}:",
-  //                 style: const TextStyle(
-  //                   fontWeight: FontWeight.w600,
-  //                   color: Colors.blue,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 6),
-  //               // Display each property line by line
-  //               ...item.entries.map((property) {
-  //                 return Padding(
-  //                   padding: const EdgeInsets.only(left: 8, top: 4),
-  //                   child: Row(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Expanded(
-  //                         flex: 2,
-  //                         child: Text(
-  //                           "${_getPropertyDisplayName(property.key)}:",
-  //                           style: const TextStyle(
-  //                             fontWeight: FontWeight.w500,
-  //                             color: Colors.grey,
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       Expanded(
-  //                         flex: 3,
-  //                         child: Text(
-  //                           _formatValue(property.value),
-  //                           style: const TextStyle(fontWeight: FontWeight.w400),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 );
-  //               }).toList(),
-  //             ],
-  //           ),
-  //         );
-  //       }).toList(),
-  //     ],
-  //   );
-  // }
-
-  // String _getPropertyDisplayName(String propertyName) {
-  //   // Dictionary for special property name mappings
-  //   const Map<String, String> specialMappings = {
-  //   'partno': 'Part Number',
-  //   'requestqty': 'Request Quantity',
-  //   'returnqty': 'Return Quantity',
-  //   'tinNumber': 'Tin Number'
-  //   };
-  //   return specialMappings[propertyName]!;
-  // }
-
-  // String _getPropertyDisplayName(String propertyName) {
-  //   const Map<String, String> specialMappings = {
-  //     'partNo': 'Part Number',
-  //     'requestQty': 'Request Quantity',
-  //     'returnQty': 'Return Quantity',
-  //     'tinNumber': 'Tin Number',
-  //   };
-  //   // Use lowercase for lookup
-  //   String key = propertyName;
-  //   if (specialMappings.containsKey(key)) {
-  //     return specialMappings[key]!;
-  //   }
-  //   // Return original propertyName if not found
-  //   return propertyName;
-  // }
-
-  // String _formatValue(dynamic value) {
-  //   if (value == null) return '-';
-  //   if (value is bool) return value ? 'Yes' : 'No';
-  //   if (value is DateTime) return DateFormat('yyyy-MM-dd HH:mm').format(value);
-  //   if (value is num) {
-  //     // Check if it might be a decimal/currency value
-  //     if (value is double && value % 1 != 0) {
-  //       return value.toStringAsFixed(2);
-  //     }
-  //     return value.toString();
-  //   }
-  //   return value.toString();
-  // }
 
   Map<String, dynamic>? _extractData(Activity activity) {
     if (activity.metadata != null &&
@@ -502,7 +299,6 @@ Widget _buildReturnItemsList(dynamic returnItemsData) {
     }
   }
 
-  // ✅ STATUS COLOR
   Color _getStatusColor(StatusType? status) {
     switch (status) {
       case StatusType.success:
