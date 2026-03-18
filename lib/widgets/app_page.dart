@@ -61,7 +61,11 @@ class AppPage extends ConsumerWidget {
 
         if (onPopInvoked != null) {
           await onPopInvoked!(didPop);
-        } else if (!canPop) {
+        }
+        else if (onBack != null) {
+          onBack!(); // ✅ handles Android back button
+        }
+         else if (!canPop) {
           // If canPop is false and no custom handler, show the default exit dialog
           final bool shouldExit = await showConfirmationDialog(
             context: context,

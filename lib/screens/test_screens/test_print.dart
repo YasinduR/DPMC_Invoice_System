@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
+import 'package:myapp/services/log_text_service.dart';
 import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart';
@@ -153,6 +154,21 @@ class _TestPrintPageState extends State<TestPrintPage> {
                   revNo: '01',
                   docNo: 'DC02',
                 );
+               // _printerService.previewDispatchNotePdf(dummyNote, details);
+              },
+            ),
+            const SizedBox(height: 16),
+            ActionButton(
+              label: 'Preview Test Log',
+              onPressed: () async{
+                     
+
+                          await LogTextService.saveFile(
+      fileName: 'Test_File_${DateTime.now().millisecondsSinceEpoch}.txt',
+      content: 'Test Content here',
+      context: context,
+    );
+                      //await logService.saveFile(fileName: 'Test_File.txt', content: 'Test Content', context: context);
                // _printerService.previewDispatchNotePdf(dummyNote, details);
               },
             ),
