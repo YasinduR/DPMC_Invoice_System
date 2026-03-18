@@ -58,7 +58,7 @@ class _SelectRegionViewState extends State<SelectRegionView> {
               });
             },
             showHelperOnInitialization: true,
-            displayNames: const ['Region'],
+            displayNames: const ['REGION'],
             valueFields: const ['region'],
             mainField: 'region',
             dataUrl: 'regions/list',
