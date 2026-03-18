@@ -191,6 +191,7 @@ class _SelectTinsViewState extends State<SelectTinsView> {
                   filterConditions: [
                     ['dealerCode', '=', widget.dealer.accountCode],
                   ],
+                  layoutType: SelectionSheetLayoutType.card, //Added By Yasindu Ganegoda
                   // added color rule for payment status by Darshan R on 11/03/2026
                   colorRules: [
                     DataHelperColorRule<TinData>(

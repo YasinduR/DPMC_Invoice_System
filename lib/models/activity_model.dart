@@ -145,7 +145,7 @@ class Activity implements Mappable {
   final buffer = StringBuffer();
 
   buffer.writeln("Activity       : ${getActivityName()}");
-  buffer.writeln("--------------------------------------");
+  buffer.writeln("\n");
   buffer.writeln("Timestamp      : ${formatDateTime(timestamp)}");
   buffer.writeln("User ID        : $user");
   buffer.writeln("Status         : ${status.name.toUpperCase()}");
@@ -227,7 +227,7 @@ class Activity implements Mappable {
       default:
         break;
     }
-    buffer.writeln("--------------------------------------");
+    buffer.writeln("\n");
     buffer.writeln("Endpoint       : $endpoint");
     buffer.writeln("");
     buffer.writeln("Data           :");
