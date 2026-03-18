@@ -6,4 +6,5 @@ class Config{
   }
   // API Configuration
   static String get baseUrl => dotenv.get('BASE_URL', fallback: '');
+  static String get defaultMobileNumber => dotenv.get('MOBILE_NUM', fallback: '');
 }

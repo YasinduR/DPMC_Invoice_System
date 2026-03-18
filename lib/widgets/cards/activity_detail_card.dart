@@ -115,7 +115,7 @@ class ActivityDetailCard extends StatelessWidget {
             _row("Dealer Name", data["dealerName"]),
             _row("TIN No", data["tinNo"]),
             _row("Invoice Amount", data["invoiceAmount"]),
-            if (data["parts"] != null) _buildReturnItemsList(data["parts"]),
+            if (data["parts"] != null) _buildPartList(data["parts"]),
           ],
         );
 
@@ -260,6 +260,55 @@ Widget _buildReturnItemsList(dynamic returnItemsData) {
               _row("Request Qty", requestQty),
               // Return Quantity
               _row("Return Qty", returnQty),
+            ],
+          ),
+        );
+      }).toList(),
+    ],
+  );
+}
+
+
+Widget _buildPartList(dynamic partData) {
+  if (partData == null || partData is! List) {
+    return const SizedBox.shrink();
+  }
+
+  // Ensure we have a list of maps
+  final items = partData.whereType<Map<String, dynamic>>().toList();
+  if (items.isEmpty) return const SizedBox.shrink();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 6),
+      const Text(
+        "Parts :",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+      ),
+      const SizedBox(height: 4),
+      ...items.map((item) {
+        // Extract the fields we care about (use safe fallbacks)
+        final partNo = item['partNo']?.toString() ?? '-';
+        final requestQty = item['requestQty']?.toString() ?? '-';
+        final returnQty = item['receivedQty']?.toString() ?? '-';
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8, left: 8),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.borderDark),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Part Number
+              _row("Part Number", partNo),
+              // Request Quantity
+              _row("Request Qty", requestQty),
+              // Return Quantity
+              _row("Received Qty", returnQty),
             ],
           ),
         );
