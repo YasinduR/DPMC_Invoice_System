@@ -1,21 +1,25 @@
 // Added by Darshan R on 18/03/2026
+import 'package:myapp/config/app_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// WhatsApp integration service for opening conversations and messaging.
 class WhatsAppService {
-  static const String defaultPhoneNumber = '94762649927';
+  //static const String defaultPhoneNumber = '94762649927';
+  static String defaultPhoneNumber = Config.defaultMobileNumber; //  Modified By Yasindu Ganegoda
 
-  /// Parameters:
-  /// - [phoneNumber]: The recipient's phone number (with country code, e.g., "+1234567890")
-  /// - [message]: Optional message to be pre-filled (will be URL-encoded)
-  ///
-  /// Returns: `true` if successful, `false` otherwise
   static Future<bool> openWhatsApp({
-    String phoneNumber = defaultPhoneNumber,
+    String? phoneNumber, //  Modified By Yasindu Ganegoda
     String? message,
   }) async {
     try {
-      String url = 'https://wa.me/$phoneNumber';
+   //  Modified By Yasindu Ganegoda
+    final targetNumber = phoneNumber ?? defaultPhoneNumber;
+
+    if (targetNumber.isEmpty) {
+      return false;
+    }
+
+      String url = 'https://wa.me/$targetNumber';
 
       if (message != null && message.isNotEmpty) {
         url += '?text=${Uri.encodeComponent(message)}';
