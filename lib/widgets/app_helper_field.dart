@@ -14,6 +14,8 @@ import 'package:myapp/widgets/cards/dealer_selection_card.dart';
 import 'package:myapp/widgets/app_empty_list.dart';
 import 'package:myapp/widgets/app_search_text_field.dart';
 import 'package:myapp/models/dealer_model.dart';
+import 'package:myapp/models/tin_model.dart';
+import 'package:myapp/widgets/cards/tin_selection_card.dart';
 
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
@@ -337,6 +339,14 @@ Future<void> _presentSelectionSheet(
                   return DealerSelectionCard(dealer: dealer, onTap: onTap);
                 },
               );
+            } else if (T == TinData) {    // Added by Darshan R on 18/03/2026
+              return CardSelectionSheet(
+                title: widget.selectionSheetTitle,
+                items: items as List<TinData>,
+                cardBuilder: (context, tin, onTap) {
+                  return TinSelectionCard(tin: tin, onTap: onTap);
+                },
+              );
             }
           case SelectionSheetLayoutType.table:
             break;
@@ -560,10 +570,16 @@ class _SelectionSheetState<T extends Mappable>
                       columns:
                           widget.displayNames.map((name) {
                             return DataColumn(
-                              label: Text(
-                                name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                              label: Padding(
+                                padding: const EdgeInsets.symmetric(      // Modified by Darshan R on 18/03/2026
+                                  vertical: 8.0,
+                                  horizontal: 12.0,
+                                ),
+                                child: Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             );
