@@ -7,6 +7,7 @@ import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_page.dart'; // Adjust path if needed
+import 'package:myapp/services/whatsapp_service.dart';
 
 
 // Thi is written test commn snackbars dialog boxes remove later
@@ -146,6 +147,56 @@ class TestPage extends StatelessWidget {
                     context: context,
                     message: 'Payment was cancelled.',
                     type: MessageType.warning,
+                  );
+                }
+              },
+            ),
+            // Added by Darshan R on 18/03/2026
+            const SizedBox(height: 16),
+            ActionButton(
+              label: 'Test WhatsApp Message',
+              onPressed: () async {
+                // Replace with actual phone number (include country code)
+                final success = await WhatsAppService.openWhatsApp(
+                  phoneNumber: '94762649927',
+                  message: 'Hello! This is a test message from our invoice app.',
+                );
+                
+                if (success) {
+                  showSnackBar(
+                    context: context,
+                    message: 'Opening WhatsApp...',
+                    type: MessageType.success,
+                  );
+                } else {
+                  showSnackBar(
+                    context: context,
+                    message: 'Failed to open WhatsApp. Make sure it\'s installed.',
+                    type: MessageType.error,
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            ActionButton(
+              label: 'Test WhatsApp Message default number',
+              onPressed: () async {
+                // Replace with actual phone number (include country code)
+                final success = await WhatsAppService.openWhatsApp(
+                  message: 'Hello! This is a default number test message from our invoice app.',
+                );
+                
+                if (success) {
+                  showSnackBar(
+                    context: context,
+                    message: 'Opening WhatsApp...',
+                    type: MessageType.success,
+                  );
+                } else {
+                  showSnackBar(
+                    context: context,
+                    message: 'Failed to open WhatsApp. Make sure it\'s installed.',
+                    type: MessageType.error,
                   );
                 }
               },
