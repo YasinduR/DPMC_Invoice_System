@@ -75,6 +75,7 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
             controller: _tinController,
             labelText: 'Select TIN Number',
             selectionSheetTitle: 'Select a TIN Number',
+            layoutType: SelectionSheetLayoutType.card,      // Modified by Darshan R on 18/03/2026
             initialValue: widget.selectedTin,
             onSelected: widget.onTinNumberSelected,
             onCommitStateChanged: (isCommitted) {
