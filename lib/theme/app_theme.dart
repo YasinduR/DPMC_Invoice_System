@@ -87,7 +87,6 @@ ThemeData appTheme(BuildContext context) {
     labelMedium: TextStyle(
       fontSize: 14,
       color: AppColors.text,
-      //fontFamily: AppFonts.fontInter,
       //fontWeight: FontWeight.w500,
       fontWeight: FontWeight.bold,
     ),
@@ -105,6 +104,7 @@ ThemeData appTheme(BuildContext context) {
         cursorColor: customColorScheme.primary,
         selectionColor: AppColors.textSelection,
         selectionHandleColor: customColorScheme.primary,
+
       );
 
   final AppBarTheme customAppBarTheme = AppBarTheme(

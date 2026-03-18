@@ -173,7 +173,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     late InvoiceSave savedInvoice;
     await save(
       context: context,
-      dataUrl: 'invoice/save',
+      dataUrl: 'invoicse/save',
       user: currentUser,
       activityType: ActivityType.invoiceSave,
       dataToSave: invoiceData,

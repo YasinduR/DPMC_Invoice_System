@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_router.dart';
 import 'package:myapp/config/app_config.dart';
+import 'package:myapp/services/log_text_service.dart';
 //import 'package:myapp/services/location_service.dart';
 
 import 'package:myapp/services/notification_services.dart';
@@ -21,6 +22,7 @@ Future<void> main() async {
 
   // Initialize NotificationService
   await NotificationService.initialize();
+  await LogTextService.initialize(); // DPMC Folder Access
 
   // Register the WorkManager task once at app startup
   //await registerSimpleWorkManagerReminder();

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
@@ -138,23 +137,14 @@ Future<void> save<T extends Mappable>({
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
   final LocalStorageService localStorageService =  LocalStorageService();
-
-
   if (!context.mounted) return;
-
   try {
     loadingOverlay.show(context);
- 
       String baseUrl = Config.baseUrl;
       String url = '${baseUrl}$dataUrl';
       final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
       final String? accessToken = await _secureStorageService.getAccessToken(); 
-    // Call the generic postData method in the service
-    //await MockApiService.post(dataUrl, body: dataToSave);
-
-        // MockApiService.post returns Future<dynamic>, so apiResponse will be dynamic.
-    final dynamic apiResponse = await MockApiService.post(url, body: dataToSave,accessToken: accessToken); // Pass dataToSave directly
-
+      final dynamic apiResponse = await MockApiService.post(url, body: dataToSave,accessToken: accessToken); // Pass dataToSave directly
     // If onReceivedData callback is provided, we attempt to process the API response.
     if (onReceivedData != null) {
       T? dataForCallback;
@@ -174,6 +164,7 @@ Future<void> save<T extends Mappable>({
     await localStorageService.saveActivity(
       Activity(
         id: const Uuid().v4(),
+        user: user?.id,
         title: "Successfully Saved",
         endpoint: dataUrl,
         timestamp: DateTime.now(),
@@ -184,12 +175,12 @@ Future<void> save<T extends Mappable>({
         },
       ),
     );
-
   } catch (e) {
     onError(e.toString());
     await localStorageService.saveActivity(
       Activity(
         id: const Uuid().v4(),
+        user: user?.id,
         title: "Error Occured",
         endpoint: dataUrl,
         timestamp: DateTime.now(),
