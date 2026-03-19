@@ -6,14 +6,12 @@ class AppColors {
 
   // Main Theme Colors
   // static const Color primary = Color(0xFF0D47A1); // Dark Blue
-  // static const Color background = Color(0xFFE3F2FD); // Light Blue  Previous Dont Remove
+  // static const Color background = Color(0xFFE3F2FD); // Light Blue 
+
   static const Color primary = Color(0xFF0D47A1); // Dark Blue
-  static const Color background = Color(
-    0xFFF0F5F9,
-  ); // Light Blue: Changed to a more muted, professional light blue-grey
+  static const Color background = Color(0xFFF0F5F9); // professional light blue-grey
   static const Color secondary = Color(0xff546e7a);
-  static const Color tertiary = Color(0xFF90A4AE); // Blue Grey 300
-  //static const Color disabled = Colors.grey;
+  static const Color tertiary = Color(0xFF90A4AE); 
   static const Color disabled = Color(0xFFD6E0EA);
   static const Color ondisabled = Color(0xFF7A94B5);
   static const Color white = Colors.white;
@@ -22,9 +20,7 @@ class AppColors {
   static const Color textFaded = Colors.black54;
   static const Color textSecondary = Colors.black54;
   static const Color overlayBackground = Colors.black54;
-  static const Color lightLavender = Color(
-    0xFFF8F7FA,
-  ); // 0xFF prefix for opaque color
+  static const Color lightLavender = Color(0xFFF8F7FA); // 0xFF prefix for opaque color
 
   // Border Colors
   static const Color border = Color(0xFFE0E0E0); // Light Gray
@@ -37,24 +33,21 @@ class AppColors {
 
   // Other Colors
   static const Color transparent = Colors.transparent;
-  static Color dialogShadowColor = Colors.black.withOpacity(0.4); //
+  //static Color dialogShadowColor = Colors.black.withOpacity(0.4); //
 
-  static const Color successLight = Color(
-    0xFFE8F5E9,
-  ); // A very light green, suitable for backgrounds
-  static const Color dangerLight = Color(
-    0xFFFFEBEE,
-  ); // A very light red/pink, suitable for backgrounds
+  static const Color dialogShadowColor = Color(0x66000000); // const version
+
+  static const Color successLight = Color(0xFFE8F5E9); // A very light green, suitable for backgrounds
+  static const Color dangerLight = Color(0xFFFFEBEE); // A very light red/pink, suitable for backgrounds
 
   // Grid Button Icon Colors
-  //static const Color removebtnColor = disabled;
- // static const Color editbtnColor = disabled;
+  static const Color removebtnColor = Color(0xFFB26363);
+  static const Color editbtnColor = Color(0xFFCEA14F);
 
-  static const Color removebtnColor = Color(0xFFB26363); 
-  static const Color editbtnColor = Color(0xFFCEA14F);  
-
-  // Shaded Colors
-  Color shadedGrey = Colors.grey;
+  // Grey Colors
+    static const Color grey300 = Color(0xFFE0E0E0); 
+    static const Color grey600 = Color(0xFF757575);
+    static const Color grey700 = Color(0xFF616161); 
 
   // Main Menu Tile Colors
   static const List<Color> menuTileColors = [
@@ -65,6 +58,14 @@ class AppColors {
     Color(0xFF9B51E0), // Purple
     Color(0xFF56CCF2), // Light Blue
   ];
+
+  // Password Strength
+  static const List<Color> passwordStrengthBarIndicatorColors = [
+    Colors.cyan,
+    Colors.blue,
+    Colors.purple,
+  ];
+
 
   //[
   //   Color(0xFF1976D2), // Material Blue

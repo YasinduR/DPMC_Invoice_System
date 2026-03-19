@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/credit_note_model.dart';
 //import 'package:myapp/theme/app_colors.dart';
@@ -89,7 +90,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
         DynamicColumn<CreditNote>(
           label: 'Credit Note Amount',
           flex: 3,
-          cellBuilder: (context, item) => Text(item.amount.toStringAsFixed(2)),
+          cellBuilder: (context, item) => Text(formatNumber(item.amount)),
         ),
         DynamicColumn<CreditNote>(
           label: '',

@@ -22,6 +22,7 @@ import 'package:myapp/screens/returns/return_screen.dart';
 import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/security_setting/security_setting_screen.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
+import 'package:myapp/screens/splash_screen/splash_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 import 'package:myapp/screens/test_screens/test_print.dart';
 
@@ -42,6 +43,7 @@ class AppRouter {
       AppRoutes.initializer,
       AppRoutes.login,
       AppRoutes.forgetPassword,
+      AppRoutes.splash
     ];
 
     // if (publicRoutes.contains(routeName)) {
@@ -127,6 +129,8 @@ class AppRouter {
     switch (routeName) {
       case AppRoutes.initializer: // Handle the new location check route
         return (context) => const InitializerScreen();
+      case AppRoutes.splash: // Handle the new location check route
+        return (context) => const SplashScreen();
       case AppRoutes.login:
         return (context) => const LoginScreen();
       case AppRoutes.mainMenu:

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
@@ -216,7 +217,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
             cellBuilder:
                 (context, invoice) => Center(
                   child: AutoSizeText(
-                    invoice.invAmount.toStringAsFixed(2),
+                  formatNumber(invoice.invAmount),
                     style: const TextStyle(fontSize: 12),
                     minFontSize: 8,
                     maxLines: 1,

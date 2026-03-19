@@ -1,6 +1,8 @@
 // Added by Darshan R on 19/03/2026
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/password_strength.dart';
 import 'package:myapp/services/password_strength_service.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 /// A password input field widget with visibility toggle eye icon
 /// 
@@ -46,7 +48,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
     }
 
     if (widget.enforceStrength && value != null && value.isNotEmpty) {
-      if (!PasswordStrengthService.isPasswordStrong(value)) {
+      if (!PasswordStrength.isSuffient(value)) {
         return 'Password requires: 8+ characters, uppercase, lowercase, number, and special character';
       }
     }
@@ -72,7 +74,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
           child: IconButton(
             icon: Icon(
               _obscureText ? Icons.visibility_off : Icons.visibility,
-              color: Colors.grey[600],
+              color: AppColors.grey600,
             ),
             onPressed: () {
               setState(() {

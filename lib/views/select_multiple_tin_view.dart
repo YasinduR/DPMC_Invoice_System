@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 //import 'package:collection/collection.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -114,7 +115,7 @@ class _SelectTinsViewState extends State<SelectTinsView> {
           label: 'Total Value',
           flex: 2,
           cellBuilder:
-              (context, item) => Text(item.totalValue.toStringAsFixed(2)),
+              (context, item) => Text(formatNumber(item.totalValue)),
         ),
         DynamicColumn<TinData>(
           label: '',

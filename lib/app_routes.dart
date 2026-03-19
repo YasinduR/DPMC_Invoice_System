@@ -8,6 +8,7 @@ class AppRoutes {
   // static const String authCheck = '/authCheck'; // NEW route
   static const String login = '/login';
   static const String initializer = '/initializer';
+  static const String splash = '/splash';
   static const String fraudMenu = '/fraudMenu'; // Remove Later
   static const String mainMenu = '/mainMenu';
   static const String forgetPassword = '/forgetPassword';

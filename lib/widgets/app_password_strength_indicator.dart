@@ -1,6 +1,8 @@
 // Added by Darshan R on 19/03/2026
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/password_strength.dart';
 import 'package:myapp/services/password_strength_service.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 /// Password strength indicator widget with gradient bar
 /// 
@@ -23,7 +25,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final strengthData = PasswordStrengthService.calculatePasswordStrength(password);
+    final strengthData = PasswordStrength.calculate(password);
     final strength = strengthData['strength'] as double;
     final label = strengthData['label'] as String;
 
@@ -39,7 +41,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
               child: Stack(
                 children: [
                   Container(
-                    color: Colors.grey[300],
+                    color: AppColors.grey300,
                     width: double.infinity,
                   ),
                   FractionallySizedBox(
@@ -47,16 +49,12 @@ class PasswordStrengthIndicator extends StatelessWidget {
                     child: ShaderMask(
                       shaderCallback: (bounds) {
                         return LinearGradient(
-                          colors: [
-                            Colors.cyan,
-                            Colors.blue,
-                            Colors.purple,
-                          ],
+                          colors: AppColors.passwordStrengthBarIndicatorColors,
                           stops: const [0.0, 0.5, 1.0],
                         ).createShader(bounds);
                       },
                       child: Container(
-                        color: Colors.white,
+                        color: AppColors.white,
                       ),
                     ),
                   ),
@@ -68,7 +66,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
           Text(
             'Password Strength: $label',
             style: TextStyle(
-              color: Colors.grey[700],
+              color: AppColors.grey700,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),

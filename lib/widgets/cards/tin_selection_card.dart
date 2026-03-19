@@ -1,5 +1,6 @@
 // Added by Darshan R on 18/03/2026
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/theme/app_colors.dart';
 
@@ -60,7 +61,7 @@ class TinSelectionCard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Text(
-                    tin.totalValue.toStringAsFixed(2),
+                    formatNumber(tin.totalValue),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
