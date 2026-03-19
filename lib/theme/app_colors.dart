@@ -47,8 +47,11 @@ class AppColors {
   ); // A very light red/pink, suitable for backgrounds
 
   // Grid Button Icon Colors
-  static const Color removebtnColor = disabled;
-  static const Color editbtnColor = disabled;
+  //static const Color removebtnColor = disabled;
+ // static const Color editbtnColor = disabled;
+
+  static const Color removebtnColor = Color(0xFFB26363); 
+  static const Color editbtnColor = Color(0xFFCEA14F);  
 
   // Shaded Colors
   Color shadedGrey = Colors.grey;

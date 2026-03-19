@@ -67,6 +67,7 @@ class LocalStorageService {
   // Activity Loging
 
 static const String _kActivities = "activities";
+static const _kActivityHistoryClear = "activityHistoryEnabledClear";  // Activity History Clear Preferance
 
 Future<void> saveActivity(Activity activity) async {
   final prefs = await SharedPreferences.getInstance();
@@ -90,7 +91,44 @@ Future<List<Activity>> getActivities() async {
       .toList();
 }
 
+ Future<bool> getHistoryClearPreference(BuildContext context) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_kActivityHistoryClear) ?? false;
+    } catch (e) {
+      return false;
+    } finally{
+    if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
 
+    Future<void> setActivityHistoryClearPreference(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kActivityHistoryClear, enabled);
+  }
+
+  Future<void> clearOldActivities() async {
+  final prefs = await SharedPreferences.getInstance();
+  final List<String> stored = prefs.getStringList(_kActivities) ?? [];
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final yesterday = today.subtract(const Duration(days: 1));
+  final filtered = stored.where((e) {
+    final activity = Activity.fromJson(jsonDecode(e));
+    final activityDate = DateTime(
+      activity.timestamp.year,
+      activity.timestamp.month,
+      activity.timestamp.day,
+    );
+    return activityDate.isAtSameMomentAs(today) ||
+        activityDate.isAtSameMomentAs(yesterday);
+  }).toList();
+  await prefs.setStringList(_kActivities, filtered);
+}
 //
 
 

@@ -1,4 +1,5 @@
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/helpers/common_functions.dart';
 
 class TinInvoice implements Mappable {
   final String tinNo;
@@ -23,7 +24,7 @@ class TinInvoice implements Mappable {
     return {
       'tinNo': tinNo,
       'mobileInvNo': mobileInvNo,
-      'invAmount': invAmount,
+      'invAmount': formatNumber(invAmount),
       'paymentOnDeliveryStatus': paymentOnDeliveryStatus,
       'receiptStatus': receiptStatus,
       'dealerAccCode': dealerAccCode,

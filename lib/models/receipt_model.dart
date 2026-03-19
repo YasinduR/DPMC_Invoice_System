@@ -44,7 +44,7 @@ class Receipt implements Mappable {
       'dealerName': dealerName,
       'dealer': dealerCode,
       'chequeNumber': chequeNumber,
-      'chequeAmount': chequeAmount,
+      'chequeAmount': formatNumber(chequeAmount),
       'chequeDate': formatDateTime(chequeDate), // Standard format for APIs
       'bankCode': bankCode,
       'branchCode': branchCode,

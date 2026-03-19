@@ -75,7 +75,7 @@ dev_dependencies:
   custom_lint: ^0.7.6
   riverpod_lint: ^2.6.5
   top_snackbar_flutter: ^3.1.0
-  device_info_plus: ^10.1.0
+
   
   
 # For information on the generic Dart part of this file, see the
@@ -96,6 +96,7 @@ flutter:
   assets:
     - assets/images/dpmc.png
     - assets/images/dpmc_footer.png  
+    - assets/images/dpmc_splash.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

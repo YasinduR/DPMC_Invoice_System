@@ -72,18 +72,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     this._authService,
     this._localAuthService,
     this._localStorageService,
-    this._locationService
-
+    this._locationService,
   ) : super(AuthState.initial());
 
-
   Future<void> _ensureLocationServicesAreOn() async {
-    final bool isReady = await _locationService.areLocationServicesAndPermissionsReady();
+    final bool isReady =
+        await _locationService.areLocationServicesAndPermissionsReady();
     if (!isReady) {
-      throw FetchLocationException('Location services are disabled or permissions are denied. Please enable them to proceed.');
+      throw FetchLocationException(
+        'Location services are disabled or permissions are denied. Please enable them to proceed.',
+      );
     }
   }
-
 
   //  Perform biometric login
   Future<bool> loginWithBiometrics(
@@ -93,8 +93,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true);
     try {
       await _ensureLocationServicesAreOn();
-      final isBiometricEnabled =
-          await _localStorageService.getBiometricPreference(context);
+      final isBiometricEnabled = await _localStorageService
+          .getBiometricPreference(context);
       final savedUsername =
           await _localStorageService.getSavedUsernameForBiometric();
 
@@ -130,7 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
                     : (user.isPasswordExpired ? 'RESET' : null),
             lastLoginPassword: savedPassword,
           );
-
+          await _autoClearActivitiesIfNeeded(context);
           return true;
         } else {
           state = state.copyWith(
@@ -168,7 +168,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   //  Confirm biometric login
-  Future<bool> confirmBiometrics( // Check Bio METRIC IS VALID BEFORE ENABLING IT
+  Future<bool> confirmBiometrics(
+    // Check Bio METRIC IS VALID BEFORE ENABLING IT
     BuildContext context,
     Function(Exception e) onError,
   ) async {
@@ -177,18 +178,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final bool authenticated = await _localAuthService.authenticateBiometrics(
         'Verify your identity to enable biometric login',
       );
-      if(!authenticated){
-                  onError(
-            UnauthorisedException(
-              'Failed to Enable biometric login.',
-            ),
-          );
+      if (!authenticated) {
+        onError(UnauthorisedException('Failed to Enable biometric login.'));
       }
       return authenticated;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false
-      );
+      state = state.copyWith(isLoading: false);
       onError(e is Exception ? e : Exception(e.toString()));
       return false;
     } finally {
@@ -220,7 +215,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         } else if (user.isPasswordExpired) {
           _changeType = 'RESET';
         }
-
         state = state.copyWith(
           isLoggedIn: true,
           currentUser: user,
@@ -229,6 +223,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           passwordChangeType: _changeType,
           lastLoginPassword: password, // NEW: Save the password here
         );
+        await _autoClearActivitiesIfNeeded(context);
       } else {
         state = state.copyWith(
           isLoggedIn: false,
@@ -309,6 +304,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> setActivityHistoryClearPreference(
+    bool enable,
+    Function(Exception e) onError,
+  ) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      await _localStorageService.setActivityHistoryClearPreference(enable);
+
+      // OPTIONAL: If enabling, you can trigger cleanup immediately
+      if (enable) {
+        await _localStorageService.clearOldActivities();
+        // (assumes you have logic to delete >1 day old logs)
+      }
+    } catch (e) {
+      onError(e is Exception ? e : Exception(e.toString()));
+
+      await _localStorageService.setActivityHistoryClearPreference(!enable);
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
   Future<String> getCurrentSavedUsername() async {
     state = state.copyWith(isLoading: true); // Start loading
     String? username;
@@ -323,8 +341,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return username ?? '';
   }
 
-  Future<bool> isBioMetEnabled(    BuildContext context,
-) async {
+  Future<bool> isBioMetEnabled(BuildContext context) async {
     state = state.copyWith(isLoading: true);
 
     bool? loginMethod;
@@ -336,6 +353,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: false);
     }
     return loginMethod;
+  }
+
+  Future<bool> isHistoryClearEnabled(BuildContext context) async {
+    state = state.copyWith(isLoading: true);
+
+    bool? clearState;
+    try {
+      clearState = await _localStorageService.getHistoryClearPreference(
+        context,
+      );
+    } catch (e) {
+      clearState = false;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+    return clearState;
+  }
+
+  Future<void> _autoClearActivitiesIfNeeded(BuildContext context) async {
+    try {
+      final isAutoClearEnabled = await _localStorageService
+          .getBiometricPreference(context);
+
+      if (isAutoClearEnabled) {
+        await _localStorageService.clearOldActivities();
+      }
+    } catch (e) {
+      print('Activity cleanup failed: $e');
+    }
   }
 
   Future<void> clearUserInfo() async {
@@ -472,13 +518,15 @@ final localStorageServiceProvider = Provider<LocalStorageService>((ref) {
   return LocalStorageService();
 });
 
-final locationServiceProvider  = Provider<LocationService>((ref) {
+final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationService();
 });
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = ref.read(authServiceProvider);
-  final localAuthService = ref.read(localAuthServiceProvider); // Read the new service
+  final localAuthService = ref.read(
+    localAuthServiceProvider,
+  ); // Read the new service
   final localStorageService = ref.read(localStorageServiceProvider);
   final locationService = ref.read(locationServiceProvider);
 
@@ -486,7 +534,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     authService,
     localAuthService,
     localStorageService,
-    locationService
+    locationService,
   ); // Pass both services
 });
 

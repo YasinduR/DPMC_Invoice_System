@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 // Message type enum for snackbar styling
 
@@ -96,13 +95,12 @@ class LogTextService {
   }) async {
     try {
       // Show loading indicator
-
       // Check if storage is initialized
       if (!_isStorageAvailable) {
         // Try to initialize again
         final initialized = await initialize();
         if (!initialized) {
-          String errorPerm = await _getPermissionDeniedMessage();
+          String errorPerm = 'Storage permission denied';
           showSnackBar(
             context: context,
             message: errorPerm,
@@ -308,21 +306,6 @@ class LogTextService {
     } else {
       return error.toString();
     }
-  }
-
-  // Get permission denied message based on Android version
-  static Future<String> _getPermissionDeniedMessage() async {
-    final androidInfo = await _getAndroidVersion();
-    if (androidInfo.version.sdkInt >= 30) {
-      return 'Storage permission denied. Please grant "Allow all files access" in settings.';
-    }
-    return 'Storage permission denied. Please grant permission to save files.';
-  }
-
-  // Helper to get Android version
-  static Future<AndroidDeviceInfo> _getAndroidVersion() async {
-    final deviceInfo = DeviceInfoPlugin();
-    return await deviceInfo.androidInfo;
   }
 
   // Open app settings

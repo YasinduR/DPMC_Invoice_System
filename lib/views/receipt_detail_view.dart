@@ -299,10 +299,11 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                 onChanged: widget.onBankTextChanged,
                 onSelected: widget.onBankSelected,
                 onCommitStateChanged: widget.onBankCommitChanged,
-                displayNames: const ['Bank Name'],
-                valueFields: const ['bankName'],
+                displayNames: const ['Bank Name' ,'BankCode'],
+                valueFields: const ['bankName','bankCode'],
                 mainField: 'bankName',
                 dataUrl: 'bank/list',
+                layoutType : SelectionSheetLayoutType.card
               ),
               const SizedBox(height: 16),
               AppSelectionField<BankBranch>(
@@ -313,8 +314,8 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                 onChanged: widget.onBranchTextChanged,
                 onSelected: widget.onBranchSelected,
                 onCommitStateChanged: widget.onBranchCommitChanged,
-                displayNames: const ['Branch Name', 'Bank Name'],
-                valueFields: const ['branchName', 'bankName'],
+                displayNames: const ['Branch Name', 'Branch code'],
+                valueFields: const ['branchName', 'branchCode'],
                 mainField: 'branchName',
                 dataUrl: 'branch/list',
                 preRequest: _handlePreRequestBank,
@@ -324,6 +325,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                           ['bankCode', '=', widget.selectedBank!.bankCode],
                         ]
                         : [],
+                layoutType : SelectionSheetLayoutType.card
                 // ...
               ),
               const SizedBox(height: 16),

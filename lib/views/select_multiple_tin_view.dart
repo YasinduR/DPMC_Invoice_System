@@ -59,6 +59,7 @@ class _SelectTinsViewState extends State<SelectTinsView> {
   }
 
   void _onTinAdd() {
+    FocusScope.of(context).unfocus();
     if (_selectedTin == null) return;
 
     if (_selectedTin!.paymentStatus != 'A') {

@@ -1,6 +1,8 @@
 
 //YYYY/MM/DD HH:mm
 //Example: 2024/04/21 23:09
+import 'package:intl/intl.dart';
+
 String formatDateTime(DateTime dateTime) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
 
@@ -29,4 +31,8 @@ String maskEmail(String email) {
     return '${email[0]}***${email.substring(atIndex)}';
   }
   return email;
+}
+
+String formatNumber(num value) {
+  return NumberFormat('#,##0.00').format(value);
 }

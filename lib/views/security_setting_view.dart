@@ -7,12 +7,16 @@ import 'package:myapp/widgets/app_switch_setting.dart';
 // ------------------- FIXED SecuritySettingView (StatefulWidget with didUpdateWidget) -------------------
 class SecuritySettingView extends StatefulWidget {
   final bool isBioEnabled;
+  final bool isActivityHistoryClearEnabled;
   final ValueChanged<bool> onBiometricChange;
+  final ValueChanged<bool> onActivityHistoryClearChange;
 
   const SecuritySettingView({
     super.key,
     required this.isBioEnabled,
     required this.onBiometricChange,
+    required this.isActivityHistoryClearEnabled,
+    required this.onActivityHistoryClearChange,
   });
 
   @override
@@ -21,25 +25,31 @@ class SecuritySettingView extends StatefulWidget {
 
 class _SecuritySettingViewState extends State<SecuritySettingView> {
   late bool _isBioEnabled;
+  late bool _isActivityHistoryClearEnabled;
 
   @override
   void initState() {
     super.initState();
     _isBioEnabled = widget.isBioEnabled;
+    _isActivityHistoryClearEnabled = widget.isActivityHistoryClearEnabled;
   }
 
-  // --- IMPORTANT FIX HERE ---
   @override
   void didUpdateWidget(covariant SecuritySettingView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the parent widget passed a new 'isBioEnabled' value, update the internal state.
+
+    // Sync biometric state
     if (widget.isBioEnabled != oldWidget.isBioEnabled) {
-      setState(() {
-        _isBioEnabled = widget.isBioEnabled;
-      });
+      _isBioEnabled = widget.isBioEnabled;
+    }
+
+    // Sync activity history clear state
+    if (widget.isActivityHistoryClearEnabled !=
+        oldWidget.isActivityHistoryClearEnabled) {
+      _isActivityHistoryClearEnabled =
+          widget.isActivityHistoryClearEnabled;
     }
   }
-  // --- END IMPORTANT FIX ---
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +61,23 @@ class _SecuritySettingViewState extends State<SecuritySettingView> {
             children: [
               AppSwitchSetting(
                 title: 'Bio-Metric Login',
-                onChanged: widget.onBiometricChange,
-                value: _isBioEnabled, // Use the internal state that's now updated
+                value: _isBioEnabled,
+                onChanged: (value) {
+                  setState(() => _isBioEnabled = value);
+                  widget.onBiometricChange(value);
+                },
               ),
-              const SizedBox(height: 24),
-              // Include Upcoming Settings Here
+
+              const SizedBox(height: 8),
+
+              AppSwitchSetting(
+                title: 'Clear Activity History',
+                value: _isActivityHistoryClearEnabled,
+                onChanged: (value) {
+                  setState(() => _isActivityHistoryClearEnabled = value);
+                  widget.onActivityHistoryClearChange(value);
+                },
+              ),
             ],
           ),
         ),
