@@ -10,6 +10,9 @@ import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:myapp/helpers/app_nav_items.dart';
+import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/widgets/app_navigation_bar.dart';
 
 Future<void> main() async {
   // Ensure that Flutter bindings are initialized before calling native code
@@ -48,12 +51,44 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final currentRoute = ref.watch(currentRouteProvider);
+    
+    final hideNavBarRoutes = [
+      AppRoutes.login,
+      AppRoutes.forgetPassword,
+      AppRoutes.initializer,
+    ];
+    
+    final shouldShowNav = authState.isLoggedIn &&
+        !hideNavBarRoutes.contains(currentRoute);
+    
+    final int? currentIndex = currentRoute != null
+        ? AppNavItems.getNavIndex(currentRoute.replaceFirst('/', ''))
+        : null;
+        
     //final authState = ref.watch(authProvider);
     return MaterialApp(
       title: 'Invoice App',
       theme: appTheme(context),
-      initialRoute: AppRoutes.initializer,
-      onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, ref),
+      home: Scaffold(
+        body: Navigator(
+          initialRoute: AppRoutes.initializer,
+          onGenerateRoute: (settings) {
+            // Update current route in provider
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(currentRouteProvider.notifier).state = settings.name;
+            });
+            return AppRouter.onGenerateRoute(settings, ref);
+          },
+        ),
+        bottomNavigationBar: shouldShowNav
+            ? AppNavFooter(
+                currentIndex: currentIndex,
+                confirmOnNavigate: false,
+              )
+            : null,
+      ),
       scaffoldMessengerKey: scaffoldMessengerKey,
     );
   }

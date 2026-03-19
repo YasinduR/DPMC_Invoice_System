@@ -55,7 +55,7 @@ class AppRouter {
     //   );
     // }
     // 1. If not logged in AND trying to access a non-public route
-    if (!authState.isLoggedIn && !publicRoutes.contains(routeName)) {
+    if (!authState.isLoggedIn && !publicRoutes.contains(routeName) && routeName != null) {
       return MaterialPageRoute(
         builder:
             (_) => const ErrorScreen(

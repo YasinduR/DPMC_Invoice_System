@@ -3,8 +3,11 @@ import 'package:myapp/helpers/app_nav_items.dart';
 import 'package:myapp/helpers/icon_mapper.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/providers/auth_provider.dart';
 
-class AppNavFooter extends StatelessWidget {
+// class AppNavFooter extends StatelessWidget {
+class AppNavFooter extends ConsumerWidget {
   final int? currentIndex;
   final bool confirmOnNavigate;
 
@@ -15,7 +18,7 @@ class AppNavFooter extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return BottomNavigationBar(
       currentIndex: currentIndex ?? 0,
       selectedItemColor:
@@ -54,6 +57,10 @@ class AppNavFooter extends StatelessWidget {
           if (!shouldNavigate) return;
         }
         final route = AppNavItems.items[index].route;
+
+        // Update the currentRouteProvider
+        ref.read(currentRouteProvider.notifier).state = route;
+
         Navigator.pushNamed(context, route);
       },
     );

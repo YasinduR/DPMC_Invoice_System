@@ -488,9 +488,10 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     localStorageService,
     locationService
   ); // Pass both services
+  
 });
 
-
+final currentRouteProvider = StateProvider<String?>((ref) => null);
 
   // // NEW: Toggle biometric authentication preference
   // Future<void> toggleBiometricLogin(bool enable) async {

@@ -7,7 +7,7 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_navigation_bar.dart';
 import 'app_header.dart';
-import 'app_footer.dart';
+// import 'app_footer.dart';
 //import 'package:myapp/theme/app_theme.dart';
 
 // Common Setup of an app page
@@ -49,11 +49,11 @@ class AppPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    // final authState = ref.watch(authProvider);
         // Determine currentIndex for footer based on currentRouteName
-    final int? currentIndex = currentRouteName != null
-        ? AppNavItems.getNavIndex(currentRouteName!)
-        : null;
+    // final int? currentIndex = currentRouteName != null
+    //     ? AppNavItems.getNavIndex(currentRouteName!)
+    //     : null;
     return PopScope(
       canPop: canPop,
       onPopInvoked: (didPop) async {
@@ -108,12 +108,13 @@ class AppPage extends ConsumerWidget {
             //   ),
           ],
         ),
-        bottomNavigationBar: showFooter && authState.isLoggedIn
-            ? AppNavFooter(
-                currentIndex: currentIndex,
-                confirmOnNavigate: confirmOnNavigate,
-              )
-            : null,
+        // bottomNavigationBar: showFooter && authState.isLoggedIn
+        //     ? AppNavFooter(
+        //         currentIndex: currentIndex,
+        //         confirmOnNavigate: confirmOnNavigate,
+        //       )
+        //     : null,
+
       ),
     );
   }
