@@ -156,7 +156,7 @@ class MenuCard extends StatefulWidget {
     required this.color,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String label;
   final VoidCallback onTap;
   final Color color;
@@ -213,7 +213,7 @@ class _MenuCardState extends State<MenuCard> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon, size: 40, color: color),
+              widget.icon,
               const SizedBox(height: 8),
               AutoSizeText(
                 widget.label,

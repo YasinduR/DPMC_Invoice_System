@@ -70,7 +70,7 @@ class FraudMenuScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final item = testRoutes[index];
                     return _MenuCard(
-                      icon: IconMapper.getIcon(item['iconName']),
+                      icon: IconMapper.getMenuIcon(item['iconName']),
                       label: item['label'],
                       onTap: () {
                         // This will trigger your onGenerateRoute logic
@@ -97,7 +97,7 @@ class _MenuCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String label;
   final VoidCallback onTap;
 
@@ -121,7 +121,7 @@ class _MenuCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 32, color: AppColors.primary),
+            icon,
             const SizedBox(height: 12),
             Text(
               label,

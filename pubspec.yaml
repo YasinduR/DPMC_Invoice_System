@@ -57,6 +57,7 @@ dependencies:
   flutter_dotenv: ^5.1.0 # For .env file reading
   #google_fonts: ^6.3.0 # Google Fonts no need to add manually
   url_launcher: ^6.1.0
+  lottie: ^3.3.1
 
 
 dev_dependencies:
@@ -96,6 +97,9 @@ flutter:
   assets:
     - assets/images/dpmc.png
     - assets/images/dpmc_footer.png  
+    - assets/images/route.json
+    - assets/images/delivery.json
+    - assets/images/alarm-clock.json
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
