@@ -5,7 +5,7 @@ class AppNavItems {
   static const List<NavItem> items = [
     NavItem(name: "Home", iconName: "home", route: "/mainMenu"),
     NavItem(name: "Log", iconName: "history", route: "/activityLog"),
-    NavItem(name: "To Do", iconName: "task", route: "/toDo"),
+    NavItem(name: "To Do", iconName: "task", route: "/toDoList"),
     NavItem(name: "Settings", iconName: "security_settings", route: "/securitySetting"),
     NavItem(name: "Profile", iconName: "person", route: "/profile"),
   ];
@@ -15,10 +15,6 @@ class AppNavItems {
   return index == -1 ? null : index; 
   }
   
-
-
-
-
 
 }
 

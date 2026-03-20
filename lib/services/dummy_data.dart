@@ -372,6 +372,14 @@ class DummyData {
       iconName: 'history',
     ),
 
+    Screen(
+      screenId: '020',
+      screenName: 'toDoList',
+      menuId: '01',
+      title: 'To Do List',
+      iconName: 'task',
+    ),
+
   ];
 
   static final List<Role> _roles = [
@@ -410,6 +418,7 @@ class DummyData {
     Perm(RoleId: '003', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
     Perm(RoleId: '001', ScreenId: '019'), // Actvity Log
+    Perm(RoleId: '001', ScreenId: '020'), // To Do List
   ];
 
   static final List<User> _users = [

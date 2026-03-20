@@ -382,6 +382,7 @@ class _AppSelectionFieldState<T extends Mappable>
                       data: data,
                       title: (t) => t.bankName,
                       value: (t) => t.bankCode,
+                      titleRatio: 0.8
                     );
                   },
                 );
@@ -397,6 +398,7 @@ class _AppSelectionFieldState<T extends Mappable>
                       data: data,
                       title: (t) => t.branchName,
                       value: (t) => t.branchCode,
+                      titleRatio: 0.8
                     );
                   },
                 );

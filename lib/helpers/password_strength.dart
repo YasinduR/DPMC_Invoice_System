@@ -1,5 +1,5 @@
 // Added by Darshan R on 19/03/2026  // Modified By Yasindu Ganegoda
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 
 class PasswordStrength {
   // Define as constants
@@ -20,7 +20,7 @@ class PasswordStrength {
       return {
         'strength': 0,
         'label': '',
-        'color': Colors.grey,
+        //'color': Colors.grey,
         'checks': [],
       };
     }
@@ -58,26 +58,26 @@ class PasswordStrength {
     }
 
     String label = '';
-    Color color = Colors.red;
+   // Color color = Colors.red;
 
     if (strength < 3) {
       label = 'Weak';
-      color = Colors.red;
+     // color = Colors.red;
     } else if (strength < 5) {
       label = 'Fair';
-      color = Colors.orange;
+     // color = Colors.orange;
     } else if (strength < 7) {
       label = 'Good';
-      color = Colors.amber;
+     // color = Colors.amber;
     } else {
       label = 'Strong';
-      color = Colors.green;
+     // color = Colors.green;
     }
 
     return {
       'strength': strength.toDouble(),
       'label': label,
-      'color': color,
+     // 'color': color,
       'checks': checks,
     };
   }
@@ -93,6 +93,28 @@ class PasswordStrength {
     bool hasSpecialChar = RegExp(SPECIAL_CHARS).hasMatch(password);
     
     return hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
+  }
+
+// Added By Yasindu Ganegoda on 20/03/2026 
+    static String? getValidationMessage(String password) {
+    List<String> missing = [];
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      missing.add('$MIN_PASSWORD_LENGTH+ characters');
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      missing.add('uppercase');
+    }
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      missing.add('lowercase');
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      missing.add('number');
+    }
+    if (!RegExp(SPECIAL_CHARS).hasMatch(password)) {
+      missing.add('special character');
+    }
+    if (missing.isEmpty) return null;
+    return 'Password requires: ${missing.join(", ")}';
   }
 
   /// Get strength percentage (0-100)

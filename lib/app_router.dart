@@ -25,6 +25,7 @@ import 'package:myapp/screens/setup_print/setup_print_screen.dart';
 import 'package:myapp/screens/splash_screen/splash_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 import 'package:myapp/screens/test_screens/test_print.dart';
+import 'package:myapp/screens/to_do_list/to_do_list_screen.dart';
 
 // This will link main.dart with the approutes with handling permission
 
@@ -43,7 +44,7 @@ class AppRouter {
       AppRoutes.initializer,
       AppRoutes.login,
       AppRoutes.forgetPassword,
-      AppRoutes.splash
+      AppRoutes.splash,
     ];
 
     // if (publicRoutes.contains(routeName)) {
@@ -175,6 +176,8 @@ class AppRouter {
         return (context) => const DispatchNoteScreen();
       case '/activityLog':
         return (context) => const ActivityLogScreen();
+      case '/toDoList':
+        return (context) => const ToDoListScreen();
       default:
         return null; // Return Null for the invalid routes
     }
