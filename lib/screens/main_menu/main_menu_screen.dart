@@ -51,7 +51,7 @@ class MainMenuScreen extends ConsumerWidget {
     });
     
     final colorCycler = ColorCycler(AppColors.menuTileColors);
-    // Dynamically build the list of menu cards
+
     final List<Widget> menuCards =
         menuItems.map((screen) {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];

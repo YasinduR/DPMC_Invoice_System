@@ -4,8 +4,14 @@
 class PasswordStrength {
   // Define as constants
   static const int MIN_PASSWORD_LENGTH = 8;
-  static const int GOOD_PASSWORD_LENGTH = 12;
-  static const int STRONG_PASSWORD_LENGTH = 16;
+  static const int GOOD_PASSWORD_LENGTH = 10;
+  static const int STRONG_PASSWORD_LENGTH = 15;
+  // Add the MAX constant here
+  static const int MAX_PASSWORD_LENGTH = STRONG_PASSWORD_LENGTH; 
+
+  // Add the getter
+  static int get maxLimit => MAX_PASSWORD_LENGTH;
+  
   static const String SPECIAL_CHARS = r'[!@#$%^&*(),.?":{}|<>]';
   
   /// Calculates password strength based on various criteria

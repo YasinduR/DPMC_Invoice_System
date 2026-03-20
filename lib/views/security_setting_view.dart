@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_switch_setting.dart';
 
-
-// (AppSwitchSetting remains the same as above)
-
-// ------------------- FIXED SecuritySettingView (StatefulWidget with didUpdateWidget) -------------------
 class SecuritySettingView extends StatefulWidget {
   final bool isBioEnabled;
   final bool isActivityHistoryClearEnabled;

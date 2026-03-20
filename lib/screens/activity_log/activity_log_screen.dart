@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/activity_model.dart';
-import 'package:myapp/models/print_footer_detail_model.dart';
-import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/views/activity_log_detail_view.dart';
 import 'package:myapp/views/activity_log_view.dart';
-import 'package:myapp/views/selected_activity_log_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 
 

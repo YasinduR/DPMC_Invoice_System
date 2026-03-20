@@ -76,7 +76,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      maxLength: 20,
+      maxLength: PasswordStrength.maxLimit,
       controller: widget.controller,
       focusNode: widget.focusNode,
       obscureText: _obscureText,

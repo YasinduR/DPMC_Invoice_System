@@ -36,7 +36,6 @@ class _SelectTinsViewState extends State<SelectTinsView> {
 
   late final List<TinData> _addedTins;
   
-  //late final List<TinData> _tins;
 
   bool _isTinSelectionCommitted = false;
 
@@ -46,7 +45,6 @@ class _SelectTinsViewState extends State<SelectTinsView> {
     // Register the reset callback with the controller
     widget.controller.registerResetCallback(_reset);
     _addedTins = List<TinData>.from(widget.tins);
-    //_tins = List<TinData>.from(widget.tins);
   }
 
    // Private reset method
@@ -127,10 +125,6 @@ class _SelectTinsViewState extends State<SelectTinsView> {
       buttonType: IconButtonType.remove,
 
     );
-            // return IconButton(
-            //   icon: const Icon(Icons.close, color: Colors.grey),
-            //   onPressed: () => _removeTin(item),
-            // );
           },
         ),
       ],
