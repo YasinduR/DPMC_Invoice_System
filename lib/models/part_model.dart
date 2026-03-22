@@ -1,4 +1,5 @@
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/helpers/common_functions.dart';
 
 class Part implements Mappable {
   final String id;
@@ -26,8 +27,8 @@ class Part implements Mappable {
       'partNo': partNo,
       'requestQty': requestQty,
       'description': description,
-      'price': price,
-      'discount': discount,
+      'price': formatNumber(price),
+      'discount': formatNumber(discount),
       'receivedQty': receivedQty,
     };
   }

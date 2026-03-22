@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -153,7 +154,8 @@ class _PrintInvoiceMainScreenState extends State<PrintInvoiceMainScreen> {
           flex: 3,
           cellBuilder:
               (context, invoice) => AutoSizeText(
-                invoice.invAmount.toStringAsFixed(2),
+                formatNumber(invoice.invAmount), 
+                //invoice.invAmount.toStringAsFixed(2),
                 maxLines: 1,
                 textAlign: TextAlign.right,
               ),

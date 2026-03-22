@@ -33,6 +33,10 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
 
   final String? noDataMessage;
 
+  final bool? isAllSelected;
+  /// Called when the Select All checkbox is toggled.
+  final ValueChanged<bool>? onSelectAllChanged;
+
   const AppDataGrid({
     super.key,
     required this.items,
@@ -44,6 +48,8 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
     this.mergeRules,
     this.fillColor = AppColors.lightLavender,
     this.noDataMessage,
+    this.isAllSelected = false,
+    this.onSelectAllChanged,
   });
 
   @override
@@ -124,37 +130,81 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
     );
   }
 
-  Widget _buildFilterAndSearch() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: widget.fillColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          TextButton.icon(
-            onPressed: widget.onFilterPressed,
-            icon: const Icon(Icons.filter_alt_outlined),
-            label: const Text('Filter'),
-            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-          ),
-          const VerticalDivider(width: 1, indent: 8, endIndent: 8),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: widget.searchHintText,
-                border: InputBorder.none,
-                prefixIcon: const Icon(Icons.search),
+Widget _buildFilterAndSearch() {
+  final bool showSelectAll = widget.onSelectAllChanged != null;
+
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: widget.fillColor,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Row(
+      children: [
+        if (showSelectAll) ...[
+          Row(
+            children: [
+              Checkbox(
+                value: widget.isAllSelected,
+                onChanged: (value) {
+                  if (value != null) {
+                    widget.onSelectAllChanged!(value);
+                  }
+                },
+                activeColor: AppColors.primary,
+                checkColor: Colors.white,
               ),
+              const Text('All'),
+            ],
+          ),
+          const SizedBox(width: 8), // space instead of vertical divider
+        ],
+        Expanded(
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: widget.searchHintText,
+              border: InputBorder.none,
+              prefixIcon: const Icon(Icons.search),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+ // Widget _buildFilterAndSearch() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //     decoration: BoxDecoration(
+  //       color: widget.fillColor,
+  //       borderRadius: BorderRadius.circular(8),
+  //       border: Border.all(color: AppColors.border),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         TextButton.icon(
+  //           onPressed: widget.onFilterPressed,
+  //           icon: const Icon(Icons.filter_alt_outlined),
+  //           label: const Text('Filter'),
+  //           style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+  //         ),
+  //         const VerticalDivider(width: 1, indent: 8, endIndent: 8),
+  //         Expanded(
+  //           child: TextField(
+  //             controller: _searchController,
+  //             decoration: InputDecoration(
+  //               hintText: widget.searchHintText,
+  //               border: InputBorder.none,
+  //               prefixIcon: const Icon(Icons.search),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildHeader() {
     return Container(

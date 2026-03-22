@@ -58,10 +58,12 @@ class _SelectRegionViewState extends State<SelectRegionView> {
               });
             },
             showHelperOnInitialization: true,
-            displayNames: const ['REGION'],
-            valueFields: const ['region'],
+            displayNames: const ['REGION','REGION CODE'],
+            valueFields: const ['region','regionCode'],
             mainField: 'region',
             dataUrl: 'regions/list',
+            layoutType : SelectionSheetLayoutType.card
+
           ),
           const Spacer(),
           ActionButton(

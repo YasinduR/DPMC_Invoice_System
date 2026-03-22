@@ -4,12 +4,17 @@ import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree i
 import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/models/bank_branch_model.dart';
+import 'package:myapp/models/bank_model.dart';
+import 'package:myapp/models/region_model.dart';
+import 'package:myapp/models/return_request_model.dart';
 //import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
+import 'package:myapp/widgets/cards/common_selection_card.dart';
 import 'package:myapp/widgets/cards/dealer_selection_card.dart';
 import 'package:myapp/widgets/app_empty_list.dart';
 import 'package:myapp/widgets/app_search_text_field.dart';
@@ -20,10 +25,7 @@ import 'package:myapp/widgets/cards/tin_selection_card.dart';
 typedef CommitStateChangedCallback = void Function(bool isCommitted);
 typedef FilterConditions = List<List<dynamic>>;
 
-enum SelectionSheetLayoutType {
-  table,
-  card,
-}
+enum SelectionSheetLayoutType { table, card }
 
 // Common Helper of the Application
 
@@ -75,7 +77,7 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
   final bool
   showHelperOnInitialization; // Optional flag to show selection sheet on initialization. automate ? press
 
-// The first rule whoich rows `shouldColor`.
+  // The first rule whoich rows `shouldColor`.
   final List<DataHelperColorRule<T>>? colorRules;
 
   // Selection sheet layout type (table or card)
@@ -102,7 +104,7 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.textInputAction,
     this.showHelperOnInitialization = false,
     this.colorRules,
-    this.layoutType = SelectionSheetLayoutType.table,  // default to table
+    this.layoutType = SelectionSheetLayoutType.table, // default to table
   });
 
   @override
@@ -293,9 +295,9 @@ class _AppSelectionFieldState<T extends Mappable>
 
   // Helper to present the actual selection sheet after data is ready
   // Helper to present the actual selection sheet after data is ready
-Future<void> _presentSelectionSheet(
-  BuildContext context,
-  List<T> items,
+  Future<void> _presentSelectionSheet(
+    BuildContext context,
+    List<T> items,
   ) async {
     print('Openning sheet');
     final initialQuery = widget.controller.text;
@@ -331,22 +333,92 @@ Future<void> _presentSelectionSheet(
         // Switch based on layout type - Added by Darshan R on 16/03/2026
         switch (widget.layoutType) {
           case SelectionSheetLayoutType.card:
-            if (T == Dealer) {
-              return CardSelectionSheet(
-                title: widget.selectionSheetTitle,
-                items: items as List<Dealer>,
-                cardBuilder: (context, dealer, onTap) {
-                  return DealerSelectionCard(dealer: dealer, onTap: onTap);
-                },
-              );
-            } else if (T == TinData) {    // Added by Darshan R on 18/03/2026
-              return CardSelectionSheet(
-                title: widget.selectionSheetTitle,
-                items: items as List<TinData>,
-                cardBuilder: (context, tin, onTap) {
-                  return TinSelectionCard(tin: tin, onTap: onTap);
-                },
-              );
+            switch (T) {
+              // Switch case Added  by Yasindu Ganegoda
+              case Dealer:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<Dealer>,
+                  cardBuilder: (context, dealer, onTap) {
+                    return DealerSelectionCard(dealer: dealer, onTap: onTap);
+                  },
+                );
+              case TinData:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<TinData>,
+                  cardBuilder: (context, tin, onTap) {
+                    return TinSelectionCard(tin: tin, onTap: onTap);
+                  },
+                );
+              case Region:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<Region>,
+                  cardBuilder: (context, data, onTap) {
+                    return SelectionCard(
+                      onTap: onTap,
+                      data: data,
+                      title: (t) => t.region,
+                      value: (t) => t.regionCode,
+                    );
+                  },
+                );
+                case Bank:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<Bank>,
+                  cardBuilder: (context, data, onTap) {
+                    return SelectionCard(
+                      onTap: onTap,
+                      data: data,
+                      title: (t) => t.bankName,
+                      value: (t) => t.bankCode,
+                      titleRatio: 0.8
+                    );
+                  },
+                );
+                case BankBranch:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<BankBranch>,
+                  cardBuilder: (context, data, onTap) {
+                    return SelectionCard(
+                      onTap: onTap,
+                      data: data,
+                      title: (t) => t.branchName,
+                      value: (t) => t.branchCode,
+                      titleRatio: 0.8
+                    );
+                  },
+                );
+                case ReturnRequest:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<ReturnRequest>,
+                  cardBuilder: (context, data, onTap) {
+                    return SelectionCard(
+                      onTap: onTap,
+                      data: data,
+                      title: (t) => t.returnId,
+                      value: (t) => t.returnType,
+                    );
+                  },
+                );
+              default:
+                break;
             }
           case SelectionSheetLayoutType.table:
             break;
@@ -559,97 +631,115 @@ class _SelectionSheetState<T extends Mappable>
               ),
               const Divider(height: 1),
               Expanded(
-                child: _filteredItems.isEmpty
-                ? const EmptyListWidget()
-                : SingleChildScrollView(
-                  controller: scrollController,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      showCheckboxColumn: false,
-                      columns:
-                          widget.displayNames.map((name) {
-                            return DataColumn(
-                              label: Padding(
-                                padding: const EdgeInsets.symmetric(      // Modified by Darshan R on 18/03/2026
-                                  vertical: 8.0,
-                                  horizontal: 12.0,
-                                ),
-                                child: Text(
-                                  name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                      rows:
-                          // added data cells merges to row and commented old code by Darshan R on 10/03/2026
-                          // _filteredItems.map((item) {
-                          //   final map = item.toMap();
-                          //   return DataRow(
-                          //     cells:
-                          //         widget.valueFields.map((field) {
-                          //           final cellValue =
-                          //               map[field]?.toString() ?? '';
-                          //           return DataCell(
-                          //             Text(cellValue),
-                          //             onTap: () {
-                          //               Navigator.of(context).pop(item);
-                          //             },
-                          //           );
-                          //         }).toList(),
-                          //   );
-                          // }).toList(),
+                child:
+                    _filteredItems.isEmpty
+                        ? const EmptyListWidget()
+                        : SingleChildScrollView(
+                          controller: scrollController,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              showCheckboxColumn: false,
+                              columns:
+                                  widget.displayNames.map((name) {
+                                    return DataColumn(
+                                      label: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          // Modified by Darshan R on 18/03/2026
+                                          vertical: 8.0,
+                                          horizontal: 12.0,
+                                        ),
+                                        child: Text(
+                                          name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                              rows:
+                                  // added data cells merges to row and commented old code by Darshan R on 10/03/2026
+                                  // _filteredItems.map((item) {
+                                  //   final map = item.toMap();
+                                  //   return DataRow(
+                                  //     cells:
+                                  //         widget.valueFields.map((field) {
+                                  //           final cellValue =
+                                  //               map[field]?.toString() ?? '';
+                                  //           return DataCell(
+                                  //             Text(cellValue),
+                                  //             onTap: () {
+                                  //               Navigator.of(context).pop(item);
+                                  //             },
+                                  //           );
+                                  //         }).toList(),
+                                  //   );
+                                  // }).toList(),
+                                  _filteredItems.map((item) {
+                                    final map = item.toMap();
 
-                          _filteredItems.map((item) {
-                            final map = item.toMap();
+                                    final List<Widget> cellWidgets =
+                                        widget.valueFields.map((field) {
+                                          final cellValue =
+                                              map[field]?.toString() ?? '';
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0,
+                                              horizontal: 12.0,
+                                            ),
+                                            child: Text(
+                                              cellValue,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList();
 
-                            final List<Widget> cellWidgets = widget.valueFields.map((field) {
-                              final cellValue = map[field]?.toString() ?? '';
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                                child: Text(
-                                  cellValue,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              );
-                            }).toList();
+                                    final List<DataCell> cells =
+                                        cellWidgets
+                                            .map((w) => DataCell(w))
+                                            .toList();
 
-                            final List<DataCell> cells = cellWidgets.map((w) => DataCell(w)).toList();
+                                    // find applicable color rule
+                                    DataHelperColorRule<T>? appliedRule;
+                                    if (widget.colorRules != null) {
+                                      for (var rule in widget.colorRules!) {
+                                        if (rule.shouldColor(item)) {
+                                          appliedRule = rule;
+                                          break;
+                                        }
+                                      }
+                                    }
 
-                            // find applicable color rule
-                            DataHelperColorRule<T>? appliedRule;
-                            if (widget.colorRules != null) {
-                              for (var rule in widget.colorRules!) {
-                                if (rule.shouldColor(item)) {
-                                  appliedRule = rule;
-                                  break;
-                                }
-                              }
-                            }
+                                    // apply particular color for the row
+                                    Color? rowColor;
+                                    if (appliedRule?.decorationBuilder !=
+                                        null) {
+                                      final dec = appliedRule!
+                                          .decorationBuilder!(context, item);
+                                      rowColor = dec.color?.withOpacity(0.12);
+                                    }
 
-                            // apply particular color for the row
-                            Color? rowColor;
-                            if (appliedRule?.decorationBuilder != null) {
-                              final dec = appliedRule!.decorationBuilder!(context, item);
-                              rowColor = dec.color?.withOpacity(0.12);
-                            }
-
-                            return DataRow(
-                              color: rowColor != null ? MaterialStateProperty.all(rowColor) : null,
-                              cells: cells,
-                              onSelectChanged: (_) {
-                                Navigator.of(context).pop(item);
-                              },
-                            );
-                          }).toList(),
-                    ),
-                  ),
-                ),
+                                    return DataRow(
+                                      color:
+                                          rowColor != null
+                                              ? MaterialStateProperty.all(
+                                                rowColor,
+                                              )
+                                              : null,
+                                      cells: cells,
+                                      onSelectChanged: (_) {
+                                        Navigator.of(context).pop(item);
+                                      },
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
+                        ),
               ),
             ],
           ),
@@ -690,30 +780,37 @@ class DataHelperColorRule<T> {
 class CardSelectionSheet<T extends Mappable> extends StatefulWidget {
   final String title;
   final List<T> items;
+  final List<String> valueFields; // if null, search all fields
+  final String? initialSearchQuery;
 
   // Builder function to create a card widget for each item
-  final Widget Function(BuildContext context, T item, VoidCallback onTap) cardBuilder;
+  final Widget Function(BuildContext context, T item, VoidCallback onTap)
+  cardBuilder;
 
   const CardSelectionSheet({
     required this.title,
     required this.items,
     required this.cardBuilder,
+    required this.valueFields,
+    this.initialSearchQuery
   });
 
   @override
   State<CardSelectionSheet<T>> createState() => _CardSelectionSheetState<T>();
 }
 
-class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSheet<T>> {
+class _CardSelectionSheetState<T extends Mappable>
+    extends State<CardSelectionSheet<T>> {
   late TextEditingController _searchController;
   late List<T> _filteredItems;
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController();
-    _filteredItems = widget.items;
+     _searchController = TextEditingController(text: widget.initialSearchQuery);
+    _filteredItems = [];
     _searchController.addListener(_performFilter);
+    _performFilter();
   }
 
   @override
@@ -723,24 +820,62 @@ class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSh
     super.dispose();
   }
 
+  // void _performFilter() {
+  //   final query = _searchController.text.toLowerCase();
+  //   setState(() {
+  //     if (query.isEmpty) {
+  //       _filteredItems = widget.items;
+  //     } else {
+  //       _filteredItems =
+  //           widget.items.where((item) {
+  //             final map = item.toMap();
+  //             return map.values.any((value) {
+  //               return value.toString().toLowerCase().contains(query);
+  //             });
+  //           }).toList();
+  //     }
+  //   });
+  // }
+
+  // extends State<SelectionSheet<T>> {
+  // late final TextEditingController _searchController;
+  // late List<T> _filteredItems;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _searchController = TextEditingController(text: widget.initialSearchQuery);
+  //   _filteredItems = [];
+  //   _searchController.addListener(_performFilter);
+  //   _performFilter();
+  // }
+
+  // @override
+  // void dispose() {
+  //   _searchController.removeListener(_performFilter);
+  //   _searchController.dispose();
+  //   super.dispose();
+  // }
+
   void _performFilter() {
-    // Note: This is a basic implementation. You may need to customize
-    // the search logic based on what fields to search
     final query = _searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
         _filteredItems = widget.items;
       } else {
-        _filteredItems = widget.items.where((item) {
-          final map = item.toMap();
-          return map.values.any((value) {
-            return value.toString().toLowerCase().contains(query);
-          });
-        }).toList();
+        _filteredItems =
+            widget.items.where((item) {
+              final map = item.toMap();
+              return widget.valueFields.any((field) {
+                final value = map[field]?.toString().toLowerCase() ?? '';
+                return value.contains(query);
+              });
+            }).toList();
       }
     });
   }
 
+  // @override
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -764,24 +899,25 @@ class _CardSelectionSheetState<T extends Mappable> extends State<CardSelectionSh
               ),
               const Divider(height: 1),
               Expanded(
-                child: _filteredItems.isEmpty
-                    ? const EmptyListWidget()
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.all(12),
-                        itemCount: _filteredItems.length,
-                        itemBuilder: (context, index) {
-                          final item = _filteredItems[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: widget.cardBuilder(
-                              context,
-                              item,
-                              () => Navigator.of(context).pop(item),
-                            ),
-                          );
-                        },
-                      ),
+                child:
+                    _filteredItems.isEmpty
+                        ? const EmptyListWidget()
+                        : ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(12),
+                          itemCount: _filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final item = _filteredItems[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: widget.cardBuilder(
+                                context,
+                                item,
+                                () => Navigator.of(context).pop(item),
+                              ),
+                            );
+                          },
+                        ),
               ),
             ],
           ),

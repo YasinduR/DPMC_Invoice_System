@@ -38,11 +38,11 @@ class _ActivityLogDetailViewState extends State<ActivityLogDetailView> {
 
   String output(){
     final buffer = StringBuffer();
-    buffer.writeln("===== ACTIVITY LOG EXPORT =====");
+    buffer.writeln("    ACTIVITY LOG EXPORT ");
     buffer.writeln("Exported on: ${DateTime.now()}");
-    buffer.writeln("==========================\n");
+    buffer.writeln("========================\n");
     buffer.writeln(activity.getActivityLog());
-    buffer.writeln("\n------------------------\n");
+    buffer.writeln("\n----------------------\n");
     return buffer.toString();
   }
 

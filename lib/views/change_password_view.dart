@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
+import 'package:myapp/widgets/app_password_input_field.dart';
+import 'package:myapp/widgets/app_password_strength_indicator.dart';
 
 // View of Change Password Screen
 class ChangePasswordView extends StatefulWidget {
@@ -83,35 +85,38 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                 AppTextField(
                   controller: _currentPwdController,
                   labelText: 'Current Password',
-                  focusNode:_currentPwdFocusNode,
+                  focusNode: _currentPwdFocusNode,
                   onFieldSubmitted: (_) {
-                        _newPwdFocusNode.requestFocus();
-                      },
+                    _newPwdFocusNode.requestFocus();
+                  },
                   obscureText: true,
                   isPassword: true,
                   validator: (value) => (value?.isEmpty ?? true) ? 'Current password is required' : null,
                 ),
                 const SizedBox(height: 20),
-                AppTextField(
+                // Modified to use PasswordInput field by Darshan R on 19/03/2026
+                PasswordInputField(
                   controller: _newPwdController,
                   labelText: 'New Password',
                   focusNode: _newPwdFocusNode,
+                  enforceStrength: true, // Enable password strength requirements
                   onFieldSubmitted: (_) {
-                        _confirmPwdFocusNode.requestFocus();
-                      },
-                  obscureText: true,
-                  isPassword: true,
+                    _confirmPwdFocusNode.requestFocus();
+                  },
                 ),
+                const SizedBox(height: 8),
+                if (_newPwdController.text.isNotEmpty)
+                  PasswordStrengthIndicator(
+                    password: _newPwdController.text,
+                  ),
                 const SizedBox(height: 16),
-                AppTextField(
+                PasswordInputField(
                   controller: _confirmPwdController,
                   labelText: 'Confirm New Password',
                   focusNode: _confirmPwdFocusNode,
                   onFieldSubmitted: (_) {
-                     _handleSubmit(); 
+                    _handleSubmit();
                   },
-                  obscureText: true,
-                  isPassword: true,
                   validator: (value) {
                     if (value != _newPwdController.text) return 'Passwords do not match';
                     return null;

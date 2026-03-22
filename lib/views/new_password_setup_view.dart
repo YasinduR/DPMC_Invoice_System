@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/app_action_button.dart';
-import 'package:myapp/widgets/app_text_form_field.dart';
+import 'package:myapp/widgets/app_password_input_field.dart';
+import 'package:myapp/widgets/app_password_strength_indicator.dart';
 
 // last step of Forget Password : New Password Setup
 class NewPasswordSetupView extends StatefulWidget {
@@ -19,7 +20,6 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
   late FocusNode _newPwdFocusNode;
   late FocusNode _confirmPwdFocusNode;
 
-
   @override
   void initState() {
     super.initState();
@@ -29,18 +29,15 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
     _newPwdController.addListener(() => setState(() {}));
     _confirmPwdController.addListener(() => setState(() {}));
 
-    _newPwdFocusNode.requestFocus(); // Set initial focus
-
+    _newPwdFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
     _newPwdController.dispose();
     _confirmPwdController.dispose();
-
     _newPwdFocusNode.dispose();
     _confirmPwdFocusNode.dispose();
-
     super.dispose();
   }
 
@@ -69,31 +66,29 @@ class _NewPasswordSetupViewState extends State<NewPasswordSetupView> {
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                AppTextField(
+                // Modified to use PasswordInput field by Darshan R on 19/03/2026
+                PasswordInputField(
                   controller: _newPwdController,
-                  focusNode: _newPwdFocusNode,
-                  onFieldSubmitted: (_) {
-                        _confirmPwdFocusNode.requestFocus();
-                      },
                   labelText: 'New Password',
-                  obscureText: true,
-                  isPassword: true,
-                  validator:
-                      (value) =>
-                          (value?.isEmpty ?? true)
-                              ? 'New password is required'
-                              : null,
+                  focusNode: _newPwdFocusNode,
+                  enforceStrength: true, // Enable password strength requirements
+                  onFieldSubmitted: (_) {
+                    _confirmPwdFocusNode.requestFocus();
+                  },
                 ),
-                const SizedBox(height: 18),
-                AppTextField(
+                const SizedBox(height: 8),
+                if (_newPwdController.text.isNotEmpty)
+                  PasswordStrengthIndicator(
+                    password: _newPwdController.text,
+                  ),
+                const SizedBox(height: 16),
+                PasswordInputField(
                   controller: _confirmPwdController,
                   focusNode: _confirmPwdFocusNode,
-                  onFieldSubmitted: (_) {
-                     _handleSubmit(); 
-                  },
                   labelText: 'Confirm New Password',
-                  obscureText: true,
-                  isPassword: true,
+                  onFieldSubmitted: (_) {
+                    _handleSubmit();
+                  },
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return null;
