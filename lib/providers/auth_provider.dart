@@ -373,9 +373,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _autoClearActivitiesIfNeeded(BuildContext context) async {
     try {
-      final isAutoClearEnabled = await _localStorageService
-          .getBiometricPreference(context);
-
+      final isAutoClearEnabled = await _localStorageService.getHistoryClearPreference(context);
       if (isAutoClearEnabled) {
         await _localStorageService.clearOldActivities();
       }

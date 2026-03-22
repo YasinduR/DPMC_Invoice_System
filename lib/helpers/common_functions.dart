@@ -33,6 +33,7 @@ String maskEmail(String email) {
   return email;
 }
 
+// Format Amounts 10000.23 => 10,000.23
 String formatNumber(num value) {
   return NumberFormat('#,##0.00').format(value);
 }
