@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/part_model.dart';
@@ -66,6 +67,20 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
     }
   }
 
+void _toggleSelectAll(bool? selected) {
+  if (selected == null) return;
+  setState(() {
+    if (selected) {
+      _selectedParts = _parts.map((part) {
+        final defaultQty =  part.requestQty ?? 1;
+        return part.copyWith(receivedQty: defaultQty);
+      }).toList();
+    } else {
+      _selectedParts.clear();
+    }
+  });
+}
+
   // Future<void> _loadParts() async {
   //   setState(() {
   //     _isLoading = true;
@@ -116,10 +131,14 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
       return const Center(child: Text("No Parts Found"));
     }
 
+    final isAllSelected = _selectedParts.length == _parts.length && _parts.isNotEmpty;
+
     return AppDataGrid<Part>(
-      searchHintText: 'Search by Part No or ID',
+      searchHintText: 'Search by Part No',
       onFilterPressed: () {},
-      filterableFields: ['partNo', 'id'],
+      filterableFields: ['partNo'],
+      isAllSelected: isAllSelected,                 // new
+      onSelectAllChanged: _toggleSelectAll,   
       columns: [
         DynamicColumn<Part>(
           label: 'Part No',
@@ -152,7 +171,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
               ),
         ),
         DynamicColumn<Part>(
-          label: 'Receive Qty',
+          label: 'Delivered Qty',
           flex: 3,
           cellBuilder: (context, part) {
             final selectedPart = _selectedParts.firstWhereOrNull(
@@ -257,7 +276,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         Text(
-          totalAmount.toStringAsFixed(2),
+           formatNumber(totalAmount),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

@@ -1,6 +1,8 @@
 // Added by Darshan R on 19/03/2026
 import 'package:flutter/material.dart';
-import 'package:myapp/services/password_strength_service.dart';
+import 'package:myapp/helpers/password_strength.dart';
+//import 'package:myapp/services/password_strength_service.dart'; Migrated By Yasindu Ganegoda.
+import 'package:myapp/theme/app_colors.dart';
 
 /// Password strength indicator widget with gradient bar
 /// 
@@ -23,58 +25,71 @@ class PasswordStrengthIndicator extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final strengthData = PasswordStrengthService.calculatePasswordStrength(password);
+    final strengthData = PasswordStrength.calculate(password);
     final strength = strengthData['strength'] as double;
     final label = strengthData['label'] as String;
 
-    return Padding(
-      padding: padding ?? const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              height: 8,
-              child: Stack(
-                children: [
-                  Container(
-                    color: Colors.grey[300],
-                    width: double.infinity,
+// Modified By Yasindu Ganegoda
+  return Padding(
+  padding: padding ?? const EdgeInsets.symmetric(vertical: 8.0),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // 1. THE STRENGTH BAR
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final fullWidth = constraints.maxWidth;
+          final double progress = (strength / 7).clamp(0.0, 1.0);
+          return Container(
+            height: 8,
+            width: fullWidth,
+            decoration: BoxDecoration(
+              color: AppColors.grey300, // Background track color
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Stack(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: fullWidth * progress,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  FractionallySizedBox(
-                    widthFactor: strength / 7,
-                    child: ShaderMask(
-                      shaderCallback: (bounds) {
-                        return LinearGradient(
-                          colors: [
-                            Colors.cyan,
-                            Colors.blue,
-                            Colors.purple,
-                          ],
-                          stops: const [0.0, 0.5, 1.0],
-                        ).createShader(bounds);
-                      },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: OverflowBox(
+                      minWidth: fullWidth,
+                      maxWidth: fullWidth,
+                      alignment: Alignment.centerLeft,
                       child: Container(
-                        color: Colors.white,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: AppColors.passwordStrengthBarIndicatorColors,
+                            stops: const [0.0, 0.5, 1.0],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Password Strength: $label',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-        ],
+          );
+        },
       ),
-    );
+      const SizedBox(height: 8),
+      // 2. STRENGTH LABEL
+      Text(
+        'Password Strength: $label',
+        style: TextStyle(
+          color: AppColors.grey700,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+      ),
+    ],
+  ),
+);
   }
 }

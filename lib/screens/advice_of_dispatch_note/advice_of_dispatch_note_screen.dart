@@ -16,7 +16,6 @@ import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-//import 'package:myapp/views/auth_dealer_view.dart';
 
 class DispatchNoteScreen extends ConsumerStatefulWidget {
   const DispatchNoteScreen({super.key});

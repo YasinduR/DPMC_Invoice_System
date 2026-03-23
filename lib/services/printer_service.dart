@@ -6,6 +6,7 @@ import 'dart:typed_data'; // For Uint8List
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart'; // For future Bluetooth connection
 import 'package:intl/intl.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/part_model.dart';
@@ -531,7 +532,7 @@ class PrinterService {
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
                     pw.Text(
-                      invoiceObj.invoiceAmount.toStringAsFixed(2),
+                      formatNumber(invoiceObj.invoiceAmount),
                       style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
                         fontSize: 10,
@@ -595,7 +596,7 @@ class PrinterService {
     final formattedDate = DateFormat('yyyy/MM/dd').format(recObj.receiptTime);
     final formattedDepDate = DateFormat('yyyy/MM/dd').format(recObj.chequeDate);
     final double fontSize = 10;
-    final double chequeAmount = recObj.chequeAmount;
+    final double chequeAmount =  recObj.chequeAmount;
     final double totalCreditNoteAmount = recObj.creditNotes.fold(
       0.0,
       (sum, note) => sum + note.amount,
@@ -761,9 +762,7 @@ class PrinterService {
                     (item) => _buildTableRow(
                       item.mobileInvNo
                           .toString(), // Assuming mobileInvNo can be directly converted to string
-                      item.invAmount.toStringAsFixed(
-                        2,
-                      ), // Assuming invAmount is a double and needs formatting
+                      formatNumber(item.invAmount), // Assuming invAmount is a double and needs formatting
                     ),
                   ),
                 ],
@@ -880,9 +879,7 @@ class PrinterService {
                     (item) => _buildTableRow(
                       item.mobileInvNo
                           .toString(), // Assuming mobileInvNo can be directly converted to string
-                      item.invAmount.toStringAsFixed(
-                        2,
-                      ), // Assuming invAmount is a double and needs formatting
+                      formatNumber(item.invAmount),  // Assuming invAmount is a double and needs formatting
                     ),
                   ),
                 ],

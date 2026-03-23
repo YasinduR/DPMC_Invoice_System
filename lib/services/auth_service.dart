@@ -77,12 +77,12 @@ class AuthService {
       // final accessTokenExpiry = DateTime.parse(accessTokenExpiryString);
 
       // --- START: Print tokens for testing ---
-      print('--- Login Successful ---');
-      print('Access Token: $accessToken');
-      print('Refresh Token: $refreshToken');
+      //print('--- Login Successful ---');
+      //print('Access Token: $accessToken');
+      //print('Refresh Token: $refreshToken');
       // print('Access Token Expiry (String): $accessTokenExpiryString');
       // print('Access Token Expiry (DateTime): $accessTokenExpiry');
-      print('------------------------');
+      //print('------------------------');
       // --- END: Print tokens for testing ---
 
       // Save tokens securely

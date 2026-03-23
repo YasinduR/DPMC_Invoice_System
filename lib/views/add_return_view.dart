@@ -125,6 +125,17 @@ class _ReturnsViewState extends State<ReturnsView> {
     }
   }
 
+  void _toggleSelectAll(bool? selected) {
+  if (selected == null) return;
+  setState(() {
+    if (selected) {
+      _selectedItems = _items.map((item) => item.copyWith(returnQty: item.requestQty)).toList();
+    } else {
+      _selectedItems.clear();
+    }
+  });
+}
+
   // void _togglePartSelection(String partNo) {
   //   setState(() {
   //     final part = _items.firstWhere((p) => p.partNo == partNo);
@@ -163,10 +174,13 @@ class _ReturnsViewState extends State<ReturnsView> {
     if (_errorMessage != null) {
       return const Center(child: Text("No data Found"));
     }
+    final isAllSelected = _selectedItems.length == _items.length && _items.isNotEmpty;
     return AppDataGrid<ReturnItem>(
       searchHintText: 'Search by Part No or Quantity',
       onFilterPressed: () {},
       filterableFields: const ['partNo', 'requestQty'],
+      isAllSelected:isAllSelected,
+      onSelectAllChanged:_toggleSelectAll,
       items: _items,
       columns: [
         DynamicColumn<ReturnItem>(

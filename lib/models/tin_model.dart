@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/theme/app_colors.dart';
 
@@ -65,7 +66,7 @@ class TinData implements Mappable {
       'orderNumber': orderNumber,
       'payOnDel': payOnDel,
       'paymentStatus': _paymentStatusText,
-      'totalValue': totalValue,
+      'totalValue': formatNumber(totalValue),
       'dealerCode': dealercode,
       'bagCount': bagCount,
       'tagCount': tagCount,

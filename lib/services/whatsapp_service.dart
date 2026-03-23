@@ -4,9 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// WhatsApp integration service for opening conversations and messaging.
 class WhatsAppService {
-  //static const String defaultPhoneNumber = '94762649927';
   static String defaultPhoneNumber = Config.defaultMobileNumber; //  Modified By Yasindu Ganegoda
-
   static Future<bool> openWhatsApp({
     String? phoneNumber, //  Modified By Yasindu Ganegoda
     String? message,
@@ -14,17 +12,13 @@ class WhatsAppService {
     try {
    //  Modified By Yasindu Ganegoda
     final targetNumber = phoneNumber ?? defaultPhoneNumber;
-
     if (targetNumber.isEmpty) {
       return false;
     }
-
       String url = 'https://wa.me/$targetNumber';
-
       if (message != null && message.isNotEmpty) {
         url += '?text=${Uri.encodeComponent(message)}';
       }
-
       if (await canLaunchUrl(Uri.parse(url))) {
         await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
         return true;
@@ -34,10 +28,5 @@ class WhatsAppService {
     } catch (e) {
       return false;
     }
-  }
-
-  /// Opens WhatsApp with just a phone number (no pre-filled message)
-  static Future<bool> openWhatsAppChat(String phoneNumber) async {
-    return openWhatsApp(phoneNumber: phoneNumber);
   }
 }

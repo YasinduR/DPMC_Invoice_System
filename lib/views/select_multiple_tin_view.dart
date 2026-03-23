@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 //import 'package:collection/collection.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
@@ -35,7 +36,6 @@ class _SelectTinsViewState extends State<SelectTinsView> {
 
   late final List<TinData> _addedTins;
   
-  //late final List<TinData> _tins;
 
   bool _isTinSelectionCommitted = false;
 
@@ -45,7 +45,6 @@ class _SelectTinsViewState extends State<SelectTinsView> {
     // Register the reset callback with the controller
     widget.controller.registerResetCallback(_reset);
     _addedTins = List<TinData>.from(widget.tins);
-    //_tins = List<TinData>.from(widget.tins);
   }
 
    // Private reset method
@@ -59,6 +58,7 @@ class _SelectTinsViewState extends State<SelectTinsView> {
   }
 
   void _onTinAdd() {
+    FocusScope.of(context).unfocus();
     if (_selectedTin == null) return;
 
     if (_selectedTin!.paymentStatus != 'A') {
@@ -113,7 +113,7 @@ class _SelectTinsViewState extends State<SelectTinsView> {
           label: 'Total Value',
           flex: 2,
           cellBuilder:
-              (context, item) => Text(item.totalValue.toStringAsFixed(2)),
+              (context, item) => Text(formatNumber(item.totalValue)),
         ),
         DynamicColumn<TinData>(
           label: '',
@@ -125,10 +125,6 @@ class _SelectTinsViewState extends State<SelectTinsView> {
       buttonType: IconButtonType.remove,
 
     );
-            // return IconButton(
-            //   icon: const Icon(Icons.close, color: Colors.grey),
-            //   onPressed: () => _removeTin(item),
-            // );
           },
         ),
       ],

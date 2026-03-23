@@ -76,7 +76,7 @@ dev_dependencies:
   custom_lint: ^0.7.6
   riverpod_lint: ^2.6.5
   top_snackbar_flutter: ^3.1.0
-  device_info_plus: ^10.1.0
+
   
   
 # For information on the generic Dart part of this file, see the
@@ -100,6 +100,7 @@ flutter:
     - assets/images/route.json
     - assets/images/delivery.json
     - assets/images/alarm-clock.json
+    - assets/images/dpmc_splash.JPG
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
