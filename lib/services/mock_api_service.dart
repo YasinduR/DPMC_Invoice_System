@@ -193,6 +193,9 @@ class MockApiService {
       case 'api/screens/list':
         sourceData = DummyData.screens;
         break;
+      case 'api/dispatch-notes/list':   // Added by Darshan R on 23/03/2026
+        sourceData = DummyData.savedDispatchNotes;
+        break;
       case 'api/attendance/list':
         sourceData = DummyData.attendances;
       case 'api/return-request/list':
