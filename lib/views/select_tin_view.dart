@@ -9,13 +9,13 @@ import 'package:myapp/widgets/cards/dealer_info_card.dart';
 // TIN selection view shows after the dealer selection
 class SelectTinNumberView extends StatefulWidget {
   final Dealer dealer;
-  final Function(TinData) onTinNumberSelected;
-  final VoidCallback onSubmit;
+  //final Function(TinData) onTinNumberSelected;
+  final Function(TinData) onSubmit;
   final TinData? selectedTin;
 
   const SelectTinNumberView({
     super.key,
-    required this.onTinNumberSelected,
+    //required this.onTinNumberSelected,
     required this.onSubmit,
     required this.dealer,
     this.selectedTin,
@@ -28,20 +28,22 @@ class SelectTinNumberView extends StatefulWidget {
 class _SelectTinNumberViewState extends State<SelectTinNumberView> {
   final TextEditingController _tinController = TextEditingController();
   bool _isTinSelectionCommitted = false;
+  TinData? _currentSelectedTin;
 
   @override
   void initState() {
     super.initState();
     if (widget.selectedTin != null) {
       _tinController.text = widget.selectedTin!.tinNumber;
+      _currentSelectedTin = widget.selectedTin!;
       _isTinSelectionCommitted = true;
     }
   }
 
   void _onTinSubmitted() {
-    if (widget.selectedTin != null) {
-      if (widget.selectedTin?.paymentStatus == 'A') {
-        widget.onSubmit();
+    if (_currentSelectedTin != null) {
+      if (_currentSelectedTin?.paymentStatus == 'A') {
+        widget.onSubmit(_currentSelectedTin!);
       } else {
         showSnackBar(
           context: context,
@@ -71,14 +73,19 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         children: [
           DealerInfoCard(dealer: widget.dealer),
           const SizedBox(height: 16),
-          
+
           AppSelectionField<TinData>(
             controller: _tinController,
             labelText: 'Select TIN Number',
             selectionSheetTitle: 'Select a TIN Number',
-            layoutType: SelectionSheetLayoutType.card,      // Modified by Darshan R on 18/03/2026
+            layoutType:SelectionSheetLayoutType.card, // Modified by Darshan R on 18/03/2026
             initialValue: widget.selectedTin,
-            onSelected: widget.onTinNumberSelected,
+            //onSelected: widget.onTinNumberSelected,
+            onSelected: (tin) {
+              setState(() {
+                _currentSelectedTin = tin;
+              });
+            },
             onCommitStateChanged: (isCommitted) {
               setState(() {
                 _isTinSelectionCommitted = isCommitted;
@@ -98,9 +105,8 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
                 startColumnIndex: 0,
                 endColumnIndex: 2,
                 coloredCellBuilder: (ctx, t) => Text(t.tinNumber),
-                decorationBuilder: (ctx, t) => BoxDecoration(
-                      color:t.paymentStatusColor,
-                    ),
+                decorationBuilder:
+                    (ctx, t) => BoxDecoration(color: t.paymentStatusColor),
               ),
             ],
           ),
