@@ -6,10 +6,7 @@ import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/views/reprint_invoice-reciept_view.dart';
 //import 'package:myapp/views/reprint_invoice-receipt_view.dart';
-import 'package:myapp/views/reprint_invoice_view.dart';
-import 'package:myapp/views/reprint_reference_view.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
 // class ReprintScreen extends StatefulWidget {
@@ -148,7 +145,7 @@ class _ReprintScreenState extends State<ReprintScreen> {
       );
       // call receipt print service
     } else if (type == 'Advice of Dispatch' && dispatchNote != null) {    // Added by Darshan R on 23/03/2026
-      _printerService.previewDispatchNotePdf(
+      PrinterService.previewDispatchNotePdf(
         dispatchNote,
         details,
       );
