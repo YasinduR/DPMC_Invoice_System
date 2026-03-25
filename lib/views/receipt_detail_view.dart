@@ -15,9 +15,11 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_date_picker.dart';
+import 'package:myapp/widgets/app_radio_group.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
+// Main View of Receipt Screen
 // Main View of Receipt Screen
 class ReceiptDetailsView extends StatefulWidget {
   final Dealer dealer;
@@ -26,6 +28,7 @@ class ReceiptDetailsView extends StatefulWidget {
 
   // --- RECEIVE CONTROLLERS FROM PARENT ---
   final TextEditingController chequeNoController;
+  final TextEditingController chequeNoConfirmController;
   final TextEditingController amountController;
   final TextEditingController tinController;
   final TextEditingController bankController;
@@ -36,6 +39,7 @@ class ReceiptDetailsView extends StatefulWidget {
   final Bank? selectedBank;
   final BankBranch? selectedBranch;
   final DateTime? selectedChequeDate;
+  final String? selectedPODstatus;
   final bool isFormValid;
 
   // --- MULTI-TIN SELECTION ---
@@ -51,6 +55,8 @@ class ReceiptDetailsView extends StatefulWidget {
   final ValueChanged<bool> onBankCommitChanged;
   final ValueChanged<bool> onBranchCommitChanged;
 
+  final ValueChanged<String> onPodStatusToggle;
+
   const ReceiptDetailsView({
     super.key,
     required this.dealer,
@@ -59,16 +65,19 @@ class ReceiptDetailsView extends StatefulWidget {
 
     // Require controllers
     required this.chequeNoController,
+    required this.chequeNoConfirmController,
     required this.amountController,
     required this.tinController,
     required this.bankController,
     required this.branchController,
     required this.selectedTins,
     required this.onTinToggle,
+    required this.onPodStatusToggle,
 
     this.selectedTin,
     this.selectedBank,
     this.selectedBranch,
+    this.selectedPODstatus,
     this.selectedChequeDate,
     required this.isFormValid,
     // required this.onTinSelected,
@@ -80,7 +89,7 @@ class ReceiptDetailsView extends StatefulWidget {
     required this.onBranchCommitChanged,
     required this.onBankTextChanged,
     //required this.onTinTextChanged,
-    required this.onBranchTextChanged,
+    required this.onBranchTextChanged, String? selectedPODStatus,
   });
 
   @override
@@ -105,6 +114,14 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
     });
   }
 
+// @override
+// void didUpdateWidget(ReceiptDetailsView oldWidget) {
+//   super.didUpdateWidget(oldWidget);
+//   if (oldWidget.selectedPODstatus != widget.selectedPODstatus) {
+//     loadTinInvoices(status: widget.selectedPODstatus);
+//   }
+// }
+
   void _validateChildForm() {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (isValid != _isChildFormValid) {
@@ -115,13 +132,17 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
   }
 
   /// Fetches the list of TIN invoices for the specific dealer.
-  Future<void> loadTinInvoices() async {
+  Future<void> loadTinInvoices({String? status}) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
+
+    final statusToUse = status ?? widget.selectedPODstatus?.substring(0,1) ?? 'Y';
+
     final filters = [
       ['dealerAccCode', '=', widget.dealer.accountCode],
+      ['paymentOnDeliveryStatus', '=', statusToUse],
     ];
     final encodedFilters = Uri.encodeComponent(jsonEncode(filters));
     final dataUrl = 'tin-invoices/list?filters=$encodedFilters';
@@ -159,7 +180,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
     }
     return true;
   }
-
+                                                                 
   Widget _buildTinInvoiceArea() {
     if (_isLoading) {
       return const SizedBox(
@@ -217,7 +238,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
             cellBuilder:
                 (context, invoice) => Center(
                   child: AutoSizeText(
-                  formatNumber(invoice.invAmount),
+                    formatNumber(invoice.invAmount),
                     style: const TextStyle(fontSize: 12),
                     minFontSize: 8,
                     maxLines: 1,
@@ -271,6 +292,25 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
             children: [
               DealerInfoCard(dealer: widget.dealer),
               const SizedBox(height: 16),
+              TitledRadioGroup(
+                title: 'Payment On Delivery',
+                options: const ['Yes', 'No'],
+                selectedValue: widget.selectedPODstatus?? 'Yes',
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      if (value == 'Yes') {
+                        loadTinInvoices(status: 'Y');
+                      } else {
+                        loadTinInvoices(status: 'N');
+                      }
+                      widget.onPodStatusToggle(value);
+                    });
+                    //
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
               _buildTinInvoiceArea(),
               const SizedBox(height: 16),
               ActionButton(
@@ -284,6 +324,26 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
               AppTextField(
                 controller: widget.chequeNoController,
                 labelText: 'Cheque No.',
+                onChanged: (value) {
+                  _validateChildForm();
+                },
+              ),
+              const SizedBox(height: 16),
+              AppTextField(
+                controller: widget.chequeNoConfirmController,
+                labelText: 'Cheque No. Confirm',
+                onChanged: (value) {
+                  _validateChildForm();
+                },
+                validator: (value) {
+                  if (value?.isEmpty ?? true) {
+                    return null;
+                  }
+                  if (value != widget.chequeNoController.text) {
+                    return 'Cheque Nos do not match';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               DatePickerField(
@@ -300,11 +360,11 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                 onChanged: widget.onBankTextChanged,
                 onSelected: widget.onBankSelected,
                 onCommitStateChanged: widget.onBankCommitChanged,
-                displayNames: const ['Bank Name' ,'BankCode'],
-                valueFields: const ['bankName','bankCode'],
+                displayNames: const ['Bank Name', 'BankCode'],
+                valueFields: const ['bankName', 'bankCode'],
                 mainField: 'bankName',
                 dataUrl: 'bank/list',
-                layoutType : SelectionSheetLayoutType.card
+                layoutType: SelectionSheetLayoutType.card,
               ),
               const SizedBox(height: 16),
               AppSelectionField<BankBranch>(
@@ -326,7 +386,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                           ['bankCode', '=', widget.selectedBank!.bankCode],
                         ]
                         : [],
-                layoutType : SelectionSheetLayoutType.card
+                layoutType: SelectionSheetLayoutType.card,
                 // ...
               ),
               const SizedBox(height: 16),

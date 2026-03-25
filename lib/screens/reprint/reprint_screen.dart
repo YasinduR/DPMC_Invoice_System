@@ -123,7 +123,7 @@ class _ReprintScreenState extends State<ReprintScreen> {
   void _submit(InvoiceSave? invoice, Receipt? receipt, String type) {
 
     if (type == 'Invoice' && invoice != null) {
-      _printerService.previewThermalInvoicePdf(
+      PrinterService.previewThermalInvoicePdf(
         invoice,
         details,
         isReprint: true,
@@ -135,7 +135,7 @@ class _ReprintScreenState extends State<ReprintScreen> {
         type: MessageType.success,
       );
     } else if (type == 'Receipt' && receipt != null) {
-      _printerService.previewThermalReceiptPdf(
+      PrinterService.previewThermalReceiptPdf(
         receipt,
         details,
         isReprint: true,

@@ -7,6 +7,7 @@ import 'package:myapp/screens/activity_log/activity_log_screen.dart';
 import 'package:myapp/screens/advice_of_dispatch_note/advice_of_dispatch_note_screen.dart';
 import 'package:myapp/screens/attendance/attendance_screen.dart';
 import 'package:myapp/screens/change_password/change_pwd_screen.dart';
+import 'package:myapp/screens/cheque_summary/cheque_summary_screen.dart';
 import 'package:myapp/screens/error_screen/error_screen.dart';
 import 'package:myapp/screens/forget_password/forget_pwd_screen.dart';
 import 'package:myapp/screens/invoice/invoice_screen.dart';
@@ -178,6 +179,8 @@ class AppRouter {
         return (context) => const ActivityLogScreen();
       case '/toDoList':
         return (context) => const ToDoListScreen();
+      case '/chequeSummary':
+        return (context) => const ChequeSummaryScreen();
       default:
         return null; // Return Null for the invalid routes
     }

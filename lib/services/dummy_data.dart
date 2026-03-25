@@ -166,9 +166,57 @@ class DummyData {
   );
 
   static final dummyRec1 = Receipt(
-    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
-    userId: "USR01",
+    dealerName: "Star Distributors (Pvt) Ltd",
+    userId: "2619",
     receiptNo: 'TestS112111',
+    receiptTime: DateTime.now(),
+    dealerCode: 'TestS112111',
+    chequeNumber: 'CH1234567',
+    chequeAmount: 45200.50,
+    chequeDate: DateTime.now(),
+    bankCode: '7010',
+    branchCode: '001',
+    branchName: 'Bank of Ceylon - Colombo',
+    tins: [
+      TinInvoice(
+        tinNo: 'TINBDM2025011500101',
+        mobileInvNo: 'MIN0020512201400010',
+        invAmount: 45200.50,
+        paymentOnDeliveryStatus: 'Y',
+        dealerAccCode: 'AC2000123306',
+      ),
+    ],
+    creditNotes: [],
+  );
+
+   static final dummyRec2 = Receipt(
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    userId: "2619",
+    receiptNo: 'TestS112112',
+    receiptTime: DateTime.now(),
+    dealerCode: 'TestS112111',
+    chequeNumber: '',
+    chequeAmount: 45200.50,
+    chequeDate: DateTime.now(),
+    bankCode: '7010',
+    branchCode: '001',
+    branchName: 'Bank of Ceylon - Colombo',
+    tins: [
+      TinInvoice(
+        tinNo: 'TINBDM2025011500101',
+        mobileInvNo: 'MIN0020512201400010',
+        invAmount: 45200.50,
+        paymentOnDeliveryStatus: 'Y',
+        dealerAccCode: 'AC2000123306',
+      ),
+    ],
+    creditNotes: [],
+  );
+
+   static final dummyRec3 = Receipt(
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    userId: "2619",
+    receiptNo: 'TestS112113',
     receiptTime: DateTime.now(),
     dealerCode: 'TestS112111',
     chequeNumber: '',
@@ -380,8 +428,16 @@ class DummyData {
       iconName: 'task',
     ),
 
-  ];
+        Screen(
+      screenId: '021',
+      screenName: 'chequeSummary',
+      menuId: '01',
+      title: 'Cheque Summary',
+      iconName: 'account_balance',
+    ),
 
+  ];
+//chequeSummary
   static final List<Role> _roles = [
     Role(roleId: '001', roleName: 'Sales-Man'),
     Role(roleId: '002', roleName: 'Admin'),
@@ -419,6 +475,7 @@ class DummyData {
     Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
     Perm(RoleId: '001', ScreenId: '019'), // Actvity Log
     Perm(RoleId: '001', ScreenId: '020'), // To Do List
+    Perm(RoleId: '001', ScreenId: '021'), // To Do List
   ];
 
   static final List<User> _users = [

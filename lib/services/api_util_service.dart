@@ -27,7 +27,7 @@ Future<void> inquire<T extends Mappable>({
 
   try {
     loadingOverlay.show(context);
-          String baseUrl = Config.baseUrl;
+      String baseUrl = Config.baseUrl;
       String url = '${baseUrl}$dataUrl';
     //String url = dataUrl;
     if (filters != null && filters.isNotEmpty) {
