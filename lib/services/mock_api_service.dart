@@ -5,6 +5,7 @@ import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
+import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/return_request_model.dart';
@@ -893,6 +894,7 @@ class MockApiService {
         final dispatchNote = body;
         final updatedDispatchNote = dispatchNote.copyWith(
           dispatchNumber: generateDispatchNumber(),
+          tins: List<TinData>.from(dispatchNote.tins),
         );
         final isDuplicate = DummyData.savedDispatchNotes.any(
           (existing) =>
