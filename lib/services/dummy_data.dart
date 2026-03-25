@@ -1633,6 +1633,50 @@ class DummyData {
         ),
       ],
     ),
+
+    // Entry 8: Payment Approved with remark '-'
+    TinData(
+      tinNumber: 'TIN777666555',
+      orderNumber: 'PADC202510250007',
+      totalValue: 5675.80,
+      paymentStatus: 'A', // Payment Approved
+      dealercode: 'AC2000123307',
+      payOnDel: 'Y',
+      bagCount: 3,
+      tagCount: 6,
+      plasticBCount: 2,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p17',
+          partNo: '6F7108X3',
+          requestQty: 2,
+          price: 675.00,
+          description: 'Alternator',
+        ),
+        Part(
+          id: 'p18',
+          partNo: '3F7108X3',
+          requestQty: 2,
+          price: 545.00,
+          description: 'Starter Motor',
+        ),
+        Part(
+          id: 'p19',
+          partNo: '4F7108X3',
+          requestQty: 4,
+          price: 185.00,
+          description: 'Spark Plugs',
+        ),
+        Part(
+          id: 'p20',
+          partNo: '5F7108X3',
+          requestQty: 1,
+          price: 1250.00,
+          description: 'Ignition Coil Pack',
+        ),
+      ],
+    ),
   ];
 
   // static final List<TinData> _tins = [

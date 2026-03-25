@@ -5,6 +5,8 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/widgets/cards/tin_stats_card.dart';
 
 // TIN selection view shows after the dealer selection
 class SelectTinNumberView extends StatefulWidget {
@@ -28,6 +30,9 @@ class SelectTinNumberView extends StatefulWidget {
 class _SelectTinNumberViewState extends State<SelectTinNumberView> {
   final TextEditingController _tinController = TextEditingController();
   bool _isTinSelectionCommitted = false;
+  int _approvedTins = 0;
+  double _totalPayment = 0;
+  String? _tinError;
 
   @override
   void initState() {
@@ -35,6 +40,45 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
     if (widget.selectedTin != null) {
       _tinController.text = widget.selectedTin!.tinNumber;
       _isTinSelectionCommitted = true;
+    }
+    _loadTinCounts();
+  }
+
+  Future<void> _loadTinCounts() async {
+    await inquire<TinData>(
+      context: context,
+      dataUrl: 'tins/list',
+      filters: {'dealerCode': widget.dealer.accountCode},
+      onSuccess: (List<TinData> data) {
+        if (!mounted) return;
+        final approvedItems = data.where((t) => t.paymentStatus == 'A');
+        setState(() {
+          // _totalTins = data.length;
+          _approvedTins = approvedItems.length;
+          _totalPayment = approvedItems.fold<double>(0.0, (s, t) => s + t.totalValue);
+          _tinError = null;
+        });
+      },
+      onError: (String message) {
+        if (!mounted) return;
+        setState(() {
+          if (message.contains('No data found')) {
+            _approvedTins = 0;
+            _totalPayment = 0.0;
+            _tinError = null;
+          } else {
+            _tinError = message;
+          }
+        });
+      },
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant SelectTinNumberView old) {
+    super.didUpdateWidget(old);
+    if (widget.selectedTin?.tinNumber != old.selectedTin?.tinNumber) {
+      _tinController.text = widget.selectedTin?.tinNumber ?? '';
     }
   }
 
@@ -71,7 +115,14 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         children: [
           DealerInfoCard(dealer: widget.dealer),
           const SizedBox(height: 16),
-          
+
+          TinStatsCard(
+            approved: _approvedTins, 
+            totalPayment: _totalPayment,
+            error: _tinError,
+          ),
+          const SizedBox(height: 12),
+
           AppSelectionField<TinData>(
             controller: _tinController,
             labelText: 'Select TIN Number',
