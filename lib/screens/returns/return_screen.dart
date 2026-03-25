@@ -206,7 +206,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
                 final details = PrintFooterDetail(
                           formNo: 'PA-FO-53',
                           revNo: '01');
-        _printerService.previewThermalReturnPdf(savedReturn,details);
+        PrinterService.previewThermalReturnPdf(savedReturn,details);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');

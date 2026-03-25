@@ -71,6 +71,7 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         children: [
           DealerInfoCard(dealer: widget.dealer),
           const SizedBox(height: 16),
+          
           AppSelectionField<TinData>(
             controller: _tinController,
             labelText: 'Select TIN Number',

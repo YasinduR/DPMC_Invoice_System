@@ -166,7 +166,7 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
           type: MessageType.success,
         );
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
-        await _printerService.previewDispatchNotePdf(
+        await PrinterService.previewDispatchNotePdf(
           savedDispatchNote,
           details,
         );

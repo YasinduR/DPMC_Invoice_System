@@ -197,7 +197,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         //final details = PrintFooterDetail({revNo:'PA-FO-53'});
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
 
-        _printerService.previewThermalInvoicePdf(savedInvoice, details);
+        PrinterService.previewThermalInvoicePdf(savedInvoice, details);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
