@@ -88,19 +88,20 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   // }
   //--- Dealer Selection
 
-  void _onTinSelected(TinData tin) {
-    setState(() {
-      _selectedTin = tin;
-    });
-  }
+  // void _onTinSelected(TinData tin) {
+  //   setState(() {
+  //     _selectedTin = tin;
+  //   });
+  // }
 
-  void _submitTin() {
-    if (_selectedTin != null) {
+  void _submitTin(tin) {
       setState(() {
+        _selectedTin = tin;
+        if (_selectedTin != null) {
         _currentStep = 2; // Move to Create Invoice step
-      });
+      }});
     }
-  }
+  
 
   Future<void> _saveinvoice(List<Part> selectedParts) async {
     final authState = ref.watch(authProvider);
@@ -198,6 +199,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
 
         PrinterService.previewThermalInvoicePdf(savedInvoice, details);
+
+        
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -256,8 +259,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer:
-              null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer:null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
@@ -272,8 +274,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 1:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
-          selectedTin: _selectedTin,
-          onTinNumberSelected: _onTinSelected,
+          selectedTin: null,
+          //onTinNumberSelected: _onTinSelected,
           onSubmit: _submitTin,
         );
         break;
