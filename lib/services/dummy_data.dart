@@ -189,12 +189,39 @@ class DummyData {
     creditNotes: [],
   );
 
+  // Added by Darshan R on 23/03/2026
+  static final dummyDispatchNote1 = DispatchNoteSave(
+    dispatchNumber: "ADN20260323001",
+    tins: [
+      TinData(
+        tinNumber: 'TIN987654321',
+        orderNumber: 'PADC202510250001',
+        totalValue: 1500.75,
+        paymentStatus: 'P',
+        dealercode: 'AC2000123306',
+        payOnDel: 'N',
+        bagCount: 2,
+        tagCount: 4,
+        plasticBCount: 1,
+        remark: 'Handle with care',
+        parts: [],
+      ),
+    ], // Add sample TinData if needed
+    route: "R01",
+    dealerName: "Star Enterprises and Distributors (Pvt) Ltd",
+    dealerVatNo: "VAT123456789",
+    dealerAddress: "No 199/4 Kanaththa Road, Molligoda, Wadduwa",
+    dealerId: "AC2018023904",
+    userId: "USR01",
+    dispatchTime: DateTime.now(),
+  );
+
   static final List<Receipt> _sessionReceipts = [dummyRec1];
   static final List<Return> _sessionReturns = [];
   //static final List<ReturnRequest> _returnRequest = [];
 
   static final List<InvoiceSave> _sessionInvoices = [dummyInv2, dummyInv1];
-  static final List<DispatchNoteSave> _sessionDispatchNotes = [];
+  static final List<DispatchNoteSave> _sessionDispatchNotes = [dummyDispatchNote1];
   //static final List<Attendance> _attendance = [];
 
   static final List<Attendance> _attendance = generateDummyAttendanceData(

@@ -131,7 +131,8 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
 
     final dispatchNoteData = DispatchNoteSave(
       dispatchNumber: 'AAAA',
-      tins: _selectedTins,
+      tins: List<TinData>.from(_selectedTins),
+      // tins: _selectedTins,
       route: currentRegion.region,
       dealerName: _selectedDealer!.name,
       dealerId: _selectedDealer!.accountCode,

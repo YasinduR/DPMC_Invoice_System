@@ -8,6 +8,7 @@ class TitledRadioGroup extends StatelessWidget {
   final String selectedValue;
   final ValueChanged<String?> onChanged;
   final bool enabled; // New parameter to control enablement
+  final bool singleColumn;
 
   const TitledRadioGroup({
     super.key,
@@ -15,7 +16,8 @@ class TitledRadioGroup extends StatelessWidget {
     required this.options,
     required this.selectedValue,
     required this.onChanged,
-    this.enabled = true
+    this.enabled = true,
+    this.singleColumn = false
   });
 
   @override
@@ -34,23 +36,37 @@ class TitledRadioGroup extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Row(
-          children:
-              options.map((option) {
-                return Expanded(
-                  child: RadioListTile<String>(
-                    title: Text(
-                    option, 
-                    style: const TextStyle(fontSize: 12)),
-                    value: option,
-                    groupValue: selectedValue,
-                    onChanged: enabled? onChanged : null,
-                    activeColor: enabled? AppColors.primary: AppColors.disabled,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                );
-              }).toList(),
-        ),
+        // Added by Darshan R on 23/03/2026
+        singleColumn
+            ? Column(
+                children: options
+                    .map((option) => RadioListTile<String>(
+                          title: Text(option, style: const TextStyle(fontSize: 12)),
+                          value: option,
+                          groupValue: selectedValue,
+                          onChanged: enabled ? onChanged : null,
+                          activeColor: enabled ? AppColors.primary : AppColors.disabled,
+                          contentPadding: EdgeInsets.zero,
+                        ))
+                    .toList(),
+              )
+            : Row(
+                children:
+                    options.map((option) {
+                      return Expanded(
+                        child: RadioListTile<String>(
+                          title: Text(
+                          option, 
+                          style: const TextStyle(fontSize: 12)),
+                          value: option,
+                          groupValue: selectedValue,
+                          onChanged: enabled? onChanged : null,
+                          activeColor: enabled? AppColors.primary: AppColors.disabled,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      );
+                    }).toList(),
+              ),
       ],
     );
   }
