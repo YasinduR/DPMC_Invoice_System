@@ -93,19 +93,28 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   // }
 
   // MODIFIED: Added callbacks for TIN selection
-  void _onTinSelected(TinData tin) {
-    setState(() {
-      _selectedTin = tin;
-    });
-  }
+  // void _onTinSelected(TinData tin) {
+  //   setState(() {
+  //     _selectedTin = tin;
+  //   });
+  // }
 
-  void _submitTin() {
-    if (_selectedTin != null) {
+    void _submitTin(tin) {
       setState(() {
+        _selectedTin = tin;
+        if (_selectedTin != null) {
         _currentStep = 2; // Move to Create Invoice step
-      });
+      }});
     }
-  }
+  
+
+  // void _submitTin() {
+  //   if (_selectedTin != null) {
+  //     setState(() {
+  //       _currentStep = 2; // Move to Create Invoice step
+  //     });
+  //   }
+  // }
 
   void _saveReturn(
     List<ReturnItem> selectedItems,
@@ -278,8 +287,8 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       case 1:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
-          selectedTin: _selectedTin,
-          onTinNumberSelected: _onTinSelected,
+          selectedTin: null,
+          //onTinNumberSelected: _onTinSelected,
           onSubmit: _submitTin,
           
         );
