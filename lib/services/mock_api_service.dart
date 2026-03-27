@@ -927,7 +927,7 @@ class MockApiService {
           );
           // New status: 'PR' = proceeded when no parts remain, otherwise keep current (typically 'A')
           final String newStatus =
-              (remainingTotalQty == 0) ? 'PR' : existingTin.paymentStatus;
+              (remainingTotalQty == 0) ? 'Invoiced' : existingTin.paymentStatus;
 
           // Replace the master tin with updated parts and status
           final updatedMasterTin = TinData(
@@ -972,29 +972,103 @@ class MockApiService {
       // Add other cases...
 
       case 'api/return/save':
-        if (body is! Return) {
-          throw Exception(
-            'Invalid type for saving a return. Expected a Receipt object.',
+        print('[MOCK] api/return/save called with body: $body');
+
+        // support Mappable payloads (ReturnPayload etc.) by normalizing to Map
+        dynamic incoming = body;
+        if (incoming is Mappable) incoming = incoming.toMap();
+
+        final String tinNo = (incoming is Map)
+            ? (incoming['tinNo'] ?? incoming['tin_no'] ?? '') as String
+            : (incoming?.tinNo ?? '') as String;
+
+        final List<dynamic> incomingItems = (incoming is Map)
+            ? (incoming['returnItems'] as List<dynamic>?) ?? []
+            : (incoming?.returnItems as List<dynamic>?) ?? [];
+
+        // create a simple saved-return map to return to caller
+        final savedReturn = {
+          'returnId': generateRetNumber(),
+          'tinNo': tinNo,
+          'returnItems': incomingItems,
+          'remark': (incoming is Map) ? (incoming['remark'] ?? '') : (incoming?.remark ?? ''),
+          'dealerCode': (incoming is Map) ? (incoming['dealerCode'] ?? '') : (incoming?.dealerCode ?? ''),
+          'date': DateTime.now().toIso8601String(),
+        };
+
+        // find matching tin in master data by tinNo
+        final tinIndex = DummyData.tins.indexWhere((t) => t.tinNumber == tinNo);
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          // Map existing parts by partNo for quick lookup
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // iterate incoming items (each item may be Part instance, Map or minimal object)
+          for (final dynamic retItem in incomingItems) {
+            if (retItem == null) continue;
+
+            String? key;
+            int qty = 0;
+
+            if (retItem is Part) {
+              key = retItem.partNo;
+              qty = retItem.requestQty;
+            } else if (retItem is Map) {
+              key = (retItem['partNo'] ?? retItem['part_no']) as String?;
+              final dynamic maybeQty = retItem['returnQty'] ?? retItem['requestQty'] ?? retItem['qty'];
+              if (maybeQty is num) qty = maybeQty.toInt();
+            } else {
+              try {
+                key = (retItem as dynamic).partNo as String?;
+                final dynamic maybeQty = (retItem as dynamic).returnQty ?? (retItem as dynamic).requestQty ?? (retItem as dynamic).qty;
+                if (maybeQty is num) qty = maybeQty.toInt();
+              } catch (_) {
+                continue;
+              }
+            }
+
+            if (key == null) continue;
+
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            // Subtract logic: mirror invoice/save behaviour:
+            final int newQty = existingPart.requestQty - qty;
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              // remove part when fully returned
+              existingByPartNo.remove(key);
+            } else {
+              // incoming return exceeds available -> keep behaviour consistent with invoice flow
+              throw Exception(
+                'Returned quantity ($qty) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and update master tin (remove parts fully returned)
+          final List<Part> updatedParts = existingByPartNo.values.toList();
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: existingTin.paymentStatus,
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: updatedParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
           );
+          DummyData.tins[tinIndex] = updatedMasterTin;
         }
 
-        final returnboby = body;
-
-        final updatedReturn = returnboby.copyWith(
-          // Use copyWith
-          returnId: generateRetNumber(),
-        );
-        //invoice.invoiceNumber = generateInvoiceNumber();
-        final isDuplicate = DummyData.returns.any(
-          (existingReturn) => existingReturn.returnId == updatedReturn.returnId,
-        );
-
-        if (isDuplicate) {
-          throw Exception('This return id already exists.');
-        }
-
-        DummyData.returns.add(updatedReturn);
-        return updatedReturn;
+        return savedReturn;
 
       case 'api/return-request/update':
         if (body is! ReturnRequest) {

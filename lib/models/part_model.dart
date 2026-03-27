@@ -53,4 +53,6 @@ class Part implements Mappable {
       discount: discount ?? this.discount,
     );
   }
+
+  int get returnQty => (requestQty - receivedQty).clamp(0, requestQty);
 }

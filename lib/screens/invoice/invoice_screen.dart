@@ -20,8 +20,7 @@ import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 import 'package:myapp/views/add_return_view.dart';
-import 'package:myapp/models/return_item_model.dart';
-import 'package:myapp/models/return_save_model.dart';
+import 'package:myapp/models/return_payload_model.dart';
 import 'package:myapp/models/tin_stat_model.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
@@ -264,36 +263,36 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     }
   }
 
-  Future<void> _saveReturn(List<ReturnItem> items, String type, String reason) async {
+  Future<void> _saveReturn(List<Part> items, String type, String reason) async {
     // simple pass-through to the same save helper used elsewhere
     final authState = ref.watch(authProvider);
     final User? currentUser = authState.currentUser;
     if (currentUser == null) return;
 
-    final saveReturn = Return(
-      returnId: 'AUTO',
-      tinNo: _selectedTin!.tinNumber,
-      route: ref.watch(regionProvider).selectedRegion!.region,
-      dealerName: _selectedDealer!.name,
-      dealerId: _selectedDealer!.accountCode,
-      userId: currentUser.id,
-      returnType: type,
-      returnReason: reason,
-      returnTime: DateTime.now(),
-      returnItems: items,
-    );
+    final Map<String, dynamic> savePayload = {
+      'tinNo': _selectedTin!.tinNumber,
+      'orderNo': _selectedTin!.orderNumber ?? '',
+      // use tin's dealer code (avoid referencing non-existing User.dealerCode)
+      'dealerCode': _selectedTin!.dealercode ?? '',
+      'remark': '', // no invoice-level remark available here
+      'returnItems': items.map((Part p) => {
+        'partNo': p.partNo,
+        'requestQty': p.requestQty,
+        'returnQty': p.requestQty, // <- add this
+      }).toList(),
+      'date': DateTime.now().toIso8601String(),
+    };
 
-    late Return savedReturn;
-
+    // wrap payload in Mappable so save(...) accepts it
     await save(
       context: context,
       user: currentUser,
       activityType: ActivityType.returnSave,
       dataUrl: 'return/save',
-      dataToSave: saveReturn,
+      dataToSave: ReturnPayload(savePayload),
       onReceivedData: (rawReceivedData) {
         try {
-          savedReturn = rawReceivedData;
+          // Handle any response parsing if needed
         } catch (e) {
           showSnackBar(
             context: context,
@@ -310,17 +309,17 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         );
 
         // Print the saved return (same behavior as when saving from ReturnScreen)
-        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
-        try {
-          // Use the static PrinterService helpers (same pattern as ReturnScreen)
-          PrinterService.previewThermalReturnPdf(savedReturn, details);
+        // final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+        // try {
+        //   // Use the static PrinterService helpers (same pattern as ReturnScreen)
+        //   PrinterService.previewThermalReturnPdf(_lastSavedInvoice!, details);
 
-          if (_lastSavedInvoice != null) {
-            PrinterService.previewThermalInvoicePdf(_lastSavedInvoice!, details);
-          }
-        } catch (e) {
-          showSnackBar(context: context, message: 'Print preview failed: $e', type: MessageType.error);
-        }
+        //   if (_lastSavedInvoice != null) {
+        //     PrinterService.previewThermalInvoicePdf(_lastSavedInvoice!, details);
+        //   }
+        // } catch (e) {
+        //   showSnackBar(context: context, message: 'Print preview failed: $e', type: MessageType.error);
+        // }
 
         // Navigate back to Select TIN step after previews complete
         setState(() {
@@ -402,8 +401,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         currentView = ReturnsView(
           dealer: _selectedDealer!,
           tinData: _selectedTin!,
-          pendingParts: _pendingReturnParts, // <-- pass pending parts
-          onSubmit: _saveReturn,
+          onSubmit: (parts, type, reason) => _saveReturn(parts, type, reason),
         );
         break;
       default:

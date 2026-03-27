@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
-import 'package:myapp/models/return_item_model.dart';
-import 'package:myapp/models/return_save_model.dart';
+// import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/return_save_model.dart'; // keep for types elsewhere if needed
+import 'package:myapp/models/return_payload_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
@@ -18,7 +19,9 @@ import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
+import 'package:myapp/services/dummy_data.dart';
 //import 'package:myapp/views/auth_dealer_view.dart';
+import 'package:myapp/models/part_model.dart';
 
 class ReturnScreen extends ConsumerStatefulWidget {
   const ReturnScreen({super.key});
@@ -29,6 +32,7 @@ class ReturnScreen extends ConsumerStatefulWidget {
 
 class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   final PrinterService _printerService = PrinterService();
+  final TextEditingController remarkController = TextEditingController();
   int _currentStep = 0;
   Dealer? _selectedDealer;
   TinData? _selectedTin;
@@ -117,7 +121,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   // }
 
   void _saveReturn(
-    List<ReturnItem> selectedItems,   // convert to part model
+    List<Part> selectedItems,
     String selectedReturnType,
     String selectedReason,
   ) async {
@@ -186,36 +190,125 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
-    final saveReturn = Return(    // part model
-      returnId: 'AAA',
-      tinNo: _selectedTin!.tinNumber,
-      route: currentRegion.region,
-      dealerName: _selectedDealer!.name,
-      dealerId: _selectedDealer!.accountCode,
-      userId: currentUser.id,
-      returnType: selectedReturnType,
-      returnReason: selectedReason,
-      returnTime: DateTime.now(),
-      returnItems: selectedItems,
-    );
+    // final saveReturn = Return(
+    //   returnId: 'AAA',
+    //   tinNo: _selectedTin!.tinNumber,
+    //   route: currentRegion.region,
+    //   dealerName: _selectedDealer!.name,
+    //   dealerId: _selectedDealer!.accountCode,
+    //   userId: currentUser.id,
+    //   returnType: selectedReturnType,
+    //   returnReason: selectedReason,
+    //   returnTime: DateTime.now(),
+    //   returnItems: selectedItems,
+    // );
     
-    late Return savedReturn;
+    // late Return savedReturn;
+
+    // // Before calling save(...) convert selectedItems to a simple Map payload:
+
+    // final Map<String, dynamic> savePayload = {
+    //   'tinNo': _selectedTin?.tinNumber ?? '',
+    //   'dealerCode': currentUser.dealerCode ?? '',
+    //   'remark': remarkController.text,
+    //   'returnItems': selectedItems.map((Part p) => {
+    //     'partNo': p.partNo,
+    //     'requestQty': p.requestQty,
+    //   }).toList(),
+    //   'date': DateTime.now().toIso8601String(),
+    // };
+
+    // await save(
+    //   context: context,
+    //   user: currentUser,
+    //   activityType: ActivityType.returnSave,
+    //   dataUrl: 'return/save',
+    //   dataToSave: savePayload,
+    //   onSuccess: () {
+    //     showSnackBar(
+    //       context: context,
+    //       message: 'Return saved successfully!',
+    //       type: MessageType.success,
+    //     );
+    //             final details = PrintFooterDetail(
+    //                       formNo: 'PA-FO-53',
+    //                       revNo: '01');
+    //     PrinterService.previewThermalReturnPdf(savedReturn,details);
+
+    //     // refresh selected tin from mock master
+    //     final updatedTin = DummyData.tins.firstWhere(
+    //       (t) => t.tinNumber == _selectedTin!.tinNumber || t.orderNumber == _selectedTin!.orderNumber,
+    //       orElse: () => _selectedTin!,
+    //     );
+    //     setState(() {
+    //       _selectedTin = updatedTin;
+    //     });
+    //   },
+    //   onError: (e) {
+    //     String errorMessage = e.toString().replaceFirst('Exception: ', '');
+    //     showSnackBar(
+    //       context: context,
+    //       message: errorMessage,
+    //       type: MessageType.error,
+    //     );
+    //   },
+    //   // rawReceivedData is extrcted from the API BODY on post request response
+    //   onReceivedData: (rawReceivedData) {
+    //     try {
+    //       // Parse the raw map back into a Return object
+    //       savedReturn = rawReceivedData;
+    //     } catch (e) {
+    //       // Handle this error appropriately, perhaps showing an error snackbar
+    //       showSnackBar(
+    //         context: context,
+    //         message: 'Failed to process response for Return: $e',
+    //         type: MessageType.error,
+    //       );
+    //       // Optionally, rethrow or set savedReturn to null to prevent onSuccess from running
+    //     }
+    //   },
+    // );
+    // setState(() {
+    //   _currentStep = 1; // Move to the tinselaction
+    // });
+    // MODIFIED: Directly use Part instances for payload, keep screens using Part
+    // Build a simple payload using Part instances (screens keep using Part)
+    final Map<String, dynamic> savePayload = {
+      'tinNo': _selectedTin?.tinNumber ?? '',
+      'dealerCode': _selectedDealer?.accountCode ?? '',
+      'remark': remarkController.text,
+      'returnItems': selectedItems
+          .map((Part p) => {
+                'partNo': p.partNo,
+                'requestQty': p.requestQty,
+                'returnQty': p.requestQty, // <- add this
+              })
+          .toList(),
+      'date': DateTime.now().toIso8601String(),
+    };
+
     await save(
       context: context,
       user: currentUser,
       activityType: ActivityType.returnSave,
       dataUrl: 'return/save',
-      dataToSave: saveReturn,
+      dataToSave: ReturnPayload(savePayload),
       onSuccess: () {
         showSnackBar(
           context: context,
           message: 'Return saved successfully!',
           type: MessageType.success,
         );
-                final details = PrintFooterDetail(
-                          formNo: 'PA-FO-53',
-                          revNo: '01');
-        PrinterService.previewThermalReturnPdf(savedReturn,details);
+        // Printer preview skipped here (saved response may be dynamic/map).
+ 
+        // refresh selected tin from mock master
+        final updatedTin = DummyData.tins.firstWhere(
+          (t) => t.tinNumber == _selectedTin!.tinNumber || t.orderNumber == _selectedTin!.orderNumber,
+          orElse: () => _selectedTin!,
+        );
+        setState(() {
+          _selectedTin = updatedTin;
+        });
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -227,24 +320,14 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       },
       // rawReceivedData is extrcted from the API BODY on post request response
       onReceivedData: (rawReceivedData) {
-        try {
-          // Parse the raw map back into a Return object
-          savedReturn = rawReceivedData;
-        } catch (e) {
-          // Handle this error appropriately, perhaps showing an error snackbar
-          showSnackBar(
-            context: context,
-            message: 'Failed to process response for Return: $e',
-            type: MessageType.error,
-          );
-          // Optionally, rethrow or set savedReturn to null to prevent onSuccess from running
-        }
-      },
-    );
-    setState(() {
-      _currentStep = 1; // Move to the tinselaction
-    });
-  }
+        // received data is available as rawReceivedData (may be Map). Keep for debugging if needed.
+        // final dynamic resp = rawReceivedData;
+       },
+     );
+     setState(() {
+       _currentStep = 1; // Move to the tinselaction
+     });
+   }
 
   void _goBack() {
     if (_currentStep > 0) {
