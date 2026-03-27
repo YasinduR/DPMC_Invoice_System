@@ -1,6 +1,7 @@
+import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/screen_model.dart';
 
-class User {
+class User extends Mappable{
   final String id;
   final String username;
   final String email;

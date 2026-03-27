@@ -27,6 +27,7 @@ class IconMapper {
     'home': Icons.home,
     'task': Icons.task, 
     'account_balance':Icons.account_balance,
+    'supervisor_account':Icons.supervisor_account,
     // Added for general security settings
     // add icon name defined : Icon files
   };

@@ -24,7 +24,7 @@ class MockApiService {
   static const String _jwtSecretKey = 'DPMC-INV-SYSTEM'; // Change The Key Later
   // static String _pendingOtp = '';
   static final Map<String, Map<String, dynamic>> _otpStore = {};
-  static String devOtp = ''; // DEV ONLY 
+  static String devOtp = ''; // DEV ONLY
 
   static const List<String> _publicEndpoints = [
     // Where We dont need access token
@@ -194,7 +194,7 @@ class MockApiService {
       case 'api/screens/list':
         sourceData = DummyData.screens;
         break;
-      case 'api/dispatch-notes/list':   // Added by Darshan R on 23/03/2026
+      case 'api/dispatch-notes/list': // Added by Darshan R on 23/03/2026
         sourceData = DummyData.savedDispatchNotes;
         break;
       case 'api/attendance/list':
@@ -205,6 +205,49 @@ class MockApiService {
         sourceData = DummyData.employees;
       case 'api/receipts/list':
         sourceData = DummyData.receipts;
+      case 'api/assignee/list':
+        sourceData = DummyData.assignees;
+
+        // final filtersJson = uri.queryParameters['filters'];
+        // if (filtersJson == null) {
+        //   sourceData = [];
+        //   break;
+        // }
+
+        // final filters = jsonDecode(filtersJson) as List;
+        // // Assuming the filter is always ['supervisorId', '=', value]
+        // final supervisorFilter = filters.firstWhere(
+        //   (f) => f[0] == 'supervisorId',
+        //   orElse: () => null,
+        // );
+
+        // if (supervisorFilter == null) {
+        //   sourceData = [];
+        //   break;
+        // }
+
+        // final supervisorId = supervisorFilter[2]; // the value
+
+        // final assigneeIds =
+        //     DummyData.assignees
+        //         .where((a) => a.supervisorId == supervisorId)
+        //         .map((a) => a.assigneeId)
+        //         .toList();
+
+        // sourceData =
+        //     DummyData.users.where((u) => assigneeIds.contains(u.id)).toList();
+        // break;
+
+      //   final assigneeIds = DummyData.assignees
+      //       .where((a) => a.supervisorId == supervisorId)
+      //       .map((a) => a.assigneeId)
+      //       .toList();
+
+      // sourceData = DummyData.users
+      //     .where((u) => assigneeIds.contains(u.id)) // 👈 fix
+      //     .toList();
+
+      //   break;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
     }
@@ -267,6 +310,14 @@ class MockApiService {
                     return comparableItemValue.compareTo(comparableValue) <= 0;
                   }
                   return false;
+
+                case 'in':
+              if (value is List) {
+                return value.any((v) =>
+                  comparableItemValue.toString().toLowerCase() == v.toString().toLowerCase());
+                }
+              return false;
+
                 default:
                   return false; // Unknown operator
               }
@@ -708,7 +759,7 @@ class MockApiService {
             // Handle cases where phone number is less than 3 digits
             lastThreeDigits = phoneNumber;
           }
-          
+
           // generate pending OTP - Added By Darshan R on 12/03/2026
           final String otp = (Random().nextInt(900000) + 100000).toString();
           _otpStore[username!] = {
@@ -717,14 +768,14 @@ class MockApiService {
             'used': false,
             'failedAttempts': 0,
           };
-          devOtp = otp; // DEV ONLY 
+          devOtp = otp; // DEV ONLY
 
           // Construct the message
           return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
         } catch (e) {
           rethrow;
         }
-      
+
       case 'api/user/verify-otp':
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid body for OTP verification.');
@@ -736,30 +787,34 @@ class MockApiService {
         }
         final otpRecord = _otpStore[otpUsername];
         if (otpRecord == null) {
-          throw UnauthorisedException('No OTP request found. Please try again.');
+          throw UnauthorisedException(
+            'No OTP request found. Please try again.',
+          );
         }
         if (otpRecord['used'] as bool) {
           throw UnauthorisedException('OTP has already been used.');
         }
         if (DateTime.now().isAfter(otpRecord['expiry'] as DateTime)) {
           _otpStore.remove(otpUsername);
-          throw UnauthorisedException('OTP has expired. Please request a new one.');
+          throw UnauthorisedException(
+            'OTP has expired. Please request a new one.',
+          );
         }
         if (otpRecord['otp'] as String != otpToken) {
           final int attempts = (otpRecord['failedAttempts'] as int) + 1;
-        _otpStore[otpUsername]!['failedAttempts'] = attempts;
+          _otpStore[otpUsername]!['failedAttempts'] = attempts;
 
-        if (attempts >= 3) {
-          _otpStore.remove(otpUsername);
+          if (attempts >= 3) {
+            _otpStore.remove(otpUsername);
+            throw UnauthorisedException(
+              'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+            );
+          }
+
+          final int remaining = 3 - attempts;
           throw UnauthorisedException(
-            'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+            'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
           );
-        }
-
-        final int remaining = 3 - attempts;
-        throw UnauthorisedException(
-          'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
-        );
         }
         _otpStore[otpUsername]!['used'] = true;
         return await _generateResetToken(otpUsername);
@@ -782,13 +837,17 @@ class MockApiService {
             throw UnauthorisedException('Reset token does not match the user.');
           }
         } on JWTExpiredException {
-          throw UnauthorisedException('Reset token has expired. Please start over.');
+          throw UnauthorisedException(
+            'Reset token has expired. Please start over.',
+          );
         } on UnauthorisedException {
           rethrow;
-        }on AccountLockedException {
-          rethrow; 
+        } on AccountLockedException {
+          rethrow;
         } catch (_) {
-          throw UnauthorisedException('Invalid reset token. Please start over.');
+          throw UnauthorisedException(
+            'Invalid reset token. Please start over.',
+          );
         }
 
         try {
