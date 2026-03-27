@@ -117,7 +117,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   // }
 
   void _saveReturn(
-    List<ReturnItem> selectedItems,
+    List<ReturnItem> selectedItems,   // convert to part model
     String selectedReturnType,
     String selectedReason,
   ) async {
@@ -186,7 +186,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
-    final saveReturn = Return(
+    final saveReturn = Return(    // part model
       returnId: 'AAA',
       tinNo: _selectedTin!.tinNumber,
       route: currentRegion.region,

@@ -12,6 +12,8 @@ import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
+import 'package:myapp/models/part_model.dart';
+
 
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
@@ -883,6 +885,67 @@ class MockApiService {
         }
 
         DummyData.savedInvoices.add(updatedInvoice);
+
+        final tinIndex = DummyData.tins.indexWhere(
+          (t) =>
+              t.tinNumber == updatedInvoice.tinNo ||
+              t.orderNumber == updatedInvoice.orderNo,
+        );
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          // Map existing parts by partNo for quick lookup
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // Subtract submitted quantities from master parts
+          for (final subPart in updatedInvoice.parts) {
+            final key = subPart.partNo;
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            final newQty = existingPart.requestQty - subPart.requestQty;
+
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              // exactly fulfilled — remove the part
+              existingByPartNo.remove(key);
+            } else {
+              throw Exception(
+                'Submitted quantity (${subPart.requestQty}) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and compute remaining total qty
+          final List<Part> remainingParts = existingByPartNo.values.toList();
+          final int remainingTotalQty = remainingParts.fold<int>(
+            0,
+            (int sum, Part p) => sum + p.requestQty,
+          );
+          // New status: 'PR' = proceeded when no parts remain, otherwise keep current (typically 'A')
+          final String newStatus =
+              (remainingTotalQty == 0) ? 'PR' : existingTin.paymentStatus;
+
+          // Replace the master tin with updated parts and status
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: newStatus,
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: remainingParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
+          );
+
+          DummyData.tins[tinIndex] = updatedMasterTin;
+        }
         return updatedInvoice;
 
       case 'api/dispatchNote/save':

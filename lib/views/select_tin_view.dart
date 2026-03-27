@@ -7,6 +7,7 @@ import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/cards/tin_stats_card.dart';
+import 'package:myapp/models/tin_stat_model.dart';
 
 // TIN selection view shows after the dealer selection
 class SelectTinNumberView extends StatefulWidget {
@@ -30,9 +31,7 @@ class SelectTinNumberView extends StatefulWidget {
 class _SelectTinNumberViewState extends State<SelectTinNumberView> {
   final TextEditingController _tinController = TextEditingController();
   bool _isTinSelectionCommitted = false;
-  int _approvedTins = 0;
-  double _totalPayment = 0;
-  String? _tinError;
+  TinStat _tinStat = const TinStat();
   TinData? _currentSelectedTin;
 
   @override
@@ -53,23 +52,17 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
       filters: {'dealerCode': widget.dealer.accountCode},
       onSuccess: (List<TinData> data) {
         if (!mounted) return;
-        final approvedItems = data.where((t) => t.paymentStatus == 'A');
         setState(() {
-          // _totalTins = data.length;
-          _approvedTins = approvedItems.length;
-          _totalPayment = approvedItems.fold<double>(0.0, (s, t) => s + t.totalValue);
-          _tinError = null;
+          _tinStat = TinStat.fromTinList(data);
         });
       },
       onError: (String message) {
         if (!mounted) return;
         setState(() {
           if (message.contains('No data found')) {
-            _approvedTins = 0;
-            _totalPayment = 0.0;
-            _tinError = null;
+            _tinStat = const TinStat();
           } else {
-            _tinError = message;
+            _tinStat = TinStat(error: message);
           }
         });
       },
@@ -119,9 +112,9 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
           const SizedBox(height: 16),
 
           TinStatsCard(
-            approved: _approvedTins, 
-            totalPayment: _totalPayment,
-            error: _tinError,
+            stats: _tinStat,
+            firstLabel: 'Pending Invoices',
+            secondLabel: 'Pending Value',
           ),
           const SizedBox(height: 12),
 
