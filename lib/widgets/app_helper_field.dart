@@ -7,6 +7,8 @@ import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/models/region_model.dart';
+import 'package:myapp/models/assignee_model.dart';
 import 'package:myapp/models/return_request_model.dart';
 //import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
@@ -417,6 +419,24 @@ class _AppSelectionFieldState<T extends Mappable>
                     );
                   },
                 );
+                case Assignee:
+                return CardSelectionSheet(
+                  title: widget.selectionSheetTitle,
+                  initialSearchQuery: initialQuery,
+                  valueFields: widget.valueFields,
+                  items: items as List<Assignee>,
+                  cardBuilder: (context, data, onTap) {
+                    return SelectionCard(
+                      onTap: onTap,
+                      data: data,
+                      title: (t) => t.name,
+                      value: (t) => t.assigneeId,
+                      titleRatio: 0.7,
+                    );
+                  },
+                );
+
+
               default:
                 break;
             }

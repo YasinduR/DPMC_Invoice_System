@@ -24,6 +24,7 @@ import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/security_setting/security_setting_screen.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
 import 'package:myapp/screens/splash_screen/splash_screen.dart';
+import 'package:myapp/screens/supervisor_summary/supervisor_summary_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 import 'package:myapp/screens/test_screens/test_print.dart';
 import 'package:myapp/screens/to_do_list/to_do_list_screen.dart';
@@ -181,6 +182,8 @@ class AppRouter {
         return (context) => const ToDoListScreen();
       case '/chequeSummary':
         return (context) => const ChequeSummaryScreen();
+      case '/supervisorSummary':
+        return (context) => const SupervisorSummaryScreen();
       default:
         return null; // Return Null for the invalid routes
     }
