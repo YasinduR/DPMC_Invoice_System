@@ -104,7 +104,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
 
     if (newQuantity != null && mounted) {
-      final newSelectedPart = sourcePart.copyWith(requestQty: newQuantity);
+      final newSelectedPart = sourcePart.copyWith(receivedQty: sourcePart.requestQty - newQuantity);
       setState(() {
         _selectedItems.add(newSelectedPart);
       });
@@ -135,7 +135,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     setState(() {
       if (selected) {
         _selectedItems =
-            _items.map((item) => item.copyWith(requestQty: item.requestQty)).toList();
+            _items.map((item) => item.copyWith(receivedQty: 0)).toList();
       } else {
         _selectedItems.clear();
       }
@@ -195,7 +195,7 @@ class _ReturnsViewState extends State<ReturnsView> {
             final selectedPart =
                 _selectedItems.firstWhereOrNull((p) => p.partNo == part.partNo);
             return QuantitySelector(
-              value: selectedPart?.requestQty ?? 0,
+              value: selectedPart?.returnQty ?? 0,
               enabled: selectedPart != null,
               dialogTitle: 'Return Quantity',
               maxQuantity: part.requestQty,
@@ -204,7 +204,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                   final sp = selectedPart!;
                   final idx = _selectedItems.indexWhere((p) => p.partNo == sp.partNo);
                   if (idx != -1) {
-                    _selectedItems[idx] = sp.copyWith(requestQty: newValue);
+                    _selectedItems[idx] = sp.copyWith(receivedQty: sp.requestQty - newValue);
                   }
                 });
               },

@@ -190,88 +190,6 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
-    // final saveReturn = Return(
-    //   returnId: 'AAA',
-    //   tinNo: _selectedTin!.tinNumber,
-    //   route: currentRegion.region,
-    //   dealerName: _selectedDealer!.name,
-    //   dealerId: _selectedDealer!.accountCode,
-    //   userId: currentUser.id,
-    //   returnType: selectedReturnType,
-    //   returnReason: selectedReason,
-    //   returnTime: DateTime.now(),
-    //   returnItems: selectedItems,
-    // );
-    
-    // late Return savedReturn;
-
-    // // Before calling save(...) convert selectedItems to a simple Map payload:
-
-    // final Map<String, dynamic> savePayload = {
-    //   'tinNo': _selectedTin?.tinNumber ?? '',
-    //   'dealerCode': currentUser.dealerCode ?? '',
-    //   'remark': remarkController.text,
-    //   'returnItems': selectedItems.map((Part p) => {
-    //     'partNo': p.partNo,
-    //     'requestQty': p.requestQty,
-    //   }).toList(),
-    //   'date': DateTime.now().toIso8601String(),
-    // };
-
-    // await save(
-    //   context: context,
-    //   user: currentUser,
-    //   activityType: ActivityType.returnSave,
-    //   dataUrl: 'return/save',
-    //   dataToSave: savePayload,
-    //   onSuccess: () {
-    //     showSnackBar(
-    //       context: context,
-    //       message: 'Return saved successfully!',
-    //       type: MessageType.success,
-    //     );
-    //             final details = PrintFooterDetail(
-    //                       formNo: 'PA-FO-53',
-    //                       revNo: '01');
-    //     PrinterService.previewThermalReturnPdf(savedReturn,details);
-
-    //     // refresh selected tin from mock master
-    //     final updatedTin = DummyData.tins.firstWhere(
-    //       (t) => t.tinNumber == _selectedTin!.tinNumber || t.orderNumber == _selectedTin!.orderNumber,
-    //       orElse: () => _selectedTin!,
-    //     );
-    //     setState(() {
-    //       _selectedTin = updatedTin;
-    //     });
-    //   },
-    //   onError: (e) {
-    //     String errorMessage = e.toString().replaceFirst('Exception: ', '');
-    //     showSnackBar(
-    //       context: context,
-    //       message: errorMessage,
-    //       type: MessageType.error,
-    //     );
-    //   },
-    //   // rawReceivedData is extrcted from the API BODY on post request response
-    //   onReceivedData: (rawReceivedData) {
-    //     try {
-    //       // Parse the raw map back into a Return object
-    //       savedReturn = rawReceivedData;
-    //     } catch (e) {
-    //       // Handle this error appropriately, perhaps showing an error snackbar
-    //       showSnackBar(
-    //         context: context,
-    //         message: 'Failed to process response for Return: $e',
-    //         type: MessageType.error,
-    //       );
-    //       // Optionally, rethrow or set savedReturn to null to prevent onSuccess from running
-    //     }
-    //   },
-    // );
-    // setState(() {
-    //   _currentStep = 1; // Move to the tinselaction
-    // });
-    // MODIFIED: Directly use Part instances for payload, keep screens using Part
     // Build a simple payload using Part instances (screens keep using Part)
     final Map<String, dynamic> savePayload = {
       'tinNo': _selectedTin?.tinNumber ?? '',
@@ -281,7 +199,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           .map((Part p) => {
                 'partNo': p.partNo,
                 'requestQty': p.requestQty,
-                'returnQty': p.requestQty, // <- add this
+                'returnQty': p.returnQty, // <- mapped correctly
               })
           .toList(),
       'date': DateTime.now().toIso8601String(),
@@ -299,7 +217,18 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           message: 'Return saved successfully!',
           type: MessageType.success,
         );
-        // Printer preview skipped here (saved response may be dynamic/map).
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+        PrinterService.previewThermalReturnPdf(
+          route: currentRegion.region,
+          tinNo: _selectedTin!.tinNumber,
+          dealerName: _selectedDealer!.name,
+          userId: currentUser.id,
+          returnTime: DateTime.now(),
+          returnType: selectedReturnType,
+          returnReason: selectedReason,
+          returnItems: selectedItems,
+          details: details,
+        );
  
         // refresh selected tin from mock master
         final updatedTin = DummyData.tins.firstWhere(

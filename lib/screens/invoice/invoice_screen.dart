@@ -267,6 +267,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     // simple pass-through to the same save helper used elsewhere
     final authState = ref.watch(authProvider);
     final User? currentUser = authState.currentUser;
+    final Region? currentRegion = ref.watch(regionProvider).selectedRegion;
     if (currentUser == null) return;
 
     final Map<String, dynamic> savePayload = {
@@ -278,7 +279,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       'returnItems': items.map((Part p) => {
         'partNo': p.partNo,
         'requestQty': p.requestQty,
-        'returnQty': p.requestQty, // <- add this
+        'returnQty': p.returnQty, // <- mapped correctly
       }).toList(),
       'date': DateTime.now().toIso8601String(),
     };
@@ -309,17 +310,27 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         );
 
         // Print the saved return (same behavior as when saving from ReturnScreen)
-        // final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
-        // try {
-        //   // Use the static PrinterService helpers (same pattern as ReturnScreen)
-        //   PrinterService.previewThermalReturnPdf(_lastSavedInvoice!, details);
-
-        //   if (_lastSavedInvoice != null) {
-        //     PrinterService.previewThermalInvoicePdf(_lastSavedInvoice!, details);
-        //   }
-        // } catch (e) {
-        //   showSnackBar(context: context, message: 'Print preview failed: $e', type: MessageType.error);
-        // }
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+        try {
+          // Use the static PrinterService helpers (same pattern as ReturnScreen)
+          PrinterService.previewThermalReturnPdf(
+            route: currentRegion?.region ?? '',
+            tinNo: _selectedTin!.tinNumber,
+            dealerName: _selectedDealer!.name,
+            userId: currentUser.id,
+            returnTime: DateTime.now(),
+            returnType: type,
+            returnReason: reason,
+            returnItems: items,
+            details: details,
+          );
+        
+          if (_lastSavedInvoice != null) {
+            PrinterService.previewThermalInvoicePdf(_lastSavedInvoice!, details);
+          }
+        } catch (e) {
+          showSnackBar(context: context, message: 'Print preview failed: $e', type: MessageType.error);
+        }
 
         // Navigate back to Select TIN step after previews complete
         setState(() {

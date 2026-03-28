@@ -153,14 +153,21 @@ class PrinterService {
   // End of Helpers
   // PDF Previews
   // --- Return PDF method ---
-  static Future<void> previewThermalReturnPdf(
-    Return returnObj,
-    PrintFooterDetail details,
-  ) async {
+  static Future<void> previewThermalReturnPdf({
+    required String route,
+    required String tinNo,
+    required String dealerName,
+    required String userId,
+    required DateTime returnTime,
+    required String returnType,
+    required String returnReason,
+    required List<Part> returnItems,
+    required PrintFooterDetail details,
+  }) async {
     final pdf = pw.Document();
     final formattedReturnDate = DateFormat(
       'yyyy/MM/dd',
-    ).format(returnObj.returnTime);
+    ).format(returnTime);
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.roll80,
@@ -182,15 +189,15 @@ class PrinterService {
                   2: const pw.FlexColumnWidth(5.5), // For values
                 },
                 children: [
-                  _buildDetailTableRow('Route', returnObj.route.toUpperCase()),
-                  _buildDetailTableRow('TIN No', returnObj.tinNo.toUpperCase()),
+                  _buildDetailTableRow('Route', route.toUpperCase()),
+                  _buildDetailTableRow('TIN No', tinNo.toUpperCase()),
                   _buildDetailTableRow(
                     'Dealer Name',
-                    returnObj.dealerName.toUpperCase(),
+                    dealerName.toUpperCase(),
                   ),
                   _buildDetailTableRow(
                     'User',
-                    returnObj.userId.toUpperCase(),
+                    userId.toUpperCase(),
                   ), // Using userId as per your model
                   _buildDetailTableRow(
                     'Return Date',
@@ -202,7 +209,7 @@ class PrinterService {
               pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
-                  'Return Type : ${returnObj.returnType}',
+                  'Return Type : $returnType',
                   style: pw.TextStyle(
                     fontWeight: pw.FontWeight.bold,
                     fontSize: 10,
@@ -212,7 +219,7 @@ class PrinterService {
               pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Text(
-                  'Return Reason : ${returnObj.returnReason}',
+                  'Return Reason : $returnReason',
                   style: pw.TextStyle(
                     fontWeight: pw.FontWeight.bold,
                     fontSize: 10,
@@ -227,7 +234,7 @@ class PrinterService {
               pw.Table.fromTextArray(
                 headers: ['Part No', 'Req. Qty', 'Ret. Qty'],
                 data:
-                    returnObj.returnItems.map((item) {
+                    returnItems.map((item) {
                       return [
                         item.partNo,
                         item.requestQty.toString(),
