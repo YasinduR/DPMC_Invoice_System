@@ -22,6 +22,7 @@ import 'package:myapp/services/dummy_data.dart';
 import 'package:myapp/views/add_return_view.dart';
 import 'package:myapp/models/return_payload_model.dart';
 import 'package:myapp/models/tin_stat_model.dart';
+import 'package:myapp/models/return_save_model.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -313,17 +314,19 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
         try {
           // Use the static PrinterService helpers (same pattern as ReturnScreen)
-          PrinterService.previewThermalReturnPdf(
-            route: currentRegion?.region ?? '',
+          final savedReturn = Return(
+            returnId: 'AAA',
             tinNo: _selectedTin!.tinNumber,
+            route: currentRegion?.region ?? '',
             dealerName: _selectedDealer!.name,
+            dealerId: _selectedDealer!.accountCode,
             userId: currentUser.id,
-            returnTime: DateTime.now(),
             returnType: type,
             returnReason: reason,
+            returnTime: DateTime.now(),
             returnItems: items,
-            details: details,
           );
+          PrinterService.previewThermalReturnPdf(savedReturn, details);
         
           if (_lastSavedInvoice != null) {
             PrinterService.previewThermalInvoicePdf(_lastSavedInvoice!, details);

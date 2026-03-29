@@ -218,17 +218,19 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           type: MessageType.success,
         );
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
-        PrinterService.previewThermalReturnPdf(
-          route: currentRegion.region,
+        final saveReturn = Return(
+          returnId: 'AAA',
           tinNo: _selectedTin!.tinNumber,
+          route: currentRegion.region,
           dealerName: _selectedDealer!.name,
+          dealerId: _selectedDealer!.accountCode,
           userId: currentUser.id,
-          returnTime: DateTime.now(),
           returnType: selectedReturnType,
           returnReason: selectedReason,
+          returnTime: DateTime.now(),
           returnItems: selectedItems,
-          details: details,
         );
+        PrinterService.previewThermalReturnPdf(saveReturn, details);
  
         // refresh selected tin from mock master
         final updatedTin = DummyData.tins.firstWhere(
