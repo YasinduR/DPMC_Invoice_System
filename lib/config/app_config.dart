@@ -7,4 +7,7 @@ class Config{
   // API Configuration
   static String get baseUrl => dotenv.get('BASE_URL', fallback: '');
   static String get defaultMobileNumber => dotenv.get('MOBILE_NUM', fallback: '');
+
+  // E-Bill Configuration
+  static String get billWebUrl => dotenv.get('BILL_WEB_URL', fallback: '');
 }

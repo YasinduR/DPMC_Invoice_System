@@ -19,6 +19,7 @@ import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 //import 'package:myapp/views/auth_dealer_view.dart';
+import 'package:myapp/services/bill_service.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -189,7 +190,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           );
         }
       },
-      onSuccess: () {
+      onSuccess: () async {
         showSnackBar(
           context: context,
           message: 'Invoice saved successfully!',
@@ -198,7 +199,15 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         //final details = PrintFooterDetail({revNo:'PA-FO-53'});
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
 
-        PrinterService.previewThermalInvoicePdf(savedInvoice, details);
+        await PrinterService.previewThermalInvoicePdf(savedInvoice, details);
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        await BillService.openInBrowser(
+          customerName: _selectedDealer!.name,
+          totalAmount: total,
+          orderId: _selectedTin!.orderNumber,
+        );
 
         
       },
