@@ -33,7 +33,7 @@ class TinData implements Mappable {
     
   });
 
-  String get _paymentStatusText {
+  String get paymentStatusText {
     switch (paymentStatus) {
       case 'P':
         return 'Pending';
@@ -69,7 +69,7 @@ class TinData implements Mappable {
       'tinNumber': tinNumber,
       'orderNumber': orderNumber,
       'payOnDel': payOnDel,
-      'paymentStatus': _paymentStatusText,
+      'paymentStatus': paymentStatusText,
       'totalValue': formatNumber(totalValue),
       'dealerCode': dealercode,
       'bagCount': bagCount,

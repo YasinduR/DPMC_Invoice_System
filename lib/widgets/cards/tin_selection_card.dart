@@ -15,18 +15,18 @@ class TinSelectionCard extends StatelessWidget {
     required this.onTap,
   });
 
-  String _getPaymentStatusText(String status) {
-    switch (status) {
-      case 'P':
-        return 'Pending';
-      case 'C':
-        return 'Completed';
-      case 'A':
-        return 'Approved';
-      default:
-        return status;
-    }
-  }
+  // String _getPaymentStatusText(String status) {
+  //   switch (status) {
+  //     case 'P':
+  //       return 'Pending';
+  //     case 'C':
+  //       return 'Completed';
+  //     case 'A':
+  //       return 'Approved';
+  //     default:
+  //       return status;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class TinSelectionCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getPaymentStatusText(tin.paymentStatus),
+                      tin.paymentStatusText,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

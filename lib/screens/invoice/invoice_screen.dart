@@ -71,10 +71,10 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   Dealer? _selectedDealer;
   void _onDealerSelected(Dealer dealer) {
     //setState(() {
-      _selectedDealer = dealer;
-      if (_selectedDealer != null) {
-        _loadTinSelectionPage();
-      }
+    _selectedDealer = dealer;
+    if (_selectedDealer != null) {
+      _loadTinSelectionPage();
+    }
     //});
   }
 
@@ -318,8 +318,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         await PrinterService.previewThermalInvoicePdf(savedInvoice, details);
         if (!isAllRecieved) {
           _loadReturnPage();
-        }
-        else{
+        } else {
           _loadTinSelectionPage();
         }
         return;
@@ -453,6 +452,10 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
 
   void _goBack() {
     if (_currentStep > 0) {
+      if (_currentStep == 3) {
+        _loadTinSelectionPage();
+        return;
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _currentStep--;
@@ -552,4 +555,4 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       child: currentView,
     );
   }
-} 
+}
