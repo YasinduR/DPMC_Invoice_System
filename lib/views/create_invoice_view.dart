@@ -5,6 +5,7 @@ import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/tin_model.dart';
+import 'package:myapp/models/tin_stat_model.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
@@ -13,18 +14,21 @@ import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/cards/info_card.dart';
+import 'package:myapp/widgets/cards/tin_stats_card.dart';
 
 // Final view of Invoice Screen Shows after Dealer TIN selections
 class CreateInvoiceView extends StatefulWidget {
   final Dealer dealer;
   final TinData tindata;
   final void Function(List<Part>) onSubmit;
+  final TinStat? tinStat;
 
   const CreateInvoiceView({
     super.key,
     required this.dealer,
     required this.tindata,
     required this.onSubmit,
+    this.tinStat,
   });
 
   @override
@@ -67,19 +71,19 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
     }
   }
 
-void _toggleSelectAll(bool? selected) {
-  if (selected == null) return;
-  setState(() {
-    if (selected) {
-      _selectedParts = _parts.map((part) {
-        final defaultQty =  part.requestQty ?? 1;
-        return part.copyWith(receivedQty: defaultQty);
-      }).toList();
-    } else {
-      _selectedParts.clear();
-    }
-  });
-}
+  void _toggleSelectAll(bool? selected) {
+    if (selected == null) return;
+    setState(() {
+      if (selected) {
+        _selectedParts = _parts.map((part) {
+          final defaultQty = part.requestQty ?? 1;
+          return part.copyWith(receivedQty: defaultQty);
+        }).toList();
+      } else {
+        _selectedParts.clear();
+      }
+    });
+  }
 
   // Future<void> _loadParts() async {
   //   setState(() {
@@ -236,12 +240,18 @@ void _toggleSelectAll(bool? selected) {
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              DealerInfoCard(dealer: widget.dealer),
-              const SizedBox(height: 12),
-              InfoDisplay(info: widget.tindata.tinNumber),
-              const SizedBox(height: 12),
-              SizedBox(height: 300.0, child: _buildPartList()),
-            ],
+               DealerInfoCard(dealer: widget.dealer),
+               const SizedBox(height: 12),
+               InfoDisplay(info: widget.tindata.tinNumber),
+               const SizedBox(height: 12),
+              TinStatsCard(
+                   stats: widget.tinStat!,
+                   firstLabel: 'Pending Invoices',
+                   secondLabel: 'Pending Value',
+                 ),
+                 const SizedBox(height: 12),
+               SizedBox(height: 300.0, child: _buildPartList()),
+             ],
           ),
         ),
 

@@ -1,6 +1,6 @@
 // Use to Save/Print of return saved
 import 'package:myapp/contracts/mappable.dart';
-import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/part_model.dart';
 
 // --- Return Model ---
 class Return implements Mappable {
@@ -13,7 +13,7 @@ class Return implements Mappable {
   final String returnType;
   final String returnReason;
   final DateTime returnTime; 
-  final List<ReturnItem> returnItems;
+  final List<Part> returnItems;
 
   Return({
     required this.returnId,
@@ -55,7 +55,7 @@ class Return implements Mappable {
     String? returnType,
     String? returnReason,
     DateTime? returnTime,
-    List<ReturnItem>? returnItems,
+    List<Part>? returnItems,
   }) {
     return Return(
       returnId: returnId ?? this.returnId,
