@@ -45,6 +45,8 @@ class ReceiptDetailsView extends StatefulWidget {
   // --- MULTI-TIN SELECTION ---
   final List<TinInvoice> selectedTins;
   final ValueChanged<TinInvoice> onTinToggle;
+  final void Function(List<TinInvoice>, bool) toggleAll;
+
 
   // Callbacks
   final ValueChanged<String> onBankTextChanged;
@@ -72,6 +74,7 @@ class ReceiptDetailsView extends StatefulWidget {
     required this.branchController,
     required this.selectedTins,
     required this.onTinToggle,
+    required this.toggleAll,
     required this.onPodStatusToggle,
 
     this.selectedTin,
@@ -194,9 +197,16 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
         child: Text('No outstanding TINs found for this dealer.'),
       );
     }
+    final isAllSelected = widget.selectedTins.length == _availableTins.length && _availableTins.isNotEmpty;
     return SizedBox(
       height: 250,
       child: AppDataGrid<TinInvoice>(
+        isAllSelected:isAllSelected,
+        onSelectAllChanged: (value) {
+    if (value != null) {
+      widget.toggleAll(_availableTins, value);
+    }
+  },
         searchHintText: 'Search by TIN, Mobile Inv, or Amount',
         onFilterPressed: () {},
         filterableFields: const ['tinNo', 'mobileInvNo', 'invAmount'],
