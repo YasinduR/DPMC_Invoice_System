@@ -244,15 +244,12 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
                const SizedBox(height: 12),
                InfoDisplay(info: widget.tindata.tinNumber),
                const SizedBox(height: 12),
-               // show Tin stats card immediately above the search/parts grid only
-               if (widget.tinStat != null) ...[
-                 TinStatsCard(
+              TinStatsCard(
                    stats: widget.tinStat!,
                    firstLabel: 'Pending Invoices',
                    secondLabel: 'Pending Value',
                  ),
                  const SizedBox(height: 12),
-               ],
                SizedBox(height: 300.0, child: _buildPartList()),
              ],
           ),

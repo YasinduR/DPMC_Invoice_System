@@ -41,6 +41,8 @@ class TinData implements Mappable {
         return 'Completed';
       case 'A':
         return 'Approved';
+      case 'I':
+        return 'Invoiced';
       default:
         return paymentStatus;
     }
@@ -54,6 +56,8 @@ class TinData implements Mappable {
         return AppColors.success;
       case 'A':
         return AppColors.primary;
+      case 'I':
+        return AppColors.disabled;
       default:
         return AppColors.disabled;
     }

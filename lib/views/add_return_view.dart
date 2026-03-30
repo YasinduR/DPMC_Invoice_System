@@ -20,13 +20,15 @@ import 'package:myapp/widgets/cards/tin_stats_card.dart';
 class ReturnsView extends StatefulWidget {
   final Dealer dealer;
   final TinData tinData;
-  final void Function(List<Part>, String, String) onSubmit; 
+  final TinStat tinStat;
+  final void Function(List<Part>, String, String) onSubmit;
 
   const ReturnsView({
     super.key,
     required this.dealer,
     required this.tinData,
     required this.onSubmit,
+    required this.tinStat
   });
 
   @override
@@ -96,15 +98,18 @@ class _ReturnsViewState extends State<ReturnsView> {
 
     final newQuantity = await showDialog<int>(
       context: context,
-      builder: (context) => QuantityEditDialog(
-        initialQuantity: sourcePart.requestQty,
-        title: 'Return Quantity',
-        maxQuantity: sourcePart.requestQty,
-      ),
+      builder:
+          (context) => QuantityEditDialog(
+            initialQuantity: sourcePart.requestQty,
+            title: 'Return Quantity',
+            maxQuantity: sourcePart.requestQty,
+          ),
     );
 
     if (newQuantity != null && mounted) {
-      final newSelectedPart = sourcePart.copyWith(receivedQty: sourcePart.requestQty - newQuantity);
+      final newSelectedPart = sourcePart.copyWith(
+        receivedQty: sourcePart.requestQty - newQuantity,
+      );
       setState(() {
         _selectedItems.add(newSelectedPart);
       });
@@ -114,11 +119,12 @@ class _ReturnsViewState extends State<ReturnsView> {
   Future<void> _showReasonPicker() async {
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => SelectionModal(
-        title: 'Reason',
-        options: _reasonOptions,
-        initialValue: _selectedReason,
-      ),
+      builder:
+          (context) => SelectionModal(
+            title: 'Reason',
+            options: _reasonOptions,
+            initialValue: _selectedReason,
+          ),
     );
 
     if (result != null && mounted) {
@@ -150,7 +156,8 @@ class _ReturnsViewState extends State<ReturnsView> {
     if (_errorMessage != null) {
       return const Center(child: Text("No data Found"));
     }
-    final isAllSelected = _selectedItems.length == _items.length && _items.isNotEmpty;
+    final isAllSelected =
+        _selectedItems.length == _items.length && _items.isNotEmpty;
     return AppDataGrid<Part>(
       searchHintText: 'Search by Part No or Quantity',
       onFilterPressed: () {},
@@ -179,21 +186,23 @@ class _ReturnsViewState extends State<ReturnsView> {
         DynamicColumn<Part>(
           label: 'Select',
           flex: 2,
-          cellBuilder: (context, part) => Center(
-            child: Checkbox(
-              value: _selectedItems.any((p) => p.partNo == part.partNo),
-              activeColor: AppColors.primary,
-              checkColor: Colors.white,
-              onChanged: (_) => _togglePartSelection(part.partNo),
-            ),
-          ),
+          cellBuilder:
+              (context, part) => Center(
+                child: Checkbox(
+                  value: _selectedItems.any((p) => p.partNo == part.partNo),
+                  activeColor: AppColors.primary,
+                  checkColor: Colors.white,
+                  onChanged: (_) => _togglePartSelection(part.partNo),
+                ),
+              ),
         ),
         DynamicColumn<Part>(
           label: 'Return Qty',
           flex: 3,
           cellBuilder: (context, part) {
-            final selectedPart =
-                _selectedItems.firstWhereOrNull((p) => p.partNo == part.partNo);
+            final selectedPart = _selectedItems.firstWhereOrNull(
+              (p) => p.partNo == part.partNo,
+            );
             return QuantitySelector(
               value: selectedPart?.returnQty ?? 0,
               enabled: selectedPart != null,
@@ -202,9 +211,13 @@ class _ReturnsViewState extends State<ReturnsView> {
               onChanged: (newValue) {
                 setState(() {
                   final sp = selectedPart!;
-                  final idx = _selectedItems.indexWhere((p) => p.partNo == sp.partNo);
+                  final idx = _selectedItems.indexWhere(
+                    (p) => p.partNo == sp.partNo,
+                  );
                   if (idx != -1) {
-                    _selectedItems[idx] = sp.copyWith(receivedQty: sp.requestQty - newValue);
+                    _selectedItems[idx] = sp.copyWith(
+                      receivedQty: sp.requestQty - newValue,
+                    );
                   }
                 });
               },
@@ -229,7 +242,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               const SizedBox(height: 8),
               if (_pendingTotal > 0) ...[
                 TinStatsCard(
-                  stats: TinStat(approved: _items.length, totalPayment: _pendingTotal),
+                  stats: widget.tinStat,
                   firstLabel: 'Pending Orders',
                   secondLabel: 'Pending Amount',
                 ),
@@ -268,8 +281,12 @@ class _ReturnsViewState extends State<ReturnsView> {
             label: 'Save',
             disabled: !isAnyItemSelected || _selectedReason == null,
             onPressed: () {
-                  widget.onSubmit(_selectedItems,_selectedReturnType,_selectedReason!); // Pass _selectedParts here
-                },
+              widget.onSubmit(
+                _selectedItems,
+                _selectedReturnType,
+                _selectedReason!,
+              ); // Pass _selectedParts here
+            },
           ),
         ),
       ],

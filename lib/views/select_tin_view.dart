@@ -15,6 +15,7 @@ class SelectTinNumberView extends StatefulWidget {
   //final Function(TinData) onTinNumberSelected;
   final Function(TinData) onSubmit;
   final TinData? selectedTin;
+  final TinStat? tinStat;
 
   const SelectTinNumberView({
     super.key,
@@ -22,6 +23,7 @@ class SelectTinNumberView extends StatefulWidget {
     required this.onSubmit,
     required this.dealer,
     this.selectedTin,
+    this.tinStat,
   });
 
   @override
@@ -31,43 +33,44 @@ class SelectTinNumberView extends StatefulWidget {
 class _SelectTinNumberViewState extends State<SelectTinNumberView> {
   final TextEditingController _tinController = TextEditingController();
   bool _isTinSelectionCommitted = false;
-  TinStat _tinStat = const TinStat();
+  TinStat? _tinStat;
   TinData? _currentSelectedTin;
 
   @override
   void initState() {
     super.initState();
+     _tinStat = widget.tinStat ?? const TinStat();
     if (widget.selectedTin != null) {
       _tinController.text = widget.selectedTin!.tinNumber;
       _currentSelectedTin = widget.selectedTin!;
       _isTinSelectionCommitted = true;
     }
-    _loadTinCounts();
+    //_loadTinCounts();
   }
 
-  Future<void> _loadTinCounts() async {
-    await inquire<TinData>(
-      context: context,
-      dataUrl: 'tins/list',
-      filters: {'dealerCode': widget.dealer.accountCode},
-      onSuccess: (List<TinData> data) {
-        if (!mounted) return;
-        setState(() {
-          _tinStat = TinStat.fromTinList(data);
-        });
-      },
-      onError: (String message) {
-        if (!mounted) return;
-        setState(() {
-          if (message.contains('No data found')) {
-            _tinStat = const TinStat();
-          } else {
-            _tinStat = TinStat(error: message);
-          }
-        });
-      },
-    );
-  }
+  // Future<void> _loadTinCounts() async {
+  //   await inquire<TinData>(
+  //     context: context,
+  //     dataUrl: 'tins/list',
+  //     filters: {'dealerCode': widget.dealer.accountCode},
+  //     onSuccess: (List<TinData> data) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         _tinStat = TinStat.fromTinList(data);
+  //       });
+  //     },
+  //     onError: (String message) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         if (message.contains('No data found')) {
+  //           _tinStat = const TinStat();
+  //         } else {
+  //           _tinStat = TinStat(error: message);
+  //         }
+  //       });
+  //     },
+  //   );
+  // }
 
   @override
   void didUpdateWidget(covariant SelectTinNumberView old) {
@@ -112,7 +115,7 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
           const SizedBox(height: 16),
 
           TinStatsCard(
-            stats: _tinStat,
+            stats: _tinStat?? const TinStat(),
             firstLabel: 'Pending Invoices',
             secondLabel: 'Pending Value',
           ),
@@ -122,7 +125,9 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
             controller: _tinController,
             labelText: 'Select TIN Number',
             selectionSheetTitle: 'Select a TIN Number',
-            layoutType:SelectionSheetLayoutType.card, // Modified by Darshan R on 18/03/2026
+            layoutType:
+                SelectionSheetLayoutType
+                    .card, // Modified by Darshan R on 18/03/2026
             initialValue: widget.selectedTin,
             //onSelected: widget.onTinNumberSelected,
             onSelected: (tin) {

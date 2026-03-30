@@ -14,7 +14,6 @@ import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 import 'package:myapp/models/part_model.dart';
 
-
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:math';
@@ -26,7 +25,7 @@ class MockApiService {
   static const String _jwtSecretKey = 'DPMC-INV-SYSTEM'; // Change The Key Later
   // static String _pendingOtp = '';
   static final Map<String, Map<String, dynamic>> _otpStore = {};
-  static String devOtp = ''; // DEV ONLY 
+  static String devOtp = ''; // DEV ONLY
 
   static const List<String> _publicEndpoints = [
     // Where We dont need access token
@@ -196,7 +195,7 @@ class MockApiService {
       case 'api/screens/list':
         sourceData = DummyData.screens;
         break;
-      case 'api/dispatch-notes/list':   // Added by Darshan R on 23/03/2026
+      case 'api/dispatch-notes/list': // Added by Darshan R on 23/03/2026
         sourceData = DummyData.savedDispatchNotes;
         break;
       case 'api/attendance/list':
@@ -710,7 +709,7 @@ class MockApiService {
             // Handle cases where phone number is less than 3 digits
             lastThreeDigits = phoneNumber;
           }
-          
+
           // generate pending OTP - Added By Darshan R on 12/03/2026
           final String otp = (Random().nextInt(900000) + 100000).toString();
           _otpStore[username!] = {
@@ -719,14 +718,14 @@ class MockApiService {
             'used': false,
             'failedAttempts': 0,
           };
-          devOtp = otp; // DEV ONLY 
+          devOtp = otp; // DEV ONLY
 
           // Construct the message
           return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
         } catch (e) {
           rethrow;
         }
-      
+
       case 'api/user/verify-otp':
         if (body is! Map<String, dynamic>) {
           throw Exception('Invalid body for OTP verification.');
@@ -738,30 +737,34 @@ class MockApiService {
         }
         final otpRecord = _otpStore[otpUsername];
         if (otpRecord == null) {
-          throw UnauthorisedException('No OTP request found. Please try again.');
+          throw UnauthorisedException(
+            'No OTP request found. Please try again.',
+          );
         }
         if (otpRecord['used'] as bool) {
           throw UnauthorisedException('OTP has already been used.');
         }
         if (DateTime.now().isAfter(otpRecord['expiry'] as DateTime)) {
           _otpStore.remove(otpUsername);
-          throw UnauthorisedException('OTP has expired. Please request a new one.');
+          throw UnauthorisedException(
+            'OTP has expired. Please request a new one.',
+          );
         }
         if (otpRecord['otp'] as String != otpToken) {
           final int attempts = (otpRecord['failedAttempts'] as int) + 1;
-        _otpStore[otpUsername]!['failedAttempts'] = attempts;
+          _otpStore[otpUsername]!['failedAttempts'] = attempts;
 
-        if (attempts >= 3) {
-          _otpStore.remove(otpUsername);
+          if (attempts >= 3) {
+            _otpStore.remove(otpUsername);
+            throw UnauthorisedException(
+              'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+            );
+          }
+
+          final int remaining = 3 - attempts;
           throw UnauthorisedException(
-            'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+            'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
           );
-        }
-
-        final int remaining = 3 - attempts;
-        throw UnauthorisedException(
-          'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
-        );
         }
         _otpStore[otpUsername]!['used'] = true;
         return await _generateResetToken(otpUsername);
@@ -784,13 +787,17 @@ class MockApiService {
             throw UnauthorisedException('Reset token does not match the user.');
           }
         } on JWTExpiredException {
-          throw UnauthorisedException('Reset token has expired. Please start over.');
+          throw UnauthorisedException(
+            'Reset token has expired. Please start over.',
+          );
         } on UnauthorisedException {
           rethrow;
-        }on AccountLockedException {
-          rethrow; 
+        } on AccountLockedException {
+          rethrow;
         } catch (_) {
-          throw UnauthorisedException('Invalid reset token. Please start over.');
+          throw UnauthorisedException(
+            'Invalid reset token. Please start over.',
+          );
         }
 
         try {
@@ -927,7 +934,7 @@ class MockApiService {
           );
           // New status: 'PR' = proceeded when no parts remain, otherwise keep current (typically 'A')
           final String newStatus =
-              (remainingTotalQty == 0) ? 'Invoiced' : existingTin.paymentStatus;
+              (remainingTotalQty == 0) ? 'I' : existingTin.paymentStatus;
 
           // Replace the master tin with updated parts and status
           final updatedMasterTin = TinData(
@@ -972,64 +979,47 @@ class MockApiService {
       // Add other cases...
 
       case 'api/return/save':
-        print('[MOCK] api/return/save called with body: $body');
+        if (body is! Return) {
+          throw Exception(
+            'Invalid type for saving a Invoice. Expected an Invoice object.',
+          );
+        }
+
+        final ret = body;
+
+        final updatedReturn = ret.copyWith(
+          // Use copyWith
+          returnId: generateRetNumber(),
+        );
 
         // support Mappable payloads (ReturnPayload etc.) by normalizing to Map
-        dynamic incoming = body;
-        if (incoming is Mappable) incoming = incoming.toMap();
+        // dynamic incoming = body;
+        // if (incoming is Mappable) incoming = incoming.toMap();
 
-        final String tinNo = (incoming is Map)
-            ? (incoming['tinNo'] ?? incoming['tin_no'] ?? '') as String
-            : (incoming?.tinNo ?? '') as String;
+        final String tinNo = ret.tinNo;
 
-        final List<dynamic> incomingItems = (incoming is Map)
-            ? (incoming['returnItems'] as List<dynamic>?) ?? []
-            : (incoming?.returnItems as List<dynamic>?) ?? [];
+        final List<Part> incomingItems = ret.returnItems;
 
-        // create a simple saved-return map to return to caller
-        final savedReturn = {
-          'returnId': generateRetNumber(),
-          'tinNo': tinNo,
-          'returnItems': incomingItems,
-          'remark': (incoming is Map) ? (incoming['remark'] ?? '') : (incoming?.remark ?? ''),
-          'dealerCode': (incoming is Map) ? (incoming['dealerCode'] ?? '') : (incoming?.dealerCode ?? ''),
-          'date': DateTime.now().toIso8601String(),
-        };
 
-        // find matching tin in master data by tinNo
         final tinIndex = DummyData.tins.indexWhere((t) => t.tinNumber == tinNo);
         if (tinIndex != -1) {
           final existingTin = DummyData.tins[tinIndex];
 
-          // Map existing parts by partNo for quick lookup
           final Map<String, Part> existingByPartNo = {
             for (var p in existingTin.parts) p.partNo: p,
           };
 
           // iterate incoming items (each item may be Part instance, Map or minimal object)
-          for (final dynamic retItem in incomingItems) {
+          for (final Part retItem in incomingItems) {
             if (retItem == null) continue;
 
             String? key;
             int qty = 0;
 
-            if (retItem is Part) {
+ 
               key = retItem.partNo;
               qty = retItem.requestQty;
-            } else if (retItem is Map) {
-              key = (retItem['partNo'] ?? retItem['part_no']) as String?;
-              final dynamic maybeQty = retItem['returnQty'] ?? retItem['requestQty'] ?? retItem['qty'];
-              if (maybeQty is num) qty = maybeQty.toInt();
-            } else {
-              try {
-                key = (retItem as dynamic).partNo as String?;
-                final dynamic maybeQty = (retItem as dynamic).returnQty ?? (retItem as dynamic).requestQty ?? (retItem as dynamic).qty;
-                if (maybeQty is num) qty = maybeQty.toInt();
-              } catch (_) {
-                continue;
-              }
-            }
-
+            
             if (key == null) continue;
 
             final existingPart = existingByPartNo[key];
@@ -1040,7 +1030,6 @@ class MockApiService {
             if (newQty > 0) {
               existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
             } else if (newQty == 0) {
-              // remove part when fully returned
               existingByPartNo.remove(key);
             } else {
               // incoming return exceeds available -> keep behaviour consistent with invoice flow
@@ -1052,11 +1041,13 @@ class MockApiService {
 
           // Rebuild parts list and update master tin (remove parts fully returned)
           final List<Part> updatedParts = existingByPartNo.values.toList();
+          
+
           final updatedMasterTin = TinData(
             tinNumber: existingTin.tinNumber,
             orderNumber: existingTin.orderNumber,
             totalValue: existingTin.totalValue,
-            paymentStatus: existingTin.paymentStatus,
+            paymentStatus: updatedParts.isNotEmpty? existingTin.paymentStatus : 'I',
             dealercode: existingTin.dealercode,
             payOnDel: existingTin.payOnDel,
             parts: updatedParts,
@@ -1068,7 +1059,7 @@ class MockApiService {
           DummyData.tins[tinIndex] = updatedMasterTin;
         }
 
-        return savedReturn;
+        return updatedReturn;
 
       case 'api/return-request/update':
         if (body is! ReturnRequest) {
