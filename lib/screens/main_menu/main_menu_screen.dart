@@ -42,6 +42,8 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
     const int crossAxisCount = 3;
     // Row spacing is now responsive (approx 4.5% of screen width)
     final double mainAxisSpacing = (screenWidth * 0.045).clamp(16, 40);
+    // Dynamic icon size (15% of width, clamped for extremes)
+    final double iconSize = (screenWidth * 0.15).clamp(56, 80);
     // Aspect ratio: 0.75 (shorter cells) gives MORE vertical space for large icons + 2-line text
     final double childAspectRatio = 0.75;
 
@@ -89,7 +91,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
 
           return MenuCard(
             color: itemColor,
-            iconWidget: IconMapper.getStyledIcon(screen.iconName, _selectedIconStyle, itemColor, 64),
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, _selectedIconStyle, itemColor, iconSize),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
@@ -100,7 +102,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
     menuCards.add(
       MenuCard(
         color: aboutColor,
-        iconWidget: IconMapper.getStyledIcon('info', _selectedIconStyle, aboutColor, 64),
+        iconWidget: IconMapper.getStyledIcon('info', _selectedIconStyle, aboutColor, iconSize),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -113,7 +115,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
     final Color logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        iconWidget: IconMapper.getStyledIcon('logout', _selectedIconStyle, logoutColor, 64),
+        iconWidget: IconMapper.getStyledIcon('logout', _selectedIconStyle, logoutColor, iconSize),
         color: logoutColor,
         label: 'Logout',
         onTap: () async {
