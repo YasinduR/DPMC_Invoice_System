@@ -35,6 +35,15 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).currentUser;
     final accessibleScreens = user?.accessibleScreen ?? [];
+    
+    // Responsive logic: Calculate spacing based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Fixed columns as requested
+    const int crossAxisCount = 3;
+    // Row spacing is now responsive (approx 5-6% of screen width)
+    final double mainAxisSpacing = (screenWidth * 0.06).clamp(16, 40);
+    // Aspect ratio: 0.75 (shorter cells) gives MORE vertical space for large icons + 2-line text
+    final double childAspectRatio = 0.75;
 
     // Modify this with screen IDs othat need to priortize
     const prioritizeOrder = [
@@ -158,10 +167,11 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
               const SizedBox(height: 30),
               Expanded(
                 child: GridView.count(
-                  padding: const EdgeInsets.all(12), // <-- Add padding here
-                  crossAxisCount: 3,
+                  padding: const EdgeInsets.all(12),
+                  crossAxisCount: crossAxisCount,
                   crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  mainAxisSpacing: mainAxisSpacing, 
+                  childAspectRatio: childAspectRatio,
                   children: menuCards,
                 ),
               ),
