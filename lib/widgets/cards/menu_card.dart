@@ -185,9 +185,9 @@ class _MenuCardState extends State<MenuCard> {
           duration: const Duration(milliseconds: 100),
           decoration: const BoxDecoration(),
           child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+          padding: const EdgeInsets.fromLTRB(4, 12, 4, 0), // Standardized top padding for row alignment
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start, // Align from the top to fix icon misalignment
             children: [
               widget.iconWidget,
               const SizedBox(height: 8),

@@ -40,8 +40,8 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     // Fixed columns as requested
     const int crossAxisCount = 3;
-    // Row spacing is now responsive (approx 5-6% of screen width)
-    final double mainAxisSpacing = (screenWidth * 0.06).clamp(16, 40);
+    // Row spacing is now responsive (approx 4.5% of screen width)
+    final double mainAxisSpacing = (screenWidth * 0.045).clamp(16, 40);
     // Aspect ratio: 0.75 (shorter cells) gives MORE vertical space for large icons + 2-line text
     final double childAspectRatio = 0.75;
 
@@ -85,19 +85,22 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];
           if (route == null) return const SizedBox.shrink();
 
+          final Color itemColor = colorCycler.getColor;
+
           return MenuCard(
-            color: colorCycler.getColor,
-            iconWidget: IconMapper.getStyledIcon(screen.iconName, _selectedIconStyle, colorCycler.getColor, 64),
+            color: itemColor,
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, _selectedIconStyle, itemColor, 64),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
         }).toList();
 
     // Manually add static cards like 'About' and 'Logout'
+    final Color aboutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        color: colorCycler.getColor,
-        iconWidget: IconMapper.getStyledIcon('info', _selectedIconStyle, colorCycler.getColor, 64),
+        color: aboutColor,
+        iconWidget: IconMapper.getStyledIcon('info', _selectedIconStyle, aboutColor, 64),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -107,10 +110,11 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
             ),
       ),
     );
+    final Color logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        iconWidget: IconMapper.getStyledIcon('logout', _selectedIconStyle, colorCycler.getColor, 64),
-        color: colorCycler.getColor,
+        iconWidget: IconMapper.getStyledIcon('logout', _selectedIconStyle, logoutColor, 64),
+        color: logoutColor,
         label: 'Logout',
         onTap: () async {
           final confirmed = await showConfirmationDialog(
@@ -119,7 +123,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
             confirmButtonText: 'Yes, Log out',
             cancelButtonText: 'No, I\'m Staying',
           );
-          if (confirmed) {
+          if (confirmed && context.mounted) {
             ref.read(authProvider.notifier).logout(context);
             Navigator.of(context).pushNamedAndRemoveUntil(
               AppRoutes.login, 
