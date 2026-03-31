@@ -10,11 +10,29 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/cards/menu_card.dart'; 
 
-class MainMenuScreen extends ConsumerWidget {
+class MainMenuScreen extends ConsumerStatefulWidget {
   const MainMenuScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainMenuScreen> createState() => _MainMenuScreenState();
+}
+
+class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
+  String _selectedIconStyle = 'Material Default';
+  final List<String> _iconStyles = [
+    'Material Default',
+    'Material 3',
+    '3D',
+    'Apple Glass',
+    'Lucide',
+    'Iconly',
+    'HugeIcons',
+    'Font Awesome',
+    'Flutter Awesome'
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).currentUser;
     final accessibleScreens = user?.accessibleScreen ?? [];
 
@@ -60,7 +78,7 @@ class MainMenuScreen extends ConsumerWidget {
 
           return MenuCard(
             color: colorCycler.getColor,
-            icon: IconMapper.getIcon(screen.iconName),
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, _selectedIconStyle, colorCycler.getColor, 64),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
@@ -70,7 +88,7 @@ class MainMenuScreen extends ConsumerWidget {
     menuCards.add(
       MenuCard(
         color: colorCycler.getColor,
-        icon: IconMapper.getIcon('info'),
+        iconWidget: IconMapper.getStyledIcon('info', _selectedIconStyle, colorCycler.getColor, 64),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -82,7 +100,7 @@ class MainMenuScreen extends ConsumerWidget {
     );
     menuCards.add(
       MenuCard(
-        icon: IconMapper.getIcon('logout'),
+        iconWidget: IconMapper.getStyledIcon('logout', _selectedIconStyle, colorCycler.getColor, 64),
         color: colorCycler.getColor,
         label: 'Logout',
         onTap: () async {
@@ -112,9 +130,30 @@ class MainMenuScreen extends ConsumerWidget {
       contentPadding: const EdgeInsets.fromLTRB(12,50,12,0),
           child: Column(
             children: [
-              Text(
-                'Main Menu',
-                style: Theme.of(context).textTheme.headlineLarge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Main Menu',
+                    style: Theme.of(context).textTheme.headlineLarge
+                  ),
+                  DropdownButton<String>(
+                    value: _selectedIconStyle,
+                    items: _iconStyles.map((style) {
+                      return DropdownMenuItem(
+                        value: style,
+                        child: Text(style, style: const TextStyle(fontSize: 12)),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _selectedIconStyle = val;
+                        });
+                      }
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 30),
               Expanded(
