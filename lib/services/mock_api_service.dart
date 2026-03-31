@@ -994,6 +994,68 @@ class MockApiService {
         }
 
         DummyData.returns.add(updatedReturn);
+
+        // Update TinData to deduct the returned quantities
+        final tinIndex = DummyData.tins.indexWhere(
+          (t) => t.tinNumber == updatedReturn.tinNo,
+        );
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          // Map existing parts by partNo for quick lookup
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // Subtract submitted quantities from master parts
+          for (final subPart in updatedReturn.returnItems) {
+            final key = subPart.partNo;
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            final newQty = existingPart.requestQty - subPart.returnQty;
+
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              // exactly fulfilled — remove the part
+              existingByPartNo.remove(key);
+            } else {
+              throw Exception(
+                'Submitted return quantity (${subPart.returnQty}) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and compute remaining total qty
+          final List<Part> remainingParts = existingByPartNo.values.toList();
+          final int remainingTotalQty = remainingParts.fold<int>(
+            0,
+            (int sum, Part p) => sum + p.requestQty,
+          );
+
+          // We keep the logic similar to invoice, moving to 'PR' if all parts returned/invoiced
+          final String newStatus =
+              (remainingTotalQty == 0) ? 'PR' : existingTin.paymentStatus;
+
+          // Replace the master tin with updated parts and status
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: newStatus,
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: remainingParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
+          );
+
+          DummyData.tins[tinIndex] = updatedMasterTin;
+        }
+
         return updatedReturn;
 
       case 'api/return-request/update':

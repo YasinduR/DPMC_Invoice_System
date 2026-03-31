@@ -9,6 +9,7 @@ class Part implements Mappable {
   final double price;
   final double discount; // The price for a single unit of this part.
   int receivedQty;
+  int returnQty;
 
   Part({
     required this.id,
@@ -18,6 +19,7 @@ class Part implements Mappable {
     this.description = 'N/A',
     this.discount = 0,
     this.receivedQty = 0, // Defaults to 0 received
+    this.returnQty = 0, // Defaults to 0 returned
   });
 
   @override
@@ -30,6 +32,7 @@ class Part implements Mappable {
       'price': formatNumber(price),
       'discount': formatNumber(discount),
       'receivedQty': receivedQty,
+      'returnQty': returnQty,
     };
   }
 
@@ -40,6 +43,7 @@ class Part implements Mappable {
     double? price,
     int? requestQty,
     int? receivedQty,
+    int? returnQty,
     String? description,
     double? discount,
   }) {
@@ -49,6 +53,7 @@ class Part implements Mappable {
       price: price ?? this.price,
       requestQty: requestQty ?? this.requestQty,
       receivedQty: receivedQty ?? this.receivedQty,
+      returnQty: returnQty ?? this.returnQty,
       description: description ?? this.description,
       discount: discount ?? this.discount,
     );

@@ -1,20 +1,16 @@
-import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/tin_stat_model.dart';
-import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_option_picker.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_radio_group.dart';
-import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/cards/info_card.dart';
 import 'package:myapp/widgets/cards/tin_stats_card.dart';
@@ -23,15 +19,12 @@ import 'package:myapp/widgets/cards/tin_stats_card.dart';
 class ReturnsView extends StatefulWidget {
   final Dealer dealer;
   final TinData tinData;
-  final void Function(List<ReturnItem>, String, String) onSubmit;
-  final List<Part>? pendingParts; // optional pending parts (from invoice flow)
-
+  final void Function(List<Part>, String, String) onSubmit;
   const ReturnsView({
     super.key,
     required this.dealer,
     required this.tinData,
     required this.onSubmit,
-    this.pendingParts,
   });
 
   @override
@@ -39,8 +32,8 @@ class ReturnsView extends StatefulWidget {
 }
 
 class _ReturnsViewState extends State<ReturnsView> {
-  List<ReturnItem> _items = [];
-  List<ReturnItem> _selectedItems = []; // Initialize with an empty list
+  List<Part> _items = [];
+  List<Part> _selectedItems = []; // Initialize with an empty list
   bool _isLoading = true; // Flag to manage loading state
   String? _errorMessage; // To store any potential error message
   double _pendingTotal = 0.0;
@@ -68,69 +61,16 @@ class _ReturnsViewState extends State<ReturnsView> {
       _errorMessage = null;
     });
 
-    // 1) If pendingParts is provided (coming from invoice flow), use them.
-    if (widget.pendingParts != null && widget.pendingParts!.isNotEmpty) {
-      final parts = widget.pendingParts!;
-      final mapped = parts
-          .map((p) => ReturnItem(partNo: p.partNo, requestQty: p.requestQty, returnQty: p.requestQty))
-          .toList();
-      final total = parts.fold<double>(0.0, (sum, p) => sum + (p.requestQty * (p.price ?? 0)));
-      if (mounted) {
-        setState(() {
-          _items = mapped;
-          _selectedItems = mapped.map((m) => m.copyWith(returnQty: m.requestQty)).toList();
-          _pendingTotal = total;
-          _isLoading = false;
-        });
-      }
-      return;
+    final parts = widget.tinData.parts;
+    final total = parts.fold<double>(0.0, (sum, p) => sum + (p.requestQty * (p.price ?? 0)));
+    if (mounted) {
+      setState(() {
+        _items = parts;
+        _selectedItems = parts.map((m) => m.copyWith(returnQty: m.requestQty)).toList();
+        _pendingTotal = total;
+        _isLoading = false;
+      });
     }
-
-    // 2) If tinData already contains parts (direct return flow after TIN select), use them.
-    if (widget.tinData.parts.isNotEmpty) {
-      final parts = widget.tinData.parts;
-      final mapped = parts
-          .map((p) => ReturnItem(partNo: p.partNo, requestQty: p.requestQty, returnQty: p.requestQty))
-          .toList();
-      final total = parts.fold<double>(0.0, (sum, p) => sum + (p.requestQty * (p.price ?? 0)));
-      if (mounted) {
-        setState(() {
-          _items = mapped;
-          _selectedItems = mapped.map((m) => m.copyWith(returnQty: m.requestQty)).toList();
-          _pendingTotal = total;
-          _isLoading = false;
-        });
-      }
-      return;
-    }
-
-    // 3) Fallback: load from generic return-items endpoint
-    // await inquire<ReturnItem>(
-    //   context: context,
-    //   dataUrl: 'return-items/list',
-    //   onSuccess: (List<ReturnItem> data) {
-    //     if (mounted) {
-    //       setState(() {
-    //         _items = data;
-    //         _isLoading = false;
-    //       });
-    //     }
-    //   },
-    //   onError: (String message) {
-    //     if (mounted) {
-    //       setState(() {
-    //         _errorMessage = message;
-    //         _isLoading = false;
-
-    //         showSnackBar(
-    //           context: context,
-    //           message: _errorMessage!,
-    //           type: MessageType.success,
-    //         );
-    //       });
-    //     }
-    //   },
-    // );
   }
 
   Future<void> _togglePartSelection(String partNo) async {
@@ -150,7 +90,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     }
   }
 
-  Future<void> _showQuantityDialog(ReturnItem selectedItem) async {
+  Future<void> _showQuantityDialog(Part selectedItem) async {
     final newQuantity = await showDialog<int>(
       context: context,
       builder:
@@ -179,13 +119,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   });
 }
 
-  // void _togglePartSelection(String partNo) {
-  //   setState(() {
-  //     final part = _items.firstWhere((p) => p.partNo == partNo);
-  //     part.isSelected = !part.isSelected;
-  //   });
-  // }
-
   Future<void> _showReasonPicker() async {
     final result = await showDialog<String>(
       context: context,
@@ -205,7 +138,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   bool get isAnyItemSelected {
-    //return _items.any((item) => item.isSelected);
     return _selectedItems.isNotEmpty;
   }
 
@@ -218,7 +150,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       return const Center(child: Text("No data Found"));
     }
     final isAllSelected = _selectedItems.length == _items.length && _items.isNotEmpty;
-    return AppDataGrid<ReturnItem>(
+    return AppDataGrid<Part>(
       searchHintText: 'Search by Part No or Quantity',
       onFilterPressed: () {},
       filterableFields: const ['partNo', 'requestQty'],
@@ -226,7 +158,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       onSelectAllChanged:_toggleSelectAll,
       items: _items,
       columns: [
-        DynamicColumn<ReturnItem>(
+        DynamicColumn<Part>(
           label: 'Part No',
           flex: 3,
           cellBuilder:
@@ -236,14 +168,31 @@ class _ReturnsViewState extends State<ReturnsView> {
                 overflow: TextOverflow.ellipsis,
               ),
         ),
-        DynamicColumn<ReturnItem>(
+        DynamicColumn<Part>(
+          label: 'Description',
+          flex: 4,
+          cellBuilder:
+              (context, part) => Text(
+                part.description,
+                style: const TextStyle(fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+        ),
+        DynamicColumn<Part>(
           label: 'Request Qty',
           flex: 2,
           cellBuilder:
               (context, part) =>
                   Center(child: Text(part.requestQty.toString())),
         ),
-        DynamicColumn<ReturnItem>(
+        DynamicColumn<Part>(
+          label: 'Price',
+          flex: 3,
+          cellBuilder:
+              (context, part) =>
+                  Center(child: Text(part.price.toStringAsFixed(2))),
+        ),
+        DynamicColumn<Part>(
           label: 'Select',
           flex: 2,
           cellBuilder:
@@ -262,7 +211,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                 ),
               ),
         ),
-        DynamicColumn<ReturnItem>(
+        DynamicColumn<Part>(
           label: 'Return Qty',
           flex: 3,
           cellBuilder: (context, part) {

@@ -20,7 +20,6 @@ import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/services/dummy_data.dart';
 import 'package:myapp/views/add_return_view.dart';
-import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/tin_stat_model.dart';
 
@@ -37,7 +36,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   int _currentStep = 0;
   TinData? _selectedTin;
   TinStat? _tinStat;
-  List<Part>? _pendingReturnParts; // <-- new: store remaining parts for ReturnsView
 
   // Regional settings
   Region? _selectedRegion;
@@ -173,7 +171,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
        .toList();
 
     final invoiceData = InvoiceSave(
-      invoiceNumber: 'AAA',
+      invoiceNumber: _selectedTin!.tinNumber,
       tinNo: _selectedTin!.tinNumber,
       route: currentRegion.region,
       dealerName: _selectedDealer!.name,
@@ -225,7 +223,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         if (updatedTin.parts.isNotEmpty) {
           setState(() {
             _selectedTin = updatedTin;
-            _pendingReturnParts = updatedTin.parts; // <-- pass remaining parts
             _currentStep = 3; // navigate to ReturnsView
           });
           return;
@@ -264,14 +261,14 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     }
   }
 
-  Future<void> _saveReturn(List<ReturnItem> items, String type, String reason) async {
+  Future<void> _saveReturn(List<Part> items, String type, String reason) async {
     // simple pass-through to the same save helper used elsewhere
     final authState = ref.watch(authProvider);
     final User? currentUser = authState.currentUser;
     if (currentUser == null) return;
 
     final saveReturn = Return(
-      returnId: 'AUTO',
+      returnId: _selectedTin!.tinNumber,
       tinNo: _selectedTin!.tinNumber,
       route: ref.watch(regionProvider).selectedRegion!.region,
       dealerName: _selectedDealer!.name,
@@ -402,7 +399,6 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         currentView = ReturnsView(
           dealer: _selectedDealer!,
           tinData: _selectedTin!,
-          pendingParts: _pendingReturnParts, // <-- pass pending parts
           onSubmit: _saveReturn,
         );
         break;

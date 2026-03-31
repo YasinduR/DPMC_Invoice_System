@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
-import 'package:myapp/models/return_item_model.dart';
+import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
@@ -117,7 +117,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   // }
 
   void _saveReturn(
-    List<ReturnItem> selectedItems,   // convert to part model
+    List<Part> selectedItems,
     String selectedReturnType,
     String selectedReason,
   ) async {
@@ -187,7 +187,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       return;
     }
     final saveReturn = Return(    // part model
-      returnId: 'AAA',
+      returnId: _selectedTin!.tinNumber,
       tinNo: _selectedTin!.tinNumber,
       route: currentRegion.region,
       dealerName: _selectedDealer!.name,
