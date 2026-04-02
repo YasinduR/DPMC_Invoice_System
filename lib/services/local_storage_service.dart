@@ -65,6 +65,7 @@ class LocalStorageService {
     await prefs.remove(_kSavedPwd);
   }
 
+  // Icon Style - Added by Darshan R on 2026-04-03
   Future<void> saveIconStyle(String style) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kIconStyle, style);

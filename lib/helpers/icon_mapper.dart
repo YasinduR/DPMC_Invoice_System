@@ -41,6 +41,7 @@ class IconMapper {
     return _iconMap[iconName] ?? Icons.help_outline;
   }
 
+  // Lucide Icons - Added by Darshan R on 2026-03-30
   static IconData getLucideIcon(String iconName) {
     switch (iconName) {
       case 'login': return LucideIcons.logIn;
@@ -69,6 +70,7 @@ class IconMapper {
     }
   }
 
+  // Iconly Icons - Added by Darshan R on 2026-03-30
   static IconData getIconlyIcon(String iconName) {
     switch (iconName) {
       case 'login': return IconlyLight.login;
@@ -97,6 +99,7 @@ class IconMapper {
     }
   }
 
+  // Huge Icons - Added by Darshan R on 2026-03-30
   static dynamic getHugeIconData(String iconName) {
     switch (iconName) {
       case 'login': return HugeIcons.strokeRoundedLogin01;
@@ -125,6 +128,7 @@ class IconMapper {
     }
   }
 
+  // Font Awesome Icons - Added by Darshan R on 2026-03-30
   static IconData getFaIcon(String iconName) {
     switch (iconName) {
       case 'login': return FontAwesomeIcons.rightToBracket;
@@ -163,6 +167,7 @@ class IconMapper {
     }
   }
 
+  // Styled Icons - Added by Darshan R on 2026-03-30
   static Widget getStyledIcon(String iconName, String style, Color fallbackColor, double size) {
     final iconData = getIcon(iconName);
     

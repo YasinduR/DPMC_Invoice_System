@@ -25,6 +25,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   late bool _isBioEnabled;
   late bool _isActivityHistoryClearEnabled;
 
+  // Icon Styles - Added by Darshan R on 2026-04-03
   final List<String> _iconStyles = [
     'Apple Glass',
     'Material Default',
@@ -98,6 +99,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                   widget.onActivityHistoryClearChange(value);
                 },
               ),
+              // Appearance - Added by Darshan R on 2026-04-03
               const Divider(height: 32),
               Text(
                 'Appearance',

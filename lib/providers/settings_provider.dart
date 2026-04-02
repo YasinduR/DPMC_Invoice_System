@@ -1,3 +1,4 @@
+// Settings Provider - Added by Darshan R on 2026-04-03
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/local_storage_service.dart';
