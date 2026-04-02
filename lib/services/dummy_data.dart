@@ -434,7 +434,7 @@ Assignee(
       screenId: '015',
       screenName: 'securitySetting',
       menuId: '00', // availble under each menu
-      title: 'Security',
+      title: 'Settings',
       iconName: 'security_settings',
     ),
     Screen(
@@ -455,7 +455,7 @@ Assignee(
       screenId: '017',
       screenName: 'returnRequestAdjust',
       menuId: '01',
-      title: 'Return Request Adjustment',
+      title: 'Return Adjustment',
       iconName: 'account_tree_sharp',
     ),
 
@@ -463,7 +463,7 @@ Assignee(
       screenId: '018',
       screenName: 'dispatchNote',
       menuId: '01',
-      title: 'Advice of Dispatch Note',
+      title: 'Dispatch Note',
       iconName: 'local_shipping',
     ),
 

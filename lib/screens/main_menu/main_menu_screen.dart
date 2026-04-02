@@ -7,6 +7,7 @@ import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/settings_provider.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/cards/menu_card.dart'; 
 
@@ -17,6 +18,7 @@ class MainMenuScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).currentUser;
     final accessibleScreens = user?.accessibleScreen ?? [];
+    final selectedStyle = ref.watch(settingsProvider).iconStyle;
 
     // Modify this with screen IDs othat need to priortize
     const prioritizeOrder = [
@@ -25,7 +27,6 @@ class MainMenuScreen extends ConsumerWidget {
       '008', // Receipt
       '009', // Returns 
       '018', // Advice of Dispatch
-      '017', // Returns Request Adjust
       '017', // Returns Request Adjust
       '011', // Route Selection
       '010', // Re-Print
@@ -58,19 +59,22 @@ class MainMenuScreen extends ConsumerWidget {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];
           if (route == null) return const SizedBox.shrink();
 
+          final itemColor = colorCycler.getColor;
+
           return MenuCard(
-            color: colorCycler.getColor,
-            icon: IconMapper.getIcon(screen.iconName),
+            color: itemColor,
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, 60),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
         }).toList();
 
     // Manually add static cards like 'About' and 'Logout'
+    final aboutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        color: colorCycler.getColor,
-        icon: IconMapper.getIcon('info'),
+        color: aboutColor,
+        iconWidget: IconMapper.getStyledIcon('info', selectedStyle, aboutColor, 60),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -80,10 +84,11 @@ class MainMenuScreen extends ConsumerWidget {
             ),
       ),
     );
+    final logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        icon: IconMapper.getIcon('logout'),
-        color: colorCycler.getColor,
+        iconWidget: IconMapper.getStyledIcon('logout', selectedStyle, logoutColor, 60),
+        color: logoutColor,
         label: 'Logout',
         onTap: () async {
           final confirmed = await showConfirmationDialog(
@@ -92,7 +97,7 @@ class MainMenuScreen extends ConsumerWidget {
             confirmButtonText: 'Yes, Log out',
             cancelButtonText: 'No, I\'m Staying',
           );
-          if (confirmed) {
+          if (confirmed && context.mounted) {
             ref.read(authProvider.notifier).logout(context);
             Navigator.of(context).pushNamedAndRemoveUntil(
               AppRoutes.login, 
@@ -132,4 +137,3 @@ class MainMenuScreen extends ConsumerWidget {
         );
   }
 }
-
