@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/activity_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/services/log_text_service.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/services/local_storage_service.dart';
@@ -8,7 +10,7 @@ import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/activity_card.dart';
 
 
-class ActivityLogView extends StatefulWidget {
+class ActivityLogView extends ConsumerStatefulWidget {
   final Function(Activity) onSubmit;
   const ActivityLogView({
     super.key,
@@ -16,10 +18,10 @@ class ActivityLogView extends StatefulWidget {
   });
 
   @override
-  State<ActivityLogView> createState() => _ActivityLogViewState();
+  ConsumerState<ActivityLogView> createState() => _ActivityLogViewState();
 }
 
-class _ActivityLogViewState extends State<ActivityLogView> {
+class _ActivityLogViewState extends ConsumerState<ActivityLogView> {
   final LocalStorageService _storageService = LocalStorageService();
 
   List<Activity> _activities = [];
@@ -31,7 +33,8 @@ class _ActivityLogViewState extends State<ActivityLogView> {
   }
 
   Future<void> _loadActivities() async {
-    final logs = await _storageService.getActivities();
+    final userid = ref.read(authProvider).currentUser!.id;
+    final logs = await _storageService.getActivities(userid);
     setState(() {
       _activities = logs;
     });

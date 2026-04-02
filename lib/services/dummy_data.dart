@@ -534,8 +534,12 @@ Assignee(
     Perm(RoleId: '001', ScreenId: '017'), // Return Request Adjustment
     Perm(RoleId: '001', ScreenId: '018'), // Dispatch Note
     Perm(RoleId: '001', ScreenId: '019'), // Actvity Log
+    Perm(RoleId: '002', ScreenId: '019'), // Actvity Log
+    Perm(RoleId: '003', ScreenId: '019'), // Actvity Log
     Perm(RoleId: '001', ScreenId: '020'), // To Do List
-    Perm(RoleId: '001', ScreenId: '021'), // To Do List
+    Perm(RoleId: '002', ScreenId: '020'), // To Do List
+    Perm(RoleId: '003', ScreenId: '020'), // To Do List
+    Perm(RoleId: '001', ScreenId: '021'), // Cheque SUMMARY
     Perm(RoleId: '003', ScreenId: '022'), // Superviosr Summary
   ];
 
