@@ -6,6 +6,7 @@ import 'package:myapp/services/log_text_service.dart';
 //import 'package:myapp/services/location_service.dart';
 
 import 'package:myapp/services/notification_services.dart';
+import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/theme/app_theme.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/app_routes.dart';
@@ -23,7 +24,7 @@ Future<void> main() async {
   // Initialize NotificationService
   await NotificationService.initialize();
   await LogTextService.initialize(); // DPMC Folder Access
-
+  await PrinterService.initialize(); // Load fonts & printer resources
   // Register the WorkManager task once at app startup
   //await registerSimpleWorkManagerReminder();
   //final locationService = LocationService();

@@ -4,6 +4,7 @@ class AppFonts {   // Font Family Names
   // Main Theme Colors
   //static const String primaryFont = 'Montserrat'; 
   static const String primaryFont = 'Inter';
+  static const String printerFont = 'Courier';
   //static const String fontInter = 'Inter';
 
 }
