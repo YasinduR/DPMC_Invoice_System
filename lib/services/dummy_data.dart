@@ -434,7 +434,7 @@ Assignee(
       screenId: '015',
       screenName: 'securitySetting',
       menuId: '00', // availble under each menu
-      title: 'Security',
+      title: 'Settings',
       iconName: 'security_settings',
     ),
     Screen(

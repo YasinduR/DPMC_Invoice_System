@@ -167,7 +167,7 @@ class AppRouter {
       case '/changePassword':
         return (context) => const ChangePasswordScreen();
       case '/securitySetting':
-        return (context) => const SecuritySettingScreen();
+        return (context) => const SettingsScreen();
       case '/attendance':
         return (context) => const AttendanceScreen();
       case '/testPrint':

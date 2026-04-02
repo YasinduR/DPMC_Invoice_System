@@ -8,15 +8,15 @@ import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
-class SecuritySettingScreen extends ConsumerStatefulWidget {
-  const SecuritySettingScreen({super.key});
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  ConsumerState<SecuritySettingScreen> createState() =>
-      _SecuritySettingScreenState();
+  ConsumerState<SettingsScreen> createState() =>
+      _SettingsScreenState();
 }
 
-class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   // Use a nullable Future<bool> to hold the result of the async operation
   // Or, a simple bool with a loading state. Let's use a bool with loading.
   bool? _isBioEnabled; // Null means loading
@@ -299,7 +299,7 @@ Future<void> _handleActivityHistoryChange(bool newValue) async {
 
     if (currentUser == null) {
       return const AppPage(
-        title: 'Security Settings', // Added a title
+        title: 'Settings', // Added a title
         child: Center(
           child: Text('No user is logged in. Please log in again.'),
         ),
@@ -307,7 +307,7 @@ Future<void> _handleActivityHistoryChange(bool newValue) async {
     }
     if (!hasFetched) {
       return const AppPage(
-        title: 'Security Settings', // Added a title
+        title: 'Settings', // Added a title
         child: Center(child: Text('')),
       );
     }
@@ -316,11 +316,11 @@ Future<void> _handleActivityHistoryChange(bool newValue) async {
     final bool currentHistoryStatus = _isActivityHistoryClearEnabled ?? false;
 
     return AppPage(
-      title: 'Security Settings',
+      title: 'Settings',
       currentRouteName: 'securitySetting',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
-      child: SecuritySettingView(
+      child: SettingsView(
         isBioEnabled: currentBioStatus,
         onBiometricChange: _handleBiometricChange,
     isActivityHistoryClearEnabled: currentHistoryStatus,

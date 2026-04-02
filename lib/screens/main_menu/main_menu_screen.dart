@@ -7,45 +7,18 @@ import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/settings_provider.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/cards/menu_card.dart'; 
 
-class MainMenuScreen extends ConsumerStatefulWidget {
+class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
 
   @override
-  ConsumerState<MainMenuScreen> createState() => _MainMenuScreenState();
-}
-
-class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
-  String _selectedIconStyle = 'Material Default';
-  final List<String> _iconStyles = [
-    'Material Default',
-    'Material 3',
-    '3D',
-    'Apple Glass',
-    'Lucide',
-    'Iconly',
-    'HugeIcons',
-    'Font Awesome',
-    'Flutter Awesome'
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).currentUser;
     final accessibleScreens = user?.accessibleScreen ?? [];
-    
-    // Responsive logic: Calculate spacing based on screen width
-    final screenWidth = MediaQuery.of(context).size.width;
-    // Fixed columns as requested
-    const int crossAxisCount = 3;
-    // Row spacing is now responsive (approx 4.5% of screen width)
-    final double mainAxisSpacing = (screenWidth * 0.045).clamp(16, 40);
-    // Dynamic icon size (15% of width, clamped for extremes)
-    final double iconSize = (screenWidth * 0.15).clamp(56, 80);
-    // Aspect ratio: 0.75 (shorter cells) gives MORE vertical space for large icons + 2-line text
-    final double childAspectRatio = 0.75;
+    final selectedStyle = ref.watch(settingsProvider).iconStyle;
 
     // Modify this with screen IDs othat need to priortize
     const prioritizeOrder = [
@@ -54,7 +27,6 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
       '008', // Receipt
       '009', // Returns 
       '018', // Advice of Dispatch
-      '017', // Returns Request Adjust
       '017', // Returns Request Adjust
       '011', // Route Selection
       '010', // Re-Print
@@ -87,22 +59,22 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];
           if (route == null) return const SizedBox.shrink();
 
-          final Color itemColor = colorCycler.getColor;
+          final itemColor = colorCycler.getColor;
 
           return MenuCard(
             color: itemColor,
-            iconWidget: IconMapper.getStyledIcon(screen.iconName, _selectedIconStyle, itemColor, iconSize),
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, 60),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
         }).toList();
 
     // Manually add static cards like 'About' and 'Logout'
-    final Color aboutColor = colorCycler.getColor;
+    final aboutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
         color: aboutColor,
-        iconWidget: IconMapper.getStyledIcon('info', _selectedIconStyle, aboutColor, iconSize),
+        iconWidget: IconMapper.getStyledIcon('info', selectedStyle, aboutColor, 60),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -112,10 +84,10 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
             ),
       ),
     );
-    final Color logoutColor = colorCycler.getColor;
+    final logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        iconWidget: IconMapper.getStyledIcon('logout', _selectedIconStyle, logoutColor, iconSize),
+        iconWidget: IconMapper.getStyledIcon('logout', selectedStyle, logoutColor, 60),
         color: logoutColor,
         label: 'Logout',
         onTap: () async {
@@ -145,39 +117,17 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
       contentPadding: const EdgeInsets.fromLTRB(12,50,12,0),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Main Menu',
-                    style: Theme.of(context).textTheme.headlineLarge
-                  ),
-                  DropdownButton<String>(
-                    value: _selectedIconStyle,
-                    items: _iconStyles.map((style) {
-                      return DropdownMenuItem(
-                        value: style,
-                        child: Text(style, style: const TextStyle(fontSize: 12)),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          _selectedIconStyle = val;
-                        });
-                      }
-                    },
-                  ),
-                ],
+              Text(
+                'Main Menu',
+                style: Theme.of(context).textTheme.headlineLarge
               ),
               const SizedBox(height: 30),
               Expanded(
                 child: GridView.count(
-                  padding: const EdgeInsets.all(12),
-                  crossAxisCount: crossAxisCount,
+                  padding: const EdgeInsets.all(12), // <-- Add padding here
+                  crossAxisCount: 3,
                   crossAxisSpacing: 16,
-                  mainAxisSpacing: mainAxisSpacing, 
-                  childAspectRatio: childAspectRatio,
+                  mainAxisSpacing: 16,
                   children: menuCards,
                 ),
               ),
@@ -187,4 +137,3 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
         );
   }
 }
-

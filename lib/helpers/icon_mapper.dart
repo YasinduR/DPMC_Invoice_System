@@ -5,6 +5,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
+// Define Icons for the Screen menus here 
+
 class IconMapper {
   static const Map<String, IconData> _iconMap = {
     'login': Icons.login,

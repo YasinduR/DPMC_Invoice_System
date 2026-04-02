@@ -10,6 +10,7 @@ class LocalStorageService {
   static const _kBiometricEnabled = 'biometricEnabled';
   static const _kSavedUsername = 'savedUsername';
   static const _kSavedPwd = 'savedPassword';
+  static const _kIconStyle = 'iconStyle';
 
   Future<void> saveBiometricPreference(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,6 +63,16 @@ class LocalStorageService {
     await prefs.remove(_kBiometricEnabled);
     await prefs.remove(_kSavedUsername);
     await prefs.remove(_kSavedPwd);
+  }
+
+  Future<void> saveIconStyle(String style) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kIconStyle, style);
+  }
+
+  Future<String> getIconStyle() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kIconStyle) ?? 'Apple Glass';
   }
 
   // Activity Loging

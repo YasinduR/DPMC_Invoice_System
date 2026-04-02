@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/widgets/app_switch_setting.dart';
+import 'package:myapp/providers/settings_provider.dart';
 
-class SecuritySettingView extends StatefulWidget {
+class SettingsView extends ConsumerStatefulWidget {
   final bool isBioEnabled;
   final bool isActivityHistoryClearEnabled;
   final ValueChanged<bool> onBiometricChange;
   final ValueChanged<bool> onActivityHistoryClearChange;
 
-  const SecuritySettingView({
+  const SettingsView({
     super.key,
     required this.isBioEnabled,
     required this.onBiometricChange,
@@ -16,12 +18,24 @@ class SecuritySettingView extends StatefulWidget {
   });
 
   @override
-  State<SecuritySettingView> createState() => _SecuritySettingViewState();
+  ConsumerState<SettingsView> createState() => _SettingsViewState();
 }
 
-class _SecuritySettingViewState extends State<SecuritySettingView> {
+class _SettingsViewState extends ConsumerState<SettingsView> {
   late bool _isBioEnabled;
   late bool _isActivityHistoryClearEnabled;
+
+  final List<String> _iconStyles = [
+    'Apple Glass',
+    'Material Default',
+    'Material 3',
+    '3D',
+    'Lucide',
+    'Iconly',
+    'HugeIcons',
+    'Font Awesome',
+    'Flutter Awesome'
+  ];
 
   @override
   void initState() {
@@ -31,7 +45,7 @@ class _SecuritySettingViewState extends State<SecuritySettingView> {
   }
 
   @override
-  void didUpdateWidget(covariant SecuritySettingView oldWidget) {
+  void didUpdateWidget(covariant SettingsView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // Sync biometric state
@@ -49,12 +63,22 @@ class _SecuritySettingViewState extends State<SecuritySettingView> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedIconStyle = ref.watch(settingsProvider).iconStyle;
+
     return Column(
       children: [
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
+              Text(
+                'Security',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+              ),
+              const SizedBox(height: 12),
               AppSwitchSetting(
                 title: 'Bio-Metric Login',
                 value: _isBioEnabled,
@@ -73,6 +97,33 @@ class _SecuritySettingViewState extends State<SecuritySettingView> {
                   setState(() => _isActivityHistoryClearEnabled = value);
                   widget.onActivityHistoryClearChange(value);
                 },
+              ),
+              const Divider(height: 32),
+              Text(
+                'Appearance',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                title: const Text('Icon Style'),
+                subtitle: const Text('Change the look of menu icons'),
+                trailing: DropdownButton<String>(
+                  value: _iconStyles.contains(selectedIconStyle) ? selectedIconStyle : 'Apple Glass',
+                  items: _iconStyles.map((style) {
+                    return DropdownMenuItem(
+                      value: style,
+                      child: Text(style, style: const TextStyle(fontSize: 14)),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref.read(settingsProvider.notifier).setIconStyle(val);
+                    }
+                  },
+                ),
               ),
             ],
           ),
