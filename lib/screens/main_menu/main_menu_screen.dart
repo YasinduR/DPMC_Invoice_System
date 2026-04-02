@@ -20,6 +20,16 @@ class MainMenuScreen extends ConsumerWidget {
     final accessibleScreens = user?.accessibleScreen ?? [];
     final selectedStyle = ref.watch(settingsProvider).iconStyle;
 
+    // Responsive logic: Calculate spacing based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Row spacing is now responsive
+    final double mainAxisSpacing = (screenWidth * 0.045).clamp(16.0, 40.0);
+    final double crossAxisSpacing = (screenWidth * 0.04).clamp(12.0, 24.0);
+    // Dynamic icon size
+    final double iconSize = (screenWidth * 0.15).clamp(56.0, 80.0);
+    // Adjust aspect ratio to give more vertical space if needed
+    final double childAspectRatio = (screenWidth < 600) ? 0.8 : 1.0;
+
     // Modify this with screen IDs othat need to priortize
     const prioritizeOrder = [
       '004', // Invoice
@@ -63,7 +73,7 @@ class MainMenuScreen extends ConsumerWidget {
 
           return MenuCard(
             color: itemColor,
-            iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, 60),
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, iconSize),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
@@ -74,7 +84,7 @@ class MainMenuScreen extends ConsumerWidget {
     menuCards.add(
       MenuCard(
         color: aboutColor,
-        iconWidget: IconMapper.getStyledIcon('info', selectedStyle, aboutColor, 60),
+        iconWidget: IconMapper.getStyledIcon('info', selectedStyle, aboutColor, iconSize),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -87,7 +97,7 @@ class MainMenuScreen extends ConsumerWidget {
     final logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        iconWidget: IconMapper.getStyledIcon('logout', selectedStyle, logoutColor, 60),
+        iconWidget: IconMapper.getStyledIcon('logout', selectedStyle, logoutColor, iconSize),
         color: logoutColor,
         label: 'Logout',
         onTap: () async {
@@ -124,10 +134,11 @@ class MainMenuScreen extends ConsumerWidget {
               const SizedBox(height: 30),
               Expanded(
                 child: GridView.count(
-                  padding: const EdgeInsets.all(12), // <-- Add padding here
+                  padding: const EdgeInsets.all(12),
                   crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  crossAxisSpacing: crossAxisSpacing,
+                  mainAxisSpacing: mainAxisSpacing,
+                  childAspectRatio: childAspectRatio,
                   children: menuCards,
                 ),
               ),
