@@ -12,6 +12,7 @@ import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
+import 'package:myapp/models/part_model.dart';
 
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
@@ -942,6 +943,67 @@ class MockApiService {
         }
 
         DummyData.savedInvoices.add(updatedInvoice);
+
+        final tinIndex = DummyData.tins.indexWhere(
+          (t) =>
+              t.tinNumber == updatedInvoice.tinNo ||
+              t.orderNumber == updatedInvoice.orderNo,
+        );
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          // Map existing parts by partNo for quick lookup
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // Subtract submitted quantities from master parts
+          for (final subPart in updatedInvoice.parts) {
+            final key = subPart.partNo;
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            final newQty = existingPart.requestQty - subPart.requestQty;
+
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              // exactly fulfilled — remove the part
+              existingByPartNo.remove(key);
+            } else {
+              throw Exception(
+                'Submitted quantity (${subPart.requestQty}) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and compute remaining total qty
+          final List<Part> remainingParts = existingByPartNo.values.toList();
+          final int remainingTotalQty = remainingParts.fold<int>(
+            0,
+            (int sum, Part p) => sum + p.requestQty,
+          );
+          // New status: 'PR' = proceeded when no parts remain, otherwise keep current (typically 'A')
+          final String newStatus =
+              (remainingTotalQty == 0) ? 'I' : existingTin.paymentStatus;
+
+          // Replace the master tin with updated parts and status
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: newStatus,
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: remainingParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
+          );
+
+          DummyData.tins[tinIndex] = updatedMasterTin;
+        }
         return updatedInvoice;
 
       case 'api/dispatchNote/save':
@@ -970,26 +1032,84 @@ class MockApiService {
       case 'api/return/save':
         if (body is! Return) {
           throw Exception(
-            'Invalid type for saving a return. Expected a Receipt object.',
+            'Invalid type for saving a Invoice. Expected an Invoice object.',
           );
         }
 
-        final returnboby = body;
+        final ret = body;
 
-        final updatedReturn = returnboby.copyWith(
+        final updatedReturn = ret.copyWith(
           // Use copyWith
           returnId: generateRetNumber(),
         );
-        //invoice.invoiceNumber = generateInvoiceNumber();
-        final isDuplicate = DummyData.returns.any(
-          (existingReturn) => existingReturn.returnId == updatedReturn.returnId,
-        );
 
-        if (isDuplicate) {
-          throw Exception('This return id already exists.');
+        // support Mappable payloads (ReturnPayload etc.) by normalizing to Map
+        // dynamic incoming = body;
+        // if (incoming is Mappable) incoming = incoming.toMap();
+
+        final String tinNo = ret.tinNo;
+
+        final List<Part> incomingItems = ret.returnItems;
+
+
+        final tinIndex = DummyData.tins.indexWhere((t) => t.tinNumber == tinNo);
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // iterate incoming items (each item may be Part instance, Map or minimal object)
+          for (final Part retItem in incomingItems) {
+            if (retItem == null) continue;
+
+            String? key;
+            int qty = 0;
+
+ 
+              key = retItem.partNo;
+              qty = retItem.requestQty;
+            
+            if (key == null) continue;
+
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            // Subtract logic: mirror invoice/save behaviour:
+            final int newQty = existingPart.requestQty - qty;
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              existingByPartNo.remove(key);
+            } else {
+              // incoming return exceeds available -> keep behaviour consistent with invoice flow
+              throw Exception(
+                'Returned quantity ($qty) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and update master tin (remove parts fully returned)
+          final List<Part> updatedParts = existingByPartNo.values.toList();
+          
+
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: updatedParts.isNotEmpty? existingTin.paymentStatus : 'I',
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: updatedParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
+          );
+          DummyData.tins[tinIndex] = updatedMasterTin;
         }
 
-        DummyData.returns.add(updatedReturn);
         return updatedReturn;
 
       case 'api/return-request/update':

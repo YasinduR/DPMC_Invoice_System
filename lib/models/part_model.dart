@@ -1,7 +1,7 @@
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/helpers/common_functions.dart';
 
-class Part implements Mappable {
+class Part implements Mappable{
   final String id;
   final String partNo;
   final int requestQty;
@@ -32,8 +32,6 @@ class Part implements Mappable {
       'receivedQty': receivedQty,
     };
   }
-
-  // This creates a new `Part` instance with same properties if not replaced
   Part copyWith({
     String? id,
     String? partNo,
@@ -42,15 +40,22 @@ class Part implements Mappable {
     int? receivedQty,
     String? description,
     double? discount,
+    int? returnQty,
   }) {
     return Part(
       id: id ?? this.id,
       partNo: partNo ?? this.partNo,
       price: price ?? this.price,
       requestQty: requestQty ?? this.requestQty,
-      receivedQty: receivedQty ?? this.receivedQty,
+      receivedQty: (returnQty != null) 
+          ? ((requestQty ?? this.requestQty) - returnQty).clamp(0, requestQty ?? this.requestQty) 
+          : (receivedQty ?? this.receivedQty),
       description: description ?? this.description,
       discount: discount ?? this.discount,
     );
+  }
+  int get returnQty => (requestQty - receivedQty).clamp(0, requestQty);
+  set returnQty(int value) {
+    receivedQty = requestQty - value;
   }
 }

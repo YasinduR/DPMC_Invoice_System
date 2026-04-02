@@ -175,6 +175,18 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     _validateReceiptForm();
   }
 
+void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
+  setState(() {
+    if (selectAll??false) {
+      _selectedTins = List.from(allTins); // create new list
+    } else {
+      _selectedTins.clear();
+    }
+  });
+
+  _validateReceiptForm();
+}
+
   void _onBranchTextChanged(String currentText) {
     if (_selectedBranch != null && currentText != _selectedBranch!.branchName) {
       setState(() {
@@ -435,7 +447,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           selectedTins: _selectedTins,
           onTinToggle: _toggleTinSelection,
           onPodStatusToggle: _podStatusToggle,
-          selectedPODstatus:_podStatus,
+          selectedPODstatus: _podStatus,
           selectedTin: _selectedTin,
           selectedBank: _selectedBank,
           selectedBranch: _selectedBranch,
@@ -474,7 +486,8 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           onBranchCommitChanged: (isCommitted) {
             setState(() => _isBranchSelectionCommitted = isCommitted);
             _validateReceiptForm();
-          },
+          }, 
+          toggleAll: _toggleAll,
         );
       case 2:
         return AddCreditNotesView(
