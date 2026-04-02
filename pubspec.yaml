@@ -119,6 +119,10 @@ flutter:
     fonts:
       - asset: assets/fonts/Inter/Inter-Bold.ttf # Path to the Regular variant
       - asset: assets/fonts/Inter/Inter-Regular.ttf # Path to the Bold variant
+  - family: Courier
+    fonts:
+      - asset: assets/fonts/Courier/CourierPrime-Bold.ttf 
+      - asset: assets/fonts/Courier/CourierPrime-Regular.ttf 
   # fonts:
   #   - family: Schyler
   #     fonts:

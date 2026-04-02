@@ -79,17 +79,31 @@ Future<void> saveActivity(Activity activity) async {
   await prefs.setStringList(_kActivities, stored);
 }
 
-Future<List<Activity>> getActivities() async {
+// Future<List<Activity>> getActivities() async {
+//   final prefs = await SharedPreferences.getInstance();
+
+//   List<String> stored = prefs.getStringList(_kActivities) ?? [];
+
+//   return stored
+//       .map((e) => Activity.fromJson(jsonDecode(e)))
+//       .toList()
+//       .reversed
+//       .toList();
+// }
+
+Future<List<Activity>> getActivities(String userId) async {
   final prefs = await SharedPreferences.getInstance();
 
   List<String> stored = prefs.getStringList(_kActivities) ?? [];
 
   return stored
       .map((e) => Activity.fromJson(jsonDecode(e)))
+      .where((activity) => activity.user == userId) // ✅ filter here
       .toList()
       .reversed
       .toList();
 }
+
 
  Future<bool> getHistoryClearPreference(BuildContext context) async {
     final loadingOverlay = AppLoadingOverlay();

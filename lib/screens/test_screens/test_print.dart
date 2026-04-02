@@ -24,7 +24,7 @@ class _TestPrintPageState extends State<TestPrintPage> {
   @override
   void initState() {
     super.initState();
-    _printerService.initPrinterServices(); // Initialize the printer service
+    
   }
 
   // final dummyNote = DispatchNoteSave(

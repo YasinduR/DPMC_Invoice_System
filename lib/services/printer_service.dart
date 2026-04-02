@@ -4,6 +4,7 @@ import 'dart:typed_data'; // For Uint8List
 
 // For thermal printers (ESC/POS) - keeping for future implementation
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart'; // For future Bluetooth connection
 import 'package:intl/intl.dart';
 import 'package:myapp/helpers/common_functions.dart';
@@ -24,13 +25,22 @@ class PrinterService {
   // FlutterBluePlus _flutterBlue = FlutterBluePlus.instance; // For future Bluetooth scanning/connection
   // BluetoothDevice _connectedDevice; // To store a connected printer device
 
-  late CapabilityProfile _profile; // Loaded once for ESC/POS command generation
+  //late CapabilityProfile _profile; // Loaded once for ESC/POS command generation
   static final String CompanyName = 'David Pieris Motor Company (Pvt) Ltd';
   static final String CompanyAddress = '120, 120A,Pannipitya Road, Battaramulla.';
   static final String CompanyContact = 'Tel: 014419300, Fax: 0114700101';
+  static late dynamic printRegular;
+  static late dynamic printBold;
 
-  Future<void> initPrinterServices() async {
-    _profile = await CapabilityProfile.load(); //
+  
+
+  static Future<void> initialize() async {
+    //_profile = await CapabilityProfile.load(); //
+    // printRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier-Regular.ttf'));
+    // printBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier-Bold.ttf'),);
+
+    printRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
+    printBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
     // No actual thermal printer connection logic here for now.
     // This method is kept for future expansion of thermal printing.
   }
@@ -157,7 +167,11 @@ class PrinterService {
     Return returnObj,
     PrintFooterDetail details,
   ) async {
-    final pdf = pw.Document();
+        final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
     final formattedReturnDate = DateFormat(
       'yyyy/MM/dd',
     ).format(returnObj.returnTime);
@@ -317,7 +331,15 @@ class PrinterService {
     PrintFooterDetail details, {
     bool isReprint = false,
   }) async {
-    final pdf = pw.Document();
+
+//final courierRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
+//final courierBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
+
+    final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
     final formattedInvoiceDate = DateFormat(
       'yyyy/MM/dd',
     ).format(invoiceObj.invoiceTime);
@@ -592,7 +614,11 @@ class PrinterService {
     PrintFooterDetail details, {
     bool isReprint = false,
   }) async {
-    final pdf = pw.Document();
+        final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
     final formattedDate = DateFormat('yyyy/MM/dd').format(recObj.receiptTime);
     final formattedDepDate = DateFormat('yyyy/MM/dd').format(recObj.chequeDate);
     final double fontSize = 10;
@@ -941,7 +967,11 @@ class PrinterService {
     DispatchNoteSave note,
     PrintFooterDetail details,
   ) async {
-    final pdf = pw.Document();
+        final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
     const double fontSize = 9;
 
     final formattedDate = DateFormat('yyyy/MM/dd').format(note.dispatchTime);
@@ -1311,7 +1341,11 @@ class PrinterService {
     String dealerName,
   ) async {
     final data = _buildInvoice(selectedParts, dealerName);
-    final pdf = pw.Document();
+        final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
 
     pdf.addPage(
       pw.Page(
@@ -1421,7 +1455,11 @@ class PrinterService {
     String customerName,
   ) async {
     final receiptData = _buildReceiptData(items, customerName);
-    final pdf = pw.Document();
+        final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
 
     pdf.addPage(
       pw.Page(
@@ -1519,7 +1557,11 @@ static Future<void> previewChequeSummaryPdf(
   List<Receipt> cheques,
   PrintFooterDetail details,
 ) async {
-  final pdf = pw.Document();
+      final pdf = pw.Document(  
+      theme: pw.ThemeData.withFont(
+    base: printRegular,
+    bold: printBold,
+  ),);
   final formattedStart = DateFormat('yyyy/MM/dd HH:mm').format(startDateTime);
   final formattedEnd = DateFormat('yyyy/MM/dd HH:mm').format(endDateTime);
   final totalAmount = cheques.fold<double>(0, (sum, rec) => sum + rec.chequeAmount);
