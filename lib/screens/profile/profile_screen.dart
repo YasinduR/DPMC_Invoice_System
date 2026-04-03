@@ -28,6 +28,7 @@ class ProfileScreen extends ConsumerWidget {
   }
     return AppPage(
       title: 'User Profile',
+      currentRouteName: 'profile',
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(

@@ -7,6 +7,7 @@ import 'package:myapp/screens/activity_log/activity_log_screen.dart';
 import 'package:myapp/screens/advice_of_dispatch_note/advice_of_dispatch_note_screen.dart';
 import 'package:myapp/screens/attendance/attendance_screen.dart';
 import 'package:myapp/screens/change_password/change_pwd_screen.dart';
+import 'package:myapp/screens/cheque_summary/cheque_summary_screen.dart';
 import 'package:myapp/screens/error_screen/error_screen.dart';
 import 'package:myapp/screens/forget_password/forget_pwd_screen.dart';
 import 'package:myapp/screens/invoice/invoice_screen.dart';
@@ -17,13 +18,16 @@ import 'package:myapp/screens/print_invoice/print_invoice_screen.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
 import 'package:myapp/screens/receipt/receipt_screen.dart';
 import 'package:myapp/screens/reprint/reprint_screen.dart';
-import 'package:myapp/screens/return%20request%20adjustment%20/ret_req_adj_screen.dart';
+import 'package:myapp/screens/return_request_adjustment/ret_req_adj_screen.dart';
 import 'package:myapp/screens/returns/return_screen.dart';
 import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/security_setting/security_setting_screen.dart';
 import 'package:myapp/screens/setup_print/setup_print_screen.dart';
+import 'package:myapp/screens/splash_screen/splash_screen.dart';
+import 'package:myapp/screens/supervisor_summary/supervisor_summary_screen.dart';
 import 'package:myapp/screens/test_screens/test_notify.dart';
 import 'package:myapp/screens/test_screens/test_print.dart';
+import 'package:myapp/screens/to_do_list/to_do_list_screen.dart';
 
 // This will link main.dart with the approutes with handling permission
 
@@ -42,6 +46,7 @@ class AppRouter {
       AppRoutes.initializer,
       AppRoutes.login,
       AppRoutes.forgetPassword,
+      AppRoutes.splash,
     ];
 
     // if (publicRoutes.contains(routeName)) {
@@ -127,6 +132,8 @@ class AppRouter {
     switch (routeName) {
       case AppRoutes.initializer: // Handle the new location check route
         return (context) => const InitializerScreen();
+      case AppRoutes.splash: // Handle the new location check route
+        return (context) => const SplashScreen();
       case AppRoutes.login:
         return (context) => const LoginScreen();
       case AppRoutes.mainMenu:
@@ -160,7 +167,7 @@ class AppRouter {
       case '/changePassword':
         return (context) => const ChangePasswordScreen();
       case '/securitySetting':
-        return (context) => const SecuritySettingScreen();
+        return (context) => const SettingsScreen();
       case '/attendance':
         return (context) => const AttendanceScreen();
       case '/testPrint':
@@ -171,6 +178,12 @@ class AppRouter {
         return (context) => const DispatchNoteScreen();
       case '/activityLog':
         return (context) => const ActivityLogScreen();
+      case '/toDoList':
+        return (context) => const ToDoListScreen();
+      case '/chequeSummary':
+        return (context) => const ChequeSummaryScreen();
+      case '/supervisorSummary':
+        return (context) => const SupervisorSummaryScreen();
       default:
         return null; // Return Null for the invalid routes
     }

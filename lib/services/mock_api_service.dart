@@ -5,26 +5,33 @@ import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
+import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/dummy_data.dart';
+import 'package:myapp/models/part_model.dart';
 
 import 'package:bcrypt/bcrypt.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:math';
 
 //// IMPORTANT :  This works as the Back-End remove later
 
 class MockApiService {
   static const Uuid _uuid = Uuid(); // For generating unique tokens
   static const String _jwtSecretKey = 'DPMC-INV-SYSTEM'; // Change The Key Later
+  // static String _pendingOtp = '';
+  static final Map<String, Map<String, dynamic>> _otpStore = {};
+  static String devOtp = ''; // DEV ONLY
 
   static const List<String> _publicEndpoints = [
     // Where We dont need access token
     'api/user/login',
     'api/user/request-password-reset',
+    'api/user/verify-otp',
     'api/user/reset-password',
     'api/user/set-password',
     'api/user/renew-password',
@@ -105,6 +112,24 @@ class MockApiService {
     return jwt.sign(SecretKey(_jwtSecretKey));
   }
 
+  /// verify both token authenticity and user ownership before allowing a reset.
+  static Future<String> _generateResetToken(String username) async {
+    final DateTime issuedAt = DateTime.now();
+    final DateTime expiresAt = issuedAt.add(const Duration(minutes: 15));
+
+    final jwt = JWT(
+      {
+        'type': 'password_reset',
+        'iat': issuedAt.millisecondsSinceEpoch ~/ 1000,
+        'exp': expiresAt.millisecondsSinceEpoch ~/ 1000,
+      },
+      issuer: 'mock_api_service',
+      subject: username,
+    );
+
+    return jwt.sign(SecretKey(_jwtSecretKey));
+  }
+
   static Future<List<T>> get<T extends Mappable>(
     String url, {
     String? authToken, // Token is now passed as a parameter
@@ -170,6 +195,9 @@ class MockApiService {
       case 'api/screens/list':
         sourceData = DummyData.screens;
         break;
+      case 'api/dispatch-notes/list': // Added by Darshan R on 23/03/2026
+        sourceData = DummyData.savedDispatchNotes;
+        break;
       case 'api/attendance/list':
         sourceData = DummyData.attendances;
       case 'api/return-request/list':
@@ -178,6 +206,49 @@ class MockApiService {
         sourceData = DummyData.employees;
       case 'api/receipts/list':
         sourceData = DummyData.receipts;
+      case 'api/assignee/list':
+        sourceData = DummyData.assignees;
+
+        // final filtersJson = uri.queryParameters['filters'];
+        // if (filtersJson == null) {
+        //   sourceData = [];
+        //   break;
+        // }
+
+        // final filters = jsonDecode(filtersJson) as List;
+        // // Assuming the filter is always ['supervisorId', '=', value]
+        // final supervisorFilter = filters.firstWhere(
+        //   (f) => f[0] == 'supervisorId',
+        //   orElse: () => null,
+        // );
+
+        // if (supervisorFilter == null) {
+        //   sourceData = [];
+        //   break;
+        // }
+
+        // final supervisorId = supervisorFilter[2]; // the value
+
+        // final assigneeIds =
+        //     DummyData.assignees
+        //         .where((a) => a.supervisorId == supervisorId)
+        //         .map((a) => a.assigneeId)
+        //         .toList();
+
+        // sourceData =
+        //     DummyData.users.where((u) => assigneeIds.contains(u.id)).toList();
+        // break;
+
+      //   final assigneeIds = DummyData.assignees
+      //       .where((a) => a.supervisorId == supervisorId)
+      //       .map((a) => a.assigneeId)
+      //       .toList();
+
+      // sourceData = DummyData.users
+      //     .where((u) => assigneeIds.contains(u.id)) // 👈 fix
+      //     .toList();
+
+      //   break;
       default:
         throw Exception('Invalid API URL Path: $uri.path');
     }
@@ -240,6 +311,14 @@ class MockApiService {
                     return comparableItemValue.compareTo(comparableValue) <= 0;
                   }
                   return false;
+
+                case 'in':
+              if (value is List) {
+                return value.any((v) =>
+                  comparableItemValue.toString().toLowerCase() == v.toString().toLowerCase());
+                }
+              return false;
+
                 default:
                   return false; // Unknown operator
               }
@@ -682,11 +761,64 @@ class MockApiService {
             lastThreeDigits = phoneNumber;
           }
 
+          // generate pending OTP - Added By Darshan R on 12/03/2026
+          final String otp = (Random().nextInt(900000) + 100000).toString();
+          _otpStore[username!] = {
+            'otp': otp,
+            'expiry': DateTime.now().add(const Duration(minutes: 5)),
+            'used': false,
+            'failedAttempts': 0,
+          };
+          devOtp = otp; // DEV ONLY
+
           // Construct the message
           return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
         } catch (e) {
           rethrow;
         }
+
+      case 'api/user/verify-otp':
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Invalid body for OTP verification.');
+        }
+        final otpUsername = (body['username'] as String?)?.toLowerCase();
+        final otpToken = body['token'] as String?;
+        if (otpUsername == null || otpToken == null) {
+          throw Exception('Username and token are required.');
+        }
+        final otpRecord = _otpStore[otpUsername];
+        if (otpRecord == null) {
+          throw UnauthorisedException(
+            'No OTP request found. Please try again.',
+          );
+        }
+        if (otpRecord['used'] as bool) {
+          throw UnauthorisedException('OTP has already been used.');
+        }
+        if (DateTime.now().isAfter(otpRecord['expiry'] as DateTime)) {
+          _otpStore.remove(otpUsername);
+          throw UnauthorisedException(
+            'OTP has expired. Please request a new one.',
+          );
+        }
+        if (otpRecord['otp'] as String != otpToken) {
+          final int attempts = (otpRecord['failedAttempts'] as int) + 1;
+          _otpStore[otpUsername]!['failedAttempts'] = attempts;
+
+          if (attempts >= 3) {
+            _otpStore.remove(otpUsername);
+            throw UnauthorisedException(
+              'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+            );
+          }
+
+          final int remaining = 3 - attempts;
+          throw UnauthorisedException(
+            'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
+          );
+        }
+        _otpStore[otpUsername]!['used'] = true;
+        return await _generateResetToken(otpUsername);
 
       case 'api/user/reset-password':
         if (body is! Map<String, dynamic>) {
@@ -695,9 +827,27 @@ class MockApiService {
         final username = (body['username'] as String?)?.toLowerCase();
         final token = body['token'];
         final newPassword = body['newPassword'];
-        if (token != '12345') {
+
+        try {
+          final JWT resetJwt = JWT.verify(token, SecretKey(_jwtSecretKey));
+          final payload = resetJwt.payload as Map<String, dynamic>;
+          if (payload['type'] != 'password_reset') {
+            throw UnauthorisedException('Invalid reset token.');
+          }
+          if (resetJwt.subject != username) {
+            throw UnauthorisedException('Reset token does not match the user.');
+          }
+        } on JWTExpiredException {
           throw UnauthorisedException(
-            'Invalid or expired password reset token.',
+            'Reset token has expired. Please start over.',
+          );
+        } on UnauthorisedException {
+          rethrow;
+        } on AccountLockedException {
+          rethrow;
+        } catch (_) {
+          throw UnauthorisedException(
+            'Invalid reset token. Please start over.',
           );
         }
 
@@ -793,6 +943,67 @@ class MockApiService {
         }
 
         DummyData.savedInvoices.add(updatedInvoice);
+
+        final tinIndex = DummyData.tins.indexWhere(
+          (t) =>
+              t.tinNumber == updatedInvoice.tinNo ||
+              t.orderNumber == updatedInvoice.orderNo,
+        );
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          // Map existing parts by partNo for quick lookup
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // Subtract submitted quantities from master parts
+          for (final subPart in updatedInvoice.parts) {
+            final key = subPart.partNo;
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            final newQty = existingPart.requestQty - subPart.requestQty;
+
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              // exactly fulfilled — remove the part
+              existingByPartNo.remove(key);
+            } else {
+              throw Exception(
+                'Submitted quantity (${subPart.requestQty}) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and compute remaining total qty
+          final List<Part> remainingParts = existingByPartNo.values.toList();
+          final int remainingTotalQty = remainingParts.fold<int>(
+            0,
+            (int sum, Part p) => sum + p.requestQty,
+          );
+          // New status: 'PR' = proceeded when no parts remain, otherwise keep current (typically 'A')
+          final String newStatus =
+              (remainingTotalQty == 0) ? 'I' : existingTin.paymentStatus;
+
+          // Replace the master tin with updated parts and status
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: newStatus,
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: remainingParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
+          );
+
+          DummyData.tins[tinIndex] = updatedMasterTin;
+        }
         return updatedInvoice;
 
       case 'api/dispatchNote/save':
@@ -804,6 +1015,7 @@ class MockApiService {
         final dispatchNote = body;
         final updatedDispatchNote = dispatchNote.copyWith(
           dispatchNumber: generateDispatchNumber(),
+          tins: List<TinData>.from(dispatchNote.tins),
         );
         final isDuplicate = DummyData.savedDispatchNotes.any(
           (existing) =>
@@ -820,26 +1032,84 @@ class MockApiService {
       case 'api/return/save':
         if (body is! Return) {
           throw Exception(
-            'Invalid type for saving a return. Expected a Receipt object.',
+            'Invalid type for saving a Invoice. Expected an Invoice object.',
           );
         }
 
-        final returnboby = body;
+        final ret = body;
 
-        final updatedReturn = returnboby.copyWith(
+        final updatedReturn = ret.copyWith(
           // Use copyWith
           returnId: generateRetNumber(),
         );
-        //invoice.invoiceNumber = generateInvoiceNumber();
-        final isDuplicate = DummyData.returns.any(
-          (existingReturn) => existingReturn.returnId == updatedReturn.returnId,
-        );
 
-        if (isDuplicate) {
-          throw Exception('This return id already exists.');
+        // support Mappable payloads (ReturnPayload etc.) by normalizing to Map
+        // dynamic incoming = body;
+        // if (incoming is Mappable) incoming = incoming.toMap();
+
+        final String tinNo = ret.tinNo;
+
+        final List<Part> incomingItems = ret.returnItems;
+
+
+        final tinIndex = DummyData.tins.indexWhere((t) => t.tinNumber == tinNo);
+        if (tinIndex != -1) {
+          final existingTin = DummyData.tins[tinIndex];
+
+          final Map<String, Part> existingByPartNo = {
+            for (var p in existingTin.parts) p.partNo: p,
+          };
+
+          // iterate incoming items (each item may be Part instance, Map or minimal object)
+          for (final Part retItem in incomingItems) {
+            if (retItem == null) continue;
+
+            String? key;
+            int qty = 0;
+
+ 
+              key = retItem.partNo;
+              qty = retItem.requestQty;
+            
+            if (key == null) continue;
+
+            final existingPart = existingByPartNo[key];
+            if (existingPart == null) continue;
+
+            // Subtract logic: mirror invoice/save behaviour:
+            final int newQty = existingPart.requestQty - qty;
+            if (newQty > 0) {
+              existingByPartNo[key] = existingPart.copyWith(requestQty: newQty);
+            } else if (newQty == 0) {
+              existingByPartNo.remove(key);
+            } else {
+              // incoming return exceeds available -> keep behaviour consistent with invoice flow
+              throw Exception(
+                'Returned quantity ($qty) exceeds available (${existingPart.requestQty}) for part $key',
+              );
+            }
+          }
+
+          // Rebuild parts list and update master tin (remove parts fully returned)
+          final List<Part> updatedParts = existingByPartNo.values.toList();
+          
+
+          final updatedMasterTin = TinData(
+            tinNumber: existingTin.tinNumber,
+            orderNumber: existingTin.orderNumber,
+            totalValue: existingTin.totalValue,
+            paymentStatus: updatedParts.isNotEmpty? existingTin.paymentStatus : 'I',
+            dealercode: existingTin.dealercode,
+            payOnDel: existingTin.payOnDel,
+            parts: updatedParts,
+            bagCount: existingTin.bagCount,
+            tagCount: existingTin.tagCount,
+            plasticBCount: existingTin.plasticBCount,
+            remark: existingTin.remark,
+          );
+          DummyData.tins[tinIndex] = updatedMasterTin;
         }
 
-        DummyData.returns.add(updatedReturn);
         return updatedReturn;
 
       case 'api/return-request/update':

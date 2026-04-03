@@ -12,7 +12,7 @@ class AuthService {
   final SecureStorageService _secureStorageService =
       SecureStorageService(); // Instantiate SecureStorageService
   String baseUrl = Config.baseUrl;
-  //String userPath = 'user/';
+  String userPath = 'user/';
 
   String get loginUrl => '${baseUrl}user/login';
   String get changePasswordUrl => '${baseUrl}user/changepassword';
@@ -20,6 +20,7 @@ class AuthService {
   String get resetPasswordUrl => '${baseUrl}user/reset-password';
   String get setPasswordUrl => '${baseUrl}user/set-password';
   String get renewPasswordUrl => '${baseUrl}user/renew-password';
+  String get verifyOtpUrl => '${baseUrl}user/verify-otp';
 
 
   Future<void> logout({required BuildContext context}) async {
@@ -76,12 +77,12 @@ class AuthService {
       // final accessTokenExpiry = DateTime.parse(accessTokenExpiryString);
 
       // --- START: Print tokens for testing ---
-      print('--- Login Successful ---');
-      print('Access Token: $accessToken');
-      print('Refresh Token: $refreshToken');
+      //print('--- Login Successful ---');
+      //print('Access Token: $accessToken');
+      //print('Refresh Token: $refreshToken');
       // print('Access Token Expiry (String): $accessTokenExpiryString');
       // print('Access Token Expiry (DateTime): $accessTokenExpiry');
-      print('------------------------');
+      //print('------------------------');
       // --- END: Print tokens for testing ---
 
       // Save tokens securely
@@ -273,6 +274,22 @@ class AuthService {
       if (loadingOverlay.isShowing) {
         loadingOverlay.hide();
       }
+    }
+  }
+
+  // Added by Darshan R on 12/03/2026
+  Future<String> verifyOtp({
+    required BuildContext context,
+    required String username,
+    required String token,
+  }) async {
+    try {
+      return await MockApiService.post(
+        verifyOtpUrl,
+        body: {'username': username, 'token': token},
+      ) as String;
+    } catch (e) {
+      rethrow;
     }
   }
 

@@ -1,7 +1,6 @@
 // Helper widget for creating each card in the menu grid
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/theme/app_colors.dart';
 
 // class MenuCard extends StatelessWidget {
 //   const MenuCard({
@@ -150,13 +149,13 @@ import 'package:myapp/theme/app_colors.dart';
 class MenuCard extends StatefulWidget {
   const MenuCard({
     super.key,
-    required this.icon,
+    required this.iconWidget,
     required this.label,
     required this.onTap,
     required this.color,
   });
 
-  final IconData icon;
+  final Widget iconWidget;
   final String label;
   final VoidCallback onTap;
   final Color color;
@@ -170,7 +169,6 @@ class _MenuCardState extends State<MenuCard> {
   
   @override
   Widget build(BuildContext context) {
-    Color color = widget.color;
     return GestureDetector(
       // Detect when the finger touches down
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -178,42 +176,20 @@ class _MenuCardState extends State<MenuCard> {
       onTapUp: (_) => setState(() => _isPressed = false),
       // Detect when the finger drags away/cancels
       onTapCancel: () => setState(() => _isPressed = false),
+      behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
       child: AnimatedScale(
         scale: _isPressed ? 0.90 : 1.0, // Shrink slightly when pressed
         duration: const Duration(milliseconds: 100),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                // Shadow becomes darker and more spread out when pressed
-                color:
-                    _isPressed
-                        ? Colors.black.withOpacity(0.15)
-                        : Colors.grey.withOpacity(0.2),
-                spreadRadius: _isPressed ? 2 : 2,
-                blurRadius: _isPressed ? 10 : 7,
-                offset: _isPressed ? const Offset(0, 4) : const Offset(0, 2),
-              ),
-            ],
-            border: Border.all(
-              color:
-                  _isPressed
-                      //? AppColors.primary.withOpacity(0.5)
-                      ? color.withOpacity(0.6)
-                      : color.withOpacity(0.4),
-              width: 1.5,
-            ),
-          ),
+          decoration: const BoxDecoration(),
           child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+          padding: const EdgeInsets.fromLTRB(4, 12, 4, 0), // Standardized top padding for row alignment
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start, // Align from the top to fix icon misalignment
             children: [
-              Icon(widget.icon, size: 40, color: color),
+              widget.iconWidget,
               const SizedBox(height: 8),
               AutoSizeText(
                 widget.label,

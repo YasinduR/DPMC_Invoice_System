@@ -62,6 +62,12 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="wa.me" />
+        </intent>
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
     </queries>
 
      <!-- Request legacy Bluetooth permissions on older devices. -->
@@ -87,9 +93,19 @@
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/> <!-- For older Android versions -->
+
 <!--
   If you don't use Bluetooth to determine physical location, you can add this line to the ACCESS_FINE_LOCATION permission:
   android:usesPermissionFlags="neverForLocation"
 -->
+        <!-- FOR ANDROID 11+ (API 30+) - MANAGE_EXTERNAL_STORAGE for root access -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    
+    <!-- FOR ANDROID 10 AND BELOW (API 29-) - Legacy storage permission -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+                     android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+                     android:maxSdkVersion="29" />
+
 
 </manifest>

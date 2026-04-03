@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/activity_model.dart';
+import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/services/log_text_service.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/services/local_storage_service.dart';
+import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/activity_card.dart';
 
 
-class ActivityLogView extends StatefulWidget {
-  final Function() onSubmit;
-  final String? selectedLog;
-
+class ActivityLogView extends ConsumerStatefulWidget {
+  final Function(Activity) onSubmit;
   const ActivityLogView({
     super.key,
     required this.onSubmit,
-    this.selectedLog,
   });
 
   @override
-  State<ActivityLogView> createState() => _ActivityLogViewState();
+  ConsumerState<ActivityLogView> createState() => _ActivityLogViewState();
 }
 
-class _ActivityLogViewState extends State<ActivityLogView> {
+class _ActivityLogViewState extends ConsumerState<ActivityLogView> {
   final LocalStorageService _storageService = LocalStorageService();
 
   List<Activity> _activities = [];
-  String? _selectedLog;
-
+  
   @override
   void initState() {
     super.initState();
-    _selectedLog = widget.selectedLog;
     _loadActivities();
   }
 
   Future<void> _loadActivities() async {
-    final logs = await _storageService.getActivities();
+    final userid = ref.read(authProvider).currentUser!.id;
+    final logs = await _storageService.getActivities(userid);
     setState(() {
       _activities = logs;
     });
@@ -45,7 +46,6 @@ class _ActivityLogViewState extends State<ActivityLogView> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-
         Expanded(
           child: _activities.isEmpty
           ? const Center(child: Text("No Activities to show"))
@@ -56,21 +56,42 @@ class _ActivityLogViewState extends State<ActivityLogView> {
             return ActivityCard(
               activity: activity,
               onTap: () {
-                setState(() {
-                  _selectedLog = activity.id;
-                });
+              widget.onSubmit(activity);
               },
             );
           },
         ),
         ),
           const SizedBox(height: 16),
-          /// Print Button
           ActionButton(
             icon: Icons.check_circle_outline,
             label: 'Export',
-            onPressed: () => widget.onSubmit(),
-          ),
+            onPressed: () async {
+              if (_activities.isEmpty) {
+              showSnackBar(
+                context: context,
+                message: "No activities to export",
+                type: MessageType.warning,
+              );
+              return;
+                }
+      final buffer = StringBuffer();
+      buffer.writeln("===== ACTIVITY LOG EXPORT =====");
+      buffer.writeln("Exported on: ${DateTime.now()}");
+      buffer.writeln("================================\n");
+      for (final activity in _activities) {
+        buffer.writeln(activity.getActivityLog());
+        buffer.writeln("\n--------------------------------\n");
+      }
+      final content = buffer.toString();
+      final fileName = "Activity_Log.txt";
+      await LogTextService.saveFile(
+        fileName: fileName,
+        content: content,
+        context: context,
+      );
+  },
+),
         ],
       ),
     );

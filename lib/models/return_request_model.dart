@@ -5,9 +5,9 @@ import 'package:myapp/models/return_item_model.dart';
 
 class ReturnRequest implements Mappable {
   final String returnId;
- // final String tinNo;
-//  final String route;
-  //final String dealerName;
+  // final String tinNo;
+  // final String route;
+  // final String dealerName;
   final String dealerId;
   final String userId;
   final String returnType;
@@ -18,9 +18,9 @@ class ReturnRequest implements Mappable {
 
   ReturnRequest({
     required this.returnId,
-   // required this.tinNo,
-   // required this.route,
-  //  required this.dealerName,
+    // required this.tinNo,
+    // required this.route,
+    // required this.dealerName,
     required this.dealerId,
     required this.userId,
     required this.returnType,
@@ -63,7 +63,7 @@ class ReturnRequest implements Mappable {
   }) {
     return ReturnRequest(
       returnId: returnId ?? this.returnId,
-    //  tinNo: tinNo ?? this.tinNo,
+     // tinNo: tinNo ?? this.tinNo,
      // route: route ?? this.route,
      // dealerName: dealerName ?? this.dealerName,
       dealerId: dealerId ?? this.dealerId,

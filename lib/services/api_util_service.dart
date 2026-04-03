@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
@@ -15,7 +14,6 @@ import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 Future<void> inquire<T extends Mappable>({
   required BuildContext context,
   required String dataUrl,
@@ -28,13 +26,13 @@ Future<void> inquire<T extends Mappable>({
 
   try {
     loadingOverlay.show(context);
-          String baseUrl = Config.baseUrl;
-      String url = '${baseUrl}$dataUrl';
+    String baseUrl = Config.baseUrl;
+    String url = '${baseUrl}$dataUrl';
     //String url = dataUrl;
     if (filters != null && filters.isNotEmpty) {
       List<List<dynamic>> filterConditions = [];
       // filters.forEach((key, value) {
-        
+
       //   filterConditions.add([
       //     key,
       //     '=',
@@ -48,28 +46,31 @@ Future<void> inquire<T extends Mappable>({
         } else if (key.endsWith('_end')) {
           // For date_end, use original field name (e.g., 'date') and '<=' operator
           filterConditions.add([key.replaceFirst('_end', ''), '<=', value]);
+        } else if (key.endsWith('_in')) {
+          // New: handle 'in' operator
+          filterConditions.add([key.replaceFirst('_in', ''), 'in', value]);
         } else {
           // Default to '=' for other filters
           filterConditions.add([key, '=', value]);
         }
       });
 
-
       url += '?filters=${jsonEncode(filterConditions)}';
     }
-      final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
+    final SecureStorageService _secureStorageService =
+        SecureStorageService(); // Instantiate SecureStorageService
 
-      final String? accessToken = await _secureStorageService.getAccessToken(); 
+    final String? accessToken = await _secureStorageService.getAccessToken();
 
-      if (accessToken == null) {
-        print('Error: No access token found. User is not authenticated.');
-        throw UnauthorisedException('Please log in to access this data.');
-      }
+    if (accessToken == null) {
+      print('Error: No access token found. User is not authenticated.');
+      throw UnauthorisedException('Please log in to access this data.');
+    }
 
-       final List<T> data = await MockApiService.get<T>(
-        url,
-        authToken: accessToken, // Pass the retrieved access token
-      );
+    final List<T> data = await MockApiService.get<T>(
+      url,
+      authToken: accessToken, // Pass the retrieved access token
+    );
 
     //final List<T> data = await MockApiService.get<T>(url);
     onSuccess(data);
@@ -95,16 +96,17 @@ Future<void> dealerLogin({
 
   try {
     loadingOverlay.show(context);
-      String baseUrl = Config.baseUrl;
-      String url = '${baseUrl}dealer/login';
-      final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
-      final String? accessToken = await _secureStorageService.getAccessToken(); 
+    String baseUrl = Config.baseUrl;
+    String url = '${baseUrl}dealer/login';
+    final SecureStorageService _secureStorageService =
+        SecureStorageService(); // Instantiate SecureStorageService
+    final String? accessToken = await _secureStorageService.getAccessToken();
 
     final bool isAuthenticated =
         await MockApiService.post(
               url,
               body: {'dealerCode': dealerCode, 'pin': pin},
-              accessToken: accessToken
+              accessToken: accessToken,
             )
             as bool;
 
@@ -134,38 +136,37 @@ Future<void> save<T extends Mappable>({
   required Function(String errorMessage) onError,
   required ActivityType activityType,
   User? user,
-  Function(T rawReceivedData)? onReceivedData, // Optional call back based on response (ex-print)
+  Function(T rawReceivedData)?
+  onReceivedData, // Optional call back based on response (ex-print)
 }) async {
   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
-  final LocalStorageService localStorageService =  LocalStorageService();
-
-
+  final LocalStorageService localStorageService = LocalStorageService();
   if (!context.mounted) return;
-
   try {
     loadingOverlay.show(context);
- 
-      String baseUrl = Config.baseUrl;
-      String url = '${baseUrl}$dataUrl';
-      final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
-      final String? accessToken = await _secureStorageService.getAccessToken(); 
-    // Call the generic postData method in the service
-    //await MockApiService.post(dataUrl, body: dataToSave);
-
-        // MockApiService.post returns Future<dynamic>, so apiResponse will be dynamic.
-    final dynamic apiResponse = await MockApiService.post(url, body: dataToSave,accessToken: accessToken); // Pass dataToSave directly
-
+    String baseUrl = Config.baseUrl;
+    String url = '${baseUrl}$dataUrl';
+    final SecureStorageService _secureStorageService =
+        SecureStorageService(); // Instantiate SecureStorageService
+    final String? accessToken = await _secureStorageService.getAccessToken();
+    final dynamic apiResponse = await MockApiService.post(
+      url,
+      body: dataToSave,
+      accessToken: accessToken,
+    ); // Pass dataToSave directly
     // If onReceivedData callback is provided, we attempt to process the API response.
     if (onReceivedData != null) {
       T? dataForCallback;
 
-    if (apiResponse is T) {
+      if (apiResponse is T) {
         dataForCallback = apiResponse;
       }
       if (dataForCallback != null) {
         onReceivedData(dataForCallback);
       } else {
-        print('Warning: onReceivedData was provided, but API response could not be interpreted as Map<String, dynamic> or a Mappable object. Actual type: ${apiResponse.runtimeType}. Response: $apiResponse');
+        print(
+          'Warning: onReceivedData was provided, but API response could not be interpreted as Map<String, dynamic> or a Mappable object. Actual type: ${apiResponse.runtimeType}. Response: $apiResponse',
+        );
         // You might want to provide more specific error handling or logging here.
       }
     }
@@ -174,33 +175,29 @@ Future<void> save<T extends Mappable>({
     await localStorageService.saveActivity(
       Activity(
         id: const Uuid().v4(),
+        user: user?.id,
         title: "Successfully Saved",
         endpoint: dataUrl,
         timestamp: DateTime.now(),
         type: activityType,
         status: StatusType.success,
-        metadata: {
-          "data": dataToSave.toMap()
-        },
+        metadata: {"data": dataToSave.toMap()},
       ),
     );
-
   } catch (e) {
     onError(e.toString());
     await localStorageService.saveActivity(
       Activity(
         id: const Uuid().v4(),
+        user: user?.id,
         title: "Error Occured",
         endpoint: dataUrl,
         timestamp: DateTime.now(),
         type: activityType,
         status: StatusType.failed,
-        metadata: {
-          "data": dataToSave.toMap()
-        },
+        metadata: {"data": dataToSave.toMap()},
       ),
     );
-
   } finally {
     if (loadingOverlay.isShowing) {
       loadingOverlay.hide();
@@ -221,14 +218,15 @@ Future<void> checkScreenPermission({
   try {
     loadingOverlay.show(context);
     String baseUrl = Config.baseUrl;
-    final SecureStorageService _secureStorageService = SecureStorageService(); // Instantiate SecureStorageService
-    final String? accessToken = await _secureStorageService.getAccessToken(); 
+    final SecureStorageService _secureStorageService =
+        SecureStorageService(); // Instantiate SecureStorageService
+    final String? accessToken = await _secureStorageService.getAccessToken();
 
     final bool hasPermission =
         await MockApiService.post(
               '${baseUrl}permission/check',
               body: {'screenId': screenId, 'roleIds': roleIds},
-              accessToken: accessToken
+              accessToken: accessToken,
             )
             as bool;
 
@@ -249,19 +247,19 @@ Future<void> checkScreenPermission({
 // THIS IS TO COLLECT ALL SCREEN INFO ON APP ROUTE INITIALIZING //
 Future<List<Screen>> loadScreens() async {
   try {
-      // final String? accessToken = await _secureStorageService.getAccessToken();
+    // final String? accessToken = await _secureStorageService.getAccessToken();
 
-      // if (accessToken == null) {
-      //   // Handle case where no token is found (e.g., user not logged in)
-      //   print('Error: No access token found. User is not authenticated.');
-      //   // You might want to navigate to a login screen or show an error message
-      //   throw UnauthorisedException('Please log in to access this data.');
-      // }
+    // if (accessToken == null) {
+    //   // Handle case where no token is found (e.g., user not logged in)
+    //   print('Error: No access token found. User is not authenticated.');
+    //   // You might want to navigate to a login screen or show an error message
+    //   throw UnauthorisedException('Please log in to access this data.');
+    // }
 
-      // final List<Screen> data = await MockApiService.get<Screen>(
-      //   'api/screens/list',
-      //   authToken: accessToken, // Pass the retrieved access token
-      // );
+    // final List<Screen> data = await MockApiService.get<Screen>(
+    //   'api/screens/list',
+    //   authToken: accessToken, // Pass the retrieved access token
+    // );
     String baseUrl = Config.baseUrl;
     final List<Screen> data = await MockApiService.get<Screen>(
       '${baseUrl}screens/list',

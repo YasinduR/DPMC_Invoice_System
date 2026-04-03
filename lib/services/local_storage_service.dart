@@ -10,6 +10,7 @@ class LocalStorageService {
   static const _kBiometricEnabled = 'biometricEnabled';
   static const _kSavedUsername = 'savedUsername';
   static const _kSavedPwd = 'savedPassword';
+  static const _kIconStyle = 'iconStyle';
 
   Future<void> saveBiometricPreference(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
@@ -64,9 +65,21 @@ class LocalStorageService {
     await prefs.remove(_kSavedPwd);
   }
 
+  // Icon Style - Added by Darshan R on 2026-04-03
+  Future<void> saveIconStyle(String style) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kIconStyle, style);
+  }
+
+  Future<String> getIconStyle() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kIconStyle) ?? 'Apple Glass';
+  }
+
   // Activity Loging
 
 static const String _kActivities = "activities";
+static const _kActivityHistoryClear = "activityHistoryEnabledClear";  // Activity History Clear Preferance
 
 Future<void> saveActivity(Activity activity) async {
   final prefs = await SharedPreferences.getInstance();
@@ -78,19 +91,70 @@ Future<void> saveActivity(Activity activity) async {
   await prefs.setStringList(_kActivities, stored);
 }
 
-Future<List<Activity>> getActivities() async {
+// Future<List<Activity>> getActivities() async {
+//   final prefs = await SharedPreferences.getInstance();
+
+//   List<String> stored = prefs.getStringList(_kActivities) ?? [];
+
+//   return stored
+//       .map((e) => Activity.fromJson(jsonDecode(e)))
+//       .toList()
+//       .reversed
+//       .toList();
+// }
+
+Future<List<Activity>> getActivities(String userId) async {
   final prefs = await SharedPreferences.getInstance();
 
   List<String> stored = prefs.getStringList(_kActivities) ?? [];
 
   return stored
       .map((e) => Activity.fromJson(jsonDecode(e)))
+      .where((activity) => activity.user == userId) // ✅ filter here
       .toList()
       .reversed
       .toList();
 }
 
 
+ Future<bool> getHistoryClearPreference(BuildContext context) async {
+    final loadingOverlay = AppLoadingOverlay();
+    try {
+      loadingOverlay.show(context);
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_kActivityHistoryClear) ?? false;
+    } catch (e) {
+      return false;
+    } finally{
+    if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
+    }
+  }
+
+    Future<void> setActivityHistoryClearPreference(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kActivityHistoryClear, enabled);
+  }
+
+  Future<void> clearOldActivities() async {
+  final prefs = await SharedPreferences.getInstance();
+  final List<String> stored = prefs.getStringList(_kActivities) ?? [];
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final yesterday = today.subtract(const Duration(days: 1));
+  final filtered = stored.where((e) {
+    final activity = Activity.fromJson(jsonDecode(e));
+    final activityDate = DateTime(
+      activity.timestamp.year,
+      activity.timestamp.month,
+      activity.timestamp.day,
+    );
+    return activityDate.isAtSameMomentAs(today) ||
+        activityDate.isAtSameMomentAs(yesterday);
+  }).toList();
+  await prefs.setStringList(_kActivities, filtered);
+}
 //
 
 

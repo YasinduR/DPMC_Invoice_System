@@ -55,7 +55,7 @@ class _InitializerScreenState extends State<InitializerScreen>
       });
 
       if (_locationReady) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+        Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
       }
     }
   }

@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/invoice_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/receipt_model.dart';
+import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/services/printer_service.dart';
 import 'package:myapp/views/reprint_invoice-reciept_view.dart';
 //import 'package:myapp/views/reprint_invoice-receipt_view.dart';
-import 'package:myapp/views/reprint_invoice_view.dart';
-import 'package:myapp/views/reprint_reference_view.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/models/reference_model.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
 // class ReprintScreen extends StatefulWidget {
@@ -116,14 +114,14 @@ class ReprintScreen extends StatefulWidget {
 
 class _ReprintScreenState extends State<ReprintScreen> {
   int _currentStep = 0;
-  String? _selectedReturnType;
+  // String? _selectedReturnType;   // commented by Darshan R on 23/03/2026 because not used anywhere in the code!
   final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
   final PrinterService _printerService = PrinterService();
 
-  void _submit(InvoiceSave? invoice, Receipt? receipt, String type) {
+  void _submit(InvoiceSave? invoice, Receipt? receipt, DispatchNoteSave? dispatchNote, String type) {
 
     if (type == 'Invoice' && invoice != null) {
-      _printerService.previewThermalInvoicePdf(
+      PrinterService.previewThermalInvoicePdf(
         invoice,
         details,
         isReprint: true,
@@ -135,7 +133,7 @@ class _ReprintScreenState extends State<ReprintScreen> {
         type: MessageType.success,
       );
     } else if (type == 'Receipt' && receipt != null) {
-      _printerService.previewThermalReceiptPdf(
+      PrinterService.previewThermalReceiptPdf(
         receipt,
         details,
         isReprint: true,
@@ -146,6 +144,16 @@ class _ReprintScreenState extends State<ReprintScreen> {
         type: MessageType.success,
       );
       // call receipt print service
+    } else if (type == 'Advice of Dispatch' && dispatchNote != null) {    // Added by Darshan R on 23/03/2026
+      PrinterService.previewDispatchNotePdf(
+        dispatchNote,
+        details,
+      );
+      showSnackBar(
+        context: context,
+        message: 'Advice of Dispatch reprinted successfully!',
+        type: MessageType.success,
+      );
     } else {
       showSnackBar(
         context: context,

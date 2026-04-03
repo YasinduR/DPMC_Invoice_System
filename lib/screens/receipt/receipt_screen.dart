@@ -37,10 +37,13 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
   Region? _selectedRegion;
+  String? _podStatus;
+
   final GlobalKey<ReceiptDetailsViewState> _receiptDetailsKey =
       GlobalKey<ReceiptDetailsViewState>();
   // --- Controllers are now created and managed in the parent's state ---
   late final TextEditingController _chequeNoController;
+  late final TextEditingController _chequeNoConfirmController;
   late final TextEditingController _amountController;
   late final TextEditingController _tinController;
   late final TextEditingController _bankController;
@@ -64,6 +67,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     super.initState();
     // Initialize all controllers here
     _chequeNoController = TextEditingController();
+    _chequeNoConfirmController = TextEditingController();
     _amountController = TextEditingController();
     _tinController = TextEditingController();
     _bankController = TextEditingController();
@@ -71,6 +75,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
 
     // Add listeners to controllers that need to trigger validation on text change.
     _chequeNoController.addListener(_validateReceiptForm);
+    _chequeNoConfirmController.addListener(_validateReceiptForm);
     _amountController.addListener(_validateReceiptForm);
   }
 
@@ -78,6 +83,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   void dispose() {
     // Dispose all controllers here to prevent memory leaks
     _chequeNoController.dispose();
+    _chequeNoConfirmController.dispose();
     _amountController.dispose();
     _tinController.dispose();
     _bankController.dispose();
@@ -87,6 +93,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
 
   void _clearReceiptDetails() {
     _chequeNoController.clear();
+    _chequeNoConfirmController.clear();
     _amountController.clear();
     _tinController.clear();
     _bankController.clear();
@@ -106,9 +113,18 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     });
   }
 
+  void _podStatusToggle(status) {
+    setState(() {
+      _selectedTins = [];
+      _podStatus = status;
+    });
+  }
+
   void _validateReceiptForm() {
     final bool isValid =
         _chequeNoController.text.isNotEmpty &&
+        _chequeNoConfirmController.text.isNotEmpty &&
+        _chequeNoController.text == _chequeNoConfirmController.text &&
         _amountController.text.isNotEmpty &&
         _selectedChequeDate != null &&
         _selectedTins.isNotEmpty && // Check if at least one TIN is selected
@@ -158,6 +174,18 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     });
     _validateReceiptForm();
   }
+
+void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
+  setState(() {
+    if (selectAll??false) {
+      _selectedTins = List.from(allTins); // create new list
+    } else {
+      _selectedTins.clear();
+    }
+  });
+
+  _validateReceiptForm();
+}
 
   void _onBranchTextChanged(String currentText) {
     if (_selectedBranch != null && currentText != _selectedBranch!.branchName) {
@@ -278,7 +306,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
         _clearReceiptDetails();
         _receiptDetailsKey.currentState?.loadTinInvoices();
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
-        _printerService.previewThermalReceiptPdf(savedReceipt, details);
+        PrinterService.previewThermalReceiptPdf(savedReceipt, details);
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -375,9 +403,11 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool confirmOnNavigate = _currentStep >= 1;
     return AppPage(
       title: _getCurrentTitle(),
       onBack: _onback,
+      confirmOnNavigate: confirmOnNavigate,
       contentPadding: EdgeInsets.zero,
       child: _buildCurrentView(),
     );
@@ -409,19 +439,20 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           onSubmit: _onSubmit,
           addCreditnote: _gotoaddCreditNotes,
           chequeNoController: _chequeNoController,
+          chequeNoConfirmController: _chequeNoConfirmController,
           amountController: _amountController,
           tinController: _tinController,
           bankController: _bankController,
           branchController: _branchController,
-
           selectedTins: _selectedTins,
           onTinToggle: _toggleTinSelection,
+          onPodStatusToggle: _podStatusToggle,
+          selectedPODstatus: _podStatus,
           selectedTin: _selectedTin,
           selectedBank: _selectedBank,
           selectedBranch: _selectedBranch,
           selectedChequeDate: _selectedChequeDate,
           isFormValid: _isReceiptFormValid,
-
           onBankTextChanged: _onBankTextChanged,
           onBranchTextChanged: _onBranchTextChanged,
           onBankSelected: (bank) {
@@ -455,7 +486,8 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           onBranchCommitChanged: (isCommitted) {
             setState(() => _isBranchSelectionCommitted = isCommitted);
             _validateReceiptForm();
-          },
+          }, 
+          toggleAll: _toggleAll,
         );
       case 2:
         return AddCreditNotesView(

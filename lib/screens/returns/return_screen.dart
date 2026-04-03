@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/region_model.dart';
-import 'package:myapp/models/return_item_model.dart';
+// import 'package:myapp/models/return_item_model.dart';
 import 'package:myapp/models/return_save_model.dart';
+import 'package:myapp/models/tin_stat_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/region_provider.dart';
@@ -18,7 +19,9 @@ import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
+
 //import 'package:myapp/views/auth_dealer_view.dart';
+import 'package:myapp/models/part_model.dart';
 
 class ReturnScreen extends ConsumerStatefulWidget {
   const ReturnScreen({super.key});
@@ -29,9 +32,11 @@ class ReturnScreen extends ConsumerStatefulWidget {
 
 class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   final PrinterService _printerService = PrinterService();
+  final TextEditingController remarkController = TextEditingController();
   int _currentStep = 0;
   Dealer? _selectedDealer;
   TinData? _selectedTin;
+  late TinStat _tinStat;
 
   // Regional settings
   Region? _selectedRegion;
@@ -70,14 +75,37 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   // }
 
   void _onDealerSelected(Dealer dealer) {
-    setState(() {
-      _selectedDealer = dealer;
-      if (_selectedDealer != null) {
-        _currentStep = 1;
-      }
-    });
+    // setState(() {
+    _selectedDealer = dealer;
+    if (_selectedDealer != null) {
+      _currentStep = 1;
+      _loadTinSelectionPage();
+    }
+    // });
   }
 
+  Future<void> _loadTinSelectionPage() async {
+    await inquire<TinData>(
+      context: context,
+      dataUrl: 'tins/list',
+      filters: {'dealerCode': _selectedDealer!.accountCode},
+      onSuccess: (List<TinData> data) {
+        if (!mounted) return;
+        setState(() {
+          _tinStat = TinStat.fromTinList(data);
+          _currentStep = 1;
+        });
+      },
+      onError: (String message) {
+        if (!mounted) return;
+        showSnackBar(
+          context: context,
+          message: message,
+          type: MessageType.error,
+        );
+      },
+    );
+  }
   // void _submitDealer() {
   //   if (_selectedDealer != null) {
   //     setState(() {
@@ -93,22 +121,32 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   // }
 
   // MODIFIED: Added callbacks for TIN selection
-  void _onTinSelected(TinData tin) {
+  // void _onTinSelected(TinData tin) {
+  //   setState(() {
+  //     _selectedTin = tin;
+  //   });
+  // }
+
+  void _submitTin(tin) async {
+    // await _loadTinStat();
     setState(() {
       _selectedTin = tin;
+      if (_selectedTin != null) {
+        _currentStep = 2; // Move to Add return
+      }
     });
   }
 
-  void _submitTin() {
-    if (_selectedTin != null) {
-      setState(() {
-        _currentStep = 2; // Move to Create Invoice step
-      });
-    }
-  }
+  // void _submitTin() {
+  //   if (_selectedTin != null) {
+  //     setState(() {
+  //       _currentStep = 2; // Move to Create Invoice step
+  //     });
+  //   }
+  // }
 
   void _saveReturn(
-    List<ReturnItem> selectedItems,
+    List<Part> selectedItems,
     String selectedReturnType,
     String selectedReason,
   ) async {
@@ -127,9 +165,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     //   );
     //   return;
     // }
-  if (
-        selectedItems.isEmpty
-        ) {
+    if (selectedItems.isEmpty) {
       showSnackBar(
         context: context,
         message: "No parts to save. Please try again !",
@@ -138,9 +174,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       return;
     }
 
-     if (
-        _selectedDealer == null 
-        ) {
+    if (_selectedDealer == null) {
       showSnackBar(
         context: context,
         message: "No dealer to save. Please try again !",
@@ -148,9 +182,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
-            if (
-        currentRegion == null 
-        ) {
+    if (currentRegion == null) {
       showSnackBar(
         context: context,
         message: "No region to save. Please try again !",
@@ -158,9 +190,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
-        if (
-        _selectedTin == null 
-        ) {
+    if (_selectedTin == null) {
       showSnackBar(
         context: context,
         message: "No tin to save. Please try again !",
@@ -168,8 +198,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
-    if (currentUser == null
-        ) {
+    if (currentUser == null) {
       showSnackBar(
         context: context,
         message: "No user to save. Please try again !",
@@ -177,10 +206,25 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       );
       return;
     }
+    // // Build a simple payload using Part instances (screens keep using Part)
+    // final Map<String, dynamic> savePayload = {
+    //   'tinNo': _selectedTin?.tinNumber ?? '',
+    //   'dealerCode': _selectedDealer?.accountCode ?? '',
+    //   'remark': remarkController.text,
+    //   'returnItems': selectedItems
+    //       .map((Part p) => {
+    //             'partNo': p.partNo,
+    //             'requestQty': p.requestQty,
+    //             'returnQty': p.returnQty, // <- mapped correctly
+    //           })
+    //       .toList(),
+    //   'date': DateTime.now().toIso8601String(),
+    // };
+
     final saveReturn = Return(
       returnId: 'AAA',
       tinNo: _selectedTin!.tinNumber,
-      route: currentRegion.region,
+      route: currentRegion!.region,
       dealerName: _selectedDealer!.name,
       dealerId: _selectedDealer!.accountCode,
       userId: currentUser.id,
@@ -189,7 +233,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       returnTime: DateTime.now(),
       returnItems: selectedItems,
     );
-    
+
     late Return savedReturn;
     await save(
       context: context,
@@ -197,16 +241,19 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       activityType: ActivityType.returnSave,
       dataUrl: 'return/save',
       dataToSave: saveReturn,
-      onSuccess: () {
+      onReceivedData: (rawReceivedData) {
+        savedReturn = rawReceivedData;
+      },
+      onSuccess: () async {
         showSnackBar(
           context: context,
           message: 'Return saved successfully!',
           type: MessageType.success,
         );
-                final details = PrintFooterDetail(
-                          formNo: 'PA-FO-53',
-                          revNo: '01');
-        _printerService.previewThermalReturnPdf(savedReturn,details);
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+        await PrinterService.previewThermalReturnPdf(savedReturn, details);
+         _loadTinSelectionPage();
+
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -216,25 +263,12 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           type: MessageType.error,
         );
       },
-      // rawReceivedData is extrcted from the API BODY on post request response
-      onReceivedData: (rawReceivedData) {
-        try {
-          // Parse the raw map back into a Return object
-          savedReturn = rawReceivedData;
-        } catch (e) {
-          // Handle this error appropriately, perhaps showing an error snackbar
-          showSnackBar(
-            context: context,
-            message: 'Failed to process response for Return: $e',
-            type: MessageType.error,
-          );
-          // Optionally, rethrow or set savedReturn to null to prevent onSuccess from running
-        }
-      },
     );
-    setState(() {
-      _currentStep = 1; // Move to the tinselaction
-    });
+
+    // _loadTinSelectionPage();
+    // setState(() {
+    //   _currentStep = 1; // Move to the tinselaction
+    // });
   }
 
   void _goBack() {
@@ -251,6 +285,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
   Widget build(BuildContext context) {
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
     Widget currentView;
+    bool confirmOnNavigate = _currentStep > 1;
     switch (_currentStep) {
       case -1:
         currentView = SelectRegionView(
@@ -277,8 +312,9 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
       case 1:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
-          selectedTin: _selectedTin,
-          onTinNumberSelected: _onTinSelected,
+          selectedTin: null,
+          tinStat: _tinStat,
+          //onTinNumberSelected: _onTinSelected,
           onSubmit: _submitTin,
         );
         break;
@@ -286,6 +322,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
         currentView = ReturnsView(
           dealer: _selectedDealer!,
           tinData: _selectedTin!,
+          tinStat: _tinStat,
           onSubmit: _saveReturn,
         );
         break;
@@ -315,6 +352,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
 
     return AppPage(
       title: currentTitle,
+      confirmOnNavigate: confirmOnNavigate,
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,

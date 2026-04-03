@@ -8,41 +8,47 @@ import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
-class SecuritySettingScreen extends ConsumerStatefulWidget {
-  const SecuritySettingScreen({super.key});
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  ConsumerState<SecuritySettingScreen> createState() =>
-      _SecuritySettingScreenState();
+  ConsumerState<SettingsScreen> createState() =>
+      _SettingsScreenState();
 }
 
-class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   // Use a nullable Future<bool> to hold the result of the async operation
   // Or, a simple bool with a loading state. Let's use a bool with loading.
   bool? _isBioEnabled; // Null means loading
+  bool? _isActivityHistoryClearEnabled; // Null means loading
   bool _hasfetch = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchBiometricStatus(); // Call an async function from initState
+    _fetchStatus(); // Call an async function from initState
   }
 
-  Future<void> _fetchBiometricStatus() async {
+  Future<void> _fetchStatus() async {
     try {
       final authNotifier = ref.read(authProvider.notifier);
-      final bool enabled = await authNotifier.isBioMetEnabled(context);
+      final bool bioenabled = await authNotifier.isBioMetEnabled(context);
+      final bool historyClearEnabled = await authNotifier.isHistoryClearEnabled(
+        context,
+      );
       if (mounted) {
         // Check if the widget is still in the tree
         setState(() {
-          _isBioEnabled = enabled;
+          _isBioEnabled = bioenabled;
+          _isActivityHistoryClearEnabled = historyClearEnabled;
         });
       }
     } catch (e) {
-      print('Error fetching biometric status: $e');
+      // print('Error fetching biometric status: $e');
       if (mounted) {
         setState(() {
-          _isBioEnabled = false; // Default to false on error
+          _isBioEnabled = false; 
+          _isActivityHistoryClearEnabled = false; // Default to false on error
         });
       }
     } finally {
@@ -111,7 +117,80 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
   //     }
   //   }
   // }
- Future<void> _handleBiometricChange(bool newValue) async {
+
+Future<void> _handleActivityHistoryChange(bool newValue) async {
+  if (_isActivityHistoryClearEnabled == newValue) return;
+
+  setState(() {
+    _isActivityHistoryClearEnabled = newValue; // optimistic UI
+  });
+
+  try {
+    final authNotifier = ref.read(authProvider.notifier);
+
+    if (newValue) {
+      // ✅ Enable Auto Clear
+      final confirmed = await showConfirmationDialog(
+        context: context,
+        title: 'Enable Auto-Clear Activity History?',
+        content:
+            'This will automatically remove activity logs older than one day. Do you want to continue?',
+        confirmButtonText: 'Yes, Enable',
+        cancelButtonText: 'Cancel',
+      );
+
+      if (confirmed) {
+        await authNotifier.setActivityHistoryClearPreference(
+          newValue,
+          (e) => throw e,
+        );
+      } else {
+        // revert UI
+        if (mounted) {
+          setState(() {
+            _isActivityHistoryClearEnabled = !newValue;
+          });
+        }
+      }
+    } else {
+      // ✅ Disable Auto Clear
+      final confirmed = await showConfirmationDialog(
+        context: context,
+        title: 'Disable Auto-Clear Activity History?',
+        content:
+            'Activity logs will no longer be cleared automatically. Do you want to continue?',
+        confirmButtonText: 'Yes, Disable',
+        cancelButtonText: 'Cancel',
+      );
+
+      if (confirmed) {
+        await authNotifier.setActivityHistoryClearPreference(
+          newValue,
+          (e) => throw e,
+        );
+      } else {
+        // revert UI
+        if (mounted) {
+          setState(() {
+            _isActivityHistoryClearEnabled = !newValue;
+          });
+        }
+      }
+    }
+  } catch (e) {
+    _showSnackBarError(
+      e is Exception ? e : Exception(e.toString()),
+    );
+
+    if (mounted) {
+      setState(() {
+        _isActivityHistoryClearEnabled = !newValue;
+      });
+    }
+  }
+}
+
+  Future<void> _handleBiometricChange(bool newValue) async {
     if (_isBioEnabled == newValue) return; // No change
 
     setState(() {
@@ -145,7 +224,7 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
                 _isBioEnabled = !newValue; // Revert UI
               });
             }
-            return; 
+            return;
           }
         } else {
           if (mounted) {
@@ -153,7 +232,7 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
               _isBioEnabled = !newValue; // Revert UI
             });
           }
-          return; 
+          return;
         }
       } else {
         // Disable Auth
@@ -164,11 +243,11 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
           confirmButtonText: 'Yes, Disable',
           cancelButtonText: 'No, Keep',
         );
-        if(confirmed){
+        if (confirmed) {
           //await authNotifier.clearUserInfo();
           // Also set biometric preference to false in local storage
           await authNotifier.setBiometricPreference(newValue, (e) {
-             throw (e);
+            throw (e);
           });
         } else {
           // User cancelled the "Disable Biometric Login" confirmation dialog
@@ -180,15 +259,18 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
           return; // Exit as action wasn't confirmed
         }
       }
-    } on Exception catch (e) { 
-      _showSnackBarError(e); 
+    } on Exception catch (e) {
+      _showSnackBarError(e);
       if (mounted) {
         setState(() {
           _isBioEnabled = !newValue; // Revert UI on error
         });
       }
-    } catch (e) { // Catch any other kind of error/object
-      _showSnackBarError(Exception('An unexpected error occurred: ${e.toString()}'));
+    } catch (e) {
+      // Catch any other kind of error/object
+      _showSnackBarError(
+        Exception('An unexpected error occurred: ${e.toString()}'),
+      );
       if (mounted) {
         setState(() {
           _isBioEnabled = !newValue; // Revert UI on error
@@ -217,7 +299,7 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
 
     if (currentUser == null) {
       return const AppPage(
-        title: 'Security Settings', // Added a title
+        title: 'Settings', // Added a title
         child: Center(
           child: Text('No user is logged in. Please log in again.'),
         ),
@@ -225,20 +307,24 @@ class _SecuritySettingScreenState extends ConsumerState<SecuritySettingScreen> {
     }
     if (!hasFetched) {
       return const AppPage(
-        title: 'Security Settings', // Added a title
+        title: 'Settings', // Added a title
         child: Center(child: Text('')),
       );
     }
 
     final bool currentBioStatus = _isBioEnabled ?? false;
+    final bool currentHistoryStatus = _isActivityHistoryClearEnabled ?? false;
 
     return AppPage(
-      title: 'Security Settings', 
+      title: 'Settings',
+      currentRouteName: 'securitySetting',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
-      child: SecuritySettingView(
+      child: SettingsView(
         isBioEnabled: currentBioStatus,
         onBiometricChange: _handleBiometricChange,
+    isActivityHistoryClearEnabled: currentHistoryStatus,
+    onActivityHistoryClearChange: _handleActivityHistoryChange, // ✅ NEW
       ),
     );
   }

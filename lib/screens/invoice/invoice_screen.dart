@@ -18,7 +18,9 @@ import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/views/select_tin_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-//import 'package:myapp/views/auth_dealer_view.dart';
+import 'package:myapp/views/add_return_view.dart';
+import 'package:myapp/models/tin_stat_model.dart';
+import 'package:myapp/models/return_save_model.dart';
 
 class InvoiceScreen extends ConsumerStatefulWidget {
   const InvoiceScreen({super.key});
@@ -29,8 +31,11 @@ class InvoiceScreen extends ConsumerStatefulWidget {
 
 class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   final PrinterService _printerService = PrinterService();
+  InvoiceSave? _lastSavedInvoice;
   int _currentStep = 0;
   TinData? _selectedTin;
+  TinStat? _tinStat;
+  //List<Part>?_pendingReturnParts; // <-- new: store remaining parts for ReturnsView
 
   // Regional settings
   Region? _selectedRegion;
@@ -65,12 +70,12 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   // Dealer Selection
   Dealer? _selectedDealer;
   void _onDealerSelected(Dealer dealer) {
-    setState(() {
-      _selectedDealer = dealer;
-      if (_selectedDealer != null) {
-        _currentStep = 1;
-      }
-    });
+    //setState(() {
+    _selectedDealer = dealer;
+    if (_selectedDealer != null) {
+      _loadTinSelectionPage();
+    }
+    //});
   }
 
   // void _submitDealer(Dealer dealer) {
@@ -88,18 +93,95 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   // }
   //--- Dealer Selection
 
-  void _onTinSelected(TinData tin) {
+  // void _onTinSelected(TinData tin) {
+  //   setState(() {
+  //     _selectedTin = tin;
+  //   });
+  // }
+
+  void _submitTin(tin) {
     setState(() {
       _selectedTin = tin;
+      if (_selectedTin != null) {
+        _currentStep = 2; // Move to Create Invoice step
+      }
     });
   }
 
-  void _submitTin() {
-    if (_selectedTin != null) {
-      setState(() {
-        _currentStep = 2; // Move to Create Invoice step
-      });
-    }
+  // Future<void> _loadReturnPage() async {
+  //   await inquire<TinData>(
+  //     context: context,
+  //     dataUrl: 'tins/list',
+  //     filters: {'tinNumber': _selectedTin!.tinNumber},
+  //     onSuccess: (List<TinData> data) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         _selectedTin = data[0];
+  //         //_pendingReturnParts = data[0].parts;
+  //         _currentStep = 3;
+  //       });
+  //     },
+  //     onError: (String message) {
+  //       if (!mounted) return;
+  //       showSnackBar(
+  //         context: context,
+  //         message: message,
+  //         type: MessageType.error,
+  //       );
+  //     },
+  //   );
+  // }
+
+  Future<void> _loadReturnPage() async {
+    await inquire<TinData>(
+      context: context,
+      dataUrl: 'tins/list',
+      filters: {'dealerCode': _selectedDealer!.accountCode},
+      onSuccess: (List<TinData> data) {
+        if (!mounted) return;
+
+        final TinData? selectedTin = data.firstWhere(
+          (t) => t.tinNumber == _selectedTin!.tinNumber,
+        );
+
+        setState(() {
+          _selectedTin = selectedTin;
+          _tinStat = TinStat.fromTinList(data);
+          _currentStep = 3;
+        });
+      },
+      onError: (String message) {
+        if (!mounted) return;
+        showSnackBar(
+          context: context,
+          message: message,
+          type: MessageType.error,
+        );
+      },
+    );
+  }
+
+  Future<void> _loadTinSelectionPage() async {
+    await inquire<TinData>(
+      context: context,
+      dataUrl: 'tins/list',
+      filters: {'dealerCode': _selectedDealer!.accountCode},
+      onSuccess: (List<TinData> data) {
+        if (!mounted) return;
+        setState(() {
+          _tinStat = TinStat.fromTinList(data);
+          _currentStep = 1;
+        });
+      },
+      onError: (String message) {
+        if (!mounted) return;
+        showSnackBar(
+          context: context,
+          message: message,
+          type: MessageType.error,
+        );
+      },
+    );
   }
 
   Future<void> _saveinvoice(List<Part> selectedParts) async {
@@ -154,6 +236,23 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       final price = part.price;
       total += (qty * price);
     }
+
+    final invoiceParts =
+        selectedParts
+            // restore original working mapping: submit requestQty = receivedQty
+            .map((p) => p.copyWith(requestQty: p.receivedQty))
+            .toList();
+
+    final bool isAllRecieved = _selectedTin!.parts.every((tinPart) {
+      final selected =
+          selectedParts
+              .where((p) => p.partNo == tinPart.partNo)
+              .cast<dynamic>()
+              .firstOrNull;
+
+      return selected != null && tinPart.requestQty == selected.receivedQty;
+    });
+
     final invoiceData = InvoiceSave(
       invoiceNumber: 'AAA',
       tinNo: _selectedTin!.tinNumber,
@@ -163,7 +262,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       userId: currentUser.id,
       invoiceAmount: total,
       invoiceTime: DateTime.now(),
-      parts: selectedParts,
+      parts: invoiceParts,
       orderNo: _selectedTin!.orderNumber,
       dealerVatNo: _selectedDealer!.vatNo,
       dealerAddress: _selectedDealer!.address + ', ' + _selectedDealer!.city,
@@ -180,6 +279,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       onReceivedData: (rawReceivedData) {
         try {
           savedInvoice = rawReceivedData;
+          _lastSavedInvoice =
+              rawReceivedData; // keep last saved invoice for later print flow
         } catch (e) {
           showSnackBar(
             context: context,
@@ -188,18 +289,39 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           );
         }
       },
-      onSuccess: () {
+      onSuccess: () async {
         showSnackBar(
           context: context,
           message: 'Invoice saved successfully!',
           type: MessageType.success,
         );
         //final details = PrintFooterDetail({revNo:'PA-FO-53'});
-        final details = PrintFooterDetail(
-                          formNo: 'PA-FO-53',
-                          revNo: '01');
-                          
-        _printerService.previewThermalInvoicePdf(savedInvoice, details);
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+
+        // // get latest tin from mock master (use API in prod)
+        // final updatedTin = DummyData.tins.firstWhere(
+        //   (t) =>
+        //       t.tinNumber == _selectedTin!.tinNumber ||
+        //       t.orderNumber == _selectedTin!.orderNumber,
+        //   orElse: () => _selectedTin!,
+        // );
+
+        // if (updatedTin.parts.isNotEmpty) {
+        //   setState(() {
+        //     _selectedTin = updatedTin;
+        //     _pendingReturnParts = updatedTin.parts; // <-- pass remaining parts
+        //     _currentStep = 3; // navigate to ReturnsView
+        //   });
+        //   return;
+        // }
+
+        await PrinterService.previewThermalInvoicePdf(savedInvoice, details);
+        if (!isAllRecieved) {
+          _loadReturnPage();
+        } else {
+          _loadTinSelectionPage();
+        }
+        return;
       },
       onError: (e) {
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -225,13 +347,115 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
     //   message: "Invoice Saved !",
     //   type: MessageType.success,
     // );
-    setState(() {
-      _currentStep = 1; // Move to the initial page
-    });
+    // if (_currentStep != 3) {
+    //   setState(() { _currentStep = 1; });
+    // }
+  }
+
+  Future<void> _saveReturn(List<Part> items, String type, String reason) async {
+    // simple pass-through to the same save helper used elsewhere
+    final authState = ref.watch(authProvider);
+    final User? currentUser = authState.currentUser;
+    final Region? currentRegion = ref.watch(regionProvider).selectedRegion;
+    if (currentUser == null) return;
+
+    // final Map<String, dynamic> savePayload = {
+    //   'tinNo': _selectedTin!.tinNumber,
+    //   'orderNo': _selectedTin!.orderNumber ?? '',
+    //   // use tin's dealer code (avoid referencing non-existing User.dealerCode)
+    //   'dealerCode': _selectedTin!.dealercode ?? '',
+    //   'remark': '', // no invoice-level remark available here
+    //   'returnItems': items.map((Part p) => {
+    //     'partNo': p.partNo,
+    //     'requestQty': p.requestQty,
+    //     'returnQty': p.returnQty, // <- mapped correctly
+    //   }).toList(),
+    //   'date': DateTime.now().toIso8601String(),
+    // };
+
+    final saveReturn = Return(
+      returnId: 'AAA',
+      tinNo: _selectedTin!.tinNumber,
+      route: currentRegion!.region,
+      dealerName: _selectedDealer!.name,
+      dealerId: _selectedDealer!.accountCode,
+      userId: currentUser.id,
+      returnType: type,
+      returnReason: reason,
+      returnTime: DateTime.now(),
+      returnItems: items,
+    );
+
+    late Return savedReturn;
+    // wrap payload in Mappable so save(...) accepts it
+    await save(
+      context: context,
+      user: currentUser,
+      activityType: ActivityType.returnSave,
+      dataUrl: 'return/save',
+      dataToSave: saveReturn,
+      onReceivedData: (rawReceivedData) {
+        try {
+          savedReturn = rawReceivedData;
+          // Handle any response parsing if needed
+        } catch (e) {
+          showSnackBar(
+            context: context,
+            message: 'Failed to process response for Return: $e',
+            type: MessageType.error,
+          );
+        }
+      },
+      onSuccess: () async {
+        showSnackBar(
+          context: context,
+          message: 'Return saved successfully!',
+          type: MessageType.success,
+        );
+
+        final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
+        try {
+          PrinterService.previewThermalReturnPdf(savedReturn, details);
+
+          // if (_lastSavedInvoice != null) {
+          //   PrinterService.previewThermalInvoicePdf(_lastSavedInvoice!, details);
+          // }
+        } catch (e) {
+          showSnackBar(
+            context: context,
+            message: 'Print preview failed: $e',
+            type: MessageType.error,
+          );
+        }
+
+        // Navigate back to Select TIN step after previews complete
+        setState(() {
+          _selectedTin = null;
+          _currentStep = 1; // Select TIN
+          _lastSavedInvoice = null;
+        });
+      },
+      onError: (e) {
+        showSnackBar(
+          context: context,
+          message: e.toString(),
+          type: MessageType.error,
+        );
+      },
+    );
+
+    // keep existing behavior for non-flow cases
+    if (_currentStep != 3) {
+      setState(() => _currentStep = 1);
+    }
   }
 
   void _goBack() {
     if (_currentStep > 0) {
+      if (_currentStep == 3) {
+        _loadTinSelectionPage();
+        return;
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _currentStep--;
@@ -245,6 +469,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   @override
   Widget build(BuildContext context) {
     Widget currentView;
+    bool confirmOnNavigate = _currentStep > 1;
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
     switch (_currentStep) {
       case -1:
@@ -273,8 +498,9 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 1:
         currentView = SelectTinNumberView(
           dealer: _selectedDealer!,
-          selectedTin: _selectedTin,
-          onTinNumberSelected: _onTinSelected,
+          selectedTin: null,
+          tinStat: _tinStat,
+          //onTinNumberSelected: _onTinSelected,
           onSubmit: _submitTin,
         );
         break;
@@ -283,6 +509,15 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
           dealer: _selectedDealer!,
           tindata: _selectedTin!,
           onSubmit: _saveinvoice,
+          tinStat: _tinStat,
+        );
+        break;
+      case 3:
+        currentView = ReturnsView(
+          dealer: _selectedDealer!,
+          tinData: _selectedTin!,
+          tinStat: _tinStat!,
+          onSubmit: (parts, type, reason) => _saveReturn(parts, type, reason),
         );
         break;
       default:
@@ -305,12 +540,16 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 2:
         currentTitle = 'Invoice';
         break;
+      case 3:
+        currentTitle = 'Returns';
+        break;
       default:
         currentTitle = 'Error';
     }
 
     return AppPage(
       title: currentTitle,
+      confirmOnNavigate: confirmOnNavigate,
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,

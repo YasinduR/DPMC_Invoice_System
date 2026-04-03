@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/helpers/color_cycler.dart';
 import 'package:myapp/models/screen_model.dart';
-import 'package:myapp/services/icon_mapper.dart';
+import 'package:myapp/helpers/icon_mapper.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/settings_provider.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/cards/menu_card.dart'; 
 
@@ -17,6 +18,17 @@ class MainMenuScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).currentUser;
     final accessibleScreens = user?.accessibleScreen ?? [];
+    final selectedStyle = ref.watch(settingsProvider).iconStyle;
+
+    // Responsive logic: Calculate spacing based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Row spacing is now responsive
+    final double mainAxisSpacing = (screenWidth * 0.045).clamp(16.0, 40.0);
+    final double crossAxisSpacing = (screenWidth * 0.04).clamp(12.0, 24.0);
+    // Dynamic icon size
+    final double iconSize = (screenWidth * 0.15).clamp(56.0, 80.0);
+    // Adjust aspect ratio to give more vertical space if needed
+    final double childAspectRatio = (screenWidth < 600) ? 0.8 : 1.0;
 
     // Modify this with screen IDs othat need to priortize
     const prioritizeOrder = [
@@ -51,25 +63,28 @@ class MainMenuScreen extends ConsumerWidget {
     });
     
     final colorCycler = ColorCycler(AppColors.menuTileColors);
-    // Dynamically build the list of menu cards
+
     final List<Widget> menuCards =
         menuItems.map((screen) {
           final route = AppRoutes.screenNameToRouteMap[screen.screenName];
           if (route == null) return const SizedBox.shrink();
 
+          final itemColor = colorCycler.getColor;
+
           return MenuCard(
-            color: colorCycler.getColor,
-            icon: IconMapper.getIcon(screen.iconName),
+            color: itemColor,
+            iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, iconSize),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
           );
         }).toList();
 
     // Manually add static cards like 'About' and 'Logout'
+    final aboutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        color: colorCycler.getColor,
-        icon: IconMapper.getIcon('info'),
+        color: aboutColor,
+        iconWidget: IconMapper.getStyledIcon('info', selectedStyle, aboutColor, iconSize),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -79,10 +94,11 @@ class MainMenuScreen extends ConsumerWidget {
             ),
       ),
     );
+    final logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        icon: IconMapper.getIcon('logout'),
-        color: colorCycler.getColor,
+        iconWidget: IconMapper.getStyledIcon('logout', selectedStyle, logoutColor, iconSize),
+        color: logoutColor,
         label: 'Logout',
         onTap: () async {
           final confirmed = await showConfirmationDialog(
@@ -91,7 +107,7 @@ class MainMenuScreen extends ConsumerWidget {
             confirmButtonText: 'Yes, Log out',
             cancelButtonText: 'No, I\'m Staying',
           );
-          if (confirmed) {
+          if (confirmed && context.mounted) {
             ref.read(authProvider.notifier).logout(context);
             Navigator.of(context).pushNamedAndRemoveUntil(
               AppRoutes.login, 
@@ -106,8 +122,9 @@ class MainMenuScreen extends ConsumerWidget {
     return AppPage(
       title: 'Main Menu', 
       showAppBar: false,
+      currentRouteName: 'mainMenu',
       canPop: false, // Prevent default pop behavior
-      contentPadding: const EdgeInsets.fromLTRB(24,60,24,20),
+      contentPadding: const EdgeInsets.fromLTRB(12,50,12,0),
           child: Column(
             children: [
               Text(
@@ -117,9 +134,11 @@ class MainMenuScreen extends ConsumerWidget {
               const SizedBox(height: 30),
               Expanded(
                 child: GridView.count(
+                  padding: const EdgeInsets.all(12),
                   crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  crossAxisSpacing: crossAxisSpacing,
+                  mainAxisSpacing: mainAxisSpacing,
+                  childAspectRatio: childAspectRatio,
                   children: menuCards,
                 ),
               ),
@@ -129,4 +148,3 @@ class MainMenuScreen extends ConsumerWidget {
         );
   }
 }
-

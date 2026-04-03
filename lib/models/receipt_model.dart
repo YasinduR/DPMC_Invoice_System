@@ -38,13 +38,13 @@ class Receipt implements Mappable {
   Map<String, dynamic> toMap() {
     return {
       'receiptNo': receiptNo,
-      'receiptTime': formatDateTime(receiptTime), // Standard format for APIs
+      'receiptTime': receiptTime.toIso8601String(), 
       'dealerCode': dealerCode,
       'userId': userId,
       'dealerName': dealerName,
       'dealer': dealerCode,
       'chequeNumber': chequeNumber,
-      'chequeAmount': chequeAmount,
+      'chequeAmount': formatNumber(chequeAmount),
       'chequeDate': formatDateTime(chequeDate), // Standard format for APIs
       'bankCode': bankCode,
       'branchCode': branchCode,

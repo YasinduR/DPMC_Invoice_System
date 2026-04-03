@@ -55,7 +55,12 @@ dependencies:
   uuid: ^4.0.0 # For UUID access Token generation in mock api
   dart_jsonwebtoken: ^2.10.0 # For Token Generation
   flutter_dotenv: ^5.1.0 # For .env file reading
+  font_awesome_flutter: ^10.9.1
+  lucide_icons: ^0.257.0
+  hugeicons: ^1.1.6
+  flutter_iconly: ^1.0.2
   #google_fonts: ^6.3.0 # Google Fonts no need to add manually
+  url_launcher: ^6.1.0
 
 
 dev_dependencies:
@@ -74,6 +79,7 @@ dev_dependencies:
   custom_lint: ^0.7.6
   riverpod_lint: ^2.6.5
   top_snackbar_flutter: ^3.1.0
+
   
   
 # For information on the generic Dart part of this file, see the
@@ -94,6 +100,7 @@ flutter:
   assets:
     - assets/images/dpmc.png
     - assets/images/dpmc_footer.png  
+    - assets/images/dpmc_splash.JPG
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -116,6 +123,10 @@ flutter:
     fonts:
       - asset: assets/fonts/Inter/Inter-Bold.ttf # Path to the Regular variant
       - asset: assets/fonts/Inter/Inter-Regular.ttf # Path to the Bold variant
+  - family: Courier
+    fonts:
+      - asset: assets/fonts/Courier/CourierPrime-Bold.ttf 
+      - asset: assets/fonts/Courier/CourierPrime-Regular.ttf 
   # fonts:
   #   - family: Schyler
   #     fonts:

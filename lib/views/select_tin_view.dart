@@ -5,20 +5,25 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/widgets/cards/tin_stats_card.dart';
+import 'package:myapp/models/tin_stat_model.dart';
 
 // TIN selection view shows after the dealer selection
 class SelectTinNumberView extends StatefulWidget {
   final Dealer dealer;
-  final Function(TinData) onTinNumberSelected;
-  final VoidCallback onSubmit;
+  //final Function(TinData) onTinNumberSelected;
+  final Function(TinData) onSubmit;
   final TinData? selectedTin;
+  final TinStat? tinStat;
 
   const SelectTinNumberView({
     super.key,
-    required this.onTinNumberSelected,
+    //required this.onTinNumberSelected,
     required this.onSubmit,
     required this.dealer,
     this.selectedTin,
+    this.tinStat,
   });
 
   @override
@@ -28,20 +33,57 @@ class SelectTinNumberView extends StatefulWidget {
 class _SelectTinNumberViewState extends State<SelectTinNumberView> {
   final TextEditingController _tinController = TextEditingController();
   bool _isTinSelectionCommitted = false;
+  TinStat? _tinStat;
+  TinData? _currentSelectedTin;
 
   @override
   void initState() {
     super.initState();
+     _tinStat = widget.tinStat ?? const TinStat();
     if (widget.selectedTin != null) {
       _tinController.text = widget.selectedTin!.tinNumber;
+      _currentSelectedTin = widget.selectedTin!;
       _isTinSelectionCommitted = true;
+    }
+    //_loadTinCounts();
+  }
+
+  // Future<void> _loadTinCounts() async {
+  //   await inquire<TinData>(
+  //     context: context,
+  //     dataUrl: 'tins/list',
+  //     filters: {'dealerCode': widget.dealer.accountCode},
+  //     onSuccess: (List<TinData> data) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         _tinStat = TinStat.fromTinList(data);
+  //       });
+  //     },
+  //     onError: (String message) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         if (message.contains('No data found')) {
+  //           _tinStat = const TinStat();
+  //         } else {
+  //           _tinStat = TinStat(error: message);
+  //         }
+  //       });
+  //     },
+  //   );
+  // }
+
+  @override
+  void didUpdateWidget(covariant SelectTinNumberView old) {
+    super.didUpdateWidget(old);
+    if (widget.selectedTin?.tinNumber != old.selectedTin?.tinNumber) {
+      _tinController.text = widget.selectedTin?.tinNumber ?? '';
     }
   }
 
   void _onTinSubmitted() {
-    if (widget.selectedTin != null) {
-      if (widget.selectedTin?.paymentStatus == 'A') {
-        widget.onSubmit();
+    if (_currentSelectedTin != null) {
+      if (_currentSelectedTin?.paymentStatus == 'A') {
+        widget.onSubmit(_currentSelectedTin!);
       } else {
         showSnackBar(
           context: context,
@@ -71,12 +113,28 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         children: [
           DealerInfoCard(dealer: widget.dealer),
           const SizedBox(height: 16),
+
+          TinStatsCard(
+            stats: _tinStat?? const TinStat(),
+            firstLabel: 'Pending Invoices',
+            secondLabel: 'Pending Value',
+          ),
+          const SizedBox(height: 12),
+
           AppSelectionField<TinData>(
             controller: _tinController,
             labelText: 'Select TIN Number',
             selectionSheetTitle: 'Select a TIN Number',
+            layoutType:
+                SelectionSheetLayoutType
+                    .card, // Modified by Darshan R on 18/03/2026
             initialValue: widget.selectedTin,
-            onSelected: widget.onTinNumberSelected,
+            //onSelected: widget.onTinNumberSelected,
+            onSelected: (tin) {
+              setState(() {
+                _currentSelectedTin = tin;
+              });
+            },
             onCommitStateChanged: (isCommitted) {
               setState(() {
                 _isTinSelectionCommitted = isCommitted;
@@ -96,9 +154,8 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
                 startColumnIndex: 0,
                 endColumnIndex: 2,
                 coloredCellBuilder: (ctx, t) => Text(t.tinNumber),
-                decorationBuilder: (ctx, t) => BoxDecoration(
-                      color:t.paymentStatusColor,
-                    ),
+                decorationBuilder:
+                    (ctx, t) => BoxDecoration(color: t.paymentStatusColor),
               ),
             ],
           ),

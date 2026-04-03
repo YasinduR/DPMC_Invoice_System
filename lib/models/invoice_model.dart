@@ -47,7 +47,7 @@ class InvoiceSave implements Mappable {
       'dealerAddress': dealerAddress,
       'dealerId': dealerId,
       'userId': userId,
-      'invoiceAmount': invoiceAmount,
+      'invoiceAmount': formatNumber(invoiceAmount),
       'invoiceTime': formatDateTime(invoiceTime),
       'parts': parts.map((item) => item.toMap()).toList(),
     };

@@ -181,11 +181,14 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
         ActionButton(
           disabled: isdisabled || authState.isLoading,
           icon: Icons.check_circle_outline,
+
           label: 'Login',
           onPressed: () {
             FocusScope.of(context).unfocus(); // Dismiss keyboard
             widget.onLogin(_usernameController.text, _passwordController.text);
           },
+          onSecondaryPressed: authState.isLoading ? null : widget.onBiometric,
+          secondaryIcon: Icons.fingerprint,
         ),
         //const SizedBox(height: 16),
         // ActionButton(

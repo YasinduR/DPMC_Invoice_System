@@ -64,8 +64,11 @@ class _SelectReturnRequestViewState extends State<SelectReturnRequestView> {
                 _isRetReqSelectionCommitted = isCommitted;
               });
             },
-            displayNames: const ['Return ID', 'Return Type','Return Reason'],
-            valueFields: const ['returnId', 'returnType','returnReason'],
+           // displayNames: const ['Return ID', 'Return Type','Return Reason'],
+            //valueFields: const ['returnId', 'returnType','returnReason'],
+            displayNames: const ['Return ID', 'Return Type'],
+            valueFields: const ['returnId', 'returnType'],
+            layoutType : SelectionSheetLayoutType.card,
             mainField: 'returnId',
             dataUrl: 'return-request/list',
             filterConditions:

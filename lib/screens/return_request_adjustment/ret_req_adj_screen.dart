@@ -166,6 +166,7 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
   @override
   Widget build(BuildContext context) {
     Widget currentView;
+    bool confirmOnNavigate = _currentStep > 1;
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
     switch (_currentStep) {
       case -1:
@@ -221,6 +222,7 @@ class _RetReqAdjScreenState extends ConsumerState<RetReqAdjScreen> {
 
     return AppPage(
       title: currentTitle,
+      confirmOnNavigate: confirmOnNavigate,
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,

@@ -16,7 +16,6 @@ import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/dealer_model.dart';
-//import 'package:myapp/views/auth_dealer_view.dart';
 
 class DispatchNoteScreen extends ConsumerStatefulWidget {
   const DispatchNoteScreen({super.key});
@@ -132,7 +131,8 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
 
     final dispatchNoteData = DispatchNoteSave(
       dispatchNumber: 'AAAA',
-      tins: _selectedTins,
+      tins: List<TinData>.from(_selectedTins),
+      // tins: _selectedTins,
       route: currentRegion.region,
       dealerName: _selectedDealer!.name,
       dealerId: _selectedDealer!.accountCode,
@@ -166,7 +166,10 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
           type: MessageType.success,
         );
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
-        await _printerService.previewDispatchNotePdf(savedDispatchNote, details);
+        await PrinterService.previewDispatchNotePdf(
+          savedDispatchNote,
+          details,
+        );
         _onPrintSuccess();
       },
       onError: (e) {
@@ -178,7 +181,6 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
         );
       },
     );
-    
   }
 
   void _goBack() {
@@ -196,6 +198,7 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
   @override
   Widget build(BuildContext context) {
     Widget currentView;
+    bool confirmOnNavigate = _currentStep > 0;
     final selectedRegion = ref.watch(regionProvider).selectedRegion;
     switch (_currentStep) {
       case -1:
@@ -241,6 +244,7 @@ class _DispatchNoteScreenState extends ConsumerState<DispatchNoteScreen> {
     }
     return AppPage(
       title: currentTitle,
+      confirmOnNavigate: confirmOnNavigate,
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: currentView,
