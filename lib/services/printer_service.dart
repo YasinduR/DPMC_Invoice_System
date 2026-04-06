@@ -1593,8 +1593,8 @@ static Future<void> previewChequeSummaryPdf(
                   children: [
                     pw.Text('Dealer ', style: pw.TextStyle(fontSize: 9)),
                     pw.Text('Cheque No ', style: pw.TextStyle(fontSize: 9)),
-                    pw.Text('  Amount ', style: pw.TextStyle(fontSize: 9)),
                     pw.Text('  Time', style: pw.TextStyle(fontSize: 9)),
+                    pw.Text('  Amount ', style: pw.TextStyle(fontSize: 9)),
                     // pw.Align(
                     //   alignment: pw.Alignment.centerRight,
                     //   child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
@@ -1635,18 +1635,11 @@ static Future<void> previewChequeSummaryPdf(
                           pw.Text(rec.dealerName ?? '', style: pw.TextStyle(fontSize: 8)),
                         ],
                       ),
-                      // Amount column
+                      // Cheque Number column
                       pw.Align(
                         alignment: pw.Alignment.centerRight,
                         child: pw.Text(
                          rec.chequeNumber,
-                          style: pw.TextStyle(fontSize: 8),
-                        ),
-                      ),
-                      pw.Align(
-                        alignment: pw.Alignment.centerRight,
-                        child: pw.Text(
-                          formatNumber(rec.chequeAmount),
                           style: pw.TextStyle(fontSize: 8),
                         ),
                       ),
@@ -1657,6 +1650,14 @@ static Future<void> previewChequeSummaryPdf(
                           pw.Text(formattedDate, style: pw.TextStyle(fontSize: 8)),
                           pw.Text(formattedTime, style: pw.TextStyle(fontSize: 8)),
                         ],
+                      ),
+                      // Amount column
+                      pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Text(
+                          formatNumber(rec.chequeAmount),
+                          style: pw.TextStyle(fontSize: 8),
+                        ),
                       ),
                     ],
                   );

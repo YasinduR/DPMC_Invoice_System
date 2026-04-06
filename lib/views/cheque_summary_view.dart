@@ -175,9 +175,9 @@ await inquire<Receipt>(
               textAlign: TextAlign.left,
               style: const TextStyle(fontSize: 12), // smaller font for name
             ),
-    ],
-  ),
-),
+            ],
+          ),
+        ),
         DynamicColumn<Receipt>(
           label: 'Cheque Number',
           flex: 1,
@@ -188,6 +188,32 @@ await inquire<Receipt>(
                 maxLines: 1,
                 textAlign: TextAlign.center,
               ),
+        ),
+        DynamicColumn<Receipt>(
+          label: 'Time',
+          flex: 1,
+          cellBuilder: (context, rec) {
+            final formattedDate = DateFormat('dd/MM/yy').format(rec.receiptTime);
+            final formattedTime = DateFormat('HH:mm').format(rec.receiptTime);
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                AutoSizeText(
+                  formattedDate,
+                  maxLines: 1,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                AutoSizeText(
+                  formattedTime,
+                  maxLines: 1,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            );
+          },
         ),
         // Column 2: Invoice Amount
         DynamicColumn<Receipt>(
@@ -201,33 +227,6 @@ await inquire<Receipt>(
                 textAlign: TextAlign.right,
               ),
         ),
-
-DynamicColumn<Receipt>(
-  label: 'Time',
-  flex: 1,
-  cellBuilder: (context, rec) {
-    final formattedDate = DateFormat('dd/MM/yy').format(rec.receiptTime);
-    final formattedTime = DateFormat('HH:mm').format(rec.receiptTime);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        AutoSizeText(
-          formattedDate,
-          maxLines: 1,
-          textAlign: TextAlign.right,
-          style: const TextStyle(fontSize: 12),
-        ),
-        AutoSizeText(
-          formattedTime,
-          maxLines: 1,
-          textAlign: TextAlign.right,
-          style: const TextStyle(fontSize: 12),
-        ),
-      ],
-    );
-  },
-)// Column 3: Selection Checkbox
       ],
     );
   }
