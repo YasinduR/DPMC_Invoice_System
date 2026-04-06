@@ -145,33 +145,25 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Modified to use DealerInfoDetailCard by Darshan R on 06/04/2026
-          // DealerInfoCard(dealer: widget.dealer),
-          DealerInfoDetailCard(
-            dealer: widget.dealer,
-            firstLabel: 'Pending Invoices',
-            firstValue: _tinStat?.approved.toString()?? '0',
-            secondLabel: 'Pending Value',  
-            secondValue: formatNumber(_tinStat?.totalPayment?? 0),
-          ),
-          const SizedBox(height: 16),
-
-          // TinStatsCard(
-          //   stats: _tinStat?? const TinStat(),
-          //   firstLabel: 'Pending Invoices',
-          //   secondLabel: 'Pending Value',
-          // ),
-          // const SizedBox(height: 12),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
               children: [
-                DealerInfoCard(dealer: widget.dealer),
-                const SizedBox(height: 16),
-                TinStatsCard(
-                  stats: _tinStat ?? const TinStat(),
-                  firstLabel: 'Pending Invoices',
-                  secondLabel: 'Pending Value',
-                ),
+
+              DealerInfoDetailCard(
+                dealer: widget.dealer,
+                firstLabel: 'Pending Invoices',
+                firstValue: _tinStat?.approved.toString()?? '0',
+                secondLabel: 'Pending Value',  
+                secondValue: formatNumber(_tinStat?.totalPayment?? 0),
+              ),
+                // DealerInfoCard(dealer: widget.dealer),
+                // const SizedBox(height: 16),
+                // TinStatsCard(
+                //   stats: _tinStat ?? const TinStat(),
+                //   firstLabel: 'Pending Invoices',
+                //   secondLabel: 'Pending Value',
+                // ),
                 const SizedBox(height: 12),
 
                 AppSelectionField<TinData>(
