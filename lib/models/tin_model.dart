@@ -8,15 +8,17 @@ class TinData implements Mappable {
   final String tinNumber;
   final String orderNumber;
   final String payOnDel;
-  final String paymentStatus; // P - Payment Pending, C - Payment Completed A- Payment Approved
+  final String
+  paymentStatus; // P - Payment Pending, C - Payment Completed A- Payment Approved
   final double totalValue;
   final String dealercode;
   final List<Part> parts;
-   // Added For Dispatch Note
+  // Added For Dispatch Note
   final int bagCount;
   final int tagCount;
   final int plasticBCount;
   final String remark;
+  final String imagePath;
 
   const TinData({
     required this.tinNumber,
@@ -30,7 +32,7 @@ class TinData implements Mappable {
     this.tagCount = 0,
     this.plasticBCount = 0,
     this.remark = '',
-    
+    this.imagePath= 'TIN/0.png'
   });
 
   String get paymentStatusText {
@@ -76,6 +78,7 @@ class TinData implements Mappable {
       'tagCount': tagCount,
       'plasticBCount': plasticBCount,
       'remark': remark,
+      'imagePath' : imagePath,
       'parts': parts.map((part) => part.toMap()).toList(), // Serialize parts
     };
   }
