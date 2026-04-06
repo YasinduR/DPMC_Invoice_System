@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math'; 
 
 import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
@@ -596,7 +596,7 @@ Assignee(
       email: 'darshanr@example.com',
       telephone: '+94771234567',
       password: BCrypt.hashpw('d', BCrypt.gensalt()),
-      roles: ['001', '002', '003'],
+      roles: ['001'],
       isTemporaryPassword: false,
       passwordUpdatedAt: DateTime.now(),
     ),
