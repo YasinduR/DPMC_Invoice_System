@@ -1,29 +1,25 @@
 // Added by Darshan R on 06/04/2026
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
-import 'package:myapp/models/tin_stat_model.dart';
 import 'package:myapp/theme/app_colors.dart';
-import 'package:myapp/helpers/common_functions.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-
-// Dealer Information Card Element 
 
 class DealerInfoDetailCard extends StatelessWidget {
   final Dealer dealer;
-  final TinStat? stats;
   final String firstLabel;
   final String? firstValue;
   final String secondLabel;
   final String? secondValue;
+  final String? error;
 
   const DealerInfoDetailCard({
     super.key,
     required this.dealer,
-    this.stats,
     this.firstLabel = 'Approved',
     this.firstValue,
     this.secondLabel = 'Total Payment',
     this.secondValue,
+    this.error,
   });
 
   Widget _statItem(String label, String value, Color color) {
@@ -45,9 +41,9 @@ class DealerInfoDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showStats = stats != null || firstValue != null || secondValue != null;
-    final displayFirstValue = firstValue ?? (stats != null ? stats!.approved.toString() : '0');
-    final displaySecondValue = secondValue ?? (stats != null ? formatNumber(stats!.totalPayment) : '0');
+    final showStats = firstValue != null || secondValue != null || error != null;
+    final displayFirstValue = firstValue ?? '0';
+    final displaySecondValue = secondValue ?? '0';
 
     return Container(
       width: double.infinity,
@@ -79,11 +75,11 @@ class DealerInfoDetailCard extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 8.0),
               child: Divider(height: 1, color: AppColors.border),
             ),
-            if (stats?.error != null)
+            if (error != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Text(
-                  stats!.error!,
+                  error!,
                   style: const TextStyle(color: AppColors.danger, fontSize: 12),
                 ),
               ),
