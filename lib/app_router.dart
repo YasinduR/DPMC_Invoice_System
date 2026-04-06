@@ -18,7 +18,7 @@ import 'package:myapp/screens/print_invoice/print_invoice_screen.dart';
 import 'package:myapp/screens/profile/profile_screen.dart';
 import 'package:myapp/screens/receipt/receipt_screen.dart';
 import 'package:myapp/screens/reprint/reprint_screen.dart';
-import 'package:myapp/screens/return_request_%20adjustment%20/ret_req_adj_screen.dart';
+import 'package:myapp/screens/return_request_adjustment/ret_req_adj_screen.dart';
 import 'package:myapp/screens/returns/return_screen.dart';
 import 'package:myapp/screens/route_selection/route_selection.dart';
 import 'package:myapp/screens/security_setting/security_setting_screen.dart';
