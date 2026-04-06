@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:myapp/config/app_config.dart';
 import 'package:myapp/contracts/mappable.dart';
@@ -267,5 +268,40 @@ Future<List<Screen>> loadScreens() async {
     return data;
   } catch (e) {
     throw Exception('Failed to load screens: $e');
+  }
+}
+
+
+Future<void> fetchImage({
+  required BuildContext context,
+  String? ftpPath,
+  required String imagePath, // later FTP path
+  required Function(File? file) onSuccess,
+  required Function(String errorMessage) onError,
+
+}) async {
+  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+
+  try {
+    loadingOverlay.show(context);
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    final String basePath = ftpPath ?? Config.baseFtp;
+    final String fullPath = '$basePath$imagePath';
+    final file = File(fullPath);
+    
+    if (await file.exists()) {
+      onSuccess(file);
+    } else {
+      throw Exception("Image not found");
+    }
+
+  } catch (e) {
+    onError('Failed to load image: $e');
+  } finally {
+    if (loadingOverlay.isShowing) {
+      loadingOverlay.hide();
+    }
   }
 }
