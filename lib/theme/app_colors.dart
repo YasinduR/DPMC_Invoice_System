@@ -15,6 +15,7 @@ class AppColors {
   static const Color disabled = Color(0xFFD6E0EA);
   static const Color ondisabled = Color(0xFF7A94B5);
   static const Color white = Colors.white;
+  static const Color black = Colors.black;
   static const Color text = Colors.black87;
   static const Color textSelection = Color(0xFFBBDEFB);
   static const Color textFaded = Colors.black54;
