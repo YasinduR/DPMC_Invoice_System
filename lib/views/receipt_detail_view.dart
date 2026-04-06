@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/helpers/common_functions.dart';
@@ -15,6 +16,7 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_date_picker.dart';
+import 'package:myapp/widgets/app_image_upload_field.dart';
 import 'package:myapp/widgets/app_radio_group.dart';
 import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
@@ -40,23 +42,23 @@ class ReceiptDetailsView extends StatefulWidget {
   final BankBranch? selectedBranch;
   final DateTime? selectedChequeDate;
   final String? selectedPODstatus;
+  final File? selectedImage;
   final bool isFormValid;
 
   // --- MULTI-TIN SELECTION ---
   final List<TinInvoice> selectedTins;
-  final ValueChanged<TinInvoice> onTinToggle;
   final void Function(List<TinInvoice>, bool) toggleAll;
-
 
   // Callbacks
   final ValueChanged<String> onBankTextChanged;
   final ValueChanged<String> onBranchTextChanged;
   final ValueChanged<Bank> onBankSelected;
+  final ValueChanged<TinInvoice> onTinToggle;
   final ValueChanged<BankBranch> onBranchSelected;
+  final ValueChanged<File?> onFileChanged;
   final ValueChanged<DateTime?> onDateSelected;
   final ValueChanged<bool> onBankCommitChanged;
   final ValueChanged<bool> onBranchCommitChanged;
-
   final ValueChanged<String> onPodStatusToggle;
 
   const ReceiptDetailsView({
@@ -82,6 +84,7 @@ class ReceiptDetailsView extends StatefulWidget {
     this.selectedBranch,
     this.selectedPODstatus,
     this.selectedChequeDate,
+    this.selectedImage,
     required this.isFormValid,
     // required this.onTinSelected,
     required this.onBankSelected,
@@ -92,7 +95,9 @@ class ReceiptDetailsView extends StatefulWidget {
     required this.onBranchCommitChanged,
     required this.onBankTextChanged,
     //required this.onTinTextChanged,
-    required this.onBranchTextChanged, String? selectedPODStatus,
+    required this.onBranchTextChanged,
+    required this.onFileChanged,
+    String? selectedPODStatus,
   });
 
   @override
@@ -105,11 +110,13 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
   bool _isLoading = true;
   String? _errorMessage;
   List<TinInvoice> _availableTins = [];
+  //File? _uploadedImage;
 
   @override
   void initState() {
     super.initState();
     loadTinInvoices();
+    //_uploadedImage = widget.selectedImage;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _validateChildForm();
@@ -117,13 +124,13 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
     });
   }
 
-// @override
-// void didUpdateWidget(ReceiptDetailsView oldWidget) {
-//   super.didUpdateWidget(oldWidget);
-//   if (oldWidget.selectedPODstatus != widget.selectedPODstatus) {
-//     loadTinInvoices(status: widget.selectedPODstatus);
-//   }
-// }
+  // @override
+  // void didUpdateWidget(ReceiptDetailsView oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.selectedPODstatus != widget.selectedPODstatus) {
+  //     loadTinInvoices(status: widget.selectedPODstatus);
+  //   }
+  // }
 
   void _validateChildForm() {
     final isValid = _formKey.currentState?.validate() ?? false;
@@ -141,7 +148,8 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
       _errorMessage = null;
     });
 
-    final statusToUse = status ?? widget.selectedPODstatus?.substring(0,1) ?? 'Y';
+    final statusToUse =
+        status ?? widget.selectedPODstatus?.substring(0, 1) ?? 'Y';
 
     final filters = [
       ['dealerAccCode', '=', widget.dealer.accountCode],
@@ -183,7 +191,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
     }
     return true;
   }
-                                                                 
+
   Widget _buildTinInvoiceArea() {
     if (_isLoading) {
       return const SizedBox(
@@ -197,16 +205,18 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
         child: Text('No outstanding TINs found for this dealer.'),
       );
     }
-    final isAllSelected = widget.selectedTins.length == _availableTins.length && _availableTins.isNotEmpty;
+    final isAllSelected =
+        widget.selectedTins.length == _availableTins.length &&
+        _availableTins.isNotEmpty;
     return SizedBox(
       height: 250,
       child: AppDataGrid<TinInvoice>(
-        isAllSelected:isAllSelected,
+        isAllSelected: isAllSelected,
         onSelectAllChanged: (value) {
-    if (value != null) {
-      widget.toggleAll(_availableTins, value);
-    }
-  },
+          if (value != null) {
+            widget.toggleAll(_availableTins, value);
+          }
+        },
         searchHintText: 'Search by TIN, Mobile Inv, or Amount',
         onFilterPressed: () {},
         filterableFields: const ['tinNo', 'mobileInvNo', 'invAmount'],
@@ -305,7 +315,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
               TitledRadioGroup(
                 title: 'Payment On Delivery',
                 options: const ['Yes', 'No'],
-                selectedValue: widget.selectedPODstatus?? 'Yes',
+                selectedValue: widget.selectedPODstatus ?? 'Yes',
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
@@ -408,6 +418,15 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                 onChanged: (value) {
                   _validateChildForm();
                 },
+              ),
+              const SizedBox(height: 16),
+              ImageUploadField(
+                label: 'Upload Receipt Image', 
+                onImageSelected: (file) {
+                  //_uploadedImage = file;
+                  widget.onFileChanged(file); 
+                }, 
+                selectedImage: widget.selectedImage,
               ),
               const SizedBox(height: 48),
               ActionButton(

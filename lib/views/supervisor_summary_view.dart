@@ -23,7 +23,8 @@ import 'package:myapp/widgets/cards/assignee_card.dart';
 
 class SupervisorSummaryView extends ConsumerStatefulWidget {
   final Assignee assignee;
-  const SupervisorSummaryView({super.key, required this.assignee});
+  final void Function(DealerStat,List<TinData>) onSubmit;
+  const SupervisorSummaryView({super.key, required this.assignee, required this.onSubmit});
 
   @override
   ConsumerState<SupervisorSummaryView> createState() =>
@@ -157,31 +158,26 @@ List<DealerStat> _buildDealerStats() {
         DynamicColumn<DealerStat>(
           label: 'Dealer',
           flex: 1,
-          cellBuilder:
-              (context, rec) => Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // vertically centered in the row
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // left-aligned text
-                children: [
-                  AutoSizeText(
-                    rec.accountCode,
-                    maxLines: 1,
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                    ), // optional
-                  ),
-                  AutoSizeText(
-                    rec.dealerName,
-                    maxLines: 2, // allow wrapping if name is long
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ), // smaller font for name
-                  ),
-                ],
-              ),
+cellBuilder: (context, rec) => Material(
+  color: Colors.transparent,
+  child: InkWell(
+    onTap: () {
+      final dealerTins = _tins
+          .where((tin) => tin.dealercode == rec.accountCode)
+          .toList();
+
+      widget.onSubmit(rec, dealerTins);
+    },
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AutoSizeText(rec.accountCode, maxLines: 1),
+        AutoSizeText(rec.dealerName, maxLines: 2),
+      ],
+    ),
+  ),
+)
         ),
         DynamicColumn<DealerStat>(
           label: 'Pending TIN count',
@@ -194,7 +190,6 @@ List<DealerStat> _buildDealerStats() {
                 textAlign: TextAlign.right,
               ),
         ),
-        // Column 2: Invoice Amount
         DynamicColumn<DealerStat>(
           label: 'Completed TIN count',
           flex: 1,
