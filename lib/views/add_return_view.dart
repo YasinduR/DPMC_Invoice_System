@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/part_model.dart';
@@ -12,9 +13,10 @@ import 'package:myapp/widgets/app_option_picker.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_radio_group.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/cards/dealer_info_card.dart';
+// import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/cards/dealer_info_detail_card.dart';
 import 'package:myapp/widgets/cards/info_card.dart';
-import 'package:myapp/widgets/cards/tin_stats_card.dart';
+// import 'package:myapp/widgets/cards/tin_stats_card.dart';
 
 // Final Step of Return screen after region/dealer/tin selections - Adds return request
 class ReturnsView extends StatefulWidget {
@@ -236,19 +238,27 @@ class _ReturnsViewState extends State<ReturnsView> {
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              DealerInfoCard(dealer: widget.dealer),
+              // Modified to use DealerInfoDetailCard by Darshan R on 06/04/2026
+              // DealerInfoCard(dealer: widget.dealer),
+              DealerInfoDetailCard(
+                dealer: widget.dealer,
+                firstLabel: 'Pending Orders',
+                firstValue: widget.tinStat.approved.toString(),
+                secondLabel: 'Pending Amount',
+                secondValue: formatNumber(widget.tinStat.totalPayment),
+              ),
               const SizedBox(height: 12),
               InfoDisplay(info: widget.tinData.tinNumber),
               const SizedBox(height: 8),
-              if (_pendingTotal > 0) ...[
-                TinStatsCard(
-                  stats: widget.tinStat,
-                  firstLabel: 'Pending Orders',
-                  secondLabel: 'Pending Amount',
-                ),
-                const SizedBox(height: 8),
-              ],
-              const SizedBox(height: 16),
+              // if (_pendingTotal > 0) ...[
+              //   TinStatsCard(
+              //     stats: widget.tinStat,
+              //     firstLabel: 'Pending Orders',
+              //     secondLabel: 'Pending Amount',
+              //   ),
+              //   const SizedBox(height: 8),
+              // ],
+              // const SizedBox(height: 16),
 
               SizedBox(height: 250.0, child: _buildItemsList()),
 
