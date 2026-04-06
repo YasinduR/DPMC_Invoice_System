@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +39,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
   Region? _selectedRegion;
+  File? _uploadedReceipt;
   String? _podStatus;
 
   final GlobalKey<ReceiptDetailsViewState> _receiptDetailsKey =
@@ -130,7 +133,8 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
         _selectedTins.isNotEmpty && // Check if at least one TIN is selected
         // _isTinSelectionCommitted &&
         _isBankSelectionCommitted &&
-        _isBranchSelectionCommitted;
+        _isBranchSelectionCommitted &&
+        _uploadedReceipt != null;
 
     if (isValid != _isReceiptFormValid) {
       setState(() {
@@ -452,6 +456,7 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
           selectedBank: _selectedBank,
           selectedBranch: _selectedBranch,
           selectedChequeDate: _selectedChequeDate,
+          selectedImage: _uploadedReceipt,
           isFormValid: _isReceiptFormValid,
           onBankTextChanged: _onBankTextChanged,
           onBranchTextChanged: _onBranchTextChanged,
@@ -479,6 +484,7 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
             setState(() => _selectedChequeDate = date);
             _validateReceiptForm();
           },
+
           onBankCommitChanged: (isCommitted) {
             setState(() => _isBankSelectionCommitted = isCommitted);
             _validateReceiptForm();
@@ -487,7 +493,12 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
             setState(() => _isBranchSelectionCommitted = isCommitted);
             _validateReceiptForm();
           }, 
-          toggleAll: _toggleAll,
+          toggleAll: _toggleAll, 
+          onFileChanged: (File? file) { 
+              setState(() => _uploadedReceipt = file);
+            _validateReceiptForm();
+
+           },
         );
       case 2:
         return AddCreditNotesView(

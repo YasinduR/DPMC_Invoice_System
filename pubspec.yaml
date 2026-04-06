@@ -61,6 +61,7 @@ dependencies:
   flutter_iconly: ^1.0.2
   #google_fonts: ^6.3.0 # Google Fonts no need to add manually
   url_launcher: ^6.1.0
+  image_picker: ^1.0.7
 
 
 dev_dependencies:
