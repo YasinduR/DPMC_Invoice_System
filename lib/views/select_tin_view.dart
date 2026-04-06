@@ -1,15 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_image_viewer.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/cards/dealer_info_card.dart';
+// import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/cards/dealer_info_detail_card.dart';
 import 'package:myapp/services/api_util_service.dart';
-import 'package:myapp/widgets/cards/tin_stats_card.dart';
+// import 'package:myapp/widgets/cards/tin_stats_card.dart';
 import 'package:myapp/models/tin_stat_model.dart';
 
 // TIN selection view shows after the dealer selection
@@ -142,6 +144,23 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Modified to use DealerInfoDetailCard by Darshan R on 06/04/2026
+          // DealerInfoCard(dealer: widget.dealer),
+          DealerInfoDetailCard(
+            dealer: widget.dealer,
+            firstLabel: 'Pending Invoices',
+            firstValue: _tinStat?.approved.toString()?? '0',
+            secondLabel: 'Pending Value',  
+            secondValue: formatNumber(_tinStat?.totalPayment?? 0),
+          ),
+          const SizedBox(height: 16),
+
+          // TinStatsCard(
+          //   stats: _tinStat?? const TinStat(),
+          //   firstLabel: 'Pending Invoices',
+          //   secondLabel: 'Pending Value',
+          // ),
+          // const SizedBox(height: 12),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),

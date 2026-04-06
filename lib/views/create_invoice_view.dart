@@ -12,9 +12,10 @@ import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/cards/dealer_info_card.dart';
+// import 'package:myapp/widgets/cards/dealer_info_card.dart';
+import 'package:myapp/widgets/cards/dealer_info_detail_card.dart';
 import 'package:myapp/widgets/cards/info_card.dart';
-import 'package:myapp/widgets/cards/tin_stats_card.dart';
+// import 'package:myapp/widgets/cards/tin_stats_card.dart';
 
 // Final view of Invoice Screen Shows after Dealer TIN selections
 class CreateInvoiceView extends StatefulWidget {
@@ -240,16 +241,24 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-               DealerInfoCard(dealer: widget.dealer),
+              // Modified to use DealerInfoDetailCard by Darshan R on 06/04/2026
+              //  DealerInfoCard(dealer: widget.dealer),
+              DealerInfoDetailCard(
+                dealer: widget.dealer,
+                firstLabel: 'Pending Invoices',
+                firstValue: widget.tinStat?.approved.toString()?? '0',
+                secondLabel: 'Pending Value',  
+                secondValue: formatNumber(widget.tinStat?.totalPayment?? 0),
+              ),
                const SizedBox(height: 12),
                InfoDisplay(info: widget.tindata.tinNumber),
                const SizedBox(height: 12),
-              TinStatsCard(
-                   stats: widget.tinStat!,
-                   firstLabel: 'Pending Invoices',
-                   secondLabel: 'Pending Value',
-                 ),
-                 const SizedBox(height: 12),
+              // TinStatsCard(
+              //      stats: widget.tinStat!,
+              //      firstLabel: 'Pending Invoices',
+              //      secondLabel: 'Pending Value',
+              //    ),
+                //  const SizedBox(height: 12),
                SizedBox(height: 300.0, child: _buildPartList()),
              ],
           ),
