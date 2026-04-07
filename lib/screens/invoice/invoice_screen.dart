@@ -482,8 +482,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer:
-              null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer: null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
@@ -529,14 +528,14 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         currentTitle = 'Select Region';
         break;
       case 0:
-        currentTitle = 'Select Dealer';
-        break;
+        // currentTitle = 'Select Dealer';
+        // break;
       // case 1:
       //   currentTitle = 'Authenticate Dealer';
       //   break;
       case 1:
-        currentTitle = 'Select TIN';
-        break;
+        // currentTitle = 'Select TIN';
+        // break;
       case 2:
         currentTitle = 'Invoice';
         break;

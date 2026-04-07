@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
@@ -71,7 +72,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     // Initialize all controllers here
     _chequeNoController = TextEditingController();
     _chequeNoConfirmController = TextEditingController();
-    _amountController = TextEditingController();
+    _amountController = TextEditingController(text: '0.00');
     _tinController = TextEditingController();
     _bankController = TextEditingController();
     _branchController = TextEditingController();
@@ -113,6 +114,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       _selectedBranch = null;
       _isReceiptFormValid = false;
       _creditNotes = [];
+      _uploadedReceipt = null;
     });
   }
 
@@ -179,17 +181,17 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     _validateReceiptForm();
   }
 
-void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
-  setState(() {
-    if (selectAll??false) {
-      _selectedTins = List.from(allTins); // create new list
-    } else {
-      _selectedTins.clear();
-    }
-  });
+  void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
+    setState(() {
+      if (selectAll ?? false) {
+        _selectedTins = List.from(allTins); // create new list
+      } else {
+        _selectedTins.clear();
+      }
+    });
 
-  _validateReceiptForm();
-}
+    _validateReceiptForm();
+  }
 
   void _onBranchTextChanged(String currentText) {
     if (_selectedBranch != null && currentText != _selectedBranch!.branchName) {
@@ -215,7 +217,7 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
       return;
     }
 
-    final double chequeAmount = double.tryParse(_amountController.text) ?? 0.0;
+    final double chequeAmount = parseCurrency(_amountController.text);
     final double totalCreditNoteAmount = _creditNotes.fold(
       0.0,
       (sum, note) => sum + note.amount,
@@ -259,8 +261,7 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
     if (podStatuses.length > 1) {
       showSnackBar(
         context: context,
-        message:
-            'All selected invoices must have the same Payment on Delivery status.',
+        message:'All selected invoices must have the same Payment on Delivery status.',
         type: MessageType.warning,
       );
       return;
@@ -349,6 +350,9 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
 
   void _onback() {
     if (_currentStep > 0) {
+      if (_currentStep == 1) {
+        _clearReceiptDetails();
+      }
       setState(() {
         _currentStep--; // Go back to the previous step
       });
@@ -393,9 +397,9 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
       case -1:
         return 'Select Region';
       case 0:
-        return 'Select Dealer';
+       // return 'Select Dealer';
       case 1:
-        return 'Receipt Details';
+        return 'Receipt';
       case 2:
         return 'Add Credit Notes';
       case 3:
@@ -492,13 +496,12 @@ void _toggleAll(List<TinInvoice> allTins, bool? selectAll) {
           onBranchCommitChanged: (isCommitted) {
             setState(() => _isBranchSelectionCommitted = isCommitted);
             _validateReceiptForm();
-          }, 
-          toggleAll: _toggleAll, 
-          onFileChanged: (File? file) { 
-              setState(() => _uploadedReceipt = file);
+          },
+          toggleAll: _toggleAll,
+          onFileChanged: (File? file) {
+            setState(() => _uploadedReceipt = file);
             _validateReceiptForm();
-
-           },
+          },
         );
       case 2:
         return AddCreditNotesView(

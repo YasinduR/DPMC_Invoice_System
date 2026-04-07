@@ -37,3 +37,9 @@ String maskEmail(String email) {
 String formatNumber(num value) {
   return NumberFormat('#,##0.00').format(value);
 }
+
+// Format Amounts 10,000.23 => 10000.23
+double parseCurrency(String value) {
+  final cleaned = value.replaceAll(',', '');
+  return double.tryParse(cleaned) ?? 0.0;
+}
