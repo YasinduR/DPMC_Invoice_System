@@ -145,6 +145,7 @@ class _ReturnRequestViewState extends State<ReturnRequestView> {
             return QuantitySelector(
               value: selectedItem?.returnQty ?? 0,
               enabled: selectedItem != null,
+              useDialog: false,
               dialogTitle: 'New Return Quantity',
               maxQuantity: part.requestQty,
               minQuantity: 0,
