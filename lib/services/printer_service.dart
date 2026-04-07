@@ -277,39 +277,37 @@ class PrinterService {
               pw.SizedBox(height: 20),
 
               // Signature Section
-              pw.Align(
-                alignment: pw.Alignment.centerLeft,
-                child: pw.Text(
-                  '         -----------------                  -----------------',
-                  style: pw.TextStyle(fontSize: 10),
-                ),
+              pw.SizedBox(height: 15),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
+                      pw.Text('Dealer Signature', style: pw.TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
+                      pw.Text('Driver Signature', style: pw.TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ],
               ),
+              pw.SizedBox(height: 25),
               pw.Align(
-                alignment: pw.Alignment.centerLeft,
-                child: pw.Text(
-                  '     Dealer Signature         Driver Signature',
-                  style: pw.TextStyle(fontSize: 10),
-                ),
+                alignment: pw.Alignment.center,
+                child: pw.Text('Dealer Stamp', style: pw.TextStyle(fontSize: 10)),
               ),
-              pw.Align(
-                alignment: pw.Alignment.centerLeft,
-                child: pw.Text(
-                  '      Dealer Stamp        ',
-                  style: pw.TextStyle(fontSize: 10),
-                ),
-              ),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 20),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text(
-                    '-----------------',
-                    style: pw.TextStyle(fontSize: 10),
-                  ),
-                  pw.Text(
-                    'Security Sig. & Stamp',
-                    style: pw.TextStyle(fontSize: 10),
-                  ),
+                  pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
+                  pw.Text('Security Sig. & Stamp', style: pw.TextStyle(fontSize: 10)),
                   _formFooterPdf(details),
                 ],
               ),
