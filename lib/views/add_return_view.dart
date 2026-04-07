@@ -98,19 +98,19 @@ class _ReturnsViewState extends State<ReturnsView> {
       return;
     }
 
-    final newQuantity = await showDialog<int>(
-      context: context,
-      builder:
-          (context) => QuantityEditDialog(
-            initialQuantity: sourcePart.requestQty,
-            title: 'Return Quantity',
-            maxQuantity: sourcePart.requestQty,
-          ),
-    );
+    // final newQuantity = await showDialog<int>(
+    //   context: context,
+    //   builder:
+    //       (context) => QuantityEditDialog(
+    //         initialQuantity: sourcePart.requestQty,
+    //         title: 'Return Quantity',
+    //         maxQuantity: sourcePart.requestQty,
+    //       ),
+    // );
 
-    if (newQuantity != null && mounted) {
+    if (mounted) {
       final newSelectedPart = sourcePart.copyWith(
-        receivedQty: sourcePart.requestQty - newQuantity,
+        receivedQty: 0,
       );
       setState(() {
         _selectedItems.add(newSelectedPart);
@@ -208,6 +208,7 @@ class _ReturnsViewState extends State<ReturnsView> {
             return QuantitySelector(
               value: selectedPart?.returnQty ?? 0,
               enabled: selectedPart != null,
+              useDialog: false,
               dialogTitle: 'Return Quantity',
               maxQuantity: part.requestQty,
               onChanged: (newValue) {

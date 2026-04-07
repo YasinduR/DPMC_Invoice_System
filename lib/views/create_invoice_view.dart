@@ -77,7 +77,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
     setState(() {
       if (selected) {
         _selectedParts = _parts.map((part) {
-          final defaultQty = part.requestQty ?? 1;
+          final defaultQty = part.requestQty;
           return part.copyWith(receivedQty: defaultQty);
         }).toList();
       } else {
@@ -185,6 +185,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
             return QuantitySelector(
               value: selectedPart?.receivedQty ?? 0,
               enabled: selectedPart != null,
+              useDialog: false,
               dialogTitle: 'Delivered Quantity',
               maxQuantity: part.requestQty,
               onChanged: (newValue) {
@@ -207,32 +208,32 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
         _selectedParts.removeWhere((p) => p.id == partId);
       });
     } else {
-      final newSelectedPart = sourcePart.copyWith(receivedQty: 1);
+      final defaultQty = sourcePart.requestQty;
+      final newSelectedPart = sourcePart.copyWith(receivedQty: defaultQty);
       setState(() {
         _selectedParts.add(newSelectedPart);
       });
-      await _showQuantityDialog(newSelectedPart);
+      // await _showQuantityDialog(newSelectedPart);
     }
   }
 
-  Future<void> _showQuantityDialog(Part selectedPart) async {
-    final newQuantity = await showDialog<int>(
-      context: context,
-      builder:
-          (context) => QuantityEditDialog(
-            initialQuantity: selectedPart.receivedQty,
-            title: 'Delivered Quantity',
-            maxQuantity: selectedPart.requestQty,
-          ),
-    );
+  // Future<void> _showQuantityDialog(Part selectedPart) async {
+  //   final newQuantity = await showDialog<int>(
+  //     context: context,
+  //     builder:
+  //         (context) => QuantityEditDialog(
+  //           initialQuantity: selectedPart.receivedQty,
+  //           title: 'Delivered Quantity',
+  //           maxQuantity: selectedPart.requestQty,
+  //         ),
+  //   );
 
-    if (newQuantity != null && mounted) {
-      setState(() {
-        selectedPart.receivedQty = newQuantity;
-      });
-    }
-  }
-
+  //   if (newQuantity != null && mounted) {
+  //     setState(() {
+  //       selectedPart.receivedQty = newQuantity;
+  //     });
+  //   }
+  // }
   @override
   Widget build(BuildContext context) {
     return Column(

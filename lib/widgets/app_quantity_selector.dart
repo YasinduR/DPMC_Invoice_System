@@ -10,6 +10,7 @@ class QuantitySelector extends StatelessWidget {
   final String dialogTitle; // The title for the pop-up edit dialog.
   final int? maxQuantity; // Optional maximum value allowed in the dialog.
   final int minQuantity; // NEW: Optional minimum value allowed in the dialog.
+  final bool useDialog; // NEW: If false, increment/decrement buttons works directly - Added and related codes by Darshan R on 07/04/2026
 
   const QuantitySelector({
     super.key,
@@ -19,6 +20,7 @@ class QuantitySelector extends StatelessWidget {
     this.dialogTitle = 'Update Quantity', // Default title
     this.maxQuantity,
     this.minQuantity = 1, // NEW: Default minQuantity to 1
+    this.useDialog = true, // NEW: Default useDialog to true
   });
 
   // This internal method handles the logic of showing the dialog.
@@ -41,10 +43,24 @@ class QuantitySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canDecrement = enabled && value > minQuantity;
+    final canIncrement = enabled && (maxQuantity == null || value < maxQuantity!);
+
+    final VoidCallback? dialogTrigger = useDialog ? () => _showEditDialog(context) : null;
+
     return QuantityStepperDisplay(
       quantity: value,
       enabled: enabled,
-      onTap: () => _showEditDialog(context),
+      onTap: dialogTrigger,
+      onDecrement: !useDialog && canDecrement
+        ? () => onChanged?.call(value - 1)
+        : (useDialog && enabled ? dialogTrigger : null),
+      onIncrement: !useDialog && canIncrement
+        ? () => onChanged?.call(value + 1)
+        : (useDialog && enabled ? dialogTrigger : null),
+      decrementColor: !useDialog ? (canDecrement ? AppColors.danger : AppColors.disabled) : (enabled ? AppColors.text : AppColors.disabled),
+      incrementColor: !useDialog ? (canIncrement ? AppColors.primary : AppColors.disabled) : (enabled ? AppColors.text : AppColors.disabled),
+      useDialog: useDialog,
     );
   }
 }
@@ -53,42 +69,83 @@ class QuantityStepperDisplay extends StatelessWidget {
   final int quantity;
   final bool enabled;
   final VoidCallback? onTap;
+  final VoidCallback? onDecrement;
+  final VoidCallback? onIncrement;
+  final Color decrementColor;
+  final Color incrementColor;
+  final bool useDialog;
 
   const QuantityStepperDisplay({
     super.key,
     required this.quantity,
     this.enabled = true,
     this.onTap,
+    this.onDecrement,
+    this.onIncrement,
+    this.decrementColor = AppColors.text,
+    this.incrementColor = AppColors.text,
+    this.useDialog = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final effectiveOnTap = enabled ? onTap : null;
-    final color = enabled ? AppColors.text : AppColors.border;
+    final borderColor = enabled ? AppColors.border : AppColors.disabled;
 
-    return InkWell(
-      onTap: effectiveOnTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          border: Border.all(color: color),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Icon(Icons.remove, color: color, size: 16),
-            Text(
-              quantity.toString(),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildCircleButton(
+            icon: useDialog ? Icons.remove : Icons.remove_circle,
+            color: decrementColor,
+            onPressed: onDecrement,
+          ),
+          InkWell(
+            onTap: effectiveOnTap,
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                quantity.toString(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
               ),
             ),
-            Icon(Icons.add, color: color, size: 16),
-          ],
+          ),
+          _buildCircleButton(
+            icon: useDialog ? Icons.add : Icons.add_circle,
+            color: incrementColor,
+            onPressed: onIncrement,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    required Color color,
+    VoidCallback? onPressed,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Icon(
+          icon,
+          color: onPressed != null ? color : color.withOpacity(0.3),
+          size: 18,
         ),
       ),
     );
