@@ -341,30 +341,79 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
                 disabled: !widget.dealer.hasBankGuarantee,
               ),
               const SizedBox(height: 16),
-              AppTextField(
-                controller: widget.chequeNoController,
-                labelText: 'Cheque No.',
-                onChanged: (value) {
-                  _validateChildForm();
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: AppTextField(
+                    //keyboardType: TextInputType.number,
+                    //keyboardType
+                    controller: widget.chequeNoController,
+                    isDigitOnly: true,
+                    maxLength: 6,
+                    errorMaxLines: 2,
+                    labelText: 'Cheque Number',
+                    onChanged: (value) {
+                      _validateChildForm();
+                    },
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return null;
+                      }
+                      if (widget.chequeNoController.text.length < 6) {
+                        return 'Cheque number must be 6 digits';
+                      }
+                      return null;
+                    },
+                  ),
+                  ),
+                  const SizedBox(width: 12), // spacing between fields
+                  Expanded(
+                    child: AppTextField(
+                    isDigitOnly: true,
+                    maxLength: 6,
+                    controller: widget.chequeNoConfirmController,
+                    labelText: 'Confirm Cheque No.',
+                    errorMaxLines: 2,
+                    onChanged: (value) {
+                      _validateChildForm();
+                    },
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return null;
+                      }
+                      if (value != widget.chequeNoController.text) {
+                        return 'Cheque numbers do not match';
+                      }
+                      return null;
+                    },
+                    ),
+                    ),
+                  ],
               ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: widget.chequeNoConfirmController,
-                labelText: 'Cheque No. Confirm',
-                onChanged: (value) {
-                  _validateChildForm();
-                },
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return null;
-                  }
-                  if (value != widget.chequeNoController.text) {
-                    return 'Cheque Nos do not match';
-                  }
-                  return null;
-                },
-              ),
+              // AppTextField(
+              //   controller: widget.chequeNoController,
+              //   labelText: 'Cheque No.',
+              //   onChanged: (value) {
+              //     _validateChildForm();
+              //   },
+              // ),
+              // const SizedBox(height: 16),
+              // AppTextField(
+              //   controller: widget.chequeNoConfirmController,
+              //   labelText: 'Cheque No. Confirm',
+              //   onChanged: (value) {
+              //     _validateChildForm();
+              //   },
+              //   validator: (value) {
+              //     if (value?.isEmpty ?? true) {
+              //       return null;
+              //     }
+              //     if (value != widget.chequeNoController.text) {
+              //       return 'Cheque Nos do not match';
+              //     }
+              //     return null;
+              //   },
+              // ),
               const SizedBox(height: 16),
               DatePickerField(
                 labelText: 'Select Cheque Date',

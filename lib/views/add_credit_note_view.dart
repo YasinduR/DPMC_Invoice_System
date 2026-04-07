@@ -29,7 +29,7 @@ class AddCreditNotesView extends StatefulWidget {
 class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   final _formKey = GlobalKey<FormState>(); // 1. Add a GlobalKey for the Form
   final _crnController = TextEditingController();
-  final _amountController = TextEditingController();
+  final _amountController = TextEditingController(text: '0.00');
   late final List<CreditNote> _addedCreditNotes;
   late final List<CreditNote> _initialNotes;
 
@@ -53,7 +53,7 @@ class _AddCreditNotesViewState extends State<AddCreditNotesView> {
   void _addNoteToList() {
     if (_formKey.currentState!.validate()) {
       final crn = _crnController.text;
-      final amount = double.parse(_amountController.text);
+      final amount = parseCurrency(_amountController.text);
 
       setState(() {
         _addedCreditNotes.add(CreditNote(crnNumber: crn, amount: amount));
