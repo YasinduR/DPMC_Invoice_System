@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_fonts.dart';
-import 'app_colors.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 /// Defines the different common types of rounded borders for AppTextField.
 enum AppBorderType {
@@ -60,26 +60,30 @@ class AppThemeHelpers {
     );
   }
 
-  static TextStyle getActionButtonTextStyle() {
-    return TextStyle(fontFamily: AppFonts.primaryFont, fontSize: 16);
+  static TextStyle getActionButtonTextStyle({ColorPalette? palette}) {
+    return TextStyle(
+      fontFamily: AppFonts.primaryFont,
+      fontSize: 16,
+      color: palette?.white ?? AppColors.white,
+    );
   }
 
   // Floating Label of Text Fields
-  static TextStyle getFloatingLabelStyle(Set<MaterialState> states) {
+  static TextStyle getFloatingLabelStyle(Set<MaterialState> states, {ColorPalette? palette}) {
     if (states.contains(MaterialState.error)) {
-      return const TextStyle(color: AppColors.danger);
+      return TextStyle(color: palette?.danger ?? AppColors.danger);
     }
     if (states.contains(MaterialState.focused)) {
-      return const TextStyle(color: AppColors.primary);
+      return TextStyle(color: palette?.primary ?? AppColors.primary);
     }
-    return const TextStyle(color: AppColors.borderDark);
+    return TextStyle(color: palette?.borderDark ?? AppColors.borderDark);
   }
 
-  static ButtonStyle getHelperIconButtonStyle() {
+  static ButtonStyle getHelperIconButtonStyle({ColorPalette? palette}) {
     // Helper Icon Button Style ( ? )
     return IconButton.styleFrom(
-      backgroundColor: AppColors.primary,
-      foregroundColor: AppColors.white,
+      backgroundColor: palette?.primary ?? AppColors.primary,
+      foregroundColor: palette?.white ?? AppColors.white,
       padding: const EdgeInsets.all(14),
     );
   }

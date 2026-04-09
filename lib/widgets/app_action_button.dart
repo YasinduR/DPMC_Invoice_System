@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 
 // Define an enum for button types
@@ -17,6 +18,7 @@ class ActionButton extends StatelessWidget {
     // New: Secondary action
   final VoidCallback? onSecondaryPressed;
   final IconData? secondaryIcon;
+  final ColorPalette? palette; // New: Optional palette for dynamic theming
 
   const ActionButton({
     super.key,
@@ -30,6 +32,7 @@ class ActionButton extends StatelessWidget {
     this.isInDialog = false,
       this.onSecondaryPressed,
     this.secondaryIcon,
+    this.palette, // New: Optional palette
   });
 
   @override
@@ -79,7 +82,7 @@ class ActionButton extends StatelessWidget {
                 maxLines: 1,
                 minFontSize: 8,
                 overflow: TextOverflow.ellipsis,
-                style: AppThemeHelpers.getActionButtonTextStyle(),
+                style: AppThemeHelpers.getActionButtonTextStyle(palette: palette),
               ),
               onPressed: disabled ? null : onPressed,
               style: effectiveButtonStyle,
@@ -92,7 +95,7 @@ class ActionButton extends StatelessWidget {
                 maxLines: 1,
                 minFontSize: 8,
                 overflow: TextOverflow.ellipsis,
-                style: AppThemeHelpers.getActionButtonTextStyle(),
+                style: AppThemeHelpers.getActionButtonTextStyle(palette: palette),
               ),
             );
     }

@@ -11,6 +11,7 @@ class DealerInfoDetailCard extends StatelessWidget {
   final String secondLabel;
   final String? secondValue;
   final String? error;
+  final ColorPalette? palette; // New: Optional palette for dynamic theming
 
   const DealerInfoDetailCard({
     super.key,
@@ -20,6 +21,7 @@ class DealerInfoDetailCard extends StatelessWidget {
     this.secondLabel = 'Total Payment',
     this.secondValue,
     this.error,
+    this.palette, // New: Optional palette
   });
 
   Widget _statItem(String label, String value, Color color) {
@@ -41,6 +43,9 @@ class DealerInfoDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine the effective palette (either passed in or from Theme)
+    final effectivePalette = palette ?? Theme.of(context).extension<AppColorsExtension>()?.palette;
+
     final showStats = firstValue != null || secondValue != null || error != null;
     final displayFirstValue = firstValue ?? '0';
     final displaySecondValue = secondValue ?? '0';
@@ -49,11 +54,11 @@ class DealerInfoDetailCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: effectivePalette?.white ?? AppColors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: effectivePalette?.dialogShadowColor ?? Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -66,14 +71,18 @@ class DealerInfoDetailCard extends StatelessWidget {
             child: AutoSizeText(
               '${dealer.accountCode} - ${dealer.name}',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: effectivePalette?.text,
+              ),
               maxLines: 1,
             ),
           ),
           if (showStats) ...[
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Divider(height: 1, color: AppColors.border),
+              child: Divider(height: 1),
             ),
             if (error != null)
               Padding(
@@ -85,8 +94,8 @@ class DealerInfoDetailCard extends StatelessWidget {
               ),
             Row(
               children: [
-                _statItem(firstLabel, displayFirstValue, AppColors.primary),
-                _statItem(secondLabel, displaySecondValue, AppColors.warning),
+                _statItem(firstLabel, displayFirstValue, effectivePalette?.primary ?? AppColors.primary),
+                _statItem(secondLabel, displaySecondValue, effectivePalette?.warning ?? AppColors.warning),
               ],
             ),
           ],

@@ -11,6 +11,7 @@ class LocalStorageService {
   static const _kSavedUsername = 'savedUsername';
   static const _kSavedPwd = 'savedPassword';
   static const _kIconStyle = 'iconStyle';
+  static const _kThemeMode = 'themeMode';
 
   Future<void> saveBiometricPreference(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
@@ -74,6 +75,17 @@ class LocalStorageService {
   Future<String> getIconStyle() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_kIconStyle) ?? 'Apple Glass';
+  }
+
+  // Theme Mode
+  Future<void> saveThemeMode(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kThemeMode, mode);
+  }
+
+  Future<String> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kThemeMode) ?? 'Light';
   }
 
   // Activity Loging

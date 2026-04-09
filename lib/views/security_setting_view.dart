@@ -38,6 +38,8 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
     'Flutter Awesome'
   ];
 
+  final List<String> _themeModes = ['Light', 'Dark', 'Nordic Dark'];
+
   @override
   void initState() {
     super.initState();
@@ -123,6 +125,27 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                   onChanged: (val) {
                     if (val != null) {
                       ref.read(settingsProvider.notifier).setIconStyle(val);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: const Text('Theme Mode'),
+                subtitle: const Text('Select application theme'),
+                trailing: DropdownButton<String>(
+                  value: _themeModes.contains(ref.watch(settingsProvider).themeMode)
+                      ? ref.watch(settingsProvider).themeMode
+                      : 'Light',
+                  items: _themeModes.map((mode) {
+                    return DropdownMenuItem(
+                      value: mode,
+                      child: Text(mode, style: const TextStyle(fontSize: 14)),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref.read(settingsProvider.notifier).setThemeMode(val);
                     }
                   },
                 ),

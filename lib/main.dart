@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_router.dart';
 import 'package:myapp/config/app_config.dart';
+import 'package:myapp/providers/settings_provider.dart';
 import 'package:myapp/services/log_text_service.dart';
 //import 'package:myapp/services/location_service.dart';
 
@@ -50,9 +51,11 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     //final authState = ref.watch(authProvider);
+    final themeMode = ref.watch(settingsProvider).themeMode;
+
     return MaterialApp(
       title: 'Invoice App',
-      theme: appTheme(context),
+      theme: appTheme(context, themeMode: themeMode),
       initialRoute: AppRoutes.initializer,
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, ref),
       scaffoldMessengerKey: scaffoldMessengerKey,

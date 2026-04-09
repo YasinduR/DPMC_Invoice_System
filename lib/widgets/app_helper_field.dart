@@ -7,12 +7,12 @@ import 'package:myapp/exceptions/app_exceptions.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/region_model.dart';
-import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/assignee_model.dart';
 import 'package:myapp/models/return_request_model.dart';
 //import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
@@ -107,7 +107,10 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.showHelperOnInitialization = false,
     this.colorRules,
     this.layoutType = SelectionSheetLayoutType.table, // default to table
+    this.palette, // New: Optional palette for dynamic theming
   });
+
+  final ColorPalette? palette;
 
   @override
   State<AppSelectionField<T>> createState() => _AppSelectionFieldState<T>();
@@ -452,6 +455,7 @@ class _AppSelectionFieldState<T extends Mappable>
           displayNames: widget.displayNames,
           valueFields: widget.valueFields,
           colorRules: widget.colorRules,
+          palette: widget.palette,
         );
       },
     );
@@ -478,6 +482,7 @@ class _AppSelectionFieldState<T extends Mappable>
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
       onChanged: widget.onChanged,
+      palette: widget.palette,
     );
   }
 }
@@ -496,6 +501,7 @@ class AppHelpTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final void Function(String)? onFieldSubmitted;
   final TextInputAction? textInputAction;
+  final ColorPalette? palette;
 
   const AppHelpTextField({
     super.key,
@@ -510,6 +516,7 @@ class AppHelpTextField extends StatelessWidget {
     this.onChanged,
     this.onFieldSubmitted,
     this.textInputAction,
+    this.palette,
   });
 
   @override
@@ -571,6 +578,7 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
 
   final List<String> valueFields;
   final List<DataHelperColorRule<T>>? colorRules;
+  final ColorPalette? palette;
 
   const SelectionSheet({
     super.key,
@@ -580,6 +588,7 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
     required this.displayNames,
     required this.valueFields,
     this.colorRules,
+    this.palette,
   }) : assert(
          displayNames.length == valueFields.length,
          'Error: The number of display names must match the number of value fields.',
@@ -630,15 +639,18 @@ class _SelectionSheetState<T extends Mappable>
 
   @override
   Widget build(BuildContext context) {
+    // Determine effective palette
+    final effectivePalette = widget.palette ?? Theme.of(context).extension<AppColorsExtension>()?.palette;
+
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.7,
       maxChildSize: 0.9,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: effectivePalette?.white ?? Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
@@ -671,8 +683,9 @@ class _SelectionSheetState<T extends Mappable>
                                         ),
                                         child: Text(
                                           name,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.bold,
+                                            color: effectivePalette?.text,
                                           ),
                                         ),
                                       ),
@@ -712,8 +725,9 @@ class _SelectionSheetState<T extends Mappable>
                                               cellValue,
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 14,
+                                                color: effectivePalette?.text,
                                               ),
                                             ),
                                           );
@@ -812,8 +826,11 @@ class CardSelectionSheet<T extends Mappable> extends StatefulWidget {
     required this.items,
     required this.cardBuilder,
     required this.valueFields,
-    this.initialSearchQuery
+    this.initialSearchQuery,
+    this.palette,
   });
+
+  final ColorPalette? palette;
 
   @override
   State<CardSelectionSheet<T>> createState() => _CardSelectionSheetState<T>();
@@ -898,15 +915,18 @@ class _CardSelectionSheetState<T extends Mappable>
   // @override
   @override
   Widget build(BuildContext context) {
+    // Determine effective palette
+    final effectivePalette = widget.palette ?? Theme.of(context).extension<AppColorsExtension>()?.palette;
+
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.7,
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: effectivePalette?.white ?? Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [

@@ -5,19 +5,32 @@ import 'package:myapp/theme/app_fonts.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 
 // Function intialize all Theme Data (Material 3 ThemeData)
-ThemeData appTheme(BuildContext context) {
+ThemeData appTheme(BuildContext context, {String themeMode = 'Light'}) {
+  ColorPalette palette;
+  if (themeMode == 'Dark') {
+    palette = DarkPalette();
+  } else if (themeMode == 'Nordic Dark') {
+    palette = NordicPalette();
+  } else {
+    palette = LightPalette();
+  }
+
+  final bool isDark = themeMode != 'Light';
+
   // Main ColorScheme
   final ColorScheme customColorScheme = ColorScheme.fromSeed(
-    surface: AppColors.background, // Your custom background color for surfaces
-    seedColor: AppColors.primary,
-    primary: AppColors.primary,
-    secondary: AppColors.secondary,
-    tertiary: AppColors.tertiary,
-    onPrimary: AppColors.white,
-    onSecondary: AppColors.white,
-    onTertiary: AppColors.white,
-    brightness: Brightness.light, // Or Brightness.dark for a dark theme
+    seedColor: palette.primary,
+    primary: palette.primary,
+    secondary: palette.secondary,
+    tertiary: palette.tertiary,
+    surface: palette.background,
+    onPrimary: palette.white,
+    onSecondary: palette.white,
+    onTertiary: palette.white,
+    onSurface: palette.text,
+    brightness: isDark ? Brightness.dark : Brightness.light, // Or Brightness.dark for a dark theme
   );
+
   // TextTheme
   final TextTheme customTextTheme = TextTheme(
     // ex - 'Invoice System'
@@ -30,7 +43,7 @@ ThemeData appTheme(BuildContext context) {
       //fontFamily: 'Montserrat',
       fontWeight: FontWeight.bold,
       fontSize: 28,
-      color: customColorScheme.primary,
+      color: palette.primary,
     ),
     // headlineLarge: GoogleFonts.poppins(
     //   fontSize: 28,
@@ -43,14 +56,13 @@ ThemeData appTheme(BuildContext context) {
       //fontFamily: 'Montserrat',
       fontSize: 26,
       fontWeight: FontWeight.bold,
-      color: AppColors.text,
+      color: palette.text,
     ),
-
     // ex- 'Log in to your account'
     headlineSmall: TextStyle(
       //fontFamily: 'Montserrat',
       fontSize: 16,
-      color: AppColors.textFaded,
+      color: palette.textFaded,
     ),
 
     // // ex- 'Welcome back.'
@@ -69,24 +81,21 @@ ThemeData appTheme(BuildContext context) {
       // For AppBar titles
       fontSize: 20,
       fontWeight: FontWeight.bold,
-      color:
-          customColorScheme.primary, // Or onBackground, depending on contrast
+      color: palette.primary, // Or onBackground, depending on contrast
     ),
-
     labelLarge: TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.bold,
-      color: customColorScheme.onPrimary, // Text/icon color on primary button
+      color: palette.white, // Text/icon color on primary button
     ),
-
     labelSmall: TextStyle(
       fontSize: 14,
-      color: customColorScheme.primary,
+      color: palette.primary,
     ), //  ex - Forget Password text Button
     // Menucard Captions
     labelMedium: TextStyle(
       fontSize: 14,
-      color: AppColors.text,
+      color: palette.text,
       //fontWeight: FontWeight.w500,
       fontWeight: FontWeight.bold,
     ),
@@ -99,22 +108,22 @@ ThemeData appTheme(BuildContext context) {
     // You can add more text styles as needed
   );
   // Selected Text On text fields
+
   final TextSelectionThemeData customTextSelectionThemeData =
       TextSelectionThemeData(
-        cursorColor: customColorScheme.primary,
-        selectionColor: AppColors.textSelection,
-        selectionHandleColor: customColorScheme.primary,
-
+        cursorColor: palette.primary,
+        selectionColor: palette.textSelection,
+        selectionHandleColor: palette.primary,
       );
 
   final AppBarTheme customAppBarTheme = AppBarTheme(
-    backgroundColor: AppColors.transparent,
+    backgroundColor: Colors.transparent,
     elevation: 0, // No shadow under the AppBar
     centerTitle: true, // Center title for consistency with your previous choice
     titleTextStyle: customTextTheme.titleLarge,
-    iconTheme: const IconThemeData(
+    iconTheme: IconThemeData(
       // Define the style for AppBar icons (like back button)
-      color: AppColors.primary,
+      color: palette.primary,
     ),
   );
 
@@ -145,29 +154,24 @@ ThemeData appTheme(BuildContext context) {
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-
           //  Background color (enabled & disabled)
           backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
             if (states.contains(MaterialState.disabled)) {
-              return AppColors.disabled; // Disabled background
+              return palette.disabled; // Disabled background
             }
-            return customColorScheme.primary; // Enabled
+            return palette.primary; // Enabled
           }),
-
           // Text & icon color (enabled & disabled)
           foregroundColor: MaterialStateProperty.resolveWith<Color>((states) {
             if (states.contains(MaterialState.disabled)) {
-              //return AppColors.white.withOpacity(0.6); // Disabled text
-              return AppColors.ondisabled; // Disabled text
+              return palette.ondisabled; // Disabled text
             }
-            return customColorScheme.onPrimary; // Enabled
+            return palette.white; // Enabled
           }),
-
           //  Text style (AutoSizeText will inherit this)
           textStyle: MaterialStateProperty.all(
-            TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-
           // Optional: remove elevation when disabled
           elevation: MaterialStateProperty.resolveWith<double>((states) {
             if (states.contains(MaterialState.disabled)) {
@@ -177,54 +181,60 @@ ThemeData appTheme(BuildContext context) {
           }),
         ),
       );
+
   // EX- Forget pwd
   final TextButtonThemeData customTextButtonTheme = TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: customColorScheme.primary,
-      textStyle: TextStyle(fontSize: 14, color: customColorScheme.primary),
+      foregroundColor: palette.primary,
+      textStyle: TextStyle(fontSize: 14, color: palette.primary),
     ),
   );
 
   final DialogThemeData customDialogTheme = DialogThemeData(
-    backgroundColor: AppColors.white,
-    surfaceTintColor: AppColors.white,
+    backgroundColor: palette.white,
+    surfaceTintColor: palette.white,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12), // Rounded corners
     ),
     titleTextStyle: TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.bold,
-      color: customColorScheme.onSurface,
+      color: palette.text,
     ),
     contentTextStyle: TextStyle(
       fontSize: 14,
-      color: customColorScheme.onSurface,
+      color: palette.text,
     ),
     alignment: Alignment.center,
-    shadowColor: AppColors.dialogShadowColor,
+    shadowColor: palette.dialogShadowColor,
     elevation: 16,
   );
 
   final InputDecorationTheme customInputDecorationTheme = InputDecorationTheme(
     filled: true,
-    fillColor: AppColors.white, // Default fill color
+    fillColor: palette.white, // Default fill color
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    labelStyle: const TextStyle(color: AppColors.borderDark),
-    hintStyle: const TextStyle(color: AppColors.borderDark),
-    errorStyle: const TextStyle(color: AppColors.danger),
-
+    labelStyle: TextStyle(color: palette.borderDark),
+    hintStyle: TextStyle(color: palette.borderDark),
+    errorStyle: TextStyle(color: palette.danger),
     enabledBorder: AppThemeHelpers.getAppRoundedBorder(
       type: AppBorderType.standard,
+      color: palette.borderDark,
     ),
     focusedBorder: AppThemeHelpers.getAppRoundedBorder(
       type: AppBorderType.primaryFocused,
+      color: palette.primary,
     ),
-    errorBorder: AppThemeHelpers.getAppRoundedBorder(type: AppBorderType.error),
+    errorBorder: AppThemeHelpers.getAppRoundedBorder(
+      type: AppBorderType.error,
+      color: palette.danger,
+    ),
     focusedErrorBorder: AppThemeHelpers.getAppRoundedBorder(
       type: AppBorderType.error,
+      color: palette.danger,
     ),
     floatingLabelStyle: WidgetStateTextStyle.resolveWith(
-      AppThemeHelpers.getFloatingLabelStyle,
+      (states) => AppThemeHelpers.getFloatingLabelStyle(states, palette: palette),
     ),
   );
 
@@ -234,35 +244,35 @@ ThemeData appTheme(BuildContext context) {
       Set<MaterialState> states,
     ) {
       if (states.contains(MaterialState.disabled)) {
-        return customColorScheme.onSurface.withOpacity(0.38);
+        return palette.text.withOpacity(0.38);
       }
       if (states.contains(MaterialState.selected)) {
-        return customColorScheme.primary;
+        return palette.primary;
       }
-      return customColorScheme.outline;
+      return palette.borderDark;
     }),
     trackColor: MaterialStateProperty.resolveWith<Color?>((
       Set<MaterialState> states,
     ) {
       if (states.contains(MaterialState.disabled)) {
-        return customColorScheme.onSurface.withOpacity(0.12);
+        return palette.text.withOpacity(0.12);
       }
       if (states.contains(MaterialState.selected)) {
-        return customColorScheme.primary.withOpacity(0.5);
+        return palette.primary.withOpacity(0.5);
       }
-      return customColorScheme.surfaceContainerHigh;
+      return palette.disabled;
     }),
     overlayColor: MaterialStateProperty.resolveWith<Color?>((
       Set<MaterialState> states,
     ) {
       if (states.contains(MaterialState.hovered)) {
-        return customColorScheme.primary.withOpacity(0.08);
+        return palette.primary.withOpacity(0.08);
       }
       if (states.contains(MaterialState.focused)) {
-        return customColorScheme.primary.withOpacity(0.12);
+        return palette.primary.withOpacity(0.12);
       }
       if (states.contains(MaterialState.pressed)) {
-        return customColorScheme.primary.withOpacity(0.12);
+        return palette.primary.withOpacity(0.12);
       }
       return null; // No overlay by default
     }),
@@ -271,6 +281,7 @@ ThemeData appTheme(BuildContext context) {
   return ThemeData(
     useMaterial3: true,
     colorScheme: customColorScheme,
+    scaffoldBackgroundColor: palette.background,
     textSelectionTheme: customTextSelectionThemeData,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     appBarTheme: customAppBarTheme,
@@ -281,6 +292,8 @@ ThemeData appTheme(BuildContext context) {
     inputDecorationTheme: customInputDecorationTheme,
     switchTheme: customSwitchTheme,
     fontFamily: AppFonts.primaryFont,
-    // Add other theme properties as needed
+    extensions: [
+      AppColorsExtension(palette: palette),
+    ],
   );
 }
