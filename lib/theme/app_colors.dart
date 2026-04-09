@@ -53,6 +53,7 @@ abstract class ColorPalette {
       ];
 }
 
+// Added by Darshan R on 09/04/2026
 class LightPalette extends ColorPalette {
   @override
   Color get primary => const Color(0xFF0D47A1);
@@ -119,6 +120,7 @@ class LightPalette extends ColorPalette {
       ];
 }
 
+// Added by Darshan R on 09/04/2026
 class NordicPalette extends ColorPalette {
   @override
   Color get primary => const Color(0xFF88C0D0);
@@ -185,6 +187,7 @@ class NordicPalette extends ColorPalette {
       ];
 }
 
+// Added by Darshan R on 09/04/2026
 class DarkPalette extends ColorPalette {
   @override
   Color get primary => const Color(0xFF90CAF9);
