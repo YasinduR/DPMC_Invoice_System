@@ -18,7 +18,6 @@ class ActionButton extends StatelessWidget {
     // New: Secondary action
   final VoidCallback? onSecondaryPressed;
   final IconData? secondaryIcon;
-  final ColorPalette? palette; // New: Optional palette for dynamic theming
 
   const ActionButton({
     super.key,
@@ -32,11 +31,13 @@ class ActionButton extends StatelessWidget {
     this.isInDialog = false,
       this.onSecondaryPressed,
     this.secondaryIcon,
-    this.palette, // New: Optional palette
   });
 
   @override
   Widget build(BuildContext context) {
+    // Determine the effective palette from Theme
+    final palette = Theme.of(context).extension<AppColorsExtension>()?.palette;
+
     final ButtonStyle? defaultButtonStyle =
         Theme.of(context).elevatedButtonTheme.style;
     ButtonStyle? effectiveButtonStyle = defaultButtonStyle;

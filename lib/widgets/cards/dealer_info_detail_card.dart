@@ -11,7 +11,6 @@ class DealerInfoDetailCard extends StatelessWidget {
   final String secondLabel;
   final String? secondValue;
   final String? error;
-  final ColorPalette? palette; // New: Optional palette for dynamic theming
 
   const DealerInfoDetailCard({
     super.key,
@@ -21,7 +20,6 @@ class DealerInfoDetailCard extends StatelessWidget {
     this.secondLabel = 'Total Payment',
     this.secondValue,
     this.error,
-    this.palette, // New: Optional palette
   });
 
   Widget _statItem(String label, String value, Color color) {
@@ -43,8 +41,8 @@ class DealerInfoDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine the effective palette (either passed in or from Theme)
-    final effectivePalette = palette ?? Theme.of(context).extension<AppColorsExtension>()?.palette;
+    // Determine the effective palette from Theme
+    final effectivePalette = Theme.of(context).extension<AppColorsExtension>()?.palette;
 
     final showStats = firstValue != null || secondValue != null || error != null;
     final displayFirstValue = firstValue ?? '0';

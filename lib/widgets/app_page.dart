@@ -7,7 +7,6 @@ import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_navigation_bar.dart';
 import 'app_header.dart';
-import 'package:myapp/theme/app_colors.dart';
 //import 'package:myapp/theme/app_theme.dart';
 
 // Common Setup of an app page
@@ -50,8 +49,8 @@ class AppPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final palette = Theme.of(context).extension<AppColorsExtension>()?.palette;
-        // Determine currentIndex for footer based on currentRouteName
+
+    // Determine currentIndex for footer based on currentRouteName
     final int? currentIndex = currentRouteName != null
         ? AppNavItems.getNavIndex(currentRouteName!)
         : null;
@@ -82,7 +81,6 @@ class AppPage extends ConsumerWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: palette?.background,
         appBar:
             showAppBar
                 ? AppHeader(

@@ -107,10 +107,7 @@ class AppSelectionField<T extends Mappable> extends StatefulWidget {
     this.showHelperOnInitialization = false,
     this.colorRules,
     this.layoutType = SelectionSheetLayoutType.table, // default to table
-    this.palette, // New: Optional palette for dynamic theming
   });
-
-  final ColorPalette? palette;
 
   @override
   State<AppSelectionField<T>> createState() => _AppSelectionFieldState<T>();
@@ -455,7 +452,6 @@ class _AppSelectionFieldState<T extends Mappable>
           displayNames: widget.displayNames,
           valueFields: widget.valueFields,
           colorRules: widget.colorRules,
-          palette: widget.palette,
         );
       },
     );
@@ -482,7 +478,6 @@ class _AppSelectionFieldState<T extends Mappable>
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
       onChanged: widget.onChanged,
-      palette: widget.palette,
     );
   }
 }
@@ -501,7 +496,6 @@ class AppHelpTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final void Function(String)? onFieldSubmitted;
   final TextInputAction? textInputAction;
-  final ColorPalette? palette;
 
   const AppHelpTextField({
     super.key,
@@ -516,7 +510,6 @@ class AppHelpTextField extends StatelessWidget {
     this.onChanged,
     this.onFieldSubmitted,
     this.textInputAction,
-    this.palette,
   });
 
   @override
@@ -578,7 +571,6 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
 
   final List<String> valueFields;
   final List<DataHelperColorRule<T>>? colorRules;
-  final ColorPalette? palette;
 
   const SelectionSheet({
     super.key,
@@ -588,7 +580,6 @@ class SelectionSheet<T extends Mappable> extends StatefulWidget {
     required this.displayNames,
     required this.valueFields,
     this.colorRules,
-    this.palette,
   }) : assert(
          displayNames.length == valueFields.length,
          'Error: The number of display names must match the number of value fields.',
@@ -639,8 +630,8 @@ class _SelectionSheetState<T extends Mappable>
 
   @override
   Widget build(BuildContext context) {
-    // Determine effective palette
-    final effectivePalette = widget.palette ?? Theme.of(context).extension<AppColorsExtension>()?.palette;
+    // Determine effective palette from Theme
+    final effectivePalette = Theme.of(context).extension<AppColorsExtension>()?.palette;
 
     return DraggableScrollableSheet(
       expand: false,
@@ -827,10 +818,7 @@ class CardSelectionSheet<T extends Mappable> extends StatefulWidget {
     required this.cardBuilder,
     required this.valueFields,
     this.initialSearchQuery,
-    this.palette,
   });
-
-  final ColorPalette? palette;
 
   @override
   State<CardSelectionSheet<T>> createState() => _CardSelectionSheetState<T>();
@@ -912,11 +900,10 @@ class _CardSelectionSheetState<T extends Mappable>
     });
   }
 
-  // @override
   @override
   Widget build(BuildContext context) {
-    // Determine effective palette
-    final effectivePalette = widget.palette ?? Theme.of(context).extension<AppColorsExtension>()?.palette;
+    // Determine the effective palette from Theme
+    final effectivePalette = Theme.of(context).extension<AppColorsExtension>()?.palette;
 
     return DraggableScrollableSheet(
       expand: false,

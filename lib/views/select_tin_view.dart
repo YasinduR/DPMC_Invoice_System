@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/tin_model.dart';
-import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_image_viewer.dart';
@@ -140,8 +139,6 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
 
   @override
   Widget build(BuildContext context) {
-    // Look up palette from context
-    final palette = Theme.of(context).extension<AppColorsExtension>()?.palette;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -154,14 +151,13 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
               children: [
 
-              DealerInfoDetailCard(
-                dealer: widget.dealer,
-                firstLabel: 'Pending Invoices',
-                firstValue: _tinStat?.approved.toString()?? '0',
-                secondLabel: 'Pending Value',  
-                secondValue: formatNumber(_tinStat?.totalPayment?? 0),
-                palette: palette,
-              ),
+                DealerInfoDetailCard(
+                  dealer: widget.dealer,
+                  firstLabel: 'Pending Invoices',
+                  firstValue: _tinStat?.approved.toString() ?? '0',
+                  secondLabel: 'Pending Value',
+                  secondValue: formatNumber(_tinStat?.totalPayment ?? 0),
+                ),
                 // DealerInfoCard(dealer: widget.dealer),
                 // const SizedBox(height: 16),
                 // TinStatsCard(
@@ -179,7 +175,6 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
                       SelectionSheetLayoutType
                           .card, // Modified by Darshan R on 18/03/2026
                   initialValue: widget.selectedTin,
-                  palette: palette,
                   //onSelected: widget.onTinNumberSelected,
                   onSelected: (tin) async {
                     _loadTINImage(tin);
@@ -237,7 +232,6 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
             label: 'Submit',
             onPressed: _onTinSubmitted,
             disabled: !_isTinSelectionCommitted,
-            palette: palette,
           ),
         ],
       ),
