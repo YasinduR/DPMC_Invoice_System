@@ -7,6 +7,7 @@ import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/services/local_auth_service.dart';
 import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/services/location_service.dart';
+import 'package:myapp/services/notification_services.dart';
 
 class AuthState {
   final bool isLoggedIn;
@@ -130,6 +131,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
                     : (user.isPasswordExpired ? 'RESET' : null),
             lastLoginPassword: savedPassword,
           );
+          await NotificationService.setCurrentAppUser(user.username, displayName: user.username);
           await _autoClearActivitiesIfNeeded(context);
           return true;
         } else {
@@ -223,6 +225,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           passwordChangeType: _changeType,
           lastLoginPassword: password, // NEW: Save the password here
         );
+        await NotificationService.setCurrentAppUser(user.username, displayName: user.username);
         await _autoClearActivitiesIfNeeded(context);
       } else {
         state = state.copyWith(
@@ -455,6 +458,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           lastLoginPassword:
               newPassword, // NEW: Update password if it's being set/changed
         );
+        await NotificationService.setCurrentAppUser(updatedUser.username, displayName: updatedUser.username);
       } else {
         state = state.copyWith(
           isLoggedIn: false,
@@ -499,6 +503,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout(BuildContext context) async {
     await _authService.logout(context: context);
+    await NotificationService.clearCurrentAppUser();
     state = const AuthState.initial();
   }
 }

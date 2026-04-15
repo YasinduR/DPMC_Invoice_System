@@ -24,6 +24,7 @@ class NotificationService {
   static String? _lastToken;
   static String _pushStatusMessage = 'Not initialized';
   static String? _currentAppUserId;
+  static String? _currentAppDisplayName;
 
   static String? get lastToken => _lastToken;
   static String get pushStatusMessage => _pushStatusMessage;
@@ -113,7 +114,7 @@ class NotificationService {
       // ignore: avoid_print
       print('FCM token: $token');
 
-      final registered = await _registerToken(token);
+      final registered = await _registerToken(token, name: _currentAppDisplayName);
       _pushStatusMessage =
           registered ? 'Token fetched and registered' : 'Token fetched but backend registration failed';
       // ignore: avoid_print
@@ -128,7 +129,7 @@ class NotificationService {
     }
   }
 
-  static Future<bool> _registerToken(String token) async {
+  static Future<bool> _registerToken(String token, {String? name}) async {
     final baseUrl = Config.notificationBackendUrl;
 
     if (baseUrl.isEmpty) {
@@ -147,6 +148,7 @@ class NotificationService {
           'userId': userId,
           'installId': installId,
           'fcmToken': token,
+          'name': name,
         }),
       );
 
@@ -180,17 +182,17 @@ class NotificationService {
     return generated;
   }
 
-  /// Set the current logged-in app user for targeted notifications
   /// Call this after user login to enable user-level notification targeting
-  static Future<void> setCurrentAppUser(String appUserId) async {
+  static Future<void> setCurrentAppUser(String appUserId, {String? displayName}) async {
     _currentAppUserId = appUserId;
+    _currentAppDisplayName = displayName;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_currentUserIdKey, appUserId);
 
     // Re-register token with the new user ID
     if (_lastToken != null) {
-      await _registerToken(_lastToken!);
-      developer.log('Notification service updated for user: $appUserId',
+      await _registerToken(_lastToken!, name: displayName);
+      developer.log('Notification service updated for user: $appUserId ($displayName)',
           name: 'NotificationService');
     }
   }
@@ -198,6 +200,7 @@ class NotificationService {
   /// Clear the current user (call on logout)
   static Future<void> clearCurrentAppUser() async {
     _currentAppUserId = null;
+    _currentAppDisplayName = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_currentUserIdKey);
 
