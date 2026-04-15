@@ -82,6 +82,18 @@ class NotificationService {
       print('FCM token refreshed: $token');
       await _registerToken(token);
     });
+
+    // Handle incoming messages when the app is in the Foreground
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      developer.log('Got a message whilst in the foreground!', name: 'NotificationService');
+
+      if (message.notification != null) {
+        showNotification(
+          title: message.notification!.title ?? 'New Notification',
+          body: message.notification!.body ?? '',
+        );
+      }
+    });
   }
 
   static Future<String?> refreshRemoteToken() async {
@@ -120,21 +132,7 @@ class NotificationService {
     final baseUrl = Config.notificationBackendUrl;
 
     if (baseUrl.isEmpty) {
-      _pushStatusMessage = 'Notification backend URL is mis{
-  "name": "dpmc-notification-backend",
-  "version": "1.0.0",
-  "private": true,
-  "main": "api/index.js",
-  "scripts": {
-    "start": "node api/index.js"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "firebase-admin": "^12.7.0",
-    "pg": "^8.13.1"
-  }
-}sing';
+      _pushStatusMessage = 'Notification backend URL is missing';
       return false;
     }
 
