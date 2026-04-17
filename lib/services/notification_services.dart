@@ -16,6 +16,7 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  // Firebase Messaging related codes added by Darshan R on 16/04/2026
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static const String _installIdKey = 'push_installation_id';
   static const String _currentUserIdKey = 'push_current_user_id';
@@ -97,6 +98,7 @@ class NotificationService {
     });
   }
 
+  // Refresh remote token - added by Darshan R on 16/04/2026
   static Future<String?> refreshRemoteToken() async {
     try {
       final token = await _messaging.getToken();
@@ -129,6 +131,7 @@ class NotificationService {
     }
   }
 
+  // Register token - added by Darshan R on 10/04/2026
   static Future<bool> _registerToken(String token, {String? name}) async {
     final baseUrl = Config.notificationBackendUrl;
 
@@ -160,6 +163,7 @@ class NotificationService {
     }
   }
 
+  // Resolve user ID - added by Darshan R on 10/04/2026
   static Future<String> _resolveUserId() async {
     // If current app user is set, use it
     if (_currentAppUserId != null && _currentAppUserId!.isNotEmpty) {
@@ -170,6 +174,7 @@ class NotificationService {
     return await _getInstallId();
   }
 
+  // Get install ID - added by Darshan R on 10/04/2026
   static Future<String> _getInstallId() async {
     final prefs = await SharedPreferences.getInstance();
     final existing = prefs.getString(_installIdKey);
@@ -182,7 +187,7 @@ class NotificationService {
     return generated;
   }
 
-  /// Call this after user login to enable user-level notification targeting
+  /// Call this after user login to enable user-level notification targeting - added by Darshan R on 10/04/2026
   static Future<void> setCurrentAppUser(String appUserId, {String? displayName}) async {
     _currentAppUserId = appUserId;
     _currentAppDisplayName = displayName;
@@ -197,7 +202,7 @@ class NotificationService {
     }
   }
 
-  /// Clear the current user (call on logout)
+  /// Clear the current user (call on logout) - added by Darshan R on 10/04/2026
   static Future<void> clearCurrentAppUser() async {
     _currentAppUserId = null;
     _currentAppDisplayName = null;
@@ -212,7 +217,7 @@ class NotificationService {
     }
   }
 
-  /// Get the current user ID (app user if set, otherwise device ID)
+  /// Get the current user ID (app user if set, otherwise device ID) - added by Darshan R on 10/04/2026
   static Future<String> getCurrentUserId() async {
     return await _resolveUserId();
   }
