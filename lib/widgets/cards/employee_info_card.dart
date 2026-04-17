@@ -5,26 +5,28 @@ import 'package:myapp/theme/app_colors.dart';
 class EmployeeInfoCard extends StatelessWidget {
   final Employee employee;
 
-  const EmployeeInfoCard({
-    super.key,
-    required this.employee,
-  });
+  const EmployeeInfoCard({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {
-    return Container( // Use Container to add border and padding
-      margin: const EdgeInsets.symmetric(horizontal: 16.0), // Margin outside the card
+    return Container(
+      // Use Container to add border and padding
+      margin: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+      ), // Margin outside the card
       padding: const EdgeInsets.all(16.0), // Padding inside the card
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor, // Use cardColor for background
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners for the card
+        borderRadius: BorderRadius.circular(
+          12.0,
+        ), // Rounded corners for the card
         border: Border.all(
           color: Theme.of(context).dividerColor, // A subtle border color
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.borderDark, // Optional: Add a subtle shadow
+            color: AppColors.borderIntense, // Optional: Add a subtle shadow
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, 2),
@@ -55,7 +57,11 @@ class EmployeeInfoCard extends StatelessWidget {
           Text(
             employee.compName,
             style: TextStyle(
-              color: Theme.of(context).textTheme.bodySmall?.color, // Use a subtle color for company name
+              color:
+                  Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color, // Use a subtle color for company name
               fontSize: 14,
             ),
           ),

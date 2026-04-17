@@ -33,7 +33,7 @@ class DealerInfoDetailCard extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
           ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(label, style: TextStyle(fontSize: 12, color: AppColors.grey)),
         ],
       ),
     );
@@ -49,11 +49,11 @@ class DealerInfoDetailCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -71,8 +71,8 @@ class DealerInfoDetailCard extends StatelessWidget {
             ),
           ),
           if (showStats) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Divider(height: 1, color: AppColors.border),
             ),
             if (error != null)
@@ -80,7 +80,7 @@ class DealerInfoDetailCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Text(
                   error!,
-                  style: const TextStyle(color: AppColors.danger, fontSize: 12),
+                  style: TextStyle(color: AppColors.danger, fontSize: 12),
                 ),
               ),
             Row(

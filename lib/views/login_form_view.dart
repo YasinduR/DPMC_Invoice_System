@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_login_button.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
 // --- Intial Login Form View ---
@@ -178,17 +179,17 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
             ],
           ),
         ),
-        ActionButton(
+        LoginButton(
           disabled: isdisabled || authState.isLoading,
-          icon: Icons.check_circle_outline,
+          //icon: Icons.check_circle_outline,
 
-          label: 'Login',
+          //label: 'Login',
           onPressed: () {
             FocusScope.of(context).unfocus(); // Dismiss keyboard
             widget.onLogin(_usernameController.text, _passwordController.text);
           },
           onSecondaryPressed: authState.isLoading ? null : widget.onBiometric,
-          secondaryIcon: Icons.fingerprint,
+          //secondaryIcon: Icons.fingerprint,
         ),
         //const SizedBox(height: 16),
         // ActionButton(

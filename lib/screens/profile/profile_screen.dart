@@ -38,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 30),
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 60,
                 backgroundColor: AppColors.primary,
                 child: Icon(Icons.person, size: 80, color: AppColors.white),
@@ -125,7 +125,7 @@ class ProfileScreen extends ConsumerWidget {
       leading: Icon(icon, color: AppColors.primary),
       title: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           color: AppColors.textFaded,
         ),
@@ -135,7 +135,7 @@ class ProfileScreen extends ConsumerWidget {
         minFontSize: 8,
         maxLines: maxLinesValue ?? 1,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           color: AppColors.text,
         ),

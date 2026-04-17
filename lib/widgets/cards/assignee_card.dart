@@ -14,8 +14,16 @@ class AssigneeInfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.neutralLight,
         borderRadius: BorderRadius.circular(8),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: AppColors.neutralStrong.withOpacity(0.3), // shadow color
+        //     blurRadius: 6, // softness
+        //     spreadRadius: 1, // how much it spreads
+        //     offset: Offset(0, 3), // position (x, y)
+        //   ),
+        // ],
       ),
       child:
       // Text(
@@ -24,7 +32,7 @@ class AssigneeInfoCard extends StatelessWidget {
       // ),
       AutoSizeText(
         '${assignee.name} - ${assignee.assigneeId}',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        style: TextStyle(color:AppColors.text,fontWeight: FontWeight.bold, fontSize: 16),
         maxLines: 1,
       ),
     );

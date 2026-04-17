@@ -15,7 +15,7 @@ class InfoDisplay extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.border),
             ),
@@ -28,13 +28,13 @@ class InfoDisplay extends StatelessWidget {
         const SizedBox(width: 8),
         Container(
           decoration: BoxDecoration(
-            color: onInfoPressed != null ? AppColors.primary : Colors.grey,
+            color: onInfoPressed != null ? AppColors.primary :AppColors.borderIntense,
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.question_mark,
-              color: AppColors.white,
+              color: AppColors.surface,
               size: 20,
             ),
             onPressed: onInfoPressed,

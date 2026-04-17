@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/helpers/app_nav_items.dart';
 import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/settings_provider.dart';
 //import 'package:flutter/services.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_navigation_bar.dart';
@@ -50,6 +51,7 @@ class AppPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    ref.watch(settingsProvider);
         // Determine currentIndex for footer based on currentRouteName
     final int? currentIndex = currentRouteName != null
         ? AppNavItems.getNavIndex(currentRouteName!)

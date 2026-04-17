@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_colors.dart';
-
+import 'package:myapp/theme/app_theme_helper.dart';
 // class SelectionCard<T> extends StatelessWidget {
 //   final T data;
 //   final VoidCallback onTap;
@@ -71,8 +71,6 @@ import 'package:myapp/theme/app_colors.dart';
 //   }
 // }
 
-
-
 import 'package:auto_size_text/auto_size_text.dart';
 
 class SelectionCard<T> extends StatelessWidget {
@@ -101,55 +99,61 @@ class SelectionCard<T> extends StatelessWidget {
     final ratio = titleRatio.clamp(0.1, 0.9);
     final int titleFlex = (ratio * 100).toInt();
     final int valueFlex = 100 - titleFlex;
+   
 
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        margin: EdgeInsets.zero,
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Title
-              Expanded(
-                flex: titleFlex,
-                child: AutoSizeText(
-                  title_,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.text,
-                  ),
-                  maxLines: 1,
-                  minFontSize: 10, // 👈 added
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              // Value
-              Expanded(
-                flex: valueFlex,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
+      child: Container(
+        decoration: AppThemeHelpers.getSelectionCardDecoration(),
+        child: Card(
+          //shadowColor: AppColors.neutralStrong.withOpacity(0.3),
+          color: AppColors.cardBackground,
+          margin: EdgeInsets.zero,
+          //elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Title
+                Expanded(
+                  flex: titleFlex,
                   child: AutoSizeText(
-                    value_,
-                    style: const TextStyle(
+                    title_,
+                    style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.text,
                     ),
-                    textAlign: TextAlign.right,
                     maxLines: 1,
                     minFontSize: 10, // 👈 added
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+
+                // Value
+                Expanded(
+                  flex: valueFlex,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: AutoSizeText(
+                      value_,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.text,
+                      ),
+                      textAlign: TextAlign.right,
+                      maxLines: 1,
+                      minFontSize: 10, // 👈 added
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

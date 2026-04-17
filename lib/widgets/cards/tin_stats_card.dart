@@ -26,7 +26,7 @@ class TinStatsCard extends StatelessWidget {
         children: [
           Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(label, style: TextStyle(fontSize: 12, color: AppColors.grey)),
         ],
       ),
     );
@@ -45,7 +45,7 @@ class TinStatsCard extends StatelessWidget {
          if (stats.error != null)
            Padding(
              padding: const EdgeInsets.symmetric(vertical: 8.0),
-             child: Text(stats.error!, style: const TextStyle(color: Colors.red)),
+             child: Text(stats.error!),
            ),
          Card(
            child: Padding(

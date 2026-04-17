@@ -76,6 +76,7 @@ class MainMenuScreen extends ConsumerWidget {
             iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, iconSize),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
+            
           );
         }).toList();
 

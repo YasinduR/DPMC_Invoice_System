@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/theme/app_color_scheme.dart';
+import 'package:myapp/theme/app_colors.dart';
+//import 'package:myapp/theme/app_theme_notifier.dart';
 import 'package:myapp/widgets/app_switch_setting.dart';
 import 'package:myapp/providers/settings_provider.dart';
 
@@ -65,7 +68,8 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   @override
   Widget build(BuildContext context) {
     final selectedIconStyle = ref.watch(settingsProvider).iconStyle;
-
+   final currentScheme = ref.watch(settingsProvider).theme;
+    final isDark = currentScheme == AppThemes.dark;
     return Column(
       children: [
         Expanded(
@@ -127,6 +131,19 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                   },
                 ),
               ),
+              const SizedBox(height: 12),
+             SwitchListTile(
+      title: const Text('Dark Mode'),
+      value: isDark,
+      onChanged: (_) {
+        final notifier = ref.read(settingsProvider.notifier);
+  if (isDark) {
+    notifier.setTheme(AppThemes.light);
+  } else {
+    notifier.setTheme(AppThemes.dark);
+  }
+      },
+    )
             ],
           ),
         ),

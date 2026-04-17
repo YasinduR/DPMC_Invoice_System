@@ -28,7 +28,7 @@ class TitledRadioGroup extends StatelessWidget {
         Center(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
               color: AppColors.primary,

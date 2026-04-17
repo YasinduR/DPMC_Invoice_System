@@ -37,7 +37,7 @@ void showSnackBar({
 
   final snackBar = SnackBar(
     backgroundColor:
-        Colors.transparent, 
+        AppColors.transparent, 
     elevation: 0, 
     behavior: SnackBarBehavior.floating,
     margin: EdgeInsets.only(
@@ -54,7 +54,7 @@ void showSnackBar({
         borderRadius: BorderRadius.circular(12), 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: AppColors.black.withOpacity(0.15),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -70,7 +70,7 @@ void showSnackBar({
               children: [
                 Text(
                   finalTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.white,
@@ -79,7 +79,7 @@ void showSnackBar({
                 const SizedBox(height: 4),
                 Text(
                   message,
-                  style: const TextStyle(color: AppColors.white, fontSize: 14),
+                  style: TextStyle(color: AppColors.white, fontSize: 14),
                 ),
               ],
             ),
@@ -89,7 +89,7 @@ void showSnackBar({
             onTap: () {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
             },
-            child: const Icon(Icons.close, color: AppColors.white, size: 24),
+            child: Icon(Icons.close, color: AppColors.white, size: 24),
           ),
         ],
       ),

@@ -13,6 +13,7 @@ import 'package:myapp/models/return_request_model.dart';
 //import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
@@ -330,7 +331,7 @@ class _AppSelectionFieldState<T extends Mappable>
     final selectedItem = await showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor:AppColors.transparent,
       builder: (_) {
         // Switch based on layout type - Added by Darshan R on 16/03/2026
         switch (widget.layoutType) {
@@ -636,9 +637,9 @@ class _SelectionSheetState<T extends Mappable>
       maxChildSize: 0.9,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
@@ -904,9 +905,9 @@ class _CardSelectionSheetState<T extends Mappable>
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_router.dart';
 import 'package:myapp/config/app_config.dart';
+import 'package:myapp/providers/settings_provider.dart';
 import 'package:myapp/services/log_text_service.dart';
 //import 'package:myapp/services/location_service.dart';
 
 import 'package:myapp/services/notification_services.dart';
 import 'package:myapp/services/printer_service.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme.dart';
+//import 'package:myapp/theme/app_theme_notifier.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/app_routes.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -31,9 +34,19 @@ Future<void> main() async {
   // final bool locationReady = await locationService.initializeLocationAndPermissions();
 
   // if (locationReady) {
+  // Initialize AppColors with this container
+  final container = ProviderContainer();
+  AppColors.init(container);
+
   runApp(
-    const ProviderScope(child: MyApp()),
-  ); // Run app with riverpod provider scope
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
+    ),
+  );
+  
+  
+  // Run app with riverpod provider scope
   //}
   // final locationService = LocationService();
   // await locationService.initializeLocationAndPermissions();
@@ -50,6 +63,9 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     //final authState = ref.watch(authProvider);
+    //ref.watch(themeProvider);
+    ref.watch(settingsProvider);
+
     return MaterialApp(
       title: 'Invoice App',
       theme: appTheme(context),

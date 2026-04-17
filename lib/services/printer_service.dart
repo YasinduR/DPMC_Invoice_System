@@ -27,20 +27,23 @@ class PrinterService {
 
   //late CapabilityProfile _profile; // Loaded once for ESC/POS command generation
   static final String CompanyName = 'David Pieris Motor Company (Pvt) Ltd';
-  static final String CompanyAddress = '120, 120A,Pannipitya Road, Battaramulla.';
+  static final String CompanyAddress =
+      '120, 120A,Pannipitya Road, Battaramulla.';
   static final String CompanyContact = 'Tel: 014419300, Fax: 0114700101';
   static late dynamic printRegular;
   static late dynamic printBold;
-
-  
 
   static Future<void> initialize() async {
     //_profile = await CapabilityProfile.load(); //
     // printRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier-Regular.ttf'));
     // printBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier-Bold.ttf'),);
 
-    printRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
-    printBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
+    printRegular = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'),
+    );
+    printBold = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'),
+    );
     // No actual thermal printer connection logic here for now.
     // This method is kept for future expansion of thermal printing.
   }
@@ -167,11 +170,9 @@ class PrinterService {
     Return returnObj,
     PrintFooterDetail details,
   ) async {
-        final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
     final formattedReturnDate = DateFormat(
       'yyyy/MM/dd',
     ).format(returnObj.returnTime);
@@ -284,15 +285,27 @@ class PrinterService {
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
-                      pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
-                      pw.Text('Dealer Signature', style: pw.TextStyle(fontSize: 10)),
+                      pw.Text(
+                        '-----------------',
+                        style: pw.TextStyle(fontSize: 10),
+                      ),
+                      pw.Text(
+                        'Dealer Signature',
+                        style: pw.TextStyle(fontSize: 10),
+                      ),
                     ],
                   ),
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
-                      pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
-                      pw.Text('Driver Signature', style: pw.TextStyle(fontSize: 10)),
+                      pw.Text(
+                        '-----------------',
+                        style: pw.TextStyle(fontSize: 10),
+                      ),
+                      pw.Text(
+                        'Driver Signature',
+                        style: pw.TextStyle(fontSize: 10),
+                      ),
                     ],
                   ),
                 ],
@@ -300,14 +313,23 @@ class PrinterService {
               pw.SizedBox(height: 25),
               pw.Align(
                 alignment: pw.Alignment.center,
-                child: pw.Text('Dealer Stamp', style: pw.TextStyle(fontSize: 10)),
+                child: pw.Text(
+                  'Dealer Stamp',
+                  style: pw.TextStyle(fontSize: 10),
+                ),
               ),
               pw.SizedBox(height: 20),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Text('-----------------', style: pw.TextStyle(fontSize: 10)),
-                  pw.Text('Security Sig. & Stamp', style: pw.TextStyle(fontSize: 10)),
+                  pw.Text(
+                    '-----------------',
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                  pw.Text(
+                    'Security Sig. & Stamp',
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
                   _formFooterPdf(details),
                 ],
               ),
@@ -329,15 +351,12 @@ class PrinterService {
     PrintFooterDetail details, {
     bool isReprint = false,
   }) async {
+    //final courierRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
+    //final courierBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
 
-//final courierRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
-//final courierBold = pw.Font.ttf(await rootBundle.load('assets/fonts/Courier/CourierPrime-Regular.ttf'));
-
-    final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
     final formattedInvoiceDate = DateFormat(
       'yyyy/MM/dd',
     ).format(invoiceObj.invoiceTime);
@@ -612,15 +631,13 @@ class PrinterService {
     PrintFooterDetail details, {
     bool isReprint = false,
   }) async {
-        final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
     final formattedDate = DateFormat('yyyy/MM/dd').format(recObj.receiptTime);
     final formattedDepDate = DateFormat('yyyy/MM/dd').format(recObj.chequeDate);
     final double fontSize = 10;
-    final double chequeAmount =  recObj.chequeAmount;
+    final double chequeAmount = recObj.chequeAmount;
     final double totalCreditNoteAmount = recObj.creditNotes.fold(
       0.0,
       (sum, note) => sum + note.amount,
@@ -786,7 +803,9 @@ class PrinterService {
                     (item) => _buildTableRow(
                       item.mobileInvNo
                           .toString(), // Assuming mobileInvNo can be directly converted to string
-                      formatNumber(item.invAmount), // Assuming invAmount is a double and needs formatting
+                      formatNumber(
+                        item.invAmount,
+                      ), // Assuming invAmount is a double and needs formatting
                     ),
                   ),
                 ],
@@ -903,7 +922,9 @@ class PrinterService {
                     (item) => _buildTableRow(
                       item.mobileInvNo
                           .toString(), // Assuming mobileInvNo can be directly converted to string
-                      formatNumber(item.invAmount),  // Assuming invAmount is a double and needs formatting
+                      formatNumber(
+                        item.invAmount,
+                      ), // Assuming invAmount is a double and needs formatting
                     ),
                   ),
                 ],
@@ -965,11 +986,9 @@ class PrinterService {
     DispatchNoteSave note,
     PrintFooterDetail details,
   ) async {
-        final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
     const double fontSize = 9;
 
     final formattedDate = DateFormat('yyyy/MM/dd').format(note.dispatchTime);
@@ -1152,7 +1171,10 @@ class PrinterService {
 
                         /// SEPARATOR BETWEEN TINS
                         if (tin != note.tins.last) ...[
-                          pw.Divider(thickness: 2, color: PdfColors.grey600),
+                          pw.Divider(
+                            thickness: 2,
+                            color: PdfColors.grey700,
+                          ),
                         ],
                       ],
                     )
@@ -1339,11 +1361,9 @@ class PrinterService {
     String dealerName,
   ) async {
     final data = _buildInvoice(selectedParts, dealerName);
-        final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
 
     pdf.addPage(
       pw.Page(
@@ -1453,11 +1473,9 @@ class PrinterService {
     String customerName,
   ) async {
     final receiptData = _buildReceiptData(items, customerName);
-        final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
 
     pdf.addPage(
       pw.Page(
@@ -1549,211 +1567,230 @@ class PrinterService {
     );
   }
 
-static Future<void> previewChequeSummaryPdf(
-  DateTime startDateTime,
-  DateTime endDateTime,
-  List<Receipt> cheques,
-  PrintFooterDetail details,
-) async {
-      final pdf = pw.Document(  
-      theme: pw.ThemeData.withFont(
-    base: printRegular,
-    bold: printBold,
-  ),);
-  final formattedStart = DateFormat('yyyy/MM/dd HH:mm').format(startDateTime);
-  final formattedEnd = DateFormat('yyyy/MM/dd HH:mm').format(endDateTime);
-  final totalAmount = cheques.fold<double>(0, (sum, rec) => sum + rec.chequeAmount);
+  static Future<void> previewChequeSummaryPdf(
+    DateTime startDateTime,
+    DateTime endDateTime,
+    List<Receipt> cheques,
+    PrintFooterDetail details,
+  ) async {
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(base: printRegular, bold: printBold),
+    );
+    final formattedStart = DateFormat('yyyy/MM/dd HH:mm').format(startDateTime);
+    final formattedEnd = DateFormat('yyyy/MM/dd HH:mm').format(endDateTime);
+    final totalAmount = cheques.fold<double>(
+      0,
+      (sum, rec) => sum + rec.chequeAmount,
+    );
 
-  pdf.addPage(
-    pw.Page(
-      pageFormat: PdfPageFormat.roll80,
-      margin: const pw.EdgeInsets.all(10),
-      build: (context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.center,
-          children: [
-            _companyHeaderPdf('CHEQUE SUMMARY'),
-            pw.Text('From: $formattedStart', style: pw.TextStyle(fontSize: 10)),
-            pw.Text('To: $formattedEnd', style: pw.TextStyle(fontSize: 10)),
-            pw.SizedBox(height: 10),
-
-            pw.Table(
-              border: null,
-              columnWidths: {
-                0: const pw.FlexColumnWidth(1), // Dealer (code + name)
-                1: const pw.FlexColumnWidth(1), // Amount
-                2: const pw.FlexColumnWidth(1), // Amount
-                3: const pw.FlexColumnWidth(1), // Timestamp (date + time)
-              },
-              children: [
-                // Header row
-                pw.TableRow(
-                  children: [
-                    pw.Text('Dealer ', style: pw.TextStyle(fontSize: 9)),
-                    pw.Text('Cheque No ', style: pw.TextStyle(fontSize: 9)),
-                    pw.Text('  Time', style: pw.TextStyle(fontSize: 9)),
-                    pw.Text('  Amount ', style: pw.TextStyle(fontSize: 9)),
-                    // pw.Align(
-                    //   alignment: pw.Alignment.centerRight,
-                    //   child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    // ),
-                    // pw.Align(
-                    //   alignment: pw.Alignment.centerRight,
-                    //   child: pw.Text('Time', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    // ),
-                  ],
-                ),
-                pw.TableRow(
-                  children: [
-                    pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
-                    pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
-                    pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
-                    pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
-                    // pw.Align(
-                    //   alignment: pw.Alignment.centerRight,
-                    //   child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    // ),
-                    // pw.Align(
-                    //   alignment: pw.Alignment.centerRight,
-                    //   child: pw.Text('Time', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    // ),
-                  ],
-                ),
-                // Data rows
-                ...cheques.map((rec) {
-                  final formattedDate = DateFormat('dd/MM/yy').format(rec.receiptTime);
-                  final formattedTime = DateFormat('HH:mm').format(rec.receiptTime);
-                  return pw.TableRow(
-                    children: [
-                      // Dealer column: code + name stacked
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(rec.dealerCode ?? '', style: pw.TextStyle(fontSize: 8)),
-                          pw.Text(rec.dealerName ?? '', style: pw.TextStyle(fontSize: 8)),
-                        ],
-                      ),
-                      // Cheque Number column
-                      pw.Align(
-                        alignment: pw.Alignment.centerRight,
-                        child: pw.Text(
-                         rec.chequeNumber,
-                          style: pw.TextStyle(fontSize: 8),
-                        ),
-                      ),
-                      // Timestamp column: date + time stacked
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.end,
-                        children: [
-                          pw.Text(formattedDate, style: pw.TextStyle(fontSize: 8)),
-                          pw.Text(formattedTime, style: pw.TextStyle(fontSize: 8)),
-                        ],
-                      ),
-                      // Amount column
-                      pw.Align(
-                        alignment: pw.Alignment.centerRight,
-                        child: pw.Text(
-                          formatNumber(rec.chequeAmount),
-                          style: pw.TextStyle(fontSize: 8),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ],
-            ),
-
-            pw.Divider(),
-            pw.SizedBox(height: 5),
-            pw.Align(
-              alignment: pw.Alignment.centerRight,
-              child: pw.Text(
-                'Total: ${formatNumber(totalAmount)}',
-                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.roll80,
+        margin: const pw.EdgeInsets.all(10),
+        build: (context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              _companyHeaderPdf('CHEQUE SUMMARY'),
+              pw.Text(
+                'From: $formattedStart',
+                style: pw.TextStyle(fontSize: 10),
               ),
-            ),
-            pw.SizedBox(height: 10),
-            _formFooterPdf(details),
-          ],
-        );
-      },
-    ),
-  );
-  await Printing.layoutPdf(onLayout: (format) => pdf.save());
-}
+              pw.Text('To: $formattedEnd', style: pw.TextStyle(fontSize: 10)),
+              pw.SizedBox(height: 10),
 
+              pw.Table(
+                border: null,
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(1), // Dealer (code + name)
+                  1: const pw.FlexColumnWidth(1), // Amount
+                  2: const pw.FlexColumnWidth(1), // Amount
+                  3: const pw.FlexColumnWidth(1), // Timestamp (date + time)
+                },
+                children: [
+                  // Header row
+                  pw.TableRow(
+                    children: [
+                      pw.Text('Dealer ', style: pw.TextStyle(fontSize: 9)),
+                      pw.Text('Cheque No ', style: pw.TextStyle(fontSize: 9)),
+                      pw.Text('  Time', style: pw.TextStyle(fontSize: 9)),
+                      pw.Text('  Amount ', style: pw.TextStyle(fontSize: 9)),
+                      // pw.Align(
+                      //   alignment: pw.Alignment.centerRight,
+                      //   child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      // ),
+                      // pw.Align(
+                      //   alignment: pw.Alignment.centerRight,
+                      //   child: pw.Text('Time', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      // ),
+                    ],
+                  ),
+                  pw.TableRow(
+                    children: [
+                      pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
+                      pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
+                      pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
+                      pw.Text(' ', style: pw.TextStyle(fontSize: 8)),
+                      // pw.Align(
+                      //   alignment: pw.Alignment.centerRight,
+                      //   child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      // ),
+                      // pw.Align(
+                      //   alignment: pw.Alignment.centerRight,
+                      //   child: pw.Text('Time', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      // ),
+                    ],
+                  ),
+                  // Data rows
+                  ...cheques.map((rec) {
+                    final formattedDate = DateFormat(
+                      'dd/MM/yy',
+                    ).format(rec.receiptTime);
+                    final formattedTime = DateFormat(
+                      'HH:mm',
+                    ).format(rec.receiptTime);
+                    return pw.TableRow(
+                      children: [
+                        // Dealer column: code + name stacked
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              rec.dealerCode ?? '',
+                              style: pw.TextStyle(fontSize: 8),
+                            ),
+                            pw.Text(
+                              rec.dealerName ?? '',
+                              style: pw.TextStyle(fontSize: 8),
+                            ),
+                          ],
+                        ),
+                        // Cheque Number column
+                        pw.Align(
+                          alignment: pw.Alignment.centerRight,
+                          child: pw.Text(
+                            rec.chequeNumber,
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        // Timestamp column: date + time stacked
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.end,
+                          children: [
+                            pw.Text(
+                              formattedDate,
+                              style: pw.TextStyle(fontSize: 8),
+                            ),
+                            pw.Text(
+                              formattedTime,
+                              style: pw.TextStyle(fontSize: 8),
+                            ),
+                          ],
+                        ),
+                        // Amount column
+                        pw.Align(
+                          alignment: pw.Alignment.centerRight,
+                          child: pw.Text(
+                            formatNumber(rec.chequeAmount),
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ],
+              ),
 
-//  static Future<void> previewChequeSummaryPdf(
-//   DateTime startDateTime,
-//   DateTime endDateTime,
-//   List<Receipt> cheques,
-//   PrintFooterDetail details,
-// ) async {
-//   final pdf = pw.Document();
-//   // format start and end for display
-//   final formattedStart = DateFormat('yyyy/MM/dd HH:mm').format(startDateTime);
-//   final formattedEnd = DateFormat('yyyy/MM/dd HH:mm').format(endDateTime);
-//   // maybe total sum
-//   final totalAmount = cheques.fold<double>(0, (sum, rec) => sum + rec.chequeAmount);
-//   // Build page
-//   pdf.addPage(
-//     pw.Page(
-//       pageFormat: PdfPageFormat.roll80,
-//       margin: const pw.EdgeInsets.all(10),
-//       build: (context) {
-//         return pw.Column(
-//           crossAxisAlignment: pw.CrossAxisAlignment.center,
-//           children: [
-//             _companyHeaderPdf('CHEQUE SUMMARY'), // or maybe a custom header
-//             // Start and end date range
-//             pw.Text('From: $formattedStart', style: pw.TextStyle(fontSize: 10)),
-//             pw.Text('To: $formattedEnd', style: pw.TextStyle(fontSize: 10)),
-//             pw.SizedBox(height: 10),
-//             // Table header
-//             pw.Table(
-//               border: null,
-//               columnWidths: {
-//                 0: const pw.FlexColumnWidth(2), // Dealer Code
-//                 1: const pw.FlexColumnWidth(3), // Dealer Name
-//                 2: const pw.FixedColumnWidth(50), // Amount
-//                 3: const pw.FixedColumnWidth(80), // Receipt Time
-//               },
-//               children: [
-//                 pw.TableRow(
-//                   children: [
-//                     pw.Text('Dealer Code', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-//                     pw.Text('Dealer Name', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-//                     pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-//                     pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text('Receipt Time', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-//                   ],
-//                 ),
-//                 // Data rows
-//                 ...cheques.map((rec) {
-//                   final formattedTime = DateFormat('dd/MM/yyyy HH:mm').format(rec.receiptTime);
-//                   return pw.TableRow(
-//                     children: [
-//                       pw.Text(rec.dealerCode ?? '', style: pw.TextStyle(fontSize: 8)),
-//                       pw.Text(rec.dealerName ?? '', style: pw.TextStyle(fontSize: 8)),
-//                       pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text(formatNumber(rec.chequeAmount), style: pw.TextStyle(fontSize: 8))),
-//                       pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text(formattedTime, style: pw.TextStyle(fontSize: 8))),
-//                     ],
-//                   );
-//                 }),
-//               ],
-//             ),
-//             pw.Divider(),
-//             pw.SizedBox(height: 5),
-//             pw.Align(
-//               alignment: pw.Alignment.centerRight,
-//               child: pw.Text('Total: ${formatNumber(totalAmount)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-//             ),
-//             pw.SizedBox(height: 10),
-//             _formFooterPdf(details),
-//           ],
-//         );
-//       },
-//     ),
-//   );
-//   await Printing.layoutPdf(onLayout: (format) => pdf.save());
-// }
+              pw.Divider(),
+              pw.SizedBox(height: 5),
+              pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  'Total: ${formatNumber(totalAmount)}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              _formFooterPdf(details),
+            ],
+          );
+        },
+      ),
+    );
+    await Printing.layoutPdf(onLayout: (format) => pdf.save());
+  }
+
+  //  static Future<void> previewChequeSummaryPdf(
+  //   DateTime startDateTime,
+  //   DateTime endDateTime,
+  //   List<Receipt> cheques,
+  //   PrintFooterDetail details,
+  // ) async {
+  //   final pdf = pw.Document();
+  //   // format start and end for display
+  //   final formattedStart = DateFormat('yyyy/MM/dd HH:mm').format(startDateTime);
+  //   final formattedEnd = DateFormat('yyyy/MM/dd HH:mm').format(endDateTime);
+  //   // maybe total sum
+  //   final totalAmount = cheques.fold<double>(0, (sum, rec) => sum + rec.chequeAmount);
+  //   // Build page
+  //   pdf.addPage(
+  //     pw.Page(
+  //       pageFormat: PdfPageFormat.roll80,
+  //       margin: const pw.EdgeInsets.all(10),
+  //       build: (context) {
+  //         return pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.center,
+  //           children: [
+  //             _companyHeaderPdf('CHEQUE SUMMARY'), // or maybe a custom header
+  //             // Start and end date range
+  //             pw.Text('From: $formattedStart', style: pw.TextStyle(fontSize: 10)),
+  //             pw.Text('To: $formattedEnd', style: pw.TextStyle(fontSize: 10)),
+  //             pw.SizedBox(height: 10),
+  //             // Table header
+  //             pw.Table(
+  //               border: null,
+  //               columnWidths: {
+  //                 0: const pw.FlexColumnWidth(2), // Dealer Code
+  //                 1: const pw.FlexColumnWidth(3), // Dealer Name
+  //                 2: const pw.FixedColumnWidth(50), // Amount
+  //                 3: const pw.FixedColumnWidth(80), // Receipt Time
+  //               },
+  //               children: [
+  //                 pw.TableRow(
+  //                   children: [
+  //                     pw.Text('Dealer Code', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+  //                     pw.Text('Dealer Name', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+  //                     pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+  //                     pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text('Receipt Time', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+  //                   ],
+  //                 ),
+  //                 // Data rows
+  //                 ...cheques.map((rec) {
+  //                   final formattedTime = DateFormat('dd/MM/yyyy HH:mm').format(rec.receiptTime);
+  //                   return pw.TableRow(
+  //                     children: [
+  //                       pw.Text(rec.dealerCode ?? '', style: pw.TextStyle(fontSize: 8)),
+  //                       pw.Text(rec.dealerName ?? '', style: pw.TextStyle(fontSize: 8)),
+  //                       pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text(formatNumber(rec.chequeAmount), style: pw.TextStyle(fontSize: 8))),
+  //                       pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text(formattedTime, style: pw.TextStyle(fontSize: 8))),
+  //                     ],
+  //                   );
+  //                 }),
+  //               ],
+  //             ),
+  //             pw.Divider(),
+  //             pw.SizedBox(height: 5),
+  //             pw.Align(
+  //               alignment: pw.Alignment.centerRight,
+  //               child: pw.Text('Total: ${formatNumber(totalAmount)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+  //             ),
+  //             pw.SizedBox(height: 10),
+  //             _formFooterPdf(details),
+  //           ],
+  //         );
+  //       },
+  //     ),
+  //   );
+  //   await Printing.layoutPdf(onLayout: (format) => pdf.save());
+  // }
 }

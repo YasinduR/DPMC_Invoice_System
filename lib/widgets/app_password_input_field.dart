@@ -5,7 +5,7 @@ import 'package:myapp/helpers/password_strength.dart';
 import 'package:myapp/theme/app_colors.dart';
 
 /// A password input field widget with visibility toggle eye icon
-/// 
+///
 /// This widget provides a TextFormField with an eye icon that toggles
 /// password visibility between hidden and visible states.
 class PasswordInputField extends StatefulWidget {
@@ -56,22 +56,22 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
   //   return null;
   // }
 
-// Modified By Yasindu Ganegoda 03/20/2026
+  // Modified By Yasindu Ganegoda 03/20/2026
   String? _validatePassword(String? value) {
-  if (widget.validator != null) {
-    final customError = widget.validator!(value);
-    if (customError != null) return customError;
-  }
-
-  if (widget.enforceStrength && value != null && value.isNotEmpty) {
-    final strengthError = PasswordStrength.getValidationMessage(value);
-    if (strengthError != null) {
-      return strengthError;
+    if (widget.validator != null) {
+      final customError = widget.validator!(value);
+      if (customError != null) return customError;
     }
-  }
 
-  return null;
-}
+    if (widget.enforceStrength && value != null && value.isNotEmpty) {
+      final strengthError = PasswordStrength.getValidationMessage(value);
+      if (strengthError != null) {
+        return strengthError;
+      }
+    }
+
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +85,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
       textInputAction: widget.textInputAction,
       decoration: InputDecoration(
         errorMaxLines: 2,
-        counterText: "", 
+        counterText: "",
         labelText: widget.labelText,
         hintText: widget.hintText,
         contentPadding: widget.contentPadding,
@@ -94,7 +94,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
           child: IconButton(
             icon: Icon(
               _obscureText ? Icons.visibility_off : Icons.visibility,
-              color: AppColors.grey600,
+              color: AppColors.neutralMedium,
             ),
             onPressed: () {
               setState(() {

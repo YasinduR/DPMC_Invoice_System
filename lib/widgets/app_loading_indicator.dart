@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:myapp/theme/app_colors.dart';
 
 class AppLoadingIndicator extends StatelessWidget {
-  final Color indicatorColor;
+  final Color? indicatorColor;
   final double indicatorSize;
   final double indicatorStrokeWidth;
 
   const AppLoadingIndicator({
     super.key,
-    this.indicatorColor = AppColors.primary,
+    this.indicatorColor,
     this.indicatorSize = 60.0,
     this.indicatorStrokeWidth = 6.0,
   });
@@ -19,7 +19,7 @@ class AppLoadingIndicator extends StatelessWidget {
         width: indicatorSize,
         height: indicatorSize,
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(indicatorColor),
+          valueColor: AlwaysStoppedAnimation<Color>(indicatorColor ?? AppColors.primary),
           strokeWidth: indicatorStrokeWidth,
         ),
       ),
