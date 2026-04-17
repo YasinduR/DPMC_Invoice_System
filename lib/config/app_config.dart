@@ -6,7 +6,7 @@ class Config{
   }
   // API Configuration
   static String get baseUrl => dotenv.get('BASE_URL', fallback: '');
-  static String get notificationBackendUrl => dotenv.get('NOTIFICATION_BACKEND_URL', fallback: 'https://dpmc-notification-backend.vercel.app');
+  static String get notificationBackendUrl => dotenv.get('NOTIFICATION_BACKEND_URL', fallback: '');
   static String get defaultMobileNumber => dotenv.get('MOBILE_NUM', fallback: '');
   static String get baseFtp => dotenv.get('FTP_BASE_PATH', fallback: '');
 
