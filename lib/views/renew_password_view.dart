@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Assuming Riverpod
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_password_input_field.dart';
+import 'package:myapp/widgets/app_password_strength_indicator.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
-import 'package:myapp/widgets/app_text_form_field.dart';
 
 // Renew Password Setup view for users with expired password
 class RenewPasswordView extends ConsumerStatefulWidget {
@@ -103,7 +104,8 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
         _newPwdController.text.isEmpty || _confirmPwdController.text.isEmpty;
     final bool passwordsMatch =
         _newPwdController.text == _confirmPwdController.text;
-    final bool isFormValid = !areControllersEmpty && passwordsMatch;
+    final bool isFormValid = _formKey.currentState?.validate() ?? false;
+    final bool isButtonDisabled = areControllersEmpty || !passwordsMatch || !isFormValid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,30 +140,28 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   children: [
-                    AppTextField(
+                    PasswordInputField(
                       controller: _newPwdController,
                       focusNode: _newPwdFocusNode,
                       onFieldSubmitted: (_) {
                         _confirmPwdFocusNode.requestFocus();
                       },
                       labelText: 'New Password',
-                      isPassword: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'New password is required';
-                        }
-                        return null;
-                      },
+                      enforceStrength: true, // Enable strength validation
                     ),
+                    const SizedBox(height: 8),
+                    if (_newPwdController.text.isNotEmpty)
+                      PasswordStrengthIndicator(
+                        password: _newPwdController.text,
+                      ),
                     const SizedBox(height: 16),
-                    AppTextField(
+                    PasswordInputField(
                       controller: _confirmPwdController,
                       focusNode: _confirmPwdFocusNode,
                       onFieldSubmitted: (_) {
                         _handleSubmit();
                       },
                       labelText: 'Confirm New Password',
-                      isPassword: true,
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return null;
@@ -180,7 +180,7 @@ class _RenewPasswordViewState extends ConsumerState<RenewPasswordView> {
           ),
         ),
         ActionButton(
-          disabled: !isFormValid || ref.watch(authProvider).isLoading,
+          disabled: isButtonDisabled || ref.watch(authProvider).isLoading,
           icon: Icons.check_circle_outline,
           label: 'Change Password',
           onPressed: _handleSubmit,

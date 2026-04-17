@@ -4,6 +4,8 @@ import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_option_picker.dart';
+import 'package:myapp/widgets/app_password_input_field.dart';
+import 'package:myapp/widgets/app_password_strength_indicator.dart';
 import 'package:myapp/widgets/app_text_form_field.dart';
 
 // Password Setup view for First-time login Users
@@ -169,7 +171,8 @@ class _PasswordSetupViewState extends ConsumerState<PasswordSetupView> {
         (_selectedSecurityQuestion == null);
     final bool passwordsMatch =
         _newPwdController.text == _confirmPwdController.text;
-    final bool isFormValid = !areControllersEmpty && passwordsMatch;
+    final bool isFormValid = _formKey.currentState?.validate() ?? false;
+    final bool isButtonDisabled = areControllersEmpty || !passwordsMatch || !isFormValid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,31 +207,28 @@ class _PasswordSetupViewState extends ConsumerState<PasswordSetupView> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   children: [
-                    AppTextField(
+                    PasswordInputField(
                       controller: _newPwdController,
                       focusNode: _newPwdFocusNode,
                       labelText: 'New Password',
-                      isPassword: true,
+                      enforceStrength: true, // Enable strength rules
                       onFieldSubmitted: (_) {
                         _confirmPwdFocusNode.requestFocus();
                       },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'New password is required';
-                        }
-                        return null;
-                      },
                     ),
+                    const SizedBox(height: 8),
+                    if (_newPwdController.text.isNotEmpty)
+                      PasswordStrengthIndicator(
+                        password: _newPwdController.text,
+                      ),
                     const SizedBox(height: 16),
-                    AppTextField(
+                    PasswordInputField(
                       controller: _confirmPwdController,
                       focusNode: _confirmPwdFocusNode,
                       labelText: 'Confirm New Password',
-                      isPassword: true,
                       onFieldSubmitted: (_) {
                         _showReasonPicker();
                       },
-
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return null;
@@ -269,7 +269,7 @@ class _PasswordSetupViewState extends ConsumerState<PasswordSetupView> {
           ),
         ),
         ActionButton(
-          disabled: !isFormValid || ref.watch(authProvider).isLoading,
+          disabled: isButtonDisabled || ref.watch(authProvider).isLoading,
           icon: Icons.check_circle_outline,
           label: 'Change Password',
           onPressed: _handleSubmit,

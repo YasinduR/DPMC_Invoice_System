@@ -66,6 +66,8 @@ class IconMapper {
       case 'history': return LucideIcons.history;
       case 'home': return LucideIcons.home;
       case 'task': return LucideIcons.checkSquare;
+      case 'account_balance': return LucideIcons.landmark;
+      case 'supervisor_account': return LucideIcons.users;
       default: return LucideIcons.helpCircle;
     }
   }
@@ -95,6 +97,8 @@ class IconMapper {
       case 'history': return IconlyLight.timeCircle;
       case 'home': return IconlyLight.home;
       case 'task': return IconlyLight.tickSquare;
+      case 'account_balance': return IconlyLight.wallet;
+      case 'supervisor_account': return IconlyLight.profile;
       default: return IconlyLight.infoSquare;
     }
   }
@@ -124,6 +128,8 @@ class IconMapper {
       case 'history': return HugeIcons.strokeRoundedTransactionHistory;
       case 'home': return HugeIcons.strokeRoundedHome01;
       case 'task': return HugeIcons.strokeRoundedTaskDone01;
+      case 'account_balance': return HugeIcons.strokeRoundedBank;
+      case 'supervisor_account': return HugeIcons.strokeRoundedUserGroup;
       default: return HugeIcons.strokeRoundedHelpCircle;
     }
   }
@@ -153,6 +159,8 @@ class IconMapper {
       case 'history': return FontAwesomeIcons.clockRotateLeft;
       case 'home': return FontAwesomeIcons.house;
       case 'task': return FontAwesomeIcons.listCheck;
+      case 'account_balance': return FontAwesomeIcons.buildingColumns;
+      case 'supervisor_account': return FontAwesomeIcons.usersGear;
       default: return FontAwesomeIcons.circleQuestion;
     }
   }
