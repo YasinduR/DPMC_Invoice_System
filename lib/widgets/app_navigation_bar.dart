@@ -54,7 +54,12 @@ class AppNavFooter extends StatelessWidget {
           if (!shouldNavigate) return;
         }
         final route = AppNavItems.items[index].route;
-        Navigator.pushNamed(context, route);
+       // Navigator.pushNamed(context, route);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          route,
+          (route) => route.settings.name == '/mainMenu',
+        );
       },
     );
   }

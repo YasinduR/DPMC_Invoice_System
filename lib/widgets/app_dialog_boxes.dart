@@ -4,7 +4,7 @@ import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_fonts.dart';
 import 'package:myapp/widgets/app_action_button.dart'; // Make sure the path is correct
 
-const dialogBoxFont = AppFonts.primaryFont;  // Font Family Name 
+const dialogBoxFont = AppFonts.primaryFont; // Font Family Name
 
 /// A generic dialog function. All other dialogs are based on this.
 // Future<T?> showAppDialog<T>({
@@ -165,7 +165,11 @@ Future<void> showInfoDialog({
   return showAppDialog(
     context: context,
     title: title,
-    content: Text(content, textAlign: TextAlign.center,style: TextStyle(fontFamily:dialogBoxFont),),
+    content: Text(
+      content,
+      textAlign: TextAlign.center,
+      style: TextStyle(fontFamily: dialogBoxFont),
+    ),
     actions: [
       // buildDialogButton(
       //   text: buttonText,
@@ -248,7 +252,11 @@ class _PinVerificationDialogContentState
       title: Text(
         widget.title,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: dialogBoxFont),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+          fontFamily: dialogBoxFont,
+        ),
       ),
       content: TextField(
         controller: _pinController,
@@ -262,14 +270,14 @@ class _PinVerificationDialogContentState
         ],
         decoration: InputDecoration(
           hintText: 'Enter PIN',
-          // hintStyle: TextStyle(color: AppColors.borderDark),
+          // hintStyle: TextStyle(color: AppColors.borderIntense),
           // border: OutlineInputBorder(
           //   borderRadius: BorderRadius.circular(10.0),
-          //   borderSide: BorderSide(color: AppColors.borderDark),
+          //   borderSide: BorderSide(color: AppColors.borderIntense),
           // ),
           // enabledBorder: OutlineInputBorder(
           //   borderRadius: BorderRadius.circular(10.0),
-          //   borderSide: BorderSide(color: AppColors.borderDark),
+          //   borderSide: BorderSide(color: AppColors.borderIntense),
           // ),
           // focusedBorder: OutlineInputBorder(
           //   borderRadius: BorderRadius.circular(10.0),
@@ -321,7 +329,7 @@ class _PinVerificationDialogContentState
 
               // child: buildDialogButton(
               //   text: widget.cancelButtonText,
-              //   backgroundColor: AppColors.borderDark,
+              //   backgroundColor: AppColors.borderIntense,
               //   onPressed: _handleCancelAction,
               // ),
             ),

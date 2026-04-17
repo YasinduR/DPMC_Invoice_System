@@ -297,7 +297,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
         ),
         Text(
            formatNumber(totalAmount),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.primary,

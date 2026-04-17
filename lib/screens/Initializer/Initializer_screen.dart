@@ -77,7 +77,7 @@ class _InitializerScreenState extends State<InitializerScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.location_off,
                   size: 80,
                   color: AppColors.disabled,

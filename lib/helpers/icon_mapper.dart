@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:myapp/theme/app_colors.dart';
 
 // Define Icons for the Screen menus here 
 
@@ -202,14 +203,14 @@ class IconMapper {
               blurRadius: 8,
             ),
             BoxShadow(
-              color: Colors.white.withOpacity(0.8),
+              color: AppColors.white.withOpacity(0.8),
               offset: const Offset(-2, -2),
               blurRadius: 6,
             ),
           ],
         ),
         child: Center(
-          child: Icon(iconData, size: size, color: Colors.white),
+          child: Icon(iconData, size: size, color: AppColors.white),
         ),
       );
     } else if (style == 'Apple Glass') {
@@ -266,15 +267,15 @@ class IconMapper {
           gradient: LinearGradient(
             colors: [
               fallbackColor.withOpacity(0.8),
-              Colors.purpleAccent,
-              Colors.orangeAccent,
+              AppColors.gradColor1,
+              AppColors.gradColor2,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: Center(
-          child: FaIcon(getFaIcon(iconName), size: size, color: Colors.white),
+          child: FaIcon(getFaIcon(iconName), size: size, color: AppColors.white),
         ),
       );
     }

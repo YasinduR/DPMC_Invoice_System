@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/theme/app_theme_helper.dart';
 
 /// Card widget that displays a single dealer in a responsive card layout.
 class DealerSelectionCard extends StatelessWidget {
@@ -20,9 +21,12 @@ class DealerSelectionCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Card(
+      child: Container(
+        decoration: AppThemeHelpers.getSelectionCardDecoration(),
+        child: Card(
+        color: AppColors.cardBackground,
         margin: EdgeInsets.zero,
-        elevation: 6,
+       // elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -39,7 +43,7 @@ class DealerSelectionCard extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: Text(
                         map['accountCode']?.toString() ?? 'N/A',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.text,
@@ -50,7 +54,7 @@ class DealerSelectionCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
+                  Text(
                     '|', 
                     style: TextStyle(
                       fontSize: 14,
@@ -63,7 +67,7 @@ class DealerSelectionCard extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         map['name']?.toString() ?? 'N/A',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.text,
@@ -86,7 +90,7 @@ class DealerSelectionCard extends StatelessWidget {
                   Center(
                     child: Text(
                       map['address']?.toString() ?? 'N/A',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppColors.text,
                         fontWeight: FontWeight.w500,
@@ -102,7 +106,7 @@ class DealerSelectionCard extends StatelessWidget {
                   Center(
                     child: Text(
                       map['city']?.toString() ?? 'N/A',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppColors.text,
                         fontWeight: FontWeight.w500,
@@ -118,6 +122,6 @@ class DealerSelectionCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

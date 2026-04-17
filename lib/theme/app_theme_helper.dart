@@ -36,7 +36,7 @@ class AppThemeHelpers {
         break;
       case AppBorderType.standard:
         borderSide = BorderSide(
-          color: color ?? AppColors.borderDark,
+          color: color ?? AppColors.borderIntense,
           width: width ?? 1.0,
         );
         break;
@@ -67,12 +67,12 @@ class AppThemeHelpers {
   // Floating Label of Text Fields
   static TextStyle getFloatingLabelStyle(Set<MaterialState> states) {
     if (states.contains(MaterialState.error)) {
-      return const TextStyle(color: AppColors.danger);
+      return TextStyle(color: AppColors.danger);
     }
     if (states.contains(MaterialState.focused)) {
-      return const TextStyle(color: AppColors.primary);
+      return TextStyle(color: AppColors.primary);
     }
-    return const TextStyle(color: AppColors.borderDark);
+    return TextStyle(color: AppColors.borderIntense);
   }
 
   static ButtonStyle getHelperIconButtonStyle() {
@@ -81,6 +81,20 @@ class AppThemeHelpers {
       backgroundColor: AppColors.primary,
       foregroundColor: AppColors.white,
       padding: const EdgeInsets.all(14),
+    );
+  }
+
+  static BoxDecoration getSelectionCardDecoration() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.cardBackground.withOpacity(0.4), // shadow color
+          blurRadius: 6, // softness
+          spreadRadius: 1, // how much it spreads
+          offset: Offset(0, 3), // position (x, y)
+        ),
+      ],
     );
   }
 

@@ -109,8 +109,8 @@ class _DealerTinCardState extends State<DealerTinCard> {
             ),
             if (_isExpanded && widget.tin.parts.isNotEmpty) _buildPartsList(),
             if (_isExpanded && widget.tin.parts.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 16),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
                 child: Text(
                   'No parts associated with this TIN',
                   style: TextStyle(
@@ -137,7 +137,7 @@ class _DealerTinCardState extends State<DealerTinCard> {
             children: [
               // Header Row
               Row(
-                children: const [
+                children: [
                   Expanded(
                     flex: 3,
                     child: Text(

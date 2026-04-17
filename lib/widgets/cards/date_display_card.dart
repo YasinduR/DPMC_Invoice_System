@@ -7,26 +7,30 @@ class DateDisplayCard extends StatelessWidget {
   final DateTime selectedDate;
   final VoidCallback? onTap;
 
-  const DateDisplayCard({
-    Key? key,
-    required this.selectedDate,
-    this.onTap,
-  }) : super(key: key);
+  const DateDisplayCard({Key? key, required this.selectedDate, this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final String formattedDate = DateFormat('EEEE, dd MMMM yyyy').format(selectedDate);
+    final String formattedDate = DateFormat(
+      'EEEE, dd MMMM yyyy',
+    ).format(selectedDate);
 
     return Card(
-      color: AppColors.lightLavender,
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Adjust margins as needed
+      color: AppColors.gridBackgroundColor,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 8.0,
+      ), // Adjust margins as needed
       elevation: 2, // Subtle shadow
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0), // Rounded corners
       ),
       child: InkWell(
         onTap: onTap, // Handled by the parent widget
-        borderRadius: BorderRadius.circular(12.0), // Match card border for InkWell splash
+        borderRadius: BorderRadius.circular(
+          12.0,
+        ), // Match card border for InkWell splash
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           child: Row(
@@ -38,7 +42,8 @@ class DateDisplayCard extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: 12.0),
-              Expanded( // Use Expanded to ensure the text takes available space
+              Expanded(
+                // Use Expanded to ensure the text takes available space
                 child: AutoSizeText(
                   formattedDate,
                   maxLines: 1,
@@ -46,7 +51,7 @@ class DateDisplayCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey[850], // Darker grey text color
+                    color: AppColors.text, // Darker grey text color
                   ),
                 ),
               ),

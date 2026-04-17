@@ -157,8 +157,19 @@ Future<List<Activity>> getActivities(String userId) async {
 }
 //
 
+  // App Theme
+  static const _kAppTheme = 'appTheme'; // Add this
 
+  // Theme persistence
+  Future<void> saveTheme(String themeName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kAppTheme, themeName);
+  }
 
+  Future<String> getSavedTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kAppTheme) ?? 'light'; // default to light
+  }
 
 
 

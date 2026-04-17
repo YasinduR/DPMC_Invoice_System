@@ -5,9 +5,9 @@ import 'package:myapp/widgets/app_loading_indicator.dart';
 // Common Loading Screen of the application On API calls
 class AppLoadingOverlay {
   OverlayEntry? _overlayEntry;
-  final Color? backgroundColor;
+  //final Color? backgroundColor;
 
-  AppLoadingOverlay({this.backgroundColor = AppColors.overlayBackground});
+  AppLoadingOverlay();
   void show(BuildContext context) {
     if (_overlayEntry != null) {
       // Overlay is already shown
@@ -17,8 +17,8 @@ class AppLoadingOverlay {
       builder:
           (context) => Stack(
             children: [
-              if (backgroundColor != null)
-                Positioned.fill(child: Container(color: backgroundColor!)),
+              //if (backgroundColor != null)
+                Positioned.fill(child: Container(color: AppColors.overlayBackground)),
               AppLoadingIndicator(),
             ],
           ),

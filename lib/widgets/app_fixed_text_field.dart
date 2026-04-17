@@ -42,7 +42,7 @@ class FixedTextField extends StatelessWidget {
           ),
 
         Card(
-          color: AppColors.lightLavender,
+          color: AppColors.gridBackgroundColor,
           margin: const EdgeInsets.symmetric(
             horizontal: 16.0,
             vertical: 8.0,

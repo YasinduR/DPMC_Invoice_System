@@ -138,7 +138,8 @@ class ActivityDetailCard extends StatelessWidget {
             _row("Dealer Name", data["dealerName"]),
             _row("Return Type", data["returnType"]),
             _row("Reason", data["returnReason"]),
-            if (data["returnItems"] != null) _buildReturnItemsList(data["returnItems"]),
+            if (data["returnItems"] != null)
+              _buildReturnItemsList(data["returnItems"]),
           ],
         );
 
@@ -185,137 +186,134 @@ class ActivityDetailCard extends StatelessWidget {
     );
   }
 
+  Widget _buildTinNumberList(dynamic tinsData) {
+    // If there's no data or it's not a list, show nothing.
+    if (tinsData == null || tinsData is! List) return const SizedBox.shrink();
 
-Widget _buildTinNumberList(dynamic tinsData) {
-  // If there's no data or it's not a list, show nothing.
-  if (tinsData == null || tinsData is! List) return const SizedBox.shrink();
-
-  final tinNumbers = <String>[];
-  for (final item in tinsData) {
-    if (item is Map && item.containsKey('tinNumber')) {
-      tinNumbers.add(item['tinNumber'].toString());
+    final tinNumbers = <String>[];
+    for (final item in tinsData) {
+      if (item is Map && item.containsKey('tinNumber')) {
+        tinNumbers.add(item['tinNumber'].toString());
+      }
     }
-  }
 
-  if (tinNumbers.isEmpty) return const SizedBox.shrink();
+    if (tinNumbers.isEmpty) return const SizedBox.shrink();
 
-  // Build the bullet list.
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const SizedBox(height: 6),
-      const Text(
-        "Tin Numbers:",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-      ),
-      const SizedBox(height: 4),
-      ...tinNumbers.map(
-        (tin) => Padding(
-          padding: const EdgeInsets.only(left: 8, top: 2),
-          child: Text("• $tin"),
+    // Build the bullet list.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        const Text(
+          "Tin Numbers:",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-      ),
-    ],
-  );
-}
-
-
-Widget _buildReturnItemsList(dynamic returnItemsData) {
-  if (returnItemsData == null || returnItemsData is! List) {
-    return const SizedBox.shrink();
+        const SizedBox(height: 4),
+        ...tinNumbers.map(
+          (tin) => Padding(
+            padding: const EdgeInsets.only(left: 8, top: 2),
+            child: Text("• $tin"),
+          ),
+        ),
+      ],
+    );
   }
 
-  // Ensure we have a list of maps
-  final items = returnItemsData.whereType<Map<String, dynamic>>().toList();
-  if (items.isEmpty) return const SizedBox.shrink();
+  Widget _buildReturnItemsList(dynamic returnItemsData) {
+    if (returnItemsData == null || returnItemsData is! List) {
+      return const SizedBox.shrink();
+    }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const SizedBox(height: 6),
-      const Text(
-        "Return Items:",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-      ),
-      const SizedBox(height: 4),
-      ...items.map((item) {
-        // Extract the fields we care about (use safe fallbacks)
-        final partNo = item['partNo']?.toString() ?? '-';
-        final requestQty = item['requestQty']?.toString() ?? '-';
-        final returnQty = item['returnQty']?.toString() ?? '-';
+    // Ensure we have a list of maps
+    final items = returnItemsData.whereType<Map<String, dynamic>>().toList();
+    if (items.isEmpty) return const SizedBox.shrink();
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8, left: 8),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.borderDark),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Part Number
-              _row("Part Number", partNo),
-              // Request Quantity
-              _row("Request Qty", requestQty),
-              // Return Quantity
-              _row("Return Qty", returnQty),
-            ],
-          ),
-        );
-      }).toList(),
-    ],
-  );
-}
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        const Text(
+          "Return Items:",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        const SizedBox(height: 4),
+        ...items.map((item) {
+          // Extract the fields we care about (use safe fallbacks)
+          final partNo = item['partNo']?.toString() ?? '-';
+          final requestQty = item['requestQty']?.toString() ?? '-';
+          final returnQty = item['returnQty']?.toString() ?? '-';
 
-
-Widget _buildPartList(dynamic partData) {
-  if (partData == null || partData is! List) {
-    return const SizedBox.shrink();
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8, left: 8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.borderIntense),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Part Number
+                _row("Part Number", partNo),
+                // Request Quantity
+                _row("Request Qty", requestQty),
+                // Return Quantity
+                _row("Return Qty", returnQty),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
+    );
   }
 
-  // Ensure we have a list of maps
-  final items = partData.whereType<Map<String, dynamic>>().toList();
-  if (items.isEmpty) return const SizedBox.shrink();
+  Widget _buildPartList(dynamic partData) {
+    if (partData == null || partData is! List) {
+      return const SizedBox.shrink();
+    }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const SizedBox(height: 6),
-      const Text(
-        "Parts :",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-      ),
-      const SizedBox(height: 4),
-      ...items.map((item) {
-        // Extract the fields we care about (use safe fallbacks)
-        final partNo = item['partNo']?.toString() ?? '-';
-        final requestQty = item['requestQty']?.toString() ?? '-';
-        final returnQty = item['receivedQty']?.toString() ?? '-';
+    // Ensure we have a list of maps
+    final items = partData.whereType<Map<String, dynamic>>().toList();
+    if (items.isEmpty) return const SizedBox.shrink();
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8, left: 8),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.borderDark),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Part Number
-              _row("Part Number", partNo),
-              // Request Quantity
-              _row("Request Qty", requestQty),
-              // Return Quantity
-              _row("Received Qty", returnQty),
-            ],
-          ),
-        );
-      }).toList(),
-    ],
-  );
-}
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        const Text(
+          "Parts :",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        const SizedBox(height: 4),
+        ...items.map((item) {
+          // Extract the fields we care about (use safe fallbacks)
+          final partNo = item['partNo']?.toString() ?? '-';
+          final requestQty = item['requestQty']?.toString() ?? '-';
+          final returnQty = item['receivedQty']?.toString() ?? '-';
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8, left: 8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.borderIntense),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Part Number
+                _row("Part Number", partNo),
+                // Request Quantity
+                _row("Request Qty", requestQty),
+                // Return Quantity
+                _row("Received Qty", returnQty),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
 
   Map<String, dynamic>? _extractData(Activity activity) {
     if (activity.metadata != null &&

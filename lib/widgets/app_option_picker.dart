@@ -107,12 +107,12 @@ class PickerFormField extends StatelessWidget {
     this.inputFieldLabelText,
     required this.selectedOption,
     required this.onTap,
-    this.isDisabled=false
+    this.isDisabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    //final borderColor = AppColors.borderDark;
+    //final borderColor = AppColors.borderIntense;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,7 +126,7 @@ class PickerFormField extends StatelessWidget {
             child: Center(
               child: Text(
                 headerLabelText!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   color:
@@ -136,7 +136,7 @@ class PickerFormField extends StatelessWidget {
             ),
           ),
         InkWell(
-          onTap: isDisabled ? null:onTap,
+          onTap: isDisabled ? null : onTap,
           borderRadius: BorderRadius.circular(12),
           child: InputDecorator(
             isEmpty: selectedOption == null,
@@ -149,16 +149,13 @@ class PickerFormField extends StatelessWidget {
                   Expanded(
                     child: AutoSizeText(
                       selectedOption == null ? '' : selectedOption!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.text,
-                      ),
+                      style: TextStyle(fontSize: 16, color: AppColors.text),
                       maxLines: 1, // Ensure it stays on one line
                       minFontSize: 8, // Minimum font size before truncation
-                      overflow:TextOverflow.ellipsis, // Add ellipsis if it still overflows
+                      overflow: TextOverflow.ellipsis, // Add ellipsis if it still overflows
                     ),
                   ),
-                  const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                  Icon(Icons.keyboard_arrow_down, color: AppColors.onSurface),
                 ],
               ),
             ),

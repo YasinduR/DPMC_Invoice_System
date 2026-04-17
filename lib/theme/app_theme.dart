@@ -16,7 +16,16 @@ ThemeData appTheme(BuildContext context) {
     onPrimary: AppColors.white,
     onSecondary: AppColors.white,
     onTertiary: AppColors.white,
-    brightness: Brightness.light, // Or Brightness.dark for a dark theme
+    brightness: Brightness.light,
+    surfaceContainerLowest: AppColors.surface,
+    surfaceContainerLow: AppColors.surface,
+    surfaceContainer: AppColors.surface,
+    surfaceContainerHigh: AppColors.surface,
+    surfaceContainerHighest: AppColors.surface,
+    onSurface: AppColors.onSurface,
+    onSurfaceVariant: AppColors.onSurface,
+
+    // Or Brightness.dark for a dark theme
   );
   // TextTheme
   final TextTheme customTextTheme = TextTheme(
@@ -104,7 +113,6 @@ ThemeData appTheme(BuildContext context) {
         cursorColor: customColorScheme.primary,
         selectionColor: AppColors.textSelection,
         selectionHandleColor: customColorScheme.primary,
-
       );
 
   final AppBarTheme customAppBarTheme = AppBarTheme(
@@ -112,7 +120,7 @@ ThemeData appTheme(BuildContext context) {
     elevation: 0, // No shadow under the AppBar
     centerTitle: true, // Center title for consistency with your previous choice
     titleTextStyle: customTextTheme.titleLarge,
-    iconTheme: const IconThemeData(
+    iconTheme: IconThemeData(
       // Define the style for AppBar icons (like back button)
       color: AppColors.primary,
     ),
@@ -186,8 +194,9 @@ ThemeData appTheme(BuildContext context) {
   );
 
   final DialogThemeData customDialogTheme = DialogThemeData(
-    backgroundColor: AppColors.white,
-    surfaceTintColor: AppColors.white,
+    backgroundColor: AppColors.surface,
+    surfaceTintColor: AppColors.surface,
+    barrierColor:AppColors.onSurface.withOpacity(0.3),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12), // Rounded corners
     ),
@@ -207,11 +216,11 @@ ThemeData appTheme(BuildContext context) {
 
   final InputDecorationTheme customInputDecorationTheme = InputDecorationTheme(
     filled: true,
-    fillColor: AppColors.white, // Default fill color
+    //fillColor: AppColors.surface, // Default fill color
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    labelStyle: const TextStyle(color: AppColors.borderDark),
-    hintStyle: const TextStyle(color: AppColors.borderDark),
-    errorStyle: const TextStyle(color: AppColors.danger),
+    labelStyle: TextStyle(color: AppColors.borderIntense),
+    hintStyle: TextStyle(color: AppColors.borderIntense),
+    errorStyle: TextStyle(color: AppColors.danger),
 
     enabledBorder: AppThemeHelpers.getAppRoundedBorder(
       type: AppBorderType.standard,

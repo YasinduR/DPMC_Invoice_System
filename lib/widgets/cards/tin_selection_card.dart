@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/theme/app_colors.dart';
+import 'package:myapp/theme/app_theme_helper.dart';
 
 /// Card widget that displays a single TIN in a responsive card layout.
 class TinSelectionCard extends StatelessWidget {
@@ -32,9 +33,13 @@ class TinSelectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
+      
+      child:Container(
+        decoration: AppThemeHelpers.getSelectionCardDecoration(),
+        child: Card(
+        color: AppColors.cardBackground,
         margin: EdgeInsets.zero,
-        elevation: 6,
+       // elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -47,7 +52,7 @@ class TinSelectionCard extends StatelessWidget {
                 flex: 1,
                 child: Text(
                   tin.tinNumber,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: AppColors.text,
@@ -62,7 +67,7 @@ class TinSelectionCard extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 16),
                   child: Text(
                     formatNumber(tin.totalValue),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.text,
@@ -84,10 +89,10 @@ class TinSelectionCard extends StatelessWidget {
                     ),
                     child: Text(
                       tin.paymentStatusText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.white,
                       ),
                       maxLines: 1,
                       textAlign: TextAlign.center,
@@ -98,7 +103,7 @@ class TinSelectionCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

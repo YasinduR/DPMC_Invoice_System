@@ -47,9 +47,9 @@ class DatePickerField extends StatelessWidget {
                 selectedDate == null
                     ? ''
                     : DateFormat('dd MMM yyyy').format(selectedDate!),
-                style: const TextStyle(color: Colors.black, fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
-              const Icon(Icons.calendar_today, color: AppColors.primary),
+              Icon(Icons.calendar_today, color: AppColors.primary),
             ],
           ),
         ),
@@ -76,11 +76,11 @@ Future<DateTime?> selectDate(BuildContext context, DateTime? initialDate) {
             children: [
               Theme(
                 data: Theme.of(context).copyWith(
-                  colorScheme: const ColorScheme.light(
-                    primary: AppColors.primary,
-                    onPrimary: AppColors.white,
-                    onSurface: Colors.black,
-                  ),
+                  // colorScheme: ColorScheme.light(
+                  //   primary: AppColors.primary,
+                  //   onPrimary: AppColors.white,
+                  //   onSurface: Colors.black,
+                  // ),
                 ),
                 child: CalendarDatePicker(
                   initialDate: initialDate ?? DateTime.now(),

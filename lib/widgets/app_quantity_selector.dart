@@ -10,7 +10,8 @@ class QuantitySelector extends StatelessWidget {
   final String dialogTitle; // The title for the pop-up edit dialog.
   final int? maxQuantity; // Optional maximum value allowed in the dialog.
   final int minQuantity; // NEW: Optional minimum value allowed in the dialog.
-  final bool useDialog; // NEW: If false, increment/decrement buttons works directly - Added and related codes by Darshan R on 07/04/2026
+  final bool
+  useDialog; // NEW: If false, increment/decrement buttons works directly - Added and related codes by Darshan R on 07/04/2026
 
   const QuantitySelector({
     super.key,
@@ -29,12 +30,13 @@ class QuantitySelector extends StatelessWidget {
 
     final newValue = await showDialog<int>(
       context: context,
-      builder: (context) => QuantityEditDialog(
-        initialQuantity: value,
-        title: dialogTitle,
-        maxQuantity: maxQuantity,
-        minQuantity: minQuantity, // NEW: Pass minQuantity to the dialog
-      ),
+      builder:
+          (context) => QuantityEditDialog(
+            initialQuantity: value,
+            title: dialogTitle,
+            maxQuantity: maxQuantity,
+            minQuantity: minQuantity, // NEW: Pass minQuantity to the dialog
+          ),
     );
     if (newValue != null) {
       onChanged!(newValue);
@@ -44,22 +46,32 @@ class QuantitySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canDecrement = enabled && value > minQuantity;
-    final canIncrement = enabled && (maxQuantity == null || value < maxQuantity!);
+    final canIncrement =
+        enabled && (maxQuantity == null || value < maxQuantity!);
 
-    final VoidCallback? dialogTrigger = useDialog ? () => _showEditDialog(context) : null;
+    final VoidCallback? dialogTrigger =
+        useDialog ? () => _showEditDialog(context) : null;
 
     return QuantityStepperDisplay(
       quantity: value,
       enabled: enabled,
       onTap: dialogTrigger,
-      onDecrement: !useDialog && canDecrement
-        ? () => onChanged?.call(value - 1)
-        : (useDialog && enabled ? dialogTrigger : null),
-      onIncrement: !useDialog && canIncrement
-        ? () => onChanged?.call(value + 1)
-        : (useDialog && enabled ? dialogTrigger : null),
-      decrementColor: !useDialog ? (canDecrement ? AppColors.danger : AppColors.disabled) : (enabled ? AppColors.text : AppColors.disabled),
-      incrementColor: !useDialog ? (canIncrement ? AppColors.primary : AppColors.disabled) : (enabled ? AppColors.text : AppColors.disabled),
+      onDecrement:
+          !useDialog && canDecrement
+              ? () => onChanged?.call(value - 1)
+              : (useDialog && enabled ? dialogTrigger : null),
+      onIncrement:
+          !useDialog && canIncrement
+              ? () => onChanged?.call(value + 1)
+              : (useDialog && enabled ? dialogTrigger : null),
+      decrementColor:
+          !useDialog
+              ? (canDecrement ? AppColors.danger : AppColors.disabled)
+              : (enabled ? AppColors.text : AppColors.disabled),
+      incrementColor:
+          !useDialog
+              ? (canIncrement ? AppColors.primary : AppColors.disabled)
+              : (enabled ? AppColors.text : AppColors.disabled),
       useDialog: useDialog,
     );
   }
@@ -71,8 +83,8 @@ class QuantityStepperDisplay extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDecrement;
   final VoidCallback? onIncrement;
-  final Color decrementColor;
-  final Color incrementColor;
+  final Color? decrementColor;
+  final Color? incrementColor;
   final bool useDialog;
 
   const QuantityStepperDisplay({
@@ -82,8 +94,8 @@ class QuantityStepperDisplay extends StatelessWidget {
     this.onTap,
     this.onDecrement,
     this.onIncrement,
-    this.decrementColor = AppColors.text,
-    this.incrementColor = AppColors.text,
+    this.decrementColor,
+    this.incrementColor,
     this.useDialog = false,
   });
 
@@ -104,7 +116,7 @@ class QuantityStepperDisplay extends StatelessWidget {
         children: [
           _buildCircleButton(
             icon: useDialog ? Icons.remove : Icons.remove_circle,
-            color: decrementColor,
+            color: decrementColor ?? AppColors.text,
             onPressed: onDecrement,
           ),
           InkWell(
@@ -114,7 +126,7 @@ class QuantityStepperDisplay extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
                 quantity.toString(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.text,
@@ -124,7 +136,7 @@ class QuantityStepperDisplay extends StatelessWidget {
           ),
           _buildCircleButton(
             icon: useDialog ? Icons.add : Icons.add_circle,
-            color: incrementColor,
+            color: incrementColor ?? AppColors.text,
             onPressed: onIncrement,
           ),
         ],
@@ -156,14 +168,14 @@ class QuantityEditDialog extends StatefulWidget {
   final int initialQuantity;
   final String title;
   final int? maxQuantity;
-  final int minQuantity; 
+  final int minQuantity;
 
   const QuantityEditDialog({
     super.key,
     required this.initialQuantity,
     required this.title,
     this.maxQuantity,
-    this.minQuantity = 1, 
+    this.minQuantity = 1,
   });
 
   @override
@@ -190,7 +202,8 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
   @override
   Widget build(BuildContext context) {
     // Determine if the increment/decrement buttons should be disabled
-    final canDecrement = _currentQuantity > widget.minQuantity; // NEW: Use widget.minQuantity
+    final canDecrement =
+        _currentQuantity > widget.minQuantity; // NEW: Use widget.minQuantity
     final canIncrement =
         widget.maxQuantity == null || _currentQuantity < widget.maxQuantity!;
 
@@ -205,9 +218,8 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
               color: canDecrement ? AppColors.danger : AppColors.disabled,
               size: 30,
             ),
-            onPressed: canDecrement
-                ? () => setState(() => _currentQuantity--)
-                : null,
+            onPressed:
+                canDecrement ? () => setState(() => _currentQuantity--) : null,
           ),
           Text(
             _currentQuantity.toString(),
@@ -216,29 +228,30 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
           IconButton(
             icon: Icon(
               Icons.add_circle,
-              color: canIncrement ? AppColors.primary : AppColors.disabled, // Assuming AppColors is defined
+              color:
+                  canIncrement
+                      ? AppColors.primary
+                      : AppColors.disabled, // Assuming AppColors is defined
               size: 30,
             ),
-            onPressed: canIncrement
-                ? () => setState(() => _currentQuantity++)
-                : null,
+            onPressed:
+                canIncrement ? () => setState(() => _currentQuantity++) : null,
           ),
         ],
       ),
       actions: [
-
         Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child:         
-              ActionButton(
-            //minsize: true,
-            isInDialog: true,
-            label: 'Ok',
-            onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined,
+              child: ActionButton(
+                //minsize: true,
+                isInDialog: true,
+                label: 'Ok',
+                onPressed: () => Navigator.of(context).pop(_currentQuantity),
+              ), // Assuming ActionButton is defined,
               // child: buildDialogButton(
               //   text: widget.verifyButtonText,
               //   backgroundColor: AppColors.primary,
@@ -248,35 +261,34 @@ class _QuantityEditDialogState extends State<QuantityEditDialog> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: 
-        ActionButton(
-          //minsize: true,
-          isInDialog: true,
-          label: 'Cancel',
-          type: ActionButtonType.secondary,
-          onPressed: () => Navigator.of(context).pop(),
-        )
+              child: ActionButton(
+                //minsize: true,
+                isInDialog: true,
+                label: 'Cancel',
+                type: ActionButtonType.secondary,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
 
               // child: buildDialogButton(
               //   text: widget.cancelButtonText,
-              //   backgroundColor: AppColors.borderDark,
+              //   backgroundColor: AppColors.borderIntense,
               //   onPressed: _handleCancelAction,
               // ),
             ),
           ],
 
-        // ActionButton(
-        //     //minsize: true,
-        //     isInDialog: true,
-        //     label: 'Ok',
-        //     onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined
+          // ActionButton(
+          //     //minsize: true,
+          //     isInDialog: true,
+          //     label: 'Ok',
+          //     onPressed: () => Navigator.of(context).pop(_currentQuantity)), // Assuming ActionButton is defined
 
-        // ActionButton(
-        //   //minsize: true,
-        //   isInDialog: true,
-        //   label: 'Cancel',
-        //   type: ActionButtonType.secondary,
-        //   onPressed: () => Navigator.of(context).pop(),
+          // ActionButton(
+          //   //minsize: true,
+          //   isInDialog: true,
+          //   label: 'Cancel',
+          //   type: ActionButtonType.secondary,
+          //   onPressed: () => Navigator.of(context).pop(),
         ),
       ],
     );

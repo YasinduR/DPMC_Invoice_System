@@ -25,7 +25,7 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
   // Visibilty of filter bar over the table by Default true
   final bool hasFilter;
 
-  final Color fillColor;
+  final Color? fillColor;
 
   /// A list of merge rules to apply to the grid rows.
   /// The first rule whose `shouldMerge` predicate returns true for an item will be applied.
@@ -34,6 +34,7 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
   final String? noDataMessage;
 
   final bool? isAllSelected;
+
   /// Called when the Select All checkbox is toggled.
   final ValueChanged<bool>? onSelectAllChanged;
 
@@ -46,7 +47,8 @@ class AppDataGrid<T extends Mappable> extends StatefulWidget {
     this.hasFilter = true,
     this.searchHintText = 'Search...',
     this.mergeRules,
-    this.fillColor = AppColors.lightLavender,
+    this.fillColor,
+    // this.fillColor = AppColors.gridBackgroundColor,
     this.noDataMessage,
     this.isAllSelected = false,
     this.onSelectAllChanged,
@@ -130,51 +132,51 @@ class _AppDataGridState<T extends Mappable> extends State<AppDataGrid<T>> {
     );
   }
 
-Widget _buildFilterAndSearch() {
-  final bool showSelectAll = widget.onSelectAllChanged != null;
+  Widget _buildFilterAndSearch() {
+    final bool showSelectAll = widget.onSelectAllChanged != null;
 
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: widget.fillColor,
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: AppColors.border),
-    ),
-    child: Row(
-      children: [
-        if (showSelectAll) ...[
-          Row(
-            children: [
-              Checkbox(
-                value: widget.isAllSelected,
-                onChanged: (value) {
-                  if (value != null) {
-                    widget.onSelectAllChanged!(value);
-                  }
-                },
-                activeColor: AppColors.primary,
-                checkColor: Colors.white,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: widget.fillColor ?? AppColors.gridBackgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          if (showSelectAll) ...[
+            Row(
+              children: [
+                Checkbox(
+                  value: widget.isAllSelected,
+                  onChanged: (value) {
+                    if (value != null) {
+                      widget.onSelectAllChanged!(value);
+                    }
+                  },
+                  activeColor: AppColors.primary,
+                  checkColor: AppColors.white,
+                ),
+                const Text('All'),
+              ],
+            ),
+            const SizedBox(width: 8), // space instead of vertical divider
+          ],
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: widget.searchHintText,
+                border: InputBorder.none,
+                prefixIcon: const Icon(Icons.search),
               ),
-              const Text('All'),
-            ],
-          ),
-          const SizedBox(width: 8), // space instead of vertical divider
-        ],
-        Expanded(
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: widget.searchHintText,
-              border: InputBorder.none,
-              prefixIcon: const Icon(Icons.search),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
- // Widget _buildFilterAndSearch() {
+        ],
+      ),
+    );
+  }
+  // Widget _buildFilterAndSearch() {
   //   return Container(
   //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
   //     decoration: BoxDecoration(
@@ -220,8 +222,7 @@ Widget _buildFilterAndSearch() {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                   maxLines: 2, // allow up to 2 lines
-                  minFontSize:
-                      10, // optional: shrink font instead of overflowing
+                  minFontSize: 10, // optional: shrink font instead of overflowing
                   overflowReplacement: Text(
                     column.label,
                     style: const TextStyle(
@@ -367,10 +368,7 @@ class DataGridMergeRule<T> {
 
 // Grid Icon Button
 
-enum IconButtonType {
-  remove,
-  edit
-}
+enum IconButtonType { remove, edit }
 
 Widget buildGridIconButton({
   required VoidCallback onPressed,

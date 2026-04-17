@@ -54,7 +54,7 @@ class FraudMenuScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
           child: Column(
             children: [
-              const Text(
+              Text(
                 'Attempting to bypass security',
                 style: TextStyle(fontSize: 18, color: AppColors.textFaded),
               ),
@@ -108,7 +108,7 @@ class _MenuCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.white,  
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -126,7 +126,7 @@ class _MenuCard extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.text,
                 fontSize: 12,

@@ -40,7 +40,7 @@ class _ImageViewerState extends State<ImageViewer> {
 
     showDialog(
       context: context,
-      barrierColor: AppColors.black.withOpacity(0.5), // 50% dark overlay
+      barrierColor: AppColors.onSurface.withOpacity(0.5), // 50% dark overlay
       builder: (_) => Dialog(
         backgroundColor: AppColors.background,
         insetPadding: EdgeInsets.zero,
@@ -59,9 +59,9 @@ class _ImageViewerState extends State<ImageViewer> {
               right: 20,
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const CircleAvatar(
+                child: CircleAvatar(
                   backgroundColor: AppColors.primary,
-                  child: Icon(Icons.close, color: AppColors.white),
+                  child: Icon(Icons.close, color: AppColors.surface),
                 ),
               ),
             ),
@@ -113,7 +113,7 @@ class _ImageViewerState extends State<ImageViewer> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Text(
               widget.emptyMessage,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textFaded,
                 fontWeight: FontWeight.w500,
               ),
