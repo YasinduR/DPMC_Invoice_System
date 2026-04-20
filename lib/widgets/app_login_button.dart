@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
 
 
@@ -45,11 +46,11 @@ class LoginButton extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                color: Colors.grey.shade200,
+                color: AppColors.blueGrey,
               ),
               child: IconButton(
                 icon: Icon(Icons.fingerprint),
-                color: baseColor,
+                color: AppColors.white,
                 onPressed: onSecondaryPressed,
                 constraints: const BoxConstraints(),
               ),
