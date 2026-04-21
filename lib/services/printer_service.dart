@@ -638,10 +638,11 @@ class PrinterService {
     final formattedDepDate = DateFormat('yyyy/MM/dd').format(recObj.chequeDate);
     final double fontSize = 10;
     final double chequeAmount = recObj.chequeAmount;
-    final double totalCreditNoteAmount = recObj.creditNotes.fold(
-      0.0,
-      (sum, note) => sum + note.amount,
-    );
+    final double totalClaimedAmount = recObj.claimedAmount;
+    // final double totalCreditNoteAmount = recObj.creditNotes.fold(
+    //   0.0,
+    //   (sum, note) => sum + note.amount,
+    // );
 
     pw.TableRow _buildTableRow(String label, String value) {
       return pw.TableRow(
@@ -723,7 +724,8 @@ class PrinterService {
     }
 
     final totalPayment = Decimal.parse(
-      (totalCreditNoteAmount + chequeAmount).toString(),
+      // (totalCreditNoteAmount + chequeAmount).toString(),
+      (totalClaimedAmount + chequeAmount).toString(),
     );
 
     String titlePrefix = isReprint ? 'REPRINT ' : '';
@@ -826,8 +828,10 @@ class PrinterService {
                     totalPayment.toStringAsFixed(2),
                   ),
                   _buildTableRow(
-                    'Total Claimable Amount',
-                    '(   -' + totalCreditNoteAmount.toStringAsFixed(2) + ')',
+                    // 'Total Claimable Amount',
+                    // '(   -' + totalCreditNoteAmount.toStringAsFixed(2) + ')',
+                    'Total Claimed Amount',
+                    '(   -' + totalClaimedAmount.toStringAsFixed(2) + ')',
                   ),
                   _buildTableRow(
                     'Total Amount Recieved',
@@ -945,8 +949,8 @@ class PrinterService {
                     totalPayment.toStringAsFixed(2),
                   ),
                   _buildTableRow(
-                    'Total Claimable Amount',
-                    '(   -' + totalCreditNoteAmount.toStringAsFixed(2) + ')',
+                    'Total Claimed Amount',
+                    '(   -' + totalClaimedAmount.toStringAsFixed(2) + ')',
                   ),
                   _buildTableRow(
                     'Total Amount Recieved',

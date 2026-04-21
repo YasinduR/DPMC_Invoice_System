@@ -9,9 +9,10 @@ class Dealer implements Mappable {
   final String region;
   final String pin; // Added a pin field to store the dealer's PIN
   final bool hasBankGuarantee;
+  final double usableAmount;
   final String vatNo;
-  bool isLocked; // Changed to mutable
-  int incPins; // Changed to mutable
+  bool isLocked; // Changed to mutable remove later
+  int incPins; // Changed to mutable  remove later
 
   Dealer({
     required this.name,
@@ -19,10 +20,11 @@ class Dealer implements Mappable {
     required this.accountCode,
     required this.address,
     required this.city,
-    this.vatNo ='N/A',
+    this.vatNo = 'N/A',
     this.pin = '123', // pin is now required
     this.region = '',
     this.hasBankGuarantee = false,
+    this.usableAmount = 0,
     this.isLocked = false,
     this.incPins = 0,
   });
@@ -37,6 +39,24 @@ class Dealer implements Mappable {
       'address': address,
       'city': city,
       'region': region,
+      'usableAmount': usableAmount,
     };
+  }
+
+  factory Dealer.fromJson(Map<String, dynamic> json) {
+    return Dealer(
+      accountCode: json['customerCode'] ?? '',
+      name: json['customerName'] ?? '',
+      surname: json['customerDescription'] ?? '',
+      address: json['address1'] ?? '',
+      city: json['address2'] ?? '',
+      region: '', // not available in API
+      vatNo:(json['vatRegNo'] == null || json['vatRegNo'] == '') ? 'N/A' : json['vatRegNo'],
+      hasBankGuarantee: false,
+      isLocked: json['status'] != 'A',
+      usableAmount: json['usableAmount'],
+      pin: '123',
+      incPins: 0,
+    );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/contracts/mappable.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
-import 'package:myapp/models/credit_note_model.dart';
+// import 'package:myapp/models/credit_note_model.dart';
 
 class Receipt implements Mappable {
   final String receiptNo;
@@ -15,8 +15,9 @@ class Receipt implements Mappable {
   final String bankCode;
   final String branchCode;
   final String branchName;
+  final double claimedAmount;
   final List<TinInvoice> tins;
-  final List<CreditNote> creditNotes;
+  // final List<CreditNote> creditNotes;
 
   Receipt({
     required this.receiptNo,
@@ -30,15 +31,16 @@ class Receipt implements Mappable {
     required this.bankCode,
     required this.branchCode,
     required this.branchName,
+    required this.claimedAmount,
     required this.tins,
-    required this.creditNotes,
+    // required this.creditNotes,
   });
 
   @override
   Map<String, dynamic> toMap() {
     return {
       'receiptNo': receiptNo,
-      'receiptTime': receiptTime.toIso8601String(), 
+      'receiptTime': receiptTime.toIso8601String(),
       'dealerCode': dealerCode,
       'userId': userId,
       'dealerName': dealerName,
@@ -49,8 +51,9 @@ class Receipt implements Mappable {
       'bankCode': bankCode,
       'branchCode': branchCode,
       'branchName': branchName,
+      'claimedAmount': formatNumber(claimedAmount),
       'tins': tins.map((tin) => tin.toMap()).toList(),
-      'creditNotes': creditNotes.map((note) => note.toMap()).toList(),
+      // 'creditNotes': creditNotes.map((note) => note.toMap()).toList(),
     };
   }
 
@@ -66,8 +69,9 @@ class Receipt implements Mappable {
     String? bankCode,
     String? branchCode,
     String? branchName,
+    double? claimedAmount,
     List<TinInvoice>? tins,
-    List<CreditNote>? creditNotes,
+    // List<CreditNote>? creditNotes,
   }) {
     return Receipt(
       receiptNo: receiptNo ?? this.receiptNo,
@@ -81,8 +85,9 @@ class Receipt implements Mappable {
       bankCode: bankCode ?? this.bankCode,
       branchCode: branchCode ?? this.branchCode,
       branchName: branchName ?? this.branchName,
+      claimedAmount: claimedAmount ?? this.claimedAmount,
       tins: tins ?? this.tins,
-      creditNotes: creditNotes ?? this.creditNotes,
+      // creditNotes: creditNotes ?? this.creditNotes,
     );
   }
 }

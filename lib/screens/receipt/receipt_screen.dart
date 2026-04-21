@@ -8,7 +8,7 @@ import 'package:myapp/models/Tin_invoice_model.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
-import 'package:myapp/models/credit_note_model.dart';
+// import 'package:myapp/models/credit_note_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/print_footer_detail_model.dart';
 import 'package:myapp/models/receipt_model.dart';
@@ -23,7 +23,7 @@ import 'package:myapp/views/receipt_detail_view.dart';
 import 'package:myapp/views/region_selection_view.dart';
 import 'package:myapp/views/select_dealer_view.dart';
 
-import 'package:myapp/views/add_credit_note_view.dart';
+// import 'package:myapp/views/add_credit_note_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
@@ -37,7 +37,7 @@ class ReceiptScreen extends ConsumerStatefulWidget {
 class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   final PrinterService _printerService = PrinterService();
   int _currentStep = 0;
-  List<CreditNote> _creditNotes = [];
+  // List<CreditNote> _creditNotes = [];
   Dealer? _selectedDealer;
   Region? _selectedRegion;
   File? _uploadedReceipt;
@@ -49,6 +49,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   late final TextEditingController _chequeNoController;
   late final TextEditingController _chequeNoConfirmController;
   late final TextEditingController _amountController;
+  late final TextEditingController _claimedAmountController;
   late final TextEditingController _tinController;
   late final TextEditingController _bankController;
   late final TextEditingController _branchController;
@@ -66,6 +67,9 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   bool _isBranchSelectionCommitted = false;
   bool _isReceiptFormValid = false;
 
+  // Usable amount comes from selected dealer profile
+  double get _usableAmount => _selectedDealer?.usableAmount ?? 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +77,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     _chequeNoController = TextEditingController();
     _chequeNoConfirmController = TextEditingController();
     _amountController = TextEditingController(text: '0.00');
+    _claimedAmountController = TextEditingController(text: '0.00');
     _tinController = TextEditingController();
     _bankController = TextEditingController();
     _branchController = TextEditingController();
@@ -81,6 +86,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     _chequeNoController.addListener(_validateReceiptForm);
     _chequeNoConfirmController.addListener(_validateReceiptForm);
     _amountController.addListener(_validateReceiptForm);
+    _claimedAmountController.addListener(_validateReceiptForm);
   }
 
   @override
@@ -89,6 +95,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     _chequeNoController.dispose();
     _chequeNoConfirmController.dispose();
     _amountController.dispose();
+    _claimedAmountController.dispose();
     _tinController.dispose();
     _bankController.dispose();
     _branchController.dispose();
@@ -99,6 +106,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     _chequeNoController.clear();
     _chequeNoConfirmController.clear();
     _amountController.clear();
+    _claimedAmountController.text = '0.00';
     _tinController.clear();
     _bankController.clear();
     _branchController.clear();
@@ -113,7 +121,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       _selectedBank = null;
       _selectedBranch = null;
       _isReceiptFormValid = false;
-      _creditNotes = [];
+      // _creditNotes = [];
       _uploadedReceipt = null;
     });
   }
@@ -126,6 +134,9 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   }
 
   void _validateReceiptForm() {
+    final claimedAmount = parseCurrency(_claimedAmountController.text);
+    final hasValidClaimedAmount = claimedAmount <= _usableAmount;
+
     final bool isValid =
         _chequeNoController.text.isNotEmpty &&
         _chequeNoConfirmController.text.isNotEmpty &&
@@ -136,6 +147,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
         // _isTinSelectionCommitted &&
         _isBankSelectionCommitted &&
         _isBranchSelectionCommitted &&
+        hasValidClaimedAmount &&
         _uploadedReceipt != null;
 
     if (isValid != _isReceiptFormValid) {
@@ -143,6 +155,10 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
         _isReceiptFormValid = isValid;
       });
     }
+  }
+
+  void _onClaimedAmountChanged(String _) {
+    _validateReceiptForm();
   }
 
   // --- Text changed handlers de-select the object if the text no longer matches ---
@@ -218,10 +234,16 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     }
 
     final double chequeAmount = parseCurrency(_amountController.text);
-    final double totalCreditNoteAmount = _creditNotes.fold(
-      0.0,
-      (sum, note) => sum + note.amount,
-    );
+    final double claimedAmount = parseCurrency(_claimedAmountController.text);
+
+    if (claimedAmount > 5000.0) {
+      showSnackBar(
+        context: context,
+        message: 'Claimed amount cannot exceed 5000.',
+        type: MessageType.warning,
+      );
+      return;
+    }
 
     final totalDue = _selectedTins.fold(
       Decimal.zero,
@@ -229,7 +251,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     );
 
     final totalPayment = Decimal.parse(
-      (totalCreditNoteAmount + chequeAmount).toString(),
+      (claimedAmount + chequeAmount).toString(),
     );
 
     if (totalPayment != totalDue) {
@@ -279,8 +301,9 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       bankCode: _selectedBank!.bankCode,
       branchCode: _selectedBranch!.branchCode,
       branchName: _selectedBranch!.branchName,
+      claimedAmount: claimedAmount,
       tins: _selectedTins,
-      creditNotes: _creditNotes,
+      // creditNotes: _creditNotes,
       receiptTime: DateTime.now(),
     );
     late Receipt savedReceipt;
@@ -346,7 +369,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   //   setState(() => _currentStep = 2),
   // };
 
-  void _gotoaddCreditNotes() => setState(() => _currentStep = 2);
+  // void _gotoaddCreditNotes() => setState(() => _currentStep = 2);
 
   void _onback() {
     if (_currentStep > 0) {
@@ -361,17 +384,17 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
     }
   }
 
-  void _updateAndSaveCreditNotes(List<CreditNote> updatedNotes) {
-    setState(() {
-      _creditNotes = updatedNotes;
-      _currentStep = 1; // Move back
-    });
-    showSnackBar(
-      context: context,
-      message: '${updatedNotes.length} credit notes have been saved.',
-      type: MessageType.success,
-    );
-  }
+  // void _updateAndSaveCreditNotes(List<CreditNote> updatedNotes) {
+  //   setState(() {
+  //     _creditNotes = updatedNotes;
+  //     _currentStep = 1; // Move back
+  //   });
+  //   showSnackBar(
+  //     context: context,
+  //     message: '${updatedNotes.length} credit notes have been saved.',
+  //     type: MessageType.success,
+  //   );
+  // }
 
   // --- Regional settings methods (unchanged) ---
   void _onRegionSelected(Region region) =>
@@ -397,11 +420,11 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       case -1:
         return 'Select Region';
       case 0:
-       // return 'Select Dealer';
+      // return 'Select Dealer';
       case 1:
         return 'Receipt';
-      case 2:
-        return 'Add Credit Notes';
+      // case 2:
+      //   return 'Add Credit Notes';
       case 3:
         return 'Success';
       default:
@@ -445,10 +468,11 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           key: _receiptDetailsKey, // Refresh Tin Data on succussful cheque save
           dealer: _selectedDealer!,
           onSubmit: _onSubmit,
-          addCreditnote: _gotoaddCreditNotes,
+          usableAmount: _usableAmount,
           chequeNoController: _chequeNoController,
           chequeNoConfirmController: _chequeNoConfirmController,
           amountController: _amountController,
+          claimedAmountController: _claimedAmountController,
           tinController: _tinController,
           bankController: _bankController,
           branchController: _branchController,
@@ -464,6 +488,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           isFormValid: _isReceiptFormValid,
           onBankTextChanged: _onBankTextChanged,
           onBranchTextChanged: _onBranchTextChanged,
+          onClaimedAmountChanged: _onClaimedAmountChanged,
           onBankSelected: (bank) {
             setState(() {
               if (_selectedBank != bank) {
@@ -504,10 +529,11 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           },
         );
       case 2:
-        return AddCreditNotesView(
-          initialNotes: _creditNotes,
-          onSubmit: _updateAndSaveCreditNotes,
-        );
+        // return AddCreditNotesView(
+        //   initialNotes: _creditNotes,
+        //   onSubmit: _updateAndSaveCreditNotes,
+        // );
+        return const Center(child: Text('Add Credit Notes disabled'));
       case 3:
         return const Center(child: Text("Success View"));
       default:
