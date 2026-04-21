@@ -656,6 +656,7 @@ Assignee(
       address: '55, Main Street',
       city: 'Madapatha',
       region: 'MADAPATHA',
+      usableAmount: 10000.0,
       hasBankGuarantee: true,
     ),
     Dealer(
