@@ -26,6 +26,7 @@ import 'package:myapp/views/select_dealer_view.dart';
 // import 'package:myapp/views/add_credit_note_view.dart';
 import 'package:myapp/widgets/app_page.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
+import 'package:myapp/services/remote_file_service.dart';
 
 class ReceiptScreen extends ConsumerStatefulWidget {
   const ReceiptScreen({super.key});
@@ -42,6 +43,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
   Region? _selectedRegion;
   File? _uploadedReceipt;
   String? _podStatus;
+  String? uploadedRemotePath;
 
   final GlobalKey<ReceiptDetailsViewState> _receiptDetailsKey =
       GlobalKey<ReceiptDetailsViewState>();
@@ -289,6 +291,22 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       return;
     }
 
+    try {
+      uploadedRemotePath = await RemoteFileService().uploadFile(
+        localFile: _uploadedReceipt!,
+        remoteFolder: 'Receipt',
+        fileName:
+            '${_selectedDealer!.accountCode}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      ).timeout(const Duration(seconds: 25));
+    } catch (e) {
+      showSnackBar(
+        context: context,
+        message: 'Image upload failed: $e',
+        type: MessageType.error,
+      );
+      return;
+    }
+
     final receiptData = Receipt(
       // receiptTime: Datetime.now(),
       receiptNo: 'AAA',
@@ -305,6 +323,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       tins: _selectedTins,
       // creditNotes: _creditNotes,
       receiptTime: DateTime.now(),
+      receiptImagePath: uploadedRemotePath,
     );
     late Receipt savedReceipt;
 
@@ -336,7 +355,15 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
         final details = PrintFooterDetail(formNo: 'PA-FO-53', revNo: '01');
         PrinterService.previewThermalReceiptPdf(savedReceipt, details);
       },
-      onError: (e) {
+      onError: (e) async {
+        if (uploadedRemotePath != null) {
+          try {
+            await RemoteFileService().deleteFile(remotePath: uploadedRemotePath!);
+          } catch (_) {
+            // optional: ignore cleanup failure or log it
+          }
+        }
+
         String errorMessage = e.toString().replaceFirst('Exception: ', '');
         showSnackBar(
           context: context,

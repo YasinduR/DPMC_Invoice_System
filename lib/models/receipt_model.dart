@@ -17,6 +17,7 @@ class Receipt implements Mappable {
   final String branchName;
   final double claimedAmount;
   final List<TinInvoice> tins;
+  final String? receiptImagePath; 
   // final List<CreditNote> creditNotes;
 
   Receipt({
@@ -33,6 +34,7 @@ class Receipt implements Mappable {
     required this.branchName,
     required this.claimedAmount,
     required this.tins,
+    this.receiptImagePath, 
     // required this.creditNotes,
   });
 
@@ -53,6 +55,7 @@ class Receipt implements Mappable {
       'branchName': branchName,
       'claimedAmount': formatNumber(claimedAmount),
       'tins': tins.map((tin) => tin.toMap()).toList(),
+      'receiptImagePath': receiptImagePath, 
       // 'creditNotes': creditNotes.map((note) => note.toMap()).toList(),
     };
   }
@@ -71,6 +74,7 @@ class Receipt implements Mappable {
     String? branchName,
     double? claimedAmount,
     List<TinInvoice>? tins,
+    String? receiptImagePath, 
     // List<CreditNote>? creditNotes,
   }) {
     return Receipt(
@@ -87,6 +91,7 @@ class Receipt implements Mappable {
       branchName: branchName ?? this.branchName,
       claimedAmount: claimedAmount ?? this.claimedAmount,
       tins: tins ?? this.tins,
+      receiptImagePath: receiptImagePath ?? this.receiptImagePath, 
       // creditNotes: creditNotes ?? this.creditNotes,
     );
   }
