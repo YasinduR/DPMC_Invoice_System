@@ -291,19 +291,27 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       return;
     }
 
-    try {
-      uploadedRemotePath = await RemoteFileService().uploadFile(
-        localFile: _uploadedReceipt!,
-        remoteFolder: 'Receipt',
-        fileName:
-            '${_selectedDealer!.accountCode}_${DateTime.now().millisecondsSinceEpoch}.jpg',
-      ).timeout(const Duration(seconds: 25));
-    } catch (e) {
-      showSnackBar(
-        context: context,
-        message: 'Image upload failed: $e',
-        type: MessageType.error,
-      );
+    uploadedRemotePath = null;
+
+    await RemoteFileService().uploadFileWithLoading(
+      context: context,
+      localFile: _uploadedReceipt!,
+      remoteFolder: 'Receipt',
+      fileName:
+          '${_selectedDealer!.accountCode}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      onSuccess: (remotePath) {
+        uploadedRemotePath = remotePath;
+      },
+      onError: (errorMessage) {
+        showSnackBar(
+          context: context,
+          message: errorMessage,
+          type: MessageType.error,
+        );
+      },
+    );
+
+    if (uploadedRemotePath == null) {
       return;
     }
 

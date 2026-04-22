@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:dartssh2/dartssh2.dart';
+import 'package:flutter/material.dart';
 import 'package:myapp/config/app_config.dart';
+import 'package:myapp/widgets/app_loading_overlay.dart';
 
 class RemoteFileService {
   Future<String> uploadFile({
@@ -27,7 +29,6 @@ class RemoteFileService {
     final remotePath = '$basePath/$normalizedFolder/$fileName';
 
     final socket = await SSHSocket.connect(host, port);
-
     final client = SSHClient(
       socket,
       username: username,
@@ -36,7 +37,6 @@ class RemoteFileService {
 
     try {
       final sftp = await client.sftp();
-
       final remoteFile = await sftp.open(
         remotePath,
         mode:
@@ -48,10 +48,38 @@ class RemoteFileService {
       await remoteFile.writeBytes(bytes);
       await remoteFile.close();
       return remotePath;
-    } catch (e, st) {
-      rethrow;
     } finally {
       client.close();
+    }
+  }
+
+  Future<void> uploadFileWithLoading({
+    required BuildContext context,
+    required File localFile,
+    required String remoteFolder,
+    required String fileName,
+    required Function(String remotePath) onSuccess,
+    required Function(String errorMessage) onError,
+  }) async {
+    final loadingOverlay = AppLoadingOverlay();
+    if (!context.mounted) return;
+
+    try {
+      loadingOverlay.show(context);
+
+      final remotePath = await uploadFile(
+        localFile: localFile,
+        remoteFolder: remoteFolder,
+        fileName: fileName,
+      ).timeout(const Duration(seconds: 25));
+
+      onSuccess(remotePath);
+    } catch (e) {
+      onError('Image upload failed: $e');
+    } finally {
+      if (loadingOverlay.isShowing) {
+        loadingOverlay.hide();
+      }
     }
   }
 
