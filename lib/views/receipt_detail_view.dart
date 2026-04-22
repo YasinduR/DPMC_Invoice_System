@@ -344,6 +344,7 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
               //   type: ActionButtonType.tertiary,
               //   disabled: !widget.dealer.hasBankGuarantee,
               // ),
+              // added claimable amount by Darshan R on 21/04/2026
               Row(
                 children: [
                   Expanded(
