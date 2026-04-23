@@ -2,7 +2,7 @@
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/services/mock_api_service.dart';
 
 // Flutter Secure Storage For Saving Tokens
@@ -85,7 +85,7 @@ class SecureStorageService {
           print('SecureStorageService: Tokens refreshed and saved.');
           return newAccessToken;
         } on UnauthorisedException catch (e) {
-          print('SecureStorageService: Refresh token failed: ${e.getMessage}. Logging out user by clearing tokens.');
+          print('SecureStorageService: Refresh token failed: ${e.toString()}. Logging out user by clearing tokens.');
           await clearTokens(); // Clear all tokens
           return null;
         } on Exception catch (e) {

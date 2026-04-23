@@ -1,5 +1,5 @@
 // Use to Save/Print of return saved
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/models/part_model.dart';
 
 // --- Return Model ---

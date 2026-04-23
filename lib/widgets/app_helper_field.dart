@@ -2,14 +2,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree is built and stable before any state updates are attempted. back button press
 import 'package:myapp/config/app_config.dart';
-import 'package:myapp/contracts/mappable.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/mappers/mappable.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/assignee_model.dart';
 import 'package:myapp/models/return_request_model.dart';
+import 'package:myapp/services/api_util_service.dart';
 //import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
@@ -180,60 +181,6 @@ class _AppSelectionFieldState<T extends Mappable>
     }
   }
 
-  // Future<void> _showSelectionSheet(BuildContext context) async {
-  //   if (widget.preRequest != null) {
-  //     final shouldProceed = await widget.preRequest!();
-  //     if (!shouldProceed) {
-  //       return;
-  //     }
-
-  //     try {
-  //       String fullUrl = widget.dataUrl;
-  //       if (widget.filterConditions != null &&
-  //           widget.filterConditions!.isNotEmpty) {
-  //         final String filterJson = jsonEncode(widget.filterConditions);
-  //         final String encodedFilters = Uri.encodeComponent(filterJson);
-  //         fullUrl = '${widget.dataUrl}?filters=$encodedFilters';
-  //       }
-
-  //       await inquire<T>(
-  //         context: context,
-  //         dataUrl: fullUrl,
-  //         onSuccess: (items) async {
-  //           if (mounted) {
-  //             setState(() {
-  //               _fetchedItems = items;
-  //               print(_fetchedItems);
-  //             });
-  //             await _presentSelectionSheet(context, _fetchedItems);
-  //           }
-  //         },
-  //         onError: (errorMessage) {
-  //           if (mounted) {
-  //             showSnackBar(
-  //               context: context,
-  //               message: errorMessage,
-  //               type: MessageType.error,
-  //             );
-  //           }
-  //         },
-  //       );
-  //     } catch (e) {
-  //       if (mounted) {
-  //         String errorMessage = e.toString();
-  //         if (errorMessage.startsWith('Exception: ')) {
-  //           errorMessage = errorMessage.substring('Exception: '.length);
-  //         }
-  //         showSnackBar(
-  //           context: context,
-  //           message: errorMessage,
-  //           type: MessageType.error,
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
-
   Future<void> _showSelectionSheet(BuildContext context) async {
     // // If items are already fetched, just show the selection sheet WITH OUT REFETCH
     // if (_fetchedItems.isNotEmpty) {
@@ -250,28 +197,50 @@ class _AppSelectionFieldState<T extends Mappable>
     _loadingOverlay.show(context); // Use the common overlay
     try {
       //Sring baseUrl =;
-      String baseUrl = Config.baseUrl;
+      String baseUrl = Config.baseApiTestUrl;
       String fullUrl = baseUrl + widget.dataUrl;
-      if (widget.filterConditions != null &&
-          widget.filterConditions!.isNotEmpty) {
-        final String filterJson = jsonEncode(widget.filterConditions);
-        final String encodedFilters = Uri.encodeComponent(filterJson);
-        fullUrl = '${fullUrl}?filters=$encodedFilters';
-      }
-      print(fullUrl);
-      final String? accessToken = await _secureStorageService.getAccessToken();
 
-      if (accessToken == null) {
-        // Handle case where no token is found (e.g., user not logged in)
-        print('Error: No access token found. User is not authenticated.');
-        // You might want to navigate to a login screen or show an error message
-        throw UnauthorisedException('Please log in to access this data.');
-      }
+      // final String? accessToken = await _secureStorageService.getAccessToken();
 
-      final items = await MockApiService.get<T>(
-        fullUrl,
-        authToken: accessToken, // Pass the retrieved access token
-      );
+      // if (accessToken == null) {
+      //   // Handle case where no token is found (e.g., user not logged in)
+      //   print('Error: No access token found. User is not authenticated.');
+      //   // You might want to navigate to a login screen or show an error message
+      //   throw UnauthorisedException('Please log in to access this data.');
+      // }
+
+      // MOCK API
+      // Comment
+      // if (widget.filterConditions != null &&
+      //     widget.filterConditions!.isNotEmpty) {
+      //   final String filterJson = jsonEncode(widget.filterConditions);
+      //   final String encodedFilters = Uri.encodeComponent(filterJson);
+      //   fullUrl = '${fullUrl}?filters=$encodedFilters';
+      // }
+      // print(fullUrl);
+      // comment
+      // final items = await MockApiService.get<T>(
+      //   fullUrl,
+      //   authToken: accessToken, // Pass the retrieved access token
+      // );
+      // MOCK API
+
+    Map<String, dynamic> requestBody = {};
+    if (widget.filterConditions != null) {
+      for (var condition in widget.filterConditions!) {
+        final field = condition[0];
+        final operator = condition[1];
+        final value = condition[2];
+      if (operator == "=") {
+        requestBody[field] = value;
+      }
+    }
+  }
+
+    final items = await helperInquiry<T>(
+      fullUrl,
+      body: requestBody
+    );
       //final items = await MockApiService.get<T>(fullUrl);
       _loadingOverlay.hide();
       if (mounted) {
@@ -283,13 +252,13 @@ class _AppSelectionFieldState<T extends Mappable>
     } catch (e) {
       _loadingOverlay.hide();
       if (mounted) {
-        String errorMessage = e.toString();
-        if (errorMessage.startsWith('Exception: ')) {
-          errorMessage = errorMessage.substring('Exception: '.length);
-        }
+        // String errorMessage = e.toString();
+        // if (errorMessage.startsWith('Exception: ')) {
+        //   errorMessage = errorMessage.substring('Exception: '.length);
+        // }
         showSnackBar(
           context: context,
-          message: errorMessage,
+          message: e.toString(),
           type: MessageType.error,
         );
       }

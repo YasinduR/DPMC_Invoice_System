@@ -168,10 +168,10 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           cellBuilder:
               (context, part) => Center(
                 child: Checkbox(
-                  value: _selectedParts.any((p) => p.id == part.id),
+                  value: _selectedParts.any((p) => p.partNo == part.partNo),
                   activeColor: AppColors.primary,
                   checkColor: Colors.white,
-                  onChanged: (value) => _togglePartSelection(part.id),
+                  onChanged: (value) => _togglePartSelection(part.partNo),
                 ),
               ),
         ),
@@ -180,7 +180,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           flex: 3,
           cellBuilder: (context, part) {
             final selectedPart = _selectedParts.firstWhereOrNull(
-              (p) => p.id == part.id,
+              (p) => p.partNo == part.partNo,
             );
             return QuantitySelector(
               value: selectedPart?.receivedQty ?? 0,
@@ -200,12 +200,12 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
   }
 
   Future<void> _togglePartSelection(String partId) async {
-    final sourcePart = _parts.firstWhere((p) => p.id == partId);
-    final isCurrentlySelected = _selectedParts.any((p) => p.id == partId);
+    final sourcePart = _parts.firstWhere((p) => p.partNo == partId);
+    final isCurrentlySelected = _selectedParts.any((p) => p.partNo == partId);
 
     if (isCurrentlySelected) {
       setState(() {
-        _selectedParts.removeWhere((p) => p.id == partId);
+        _selectedParts.removeWhere((p) => p.partNo == partId);
       });
     } else {
       final defaultQty = sourcePart.requestQty;

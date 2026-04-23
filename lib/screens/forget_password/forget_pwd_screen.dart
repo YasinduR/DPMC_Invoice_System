@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/views/new_password_setup_view.dart';
@@ -75,8 +75,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     } catch (e) {
       if (mounted) {
         String errorMessage;
-        if (e is UnauthorisedException || e is AccountLockedException) {
-          errorMessage = (e as AppException).getMessage(); // Cast here
+        if (e is UnauthorisedException) {
+          errorMessage = e.toString(); // Cast here
         } else {
           errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
@@ -131,8 +131,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     } catch (e) {
       if (mounted) {
         String errorMessage;
-        if (e is UnauthorisedException || e is AccountLockedException) {
-          errorMessage = (e as AppException).getMessage(); // Cast here
+        if (e is UnauthorisedException) {
+          errorMessage = e.toString(); // Cast here
         } else {
           errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
@@ -197,7 +197,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               showSnackBar(
                 context: context,
                 message: e is UnauthorisedException
-                    ? e.getMessage()
+                    ? e.toString()
                     : 'Invalid or expired OTP.',
                 type: MessageType.error,
               );

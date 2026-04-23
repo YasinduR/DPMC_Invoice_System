@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/config/app_config.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 //import 'package:myapp/services/attendance_reminder_service.dart';

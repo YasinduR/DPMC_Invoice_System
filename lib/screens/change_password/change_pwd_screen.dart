@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/app_routes.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/views/change_password_view.dart';
@@ -73,14 +73,14 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       if (!mounted) return;
       showSnackBar(
         context: context,
-        message: e.getMessage(),
+        message: e.toString(),
         type: MessageType.error,
       );
     } on FetchDataException catch (e) {
       if (!mounted) return;
       showSnackBar(
         context: context,
-        message: e.getMessage(),
+        message: e.toString(),
         type: MessageType.error,
       );
     } catch (e) {

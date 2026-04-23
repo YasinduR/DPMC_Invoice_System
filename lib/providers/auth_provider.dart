@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/auth_service.dart';
@@ -141,17 +141,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
             lastLoginPasswordUpdate: () => null,
           );
           onError(
-            UnauthorisedException(
-              'Failed to log in after biometric authentication.',
-            ),
+            UnauthorisedException("Failed to log in after biometric authentication."),
           );
           return false;
         }
       } else {
         onError(
-          UnauthorisedException(
-            'Biometric authentication failed or cancelled.',
-          ),
+          UnauthorisedException("Biometric authentication failed or cancelled."),
         );
         return false;
       }

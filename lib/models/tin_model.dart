@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/helpers/common_functions.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/theme/app_colors.dart';
@@ -32,7 +32,7 @@ class TinData implements Mappable {
     this.tagCount = 0,
     this.plasticBCount = 0,
     this.remark = '',
-    this.imagePath= 'TIN/0.png'
+    this.imagePath = 'TIN/0.png',
   });
 
   String get paymentStatusText {
@@ -78,8 +78,25 @@ class TinData implements Mappable {
       'tagCount': tagCount,
       'plasticBCount': plasticBCount,
       'remark': remark,
-      'imagePath' : imagePath,
+      'imagePath': imagePath,
       'parts': parts.map((part) => part.toMap()).toList(), // Serialize parts
     };
+  }
+
+  factory TinData.fromJson(Map<String, dynamic> json) {
+    return TinData(
+      tinNumber: json['tinNo'] ?? '',
+      orderNumber: json['customerRefNo'] ?? '',
+      totalValue: (json['totalValue'] ?? 0).toDouble(),
+      paymentStatus: json['incentiveStatus'] ?? '',
+      dealercode: json['dealer'] ?? '',
+      payOnDel: json['payOnDelivery'] ?? 'N',
+      parts: [],
+      bagCount: 0,
+      tagCount: 0,
+      plasticBCount: 0,
+      remark: '',
+      imagePath: 'TIN/0.png',
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/helpers/common_functions.dart';
 
 //class Activity implements Mappable {

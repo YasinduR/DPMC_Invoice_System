@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 
 class Bank implements Mappable {
   final String bankCode;
@@ -9,4 +9,13 @@ class Bank implements Mappable {
   Map<String, dynamic> toMap() {
     return {'bankCode': bankCode, 'bankName': bankName};
   }
+
+//  Convert Json response to Bank
+  factory Bank.fromJson(Map<String, dynamic> json) {
+    return Bank(
+      bankCode: json['bankCode'] as String,
+      bankName: json['bankDescription'] as String,
+    );
+  }
+
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/services/api_util_service.dart';
@@ -105,17 +105,18 @@ class _SelectDealerViewState extends State<SelectDealerView> {
         onError: (e) {
           if (mounted) {
             FocusScope.of(context).unfocus();
-            String errorMessage;
+            String errorMessage = e.toString();
             if (e is AccountLockedException) {
-              errorMessage = e.getMessage();
+              //errorMessage = e.toString();
               setState(() {
                 _isDealerAccountLocked = true;
               });
-            } else if (e is AppException) {
-              errorMessage = e.getMessage();
-            } else {
-              errorMessage = e.toString().replaceFirst('Exception: ', '');
-            }
+            // } else if (e is AppException) {
+            //   errorMessage = e.toString();
+            } 
+            // else {
+            //   errorMessage = e.toString();
+            // }
             showSnackBar(
               context: context,
               message: errorMessage,
@@ -141,7 +142,8 @@ class _SelectDealerViewState extends State<SelectDealerView> {
             layoutType: SelectionSheetLayoutType.card, // use card layout for dealer's view
             initialValue: widget.selectedDealer,
             preRequest: _handlePreRequest,
-            onSelected: (dealer) {
+            onSelected: (dealer) async{
+              
               setState(() {
                 _currentSelectedDealer = dealer;
               });

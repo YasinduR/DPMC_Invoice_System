@@ -1,5 +1,5 @@
 import 'package:myapp/helpers/common_functions.dart';
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/tin_model.dart';
 

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import 'package:myapp/contracts/mappable.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/mappers/mappable.dart';
+import 'package:myapp/errors/app_exceptions.dart';
+import 'package:myapp/helpers/api_response_handler.dart';
 import 'package:myapp/models/attendance_model.dart';
+import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/dispatch_note_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/invoice_model.dart';
@@ -11,6 +13,7 @@ import 'package:myapp/models/receipt_model.dart';
 import 'package:myapp/models/return_request_model.dart';
 import 'package:myapp/models/return_save_model.dart';
 import 'package:myapp/models/user_model.dart';
+import 'package:myapp/services/Dummy_responses/BankList.dart';
 import 'package:myapp/services/dummy_data.dart';
 import 'package:myapp/models/part_model.dart';
 
@@ -185,7 +188,15 @@ class MockApiService {
         sourceData = DummyData.branches;
         break;
       case 'api/bank/list':
-        sourceData = DummyData.banks;
+        final jsonResponse = bankfailedApiResponse;
+        List<Bank> banks = parseApiResponse<List<Bank>>(jsonResponse, (
+          rawData,
+        ) {
+          final list = rawData as List<dynamic>;
+          sourceData = DummyData.banks;
+          return list.map((item) => Bank.fromJson(item)).toList();
+        });
+        sourceData = banks;
         break;
       case 'api/tin-invoices/list':
         sourceData = DummyData.tinInvoices;
@@ -209,35 +220,35 @@ class MockApiService {
       case 'api/assignee/list':
         sourceData = DummyData.assignees;
 
-        // final filtersJson = uri.queryParameters['filters'];
-        // if (filtersJson == null) {
-        //   sourceData = [];
-        //   break;
-        // }
+      // final filtersJson = uri.queryParameters['filters'];
+      // if (filtersJson == null) {
+      //   sourceData = [];
+      //   break;
+      // }
 
-        // final filters = jsonDecode(filtersJson) as List;
-        // // Assuming the filter is always ['supervisorId', '=', value]
-        // final supervisorFilter = filters.firstWhere(
-        //   (f) => f[0] == 'supervisorId',
-        //   orElse: () => null,
-        // );
+      // final filters = jsonDecode(filtersJson) as List;
+      // // Assuming the filter is always ['supervisorId', '=', value]
+      // final supervisorFilter = filters.firstWhere(
+      //   (f) => f[0] == 'supervisorId',
+      //   orElse: () => null,
+      // );
 
-        // if (supervisorFilter == null) {
-        //   sourceData = [];
-        //   break;
-        // }
+      // if (supervisorFilter == null) {
+      //   sourceData = [];
+      //   break;
+      // }
 
-        // final supervisorId = supervisorFilter[2]; // the value
+      // final supervisorId = supervisorFilter[2]; // the value
 
-        // final assigneeIds =
-        //     DummyData.assignees
-        //         .where((a) => a.supervisorId == supervisorId)
-        //         .map((a) => a.assigneeId)
-        //         .toList();
+      // final assigneeIds =
+      //     DummyData.assignees
+      //         .where((a) => a.supervisorId == supervisorId)
+      //         .map((a) => a.assigneeId)
+      //         .toList();
 
-        // sourceData =
-        //     DummyData.users.where((u) => assigneeIds.contains(u.id)).toList();
-        // break;
+      // sourceData =
+      //     DummyData.users.where((u) => assigneeIds.contains(u.id)).toList();
+      // break;
 
       //   final assigneeIds = DummyData.assignees
       //       .where((a) => a.supervisorId == supervisorId)
@@ -313,11 +324,14 @@ class MockApiService {
                   return false;
 
                 case 'in':
-              if (value is List) {
-                return value.any((v) =>
-                  comparableItemValue.toString().toLowerCase() == v.toString().toLowerCase());
-                }
-              return false;
+                  if (value is List) {
+                    return value.any(
+                      (v) =>
+                          comparableItemValue.toString().toLowerCase() ==
+                          v.toString().toLowerCase(),
+                    );
+                  }
+                  return false;
 
                 default:
                   return false; // Unknown operator
@@ -344,6 +358,10 @@ class MockApiService {
     }
 
     switch (url) {
+// HELPERS
+
+
+
       case 'api/permission/check':
         final String screenId = body['screenId'] as String;
         final List<String> roleIds = (body['roleIds'] as List).cast<String>();
@@ -369,7 +387,7 @@ class MockApiService {
           throw UnauthorisedException('Invalid Dealer Code or PIN.');
         }
         if (dealer.isLocked) {
-          throw AccountLockedException(
+          throw UnauthorisedException(
             'Dealer account is locked. Please contact support.',
           );
         }
@@ -383,7 +401,7 @@ class MockApiService {
 
           if (dealer.incPins >= 3) {
             dealer.isLocked = true;
-            throw AccountLockedException(
+            throw UnauthorisedException(
               'Invalid Dealer Code or PIN. Account has been locked due to too many incorrect attempts.',
             );
           } else {
@@ -407,7 +425,7 @@ class MockApiService {
           );
 
           if (user.isLocked) {
-            throw AccountLockedException(
+            throw UnauthorisedException(
               'Your account is locked. Please contact support.',
             );
           }
@@ -537,7 +555,7 @@ class MockApiService {
               user.incPins++;
               if (user.incPins >= 3) {
                 user.isLocked = true;
-                throw AccountLockedException(
+                throw UnauthorisedException(
                   'Your Account has been locked due to too many incorrect attempts.',
                 );
               } else {
@@ -741,7 +759,7 @@ class MockApiService {
             orElse: () => throw UnauthorisedException('User not found.'),
           );
           if (user.isLocked) {
-            throw AccountLockedException(
+            throw UnauthorisedException(
               'Your account is locked. Please contact support.',
             );
           }
@@ -843,9 +861,7 @@ class MockApiService {
           );
         } on UnauthorisedException {
           rethrow;
-        } on AccountLockedException {
-          rethrow;
-        } catch (_) {
+        }catch (_) {
           throw UnauthorisedException(
             'Invalid reset token. Please start over.',
           );
@@ -858,7 +874,7 @@ class MockApiService {
           );
 
           if (oldUser.isLocked) {
-            throw AccountLockedException(
+            throw UnauthorisedException(
               'Your account is locked. Please contact support.',
             );
           }
@@ -1051,7 +1067,6 @@ class MockApiService {
 
         final List<Part> incomingItems = ret.returnItems;
 
-
         final tinIndex = DummyData.tins.indexWhere((t) => t.tinNumber == tinNo);
         if (tinIndex != -1) {
           final existingTin = DummyData.tins[tinIndex];
@@ -1067,10 +1082,9 @@ class MockApiService {
             String? key;
             int qty = 0;
 
- 
-              key = retItem.partNo;
-              qty = retItem.requestQty;
-            
+            key = retItem.partNo;
+            qty = retItem.requestQty;
+
             if (key == null) continue;
 
             final existingPart = existingByPartNo[key];
@@ -1092,13 +1106,13 @@ class MockApiService {
 
           // Rebuild parts list and update master tin (remove parts fully returned)
           final List<Part> updatedParts = existingByPartNo.values.toList();
-          
 
           final updatedMasterTin = TinData(
             tinNumber: existingTin.tinNumber,
             orderNumber: existingTin.orderNumber,
             totalValue: existingTin.totalValue,
-            paymentStatus: updatedParts.isNotEmpty? existingTin.paymentStatus : 'I',
+            paymentStatus:
+                updatedParts.isNotEmpty ? existingTin.paymentStatus : 'I',
             dealercode: existingTin.dealercode,
             payOnDel: existingTin.payOnDel,
             parts: updatedParts,

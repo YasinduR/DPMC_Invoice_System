@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/activity_model.dart';
 import 'package:myapp/models/attendance_model.dart';
 import 'package:myapp/models/column_model.dart';

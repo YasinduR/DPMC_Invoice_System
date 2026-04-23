@@ -284,7 +284,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       receiptTime: DateTime.now(),
     );
     late Receipt savedReceipt;
-
+// 
     await save(
       context: context,
       user: currentUser,
