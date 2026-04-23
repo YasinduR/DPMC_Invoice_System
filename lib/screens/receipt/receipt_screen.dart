@@ -293,7 +293,8 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
 
     uploadedRemotePath = null;
 
-    await RemoteFileService().uploadFileWithLoading(
+    // Added remote image upload - Darshan R on 22/04/2026
+    await RemoteFileService().uploadFile(
       context: context,
       localFile: _uploadedReceipt!,
       remoteFolder: 'Receipt',
@@ -366,7 +367,20 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
       onError: (e) async {
         if (uploadedRemotePath != null) {
           try {
-            await RemoteFileService().deleteFile(remotePath: uploadedRemotePath!);
+            // Added remote image delete on failure - Darshan R on 22/04/2026
+            await RemoteFileService().deleteFile(
+              context: context,
+              remotePath: uploadedRemotePath!,
+              onSuccess: () {},
+              onError: (_) {
+                // optional: ignore cleanup failure
+                showSnackBar(
+                  context: context,
+                  message: 'Failed to delete uploaded image.',
+                  type: MessageType.error,
+                );
+              },
+            );
           } catch (_) {
             // optional: ignore cleanup failure or log it
           }

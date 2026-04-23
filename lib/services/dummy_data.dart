@@ -1483,7 +1483,7 @@ Assignee(
       tagCount: 10,
       plasticBCount: 3,
       remark: 'Heavy equipment',
-      imagePath: 'TIN/1.png',
+      imagePath: 'Receipt/AC2000123306_1776914118428.jpg',
       parts: [
         Part(
           id: 'p3',
@@ -1519,7 +1519,7 @@ Assignee(
       tagCount: 1,
       plasticBCount: 1,
       remark: 'Small parts',
-      imagePath: 'TIN/2.png',
+      imagePath: 'Receipt/AC2000123306_1776914118428.jpg',
       parts: [
         Part(
           id: 'p6',

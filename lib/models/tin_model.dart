@@ -32,7 +32,7 @@ class TinData implements Mappable {
     this.tagCount = 0,
     this.plasticBCount = 0,
     this.remark = '',
-    this.imagePath= 'TIN/0.png'
+    this.imagePath= 'Receipt/AC2000123306_1776914118428.jpg'
   });
 
   String get paymentStatusText {
