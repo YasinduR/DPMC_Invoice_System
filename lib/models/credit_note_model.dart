@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:equatable/equatable.dart';
 import 'package:myapp/helpers/common_functions.dart';
 

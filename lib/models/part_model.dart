@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/helpers/common_functions.dart';
 
 class Part implements Mappable{
@@ -58,4 +58,16 @@ class Part implements Mappable{
   set returnQty(int value) {
     receivedQty = requestQty - value;
   }
+
+  factory Part.fromJson(Map<String, dynamic> json) {
+  return Part(
+    id: json['loadedNo'] ?? '',
+    partNo: json['partNo'] ?? '',
+    requestQty: json['quantity'] ?? 0,
+    price: (json['priceWithTaxes'] as num?)?.toDouble() ?? 0.0,
+    discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
+    description: json['prodHierCode'] ?? 'N/A',
+    receivedQty: 0,
+  );
+}
 }

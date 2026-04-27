@@ -1,5 +1,5 @@
 // ID Name Employee Company.
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 
 class Employee implements Mappable  {
   final String id;

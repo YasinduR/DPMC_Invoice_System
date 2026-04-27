@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/views/security_setting_view.dart';
@@ -281,8 +281,8 @@ Future<void> _handleActivityHistoryChange(bool newValue) async {
 
   void _showSnackBarError(Exception e) {
     String message;
-    if (e is UnauthorisedException || e is AccountLockedException) {
-      message = (e as AppException).getMessage();
+    if (e is UnauthorisedException) {
+      message = e.toString();
     } else if (e is FetchDataException) {
       message = 'Could not connect. Please try again later.';
     } else {
@@ -317,7 +317,7 @@ Future<void> _handleActivityHistoryChange(bool newValue) async {
 
     return AppPage(
       title: 'Settings',
-      currentRouteName: 'securitySetting',
+      currentRouteName: 'setting',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: SettingsView(

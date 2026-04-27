@@ -1,5 +1,5 @@
 
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 
 class Screen implements Mappable {
   final String screenId;
@@ -36,4 +36,6 @@ class Screen implements Mappable {
       'iconName': iconName,
     };
   }
+
+
 }

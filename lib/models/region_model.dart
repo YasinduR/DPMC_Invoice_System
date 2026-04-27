@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 
 class Region implements Mappable {
   final String region;
@@ -11,4 +11,12 @@ class Region implements Mappable {
   Map<String, dynamic> toMap() {
     return {'region': region, 'head': head,'regionCode':regionCode };
   }
+
+  factory Region.fromJson(Map<String, dynamic> json) {
+  return Region(
+    region: json['routeDescription'] ?? '',
+    head: '', // not available
+    regionCode: json['routeCode'] ?? '',
+  );
+}
 }

@@ -35,18 +35,22 @@ class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, WidgetRef ref) {
     final String? routeName = settings.name;
 
-    //---- IMPORTANT  SECTION----//
-    // Enable this Section Later
-
-    // This SECTION to Check whether the user has logged in before routing to non public routes
-
     final authState = ref.read(authProvider);
     final publicRoutes = [
-      // AppRoutes.authCheck,
       AppRoutes.initializer,
       AppRoutes.login,
       AppRoutes.forgetPassword,
       AppRoutes.splash,
+    ];
+
+    final routesWithoutPermissionCheck = [
+       AppRoutes.splash,
+       AppRoutes.initializer,
+       AppRoutes.login,
+        AppRoutes.mainMenu,
+        AppRoutes.changePassword,
+        AppRoutes.settings,
+        AppRoutes.profile,
     ];
 
     // if (publicRoutes.contains(routeName)) {
@@ -87,20 +91,12 @@ class AppRouter {
       );
     }
 
-    // // 3. If it's the login route and the user is already logged in (and doesn't need password change),
-    // //    redirect them to the main menu. This prevents logged-in users from seeing the login screen.
-    // if (routeName == AppRoutes.login && authState.isLoggedIn && !authState.requiresPasswordChange) {
-    //   return MaterialPageRoute(builder: (_) => const MainMenuScreen(), settings: const RouteSettings(name: AppRoutes.mainMenu));
-    // }
-
-    //---- END OF THE SECTION----//
 
     final String? screenId = AppRoutes.routeToScreenIdMap[routeName];
     final String? screenTitle = AppRoutes.routeToScreenTitleMap[routeName];
-
     WidgetBuilder? builder = _getRouteBuilder(routeName);
 
-    if (builder == null) {
+    if (builder == null)  {
       return MaterialPageRoute(
         builder:
             (_) => const ErrorScreen(
@@ -109,13 +105,13 @@ class AppRouter {
       );
       // --------------------------
     }
-    if (screenId != null) {
+    if (!routesWithoutPermissionCheck.contains(routeName)) {
       // Screen Id will be assign to all menu-screens
       return MaterialPageRoute(
         builder:
             (_) => PermissionCheckScreen(
-              screenId: screenId,
-              screenTitle: screenTitle ?? ' ',
+              screenId: screenId ?? '',
+              screenTitle: screenTitle ?? '',
               destinationScreenBuilder: builder,
             ),
         settings: settings,
@@ -140,12 +136,6 @@ class AppRouter {
         return (context) => const MainMenuScreen();
       case AppRoutes.forgetPassword:
         return (context) => const ForgetPasswordScreen();
-      // case AppRoutes.fraudMenu:
-      //   return (context) => const FraudMenuScreen();
-      // case AppRoutes.authCheck:
-      //   return (context) => const AuthCheckScreen();
-
-      // Routes dynamically generated routes
       case '/setupPrint':
         return (context) => const SetupPrintScreen();
       case '/invoice':
@@ -166,7 +156,7 @@ class AppRouter {
         return (context) => const RouteSelectionScreen();
       case '/changePassword':
         return (context) => const ChangePasswordScreen();
-      case '/securitySetting':
+      case '/setting':
         return (context) => const SettingsScreen();
       case '/attendance':
         return (context) => const AttendanceScreen();
@@ -185,7 +175,7 @@ class AppRouter {
       case '/supervisorSummary':
         return (context) => const SupervisorSummaryScreen();
       default:
-        return null; // Return Null for the invalid routes
+        return null;
     }
   }
 }

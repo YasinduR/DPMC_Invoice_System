@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/helpers/app_screens.dart';
 import 'package:myapp/helpers/color_cycler.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/helpers/icon_mapper.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/app_routes.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/settings_provider.dart';
 import 'package:myapp/widgets/app_page.dart';
-import 'package:myapp/widgets/cards/menu_card.dart'; 
+import 'package:myapp/widgets/cards/menu_card.dart';
 
 class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
@@ -17,9 +18,8 @@ class MainMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).currentUser;
-    final accessibleScreens = user?.accessibleScreen ?? [];
+    final accessibleScreens = user?.accessibleScreens ?? [];
     final selectedStyle = ref.watch(settingsProvider).iconStyle;
-
     // Responsive logic: Calculate spacing based on screen width
     final screenWidth = MediaQuery.of(context).size.width;
     // Row spacing is now responsive
@@ -29,39 +29,37 @@ class MainMenuScreen extends ConsumerWidget {
     final double iconSize = (screenWidth * 0.15).clamp(56.0, 80.0);
     // Adjust aspect ratio to give more vertical space if needed
     final double childAspectRatio = (screenWidth < 600) ? 0.8 : 1.0;
-
     // Modify this with screen IDs othat need to priortize
-    const prioritizeOrder = [
-      '004', // Invoice
-      '005', // Print Invoice
-      '008', // Receipt
-      '009', // Returns 
-      '018', // Advice of Dispatch
-      '017', // Returns Request Adjust
-      '011', // Route Selection
-      '010', // Re-Print
-      '003', // Setup Print
-      '012', // Change Password
-      '006', // Profile
-      '007', // Test
-    ];
-    final List<Screen> menuItems = List.from(accessibleScreens);
+    // const prioritizeOrder = [
+    //   // '004', // Invoice
+    //   // '005', // Print Invoice
+    //   // '008', // Receipt
+    //   // '009', // Returns
+    //   // '018', // Advice of Dispatch
+    //   // '017', // Returns Request Adjust
+    //   // '011', // Route Selection
+    //   // '010', // Re-Print
+    //   // '003', // Setup Print
+    //   // '012', // Change Password
+    //   // '006', // Profile
+    //   // '007', // Test
+    // ];
+    // final List<Screen> menuItems = List.from(accessibleScreens);
+    // // --- NEW MULTI-LEVEL SORTING LOGIC  PRIORITITY LIST + ROLE_ID ORDER
+    // menuItems.sort((a, b) {
+    //   int menuIdCompare = b.menuId.compareTo(a.menuId);
+    //   if (menuIdCompare != 0) {
+    //     return menuIdCompare;
+    //   }
 
-    // --- NEW MULTI-LEVEL SORTING LOGIC  PRIORITITY LIST + ROLE_ID ORDER
-    menuItems.sort((a, b) {
-      int menuIdCompare = b.menuId.compareTo(a.menuId);
-      if (menuIdCompare != 0) {
-        return menuIdCompare;
-      }
+    //   final indexA = prioritizeOrder.indexOf(a.screenId);
+    //   final indexB = prioritizeOrder.indexOf(b.screenId);
+    //   final sortA = indexA == -1 ? 999 : indexA;
+    //   final sortB = indexB == -1 ? 999 : indexB;
+    //   return sortA.compareTo(sortB);
+    // });
 
-      final indexA = prioritizeOrder.indexOf(a.screenId);
-      final indexB = prioritizeOrder.indexOf(b.screenId);
-      final sortA =
-          indexA == -1 ? 999 : indexA; 
-      final sortB = indexB == -1 ? 999 : indexB;
-      return sortA.compareTo(sortB);
-    });
-    
+    final List<Screen> menuItems = AppScreens.getAccessibleScreens(accessibleScreens);
     final colorCycler = ColorCycler(AppColors.menuTileColors);
 
     final List<Widget> menuCards =
@@ -73,10 +71,14 @@ class MainMenuScreen extends ConsumerWidget {
 
           return MenuCard(
             color: itemColor,
-            iconWidget: IconMapper.getStyledIcon(screen.iconName, selectedStyle, itemColor, iconSize),
+            iconWidget: IconMapper.getStyledIcon(
+              screen.iconName,
+              selectedStyle,
+              itemColor,
+              iconSize,
+            ),
             label: screen.title,
             onTap: () => Navigator.pushNamed(context, route),
-            
           );
         }).toList();
 
@@ -85,7 +87,12 @@ class MainMenuScreen extends ConsumerWidget {
     menuCards.add(
       MenuCard(
         color: aboutColor,
-        iconWidget: IconMapper.getStyledIcon('info', selectedStyle, aboutColor, iconSize),
+        iconWidget: IconMapper.getStyledIcon(
+          'info',
+          selectedStyle,
+          aboutColor,
+          iconSize,
+        ),
         label: 'About',
         onTap:
             () => showInfoDialog(
@@ -98,7 +105,12 @@ class MainMenuScreen extends ConsumerWidget {
     final logoutColor = colorCycler.getColor;
     menuCards.add(
       MenuCard(
-        iconWidget: IconMapper.getStyledIcon('logout', selectedStyle, logoutColor, iconSize),
+        iconWidget: IconMapper.getStyledIcon(
+          'logout',
+          selectedStyle,
+          logoutColor,
+          iconSize,
+        ),
         color: logoutColor,
         label: 'Logout',
         onTap: () async {
@@ -111,7 +123,7 @@ class MainMenuScreen extends ConsumerWidget {
           if (confirmed && context.mounted) {
             ref.read(authProvider.notifier).logout(context);
             Navigator.of(context).pushNamedAndRemoveUntil(
-              AppRoutes.login, 
+              AppRoutes.login,
               (Route<dynamic> route) =>
                   false, // Predicate to remove all previous routes
             );
@@ -121,31 +133,28 @@ class MainMenuScreen extends ConsumerWidget {
     );
 
     return AppPage(
-      title: 'Main Menu', 
+      title: 'Main Menu',
       showAppBar: false,
       currentRouteName: 'mainMenu',
       canPop: false, // Prevent default pop behavior
-      contentPadding: const EdgeInsets.fromLTRB(12,50,12,0),
-          child: Column(
-            children: [
-              Text(
-                'Main Menu',
-                style: Theme.of(context).textTheme.headlineLarge
-              ),
-              const SizedBox(height: 30),
-              Expanded(
-                child: GridView.count(
-                  padding: const EdgeInsets.all(12),
-                  crossAxisCount: 3,
-                  crossAxisSpacing: crossAxisSpacing,
-                  mainAxisSpacing: mainAxisSpacing,
-                  childAspectRatio: childAspectRatio,
-                  children: menuCards,
-                ),
-              ),
-              //const AppFooter(),
-            ],
+      contentPadding: const EdgeInsets.fromLTRB(12, 50, 12, 0),
+      child: Column(
+        children: [
+          Text('Main Menu', style: Theme.of(context).textTheme.headlineLarge),
+          const SizedBox(height: 30),
+          Expanded(
+            child: GridView.count(
+              padding: const EdgeInsets.all(12),
+              crossAxisCount: 3,
+              crossAxisSpacing: crossAxisSpacing,
+              mainAxisSpacing: mainAxisSpacing,
+              childAspectRatio: childAspectRatio,
+              children: menuCards,
+            ),
           ),
-        );
+          //const AppFooter(),
+        ],
+      ),
+    );
   }
 }

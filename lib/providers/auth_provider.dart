@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/services/auth_service.dart';
@@ -141,17 +141,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
             lastLoginPasswordUpdate: () => null,
           );
           onError(
-            UnauthorisedException(
-              'Failed to log in after biometric authentication.',
-            ),
+            UnauthorisedException("Failed to log in after biometric authentication."),
           );
           return false;
         }
       } else {
         onError(
-          UnauthorisedException(
-            'Biometric authentication failed or cancelled.',
-          ),
+          UnauthorisedException("Biometric authentication failed or cancelled."),
         );
         return false;
       }
@@ -203,6 +199,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       await _ensureLocationServicesAreOn();
+      
       final user = await _authService.login(
         context: context,
         username: username,
@@ -412,6 +409,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         username: state.currentUser!.username,
         securityQandA: securityQandA,
         newPassword: newPassword,
+        onError:(e){ return null;}
+
       );
 
       state = state.copyWith(
@@ -447,6 +446,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         context: context,
         username: username,
         newPassword: newPassword,
+        onError:(e){ return null;}
+
       );
       // ignore: unnecessary_null_comparison
       if (updatedUser != null) {
@@ -492,6 +493,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         username: state.currentUser!.username,
         oldPassword: oldPassword,
         newPassword: newPassword,
+        onError:(e){ return null;}
+
       );
       await logout(context);
     } catch (e) {
@@ -503,7 +506,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout(BuildContext context) async {
     await _authService.logout(context: context);
-    await NotificationService.clearCurrentAppUser();
+    
     state = const AuthState.initial();
   }
 }

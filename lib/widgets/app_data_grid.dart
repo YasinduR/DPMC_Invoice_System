@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/theme/app_colors.dart';
 

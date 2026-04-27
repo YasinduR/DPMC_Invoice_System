@@ -81,9 +81,9 @@ class ProfileScreen extends ConsumerWidget {
                        const Divider(),
                        _buildInfoTile(
                             icon: Icons.security,
-                            label: (currentUser?.rolenames.length == 1) ? 'Role' : 'Roles',
-                            maxLinesValue:currentUser?.rolenames.length ?? 1 ,
-                            value:  currentUser?.rolenames.join('\n')?? 'No Roles assigned',
+                            label: (currentUser?.roles.length == 1) ? 'Role' : 'Roles',
+                            maxLinesValue:currentUser?.roles.length ?? 1 ,
+                            value:  currentUser?.roles.join('\n')?? 'No Roles assigned',
                         ),
                       if(currentUser !=null)
                       if(currentUser.roles.contains('001')) // Region Info Tile is only for Salesman

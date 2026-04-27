@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/models/screen_model.dart';
 
 class User extends Mappable{
@@ -8,17 +8,17 @@ class User extends Mappable{
   final String password;
   final String telephone;
   final List<String> roles;
-  final List<Screen> accessibleScreen;
-  final List<String> rolenames;
+  //final List<Screen> accessibleScreen;
+  final List<String> accessibleScreens;
+  //final List<String> rolenames;
 
   // Fields for password management
-  bool isLocked;
+  //bool isLocked;
   int incPins; // Changed to mutable
   
-  final DateTime? passwordUpdatedAt;
+//  final DateTime? passwordUpdatedAt;
   final bool isTemporaryPassword;
   final bool isPasswordExpired;
-
 
 
   User({
@@ -28,35 +28,59 @@ class User extends Mappable{
     required this.password,
     required this.telephone,
     required this.roles,
-    this.accessibleScreen = const [],
-    this.rolenames = const [],
-    this.isLocked = false, // Default to not locked
-    this.passwordUpdatedAt, // Nullable, set when password is updated
+   // this.accessibleScreen = const [],
+    this.accessibleScreens = const [],
+   // this.rolenames = const [],
+  //  this.isLocked = false, // Default to not locked
+ //   this.passwordUpdatedAt, // Nullable, set when password is updated
     this.isTemporaryPassword = false, // Default to not a temporary password
     this.isPasswordExpired = false, // Default to not expired
     this.incPins=0
   });
+
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id']?.toString() ?? '',
+      username: map['username'] ?? '',
+      email: map['email'] ?? '',
+      password: map['password'] ?? '',
+      telephone: map['telephone'] ?? '',
+      roles: List<String>.from(map['roles'] ?? []),
+      accessibleScreens: List<String>.from(map['screens'] ?? []),
+     // rolenames: List<String>.from(map['rolenames'] ?? []),
+     // isLocked: map['isLocked'] ?? false,
+      incPins: map['incPins'] ?? 0,
+   //   passwordUpdatedAt: map['passwordUpdatedAt'] != null 
+     //     ? DateTime.tryParse(map['passwordUpdatedAt']) 
+     //     : null,
+      isTemporaryPassword: map['isTemporaryPassword'] ?? false,
+      isPasswordExpired: map['isPasswordExpired'] ?? false,
+    );
+  }
+
 // FromMap constructor for deserialization
-  @override
-  User.fromMap(Map<String, dynamic> map)
-      : id = map['id'] as String,
-        username = map['username'] as String,
-        email = map['email'] as String,
-        password = map['password'] as String,
-        telephone = map['telephone'] as String,
-        roles = List<String>.from(map['roles'] as List),
-        accessibleScreen = (map['accessibleScreen'] as List<dynamic>?)
-                ?.map((e) => Screen.fromMap(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        rolenames = List<String>.from(map['rolenames'] as List? ?? []),
-        isLocked = map['isLocked'] as bool? ?? false,
-        incPins = map['incPins'] as int? ?? 0,
-        passwordUpdatedAt = map['passwordUpdatedAt'] != null
-            ? DateTime.parse(map['passwordUpdatedAt'] as String)
-            : null,
-        isTemporaryPassword = map['isTemporaryPassword'] as bool? ?? false,
-        isPasswordExpired = map['isPasswordExpired'] as bool? ?? false;
+  // @override
+  // User.fromMap(Map<String, dynamic> map)
+  //     : id = map['id'] as String,
+  //       username = map['username'] as String,
+  //       email = map['email'] as String,
+  //       password = map['password'] as String,
+  //       telephone = map['telephone'] as String,
+  //       roles = List<String>.from(map['roles'] as List),
+  //       accessibleScreen = (map['accessibleScreen'] as List<dynamic>?)
+  //               ?.map((e) => Screen.fromMap(e as Map<String, dynamic>))
+  //               .toList() ??
+  //           [],
+  //           accessibleScreens = [],
+  //       rolenames = List<String>.from(map['rolenames'] as List? ?? []),
+  //       isLocked = map['isLocked'] as bool? ?? false,
+  //       incPins = map['incPins'] as int? ?? 0,
+  //       passwordUpdatedAt = map['passwordUpdatedAt'] != null
+  //           ? DateTime.parse(map['passwordUpdatedAt'] as String)
+  //           : null,
+  //       isTemporaryPassword = map['isTemporaryPassword'] as bool? ?? false,
+  //       isPasswordExpired = map['isPasswordExpired'] as bool? ?? false;
 
   // toMap method for serialization
   @override
@@ -68,11 +92,12 @@ class User extends Mappable{
       'password': password,
       'telephone': telephone,
       'roles': roles,
-      'accessibleScreen': accessibleScreen.map((s) => s.toMap()).toList(),
-      'rolenames': rolenames,
-      'isLocked': isLocked,
+      //'accessibleScreen': accessibleScreen.map((s) => s.toMap()).toList(),
+      'accessibleScreens': accessibleScreens,
+      //'rolenames': rolenames,
+      //'isLocked': isLocked,
       'incPins': incPins,
-      'passwordUpdatedAt': passwordUpdatedAt?.toIso8601String(),
+     // 'passwordUpdatedAt': passwordUpdatedAt?.toIso8601String(),
       'isTemporaryPassword': isTemporaryPassword,
       'isPasswordExpired': isPasswordExpired,
     };
@@ -85,10 +110,10 @@ class User extends Mappable{
     String? telephone,
     String? password,
     List<String>? roles,
-    List<Screen>? accessibleScreen,
-    List<String>? rolenames,
+    List<String>? accessibleScreens,
+   // List<String>? rolenames,
     bool? isLocked,
-    DateTime? passwordUpdatedAt,
+   // DateTime? passwordUpdatedAt,
     bool? isTemporaryPassword,
     bool? isPasswordExpired,
   }) {
@@ -99,10 +124,10 @@ class User extends Mappable{
       password: password ?? this.password,
       telephone: telephone??this.telephone,
       roles: roles ?? this.roles,
-      accessibleScreen: accessibleScreen ?? this.accessibleScreen,
-      rolenames: rolenames ?? this.rolenames,
-      isLocked: isLocked ?? this.isLocked,
-      passwordUpdatedAt: passwordUpdatedAt ?? this.passwordUpdatedAt,
+      accessibleScreens: accessibleScreens ?? this.accessibleScreens,
+     // rolenames: rolenames ?? this.rolenames,
+     // isLocked: isLocked ?? this.isLocked,
+     // passwordUpdatedAt: passwordUpdatedAt ?? this.passwordUpdatedAt,
       isTemporaryPassword: isTemporaryPassword ?? this.isTemporaryPassword,
       isPasswordExpired: isPasswordExpired ?? this.isPasswordExpired,
     );

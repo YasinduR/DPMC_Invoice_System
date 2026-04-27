@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/services/auth_service.dart';
 import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/views/new_password_setup_view.dart';
@@ -41,6 +41,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       final resetTokenmsg = await _authService.requestPasswordReset(
         context: context,
         username: username,
+        onError:(e){ return null;}
       );
 
       if (resetTokenmsg != null) {
@@ -75,8 +76,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     } catch (e) {
       if (mounted) {
         String errorMessage;
-        if (e is UnauthorisedException || e is AccountLockedException) {
-          errorMessage = (e as AppException).getMessage(); // Cast here
+        if (e is UnauthorisedException) {
+          errorMessage = e.toString(); // Cast here
         } else {
           errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
@@ -110,8 +111,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         username: _username,
         token: token,
         newPassword: newPassword,
+       onError:(e){ return false;}
+
       );
-      if (success && mounted) {
+      if (success! && mounted) {
         await _storageService.clearSavedLoginInfo();
         await showInfoDialog(
           context: context,
@@ -131,8 +134,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     } catch (e) {
       if (mounted) {
         String errorMessage;
-        if (e is UnauthorisedException || e is AccountLockedException) {
-          errorMessage = (e as AppException).getMessage(); // Cast here
+        if (e is UnauthorisedException) {
+          errorMessage = e.toString(); // Cast here
         } else {
           errorMessage = e.toString().replaceFirst('Exception: ', '');
         }
@@ -185,19 +188,29 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 context: context,
                 username: _username,
                 token: token,
+                onError:(e){ return null;}
+
               );
-              if (mounted) {
+              if (mounted && resetToken!=null) {
                 setState(() {
                   _token = resetToken;     // stores the signed reset JWT
                   _currentStep = 2;
                 });
+              }
+              else{
+                showSnackBar(
+                context: context,
+                message: 'Invalid or expired OTP.',
+                type: MessageType.error,
+              );
+
               }
             } catch (e) {
               if (mounted) {
               showSnackBar(
                 context: context,
                 message: e is UnauthorisedException
-                    ? e.getMessage()
+                    ? e.toString()
                     : 'Invalid or expired OTP.',
                 type: MessageType.error,
               );

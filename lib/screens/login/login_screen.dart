@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/app_routes.dart';
-import 'package:myapp/exceptions/app_exceptions.dart';
+import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/security_qna_model.dart';
 //import 'package:myapp/services/attendance_reminder_service.dart';
 //import 'package:myapp/services/auth_service.dart';
@@ -80,8 +80,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _showSnackBarError(Exception e) {
     String message;
-    if (e is UnauthorisedException || e is AccountLockedException) {
-      message = (e as AppException).getMessage();
+    if (e is UnauthorisedException) {
+      message = (e as AppException).toString();
     } else if (e is FetchDataException) {
       message = 'Could not connect. Please try again later.';
     } else {
@@ -123,14 +123,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           }
         });
       } else {
-
         savedUserName =
             await ref.read(authProvider.notifier).getCurrentSavedUsername();
         if (savedUserName != username) {
           // If this is a new user replace/add info to local storage.
           await _userInfoSaveOnDevice();
         } else {}
-         // await AttendanceReminderManager.setupDailyAttendanceNotifications();
+        // await AttendanceReminderManager.setupDailyAttendanceNotifications();
         Navigator.of(context).pushReplacementNamed(AppRoutes.mainMenu);
       }
     }
@@ -240,7 +239,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _handleLoginViewCancel() {
-    Navigator.pushNamed(context, AppRoutes.fraudMenu);
+    // Do nothing
   }
 
   @override

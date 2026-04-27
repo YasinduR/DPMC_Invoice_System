@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 
 class DealerStat extends Mappable {
   // Dealer Statistics to show on supervisor summary Page

@@ -1,4 +1,4 @@
-import 'package:myapp/contracts/mappable.dart';
+import 'package:myapp/mappers/mappable.dart';
 
 class Assignee extends Mappable {
   final String supervisorId;
@@ -21,6 +21,17 @@ class Assignee extends Mappable {
       dealerListAssigned: (map['dealerListAssigned'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ?? [],
+    );
+  }
+
+   factory Assignee.fromJson(Map<String, dynamic> json) {
+    return Assignee(
+      supervisorId: json['supervisorId'] ?? '',
+      assigneeId: json['assigneeId'] ?? '',
+      name: json['name'] ?? '',
+      dealerListAssigned: (json['dealerListAssigned'] as List?)?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 

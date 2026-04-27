@@ -1,15 +1,19 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/errors/error_mapper.dart';
 import 'package:myapp/helpers/common_functions.dart';
+import 'package:myapp/mappers/mapper_registry.dart';
 import 'package:myapp/models/column_model.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/part_model.dart';
 import 'package:myapp/models/tin_model.dart';
 import 'package:myapp/models/tin_stat_model.dart';
+import 'package:myapp/services/api_service.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/widgets/app_action_button.dart';
 import 'package:myapp/widgets/app_data_grid.dart';
+import 'package:myapp/widgets/app_executer.dart';
 import 'package:myapp/widgets/app_quantity_selector.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 // import 'package:myapp/widgets/cards/dealer_info_card.dart';
@@ -56,30 +60,63 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
   }
 
   Future<void> _loadParts() async {
-    setState(() {
-      _isLoading = false;
-      _parts = widget.tindata.parts;
-      _selectedParts = [];
-    });
-    if (_parts.isEmpty) {
-      if (mounted) {
+    final ApiService api = ApiService();
+    await execute<dynamic>(
+      context: context,
+      task: () async {
+        final res = await api.fetchData(url: 'tinDetails/list', body: {});
+        setState(() {
+          _isLoading = false;
+          _parts = res['details'].map<Part>((e) => MapperRegistry.fromMap<Part>(e)).toList();
+          _selectedParts = [];
+        });
+        if (_parts.isEmpty) {
+          if (mounted) {
+            showSnackBar(
+              context: context,
+              message: 'No parts available',
+              type: MessageType.error,
+            );
+          }
+        }
+      },
+      onError: (e) {
+        String error = ErrorMapper.fromError(e).toString();
         showSnackBar(
           context: context,
-          message: 'No parts available',
+          message: error,
           type: MessageType.error,
         );
-      }
-    }
+      },
+    );
+
+    // _parts = response['details'].map<Part>((e) => MapperRegistry.fromMap<Part>(e)).toList();
+
+    // setState(() {
+    //   _isLoading = false;
+    //   _parts = widget.tindata.parts;
+    //   _selectedParts = [];
+    // });
+    // if (_parts.isEmpty) {
+    //   if (mounted) {
+    //     showSnackBar(
+    //       context: context,
+    //       message: 'No parts available',
+    //       type: MessageType.error,
+    //     );
+    //   }
+    // }
   }
 
   void _toggleSelectAll(bool? selected) {
     if (selected == null) return;
     setState(() {
       if (selected) {
-        _selectedParts = _parts.map((part) {
-          final defaultQty = part.requestQty;
-          return part.copyWith(receivedQty: defaultQty);
-        }).toList();
+        _selectedParts =
+            _parts.map((part) {
+              final defaultQty = part.requestQty;
+              return part.copyWith(receivedQty: defaultQty);
+            }).toList();
       } else {
         _selectedParts.clear();
       }
@@ -136,14 +173,15 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
       return const Center(child: Text("No Parts Found"));
     }
 
-    final isAllSelected = _selectedParts.length == _parts.length && _parts.isNotEmpty;
+    final isAllSelected =
+        _selectedParts.length == _parts.length && _parts.isNotEmpty;
 
     return AppDataGrid<Part>(
       searchHintText: 'Search by Part No',
       onFilterPressed: () {},
       filterableFields: ['partNo'],
-      isAllSelected: isAllSelected,                 // new
-      onSelectAllChanged: _toggleSelectAll,   
+      isAllSelected: isAllSelected, // new
+      onSelectAllChanged: _toggleSelectAll,
       columns: [
         DynamicColumn<Part>(
           label: 'Part No',
@@ -168,10 +206,10 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           cellBuilder:
               (context, part) => Center(
                 child: Checkbox(
-                  value: _selectedParts.any((p) => p.id == part.id),
+                  value: _selectedParts.any((p) => p.partNo == part.partNo),
                   activeColor: AppColors.primary,
                   checkColor: Colors.white,
-                  onChanged: (value) => _togglePartSelection(part.id),
+                  onChanged: (value) => _togglePartSelection(part.partNo),
                 ),
               ),
         ),
@@ -180,7 +218,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           flex: 3,
           cellBuilder: (context, part) {
             final selectedPart = _selectedParts.firstWhereOrNull(
-              (p) => p.id == part.id,
+              (p) => p.partNo == part.partNo,
             );
             return QuantitySelector(
               value: selectedPart?.receivedQty ?? 0,
@@ -200,12 +238,12 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
   }
 
   Future<void> _togglePartSelection(String partId) async {
-    final sourcePart = _parts.firstWhere((p) => p.id == partId);
-    final isCurrentlySelected = _selectedParts.any((p) => p.id == partId);
+    final sourcePart = _parts.firstWhere((p) => p.partNo == partId);
+    final isCurrentlySelected = _selectedParts.any((p) => p.partNo == partId);
 
     if (isCurrentlySelected) {
       setState(() {
-        _selectedParts.removeWhere((p) => p.id == partId);
+        _selectedParts.removeWhere((p) => p.partNo == partId);
       });
     } else {
       final defaultQty = sourcePart.requestQty;
@@ -247,21 +285,21 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
               DealerInfoDetailCard(
                 dealer: widget.dealer,
                 firstLabel: 'Pending Invoices',
-                firstValue: widget.tinStat?.approved.toString()?? '0',
-                secondLabel: 'Pending Value',  
-                secondValue: formatNumber(widget.tinStat?.totalPayment?? 0),
+                firstValue: widget.tinStat?.approved.toString() ?? '0',
+                secondLabel: 'Pending Value',
+                secondValue: formatNumber(widget.tinStat?.totalPayment ?? 0),
               ),
-               const SizedBox(height: 12),
-               InfoDisplay(info: widget.tindata.tinNumber),
-               const SizedBox(height: 12),
+              const SizedBox(height: 12),
+              InfoDisplay(info: widget.tindata.tinNumber),
+              const SizedBox(height: 12),
               // TinStatsCard(
               //      stats: widget.tinStat!,
               //      firstLabel: 'Pending Invoices',
               //      secondLabel: 'Pending Value',
               //    ),
-                //  const SizedBox(height: 12),
-               SizedBox(height: 300.0, child: _buildPartList()),
-             ],
+              //  const SizedBox(height: 12),
+              SizedBox(height: 300.0, child: _buildPartList()),
+            ],
           ),
         ),
 
@@ -296,7 +334,7 @@ class _CreateInvoiceViewState extends State<CreateInvoiceView> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         Text(
-           formatNumber(totalAmount),
+          formatNumber(totalAmount),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

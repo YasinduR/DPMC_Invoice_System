@@ -132,13 +132,71 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   //   );
   // }
 
+  // Future<void> _loadReturnPage() async {
+  //   await inquire<TinData>(
+  //     context: context,
+  //     dataUrl: 'tins/list',
+  //     filters: {'dealerCode': _selectedDealer!.accountCode},
+  //     onSuccess: (List<TinData> data) {
+  //       if (!mounted) return;
+
+  //       final TinData? selectedTin = data.firstWhere(
+  //         (t) => t.tinNumber == _selectedTin!.tinNumber,
+  //       );
+
+  //       setState(() {
+  //         _selectedTin = selectedTin;
+  //         _tinStat = TinStat.fromTinList(data);
+  //         _currentStep = 3;
+  //       });
+  //     },
+  //     onError: (String message) {
+  //       if (!mounted) return;
+  //       showSnackBar(
+  //         context: context,
+  //         message: message,
+  //         type: MessageType.error,
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Future<void> _loadTinSelectionPage() async {
+  //   await inquire<TinData>(
+  //     context: context,
+  //     dataUrl: 'tins/list',
+  //     filters: {'dealerCode': _selectedDealer!.accountCode},
+  //     onSuccess: (List<TinData> data) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         _tinStat = TinStat.fromTinList(data);
+  //         _currentStep = 1;
+  //       });
+  //     },
+  //     onError: (String message) {
+  //       if (!mounted) return;
+  //       showSnackBar(
+  //         context: context,
+  //         message: message,
+  //         type: MessageType.error,
+  //       );
+  //     },
+  //   );
+  // }
+  
   Future<void> _loadReturnPage() async {
-    await inquire<TinData>(
+    await inquireN(
       context: context,
       dataUrl: 'tins/list',
-      filters: {'dealerCode': _selectedDealer!.accountCode},
-      onSuccess: (List<TinData> data) {
+      body: {
+        "filters": {"dealerCode": _selectedDealer!.accountCode},
+      },
+      onSuccess: (data) {
         if (!mounted) return;
+        final List<dynamic> details = data['details'];
+    
+        final List<TinData> tins =
+            details.map((e) => TinData.fromJson(e)).toList();
 
         final TinData? selectedTin = data.firstWhere(
           (t) => t.tinNumber == _selectedTin!.tinNumber,
@@ -146,7 +204,7 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
 
         setState(() {
           _selectedTin = selectedTin;
-          _tinStat = TinStat.fromTinList(data);
+          _tinStat = TinStat.fromTinList(tins);
           _currentStep = 3;
         });
       },
@@ -162,14 +220,27 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
   }
 
   Future<void> _loadTinSelectionPage() async {
-    await inquire<TinData>(
+    await inquireN(
       context: context,
       dataUrl: 'tins/list',
-      filters: {'dealerCode': _selectedDealer!.accountCode},
-      onSuccess: (List<TinData> data) {
+      body: {"dealerCode": _selectedDealer!.accountCode,},
+      onSuccess: (data) {
         if (!mounted) return;
+
+          if (data is! List) {
+          showSnackBar(
+            context: context,
+            message: 'Invalid response format from server',
+            type: MessageType.error,
+          );
+          return;
+        }
+        
+        final List<dynamic> details = data;
+        
+        final List<TinData> tins = details.map((e) => TinData.fromJson(e)).toList();
         setState(() {
-          _tinStat = TinStat.fromTinList(data);
+          _tinStat = TinStat.fromTinList(tins);
           _currentStep = 1;
         });
       },
@@ -482,7 +553,8 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
       case 0:
         currentView = SelectDealerView(
           selectedRegion: selectedRegion,
-          selectedDealer: null, // On initilizing od select dealerview always set dealer to null
+          selectedDealer:
+              null, // On initilizing od select dealerview always set dealer to null
           onDealerSelected: _onDealerSelected,
           //onSubmit: _submitDealer,
           onRegionSelectionRequested: _onRegionSelectionRequested,
@@ -528,14 +600,14 @@ class _InvoiceScreenState extends ConsumerState<InvoiceScreen> {
         currentTitle = 'Select Region';
         break;
       case 0:
-        // currentTitle = 'Select Dealer';
-        // break;
+      // currentTitle = 'Select Dealer';
+      // break;
       // case 1:
       //   currentTitle = 'Authenticate Dealer';
       //   break;
       case 1:
-        // currentTitle = 'Select TIN';
-        // break;
+      // currentTitle = 'Select TIN';
+      // break;
       case 2:
         currentTitle = 'Invoice';
         break;
