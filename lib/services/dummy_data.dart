@@ -179,6 +179,7 @@ class DummyData {
     bankCode: '7010',
     branchCode: '001',
     branchName: 'Bank of Ceylon - Colombo',
+    claimedAmount: 0.00,
     tins: [
       TinInvoice(
         tinNo: 'TINBDM2025011500101',
@@ -188,7 +189,7 @@ class DummyData {
         dealerAccCode: 'AC2000123306',
       ),
     ],
-    creditNotes: [],
+    // creditNotes: [],
   );
 
   static final dummyRec2 = Receipt(
@@ -203,6 +204,7 @@ class DummyData {
     bankCode: '7010',
     branchCode: '001',
     branchName: 'Bank of Ceylon - Colombo',
+    claimedAmount: 0.00,
     tins: [
       TinInvoice(
         tinNo: 'TINBDM2025011500101',
@@ -212,7 +214,7 @@ class DummyData {
         dealerAccCode: 'AC2000123306',
       ),
     ],
-    creditNotes: [],
+    // creditNotes: [],
   );
 
   static final dummyRec3 = Receipt(
@@ -227,6 +229,7 @@ class DummyData {
     bankCode: '7010',
     branchCode: '001',
     branchName: 'Bank of Ceylon - Colombo',
+    claimedAmount: 0.00,
     tins: [
       TinInvoice(
         tinNo: 'TINBDM2025011500101',
@@ -236,7 +239,7 @@ class DummyData {
         dealerAccCode: 'AC2000123306',
       ),
     ],
-    creditNotes: [],
+    // creditNotes: [],
   );
 
   // Added by Darshan R on 23/03/2026
@@ -653,6 +656,7 @@ Assignee(
       address: '55, Main Street',
       city: 'Madapatha',
       region: 'MADAPATHA',
+      usableAmount: 10000.0,
       hasBankGuarantee: true,
     ),
     Dealer(
@@ -1479,7 +1483,7 @@ Assignee(
       tagCount: 10,
       plasticBCount: 3,
       remark: 'Heavy equipment',
-      imagePath: 'TIN/1.png',
+      imagePath: 'Receipt/AC2000123306_1776914118428.jpg',
       parts: [
         Part(
           id: 'p3',
@@ -1515,7 +1519,7 @@ Assignee(
       tagCount: 1,
       plasticBCount: 1,
       remark: 'Small parts',
-      imagePath: 'TIN/2.png',
+      imagePath: 'Receipt/AC2000123306_1776914118428.jpg',
       parts: [
         Part(
           id: 'p6',

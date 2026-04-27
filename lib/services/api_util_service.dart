@@ -14,6 +14,7 @@ import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myapp/services/remote_file_service.dart';
 
 Future<void> inquire<T extends Mappable>({
   required BuildContext context,
@@ -272,36 +273,72 @@ Future<List<Screen>> loadScreens() async {
 }
 
 
+// Future<void> fetchImage({
+//   required BuildContext context,
+//   String? ftpPath,
+//   required String imagePath, // later FTP path
+//   required Function(File? file) onSuccess,
+//   required Function(String errorMessage) onError,
+
+// }) async {
+//   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+
+//   try {
+//     loadingOverlay.show(context);
+
+//     await Future.delayed(const Duration(seconds: 2));
+
+//     final String basePath = ftpPath ?? Config.baseFtp;
+//     final String fullPath = '$basePath$imagePath';
+//     final file = File(fullPath);
+    
+//     if (await file.exists()) {
+//       onSuccess(file);
+//     } else {
+//       throw Exception("Image not found");
+//     }
+
+//   } catch (e) {
+//     onError('Failed to load image: $e');
+//   } finally {
+//     if (loadingOverlay.isShowing) {
+//       loadingOverlay.hide();
+//     }
+//   }
+// }
+
 Future<void> fetchImage({
   required BuildContext context,
   String? ftpPath,
-  required String imagePath, // later FTP path
+  required String imagePath,
   required Function(File? file) onSuccess,
   required Function(String errorMessage) onError,
-
 }) async {
-  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+  final String basePath = ftpPath ?? Config.baseSftp;
 
-  try {
-    loadingOverlay.show(context);
+  // If caller gives full remote path, use it directly.
+  final bool isAbsoluteRemote = imagePath.startsWith('/');
 
-    await Future.delayed(const Duration(seconds: 2));
+  final String normalizedBase = basePath.endsWith('/')
+      ? basePath.substring(0, basePath.length - 1)
+      : basePath;
 
-    final String basePath = ftpPath ?? Config.baseFtp;
-    final String fullPath = '$basePath$imagePath';
-    final file = File(fullPath);
-    
-    if (await file.exists()) {
+  final String normalizedImage = imagePath.startsWith('/')
+      ? imagePath.substring(1)
+      : imagePath;
+
+  final String remotePath = isAbsoluteRemote
+      ? imagePath
+      : '$normalizedBase/$normalizedImage';
+
+  await RemoteFileService().fetchFile(
+    context: context,
+    remotePath: remotePath,
+    onSuccess: (file) {
       onSuccess(file);
-    } else {
-      throw Exception("Image not found");
-    }
-
-  } catch (e) {
-    onError('Failed to load image: $e');
-  } finally {
-    if (loadingOverlay.isShowing) {
-      loadingOverlay.hide();
-    }
-  }
+    },
+    onError: (err) {
+      onError(err);
+    },
+  );
 }

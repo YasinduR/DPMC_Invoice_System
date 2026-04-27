@@ -26,12 +26,13 @@ import 'package:myapp/widgets/app_text_form_field.dart';
 class ReceiptDetailsView extends StatefulWidget {
   final Dealer dealer;
   final VoidCallback onSubmit;
-  final VoidCallback addCreditnote;
+  final double usableAmount;
 
   // --- RECEIVE CONTROLLERS FROM PARENT ---
   final TextEditingController chequeNoController;
   final TextEditingController chequeNoConfirmController;
   final TextEditingController amountController;
+  final TextEditingController claimedAmountController;
   final TextEditingController tinController;
   final TextEditingController bankController;
   final TextEditingController branchController;
@@ -52,6 +53,7 @@ class ReceiptDetailsView extends StatefulWidget {
   // Callbacks
   final ValueChanged<String> onBankTextChanged;
   final ValueChanged<String> onBranchTextChanged;
+  final ValueChanged<String> onClaimedAmountChanged;
   final ValueChanged<Bank> onBankSelected;
   final ValueChanged<TinInvoice> onTinToggle;
   final ValueChanged<BankBranch> onBranchSelected;
@@ -65,12 +67,13 @@ class ReceiptDetailsView extends StatefulWidget {
     super.key,
     required this.dealer,
     required this.onSubmit,
-    required this.addCreditnote,
+    required this.usableAmount,
 
     // Require controllers
     required this.chequeNoController,
     required this.chequeNoConfirmController,
     required this.amountController,
+    required this.claimedAmountController,
     required this.tinController,
     required this.bankController,
     required this.branchController,
@@ -94,6 +97,7 @@ class ReceiptDetailsView extends StatefulWidget {
     required this.onBankCommitChanged,
     required this.onBranchCommitChanged,
     required this.onBankTextChanged,
+    required this.onClaimedAmountChanged,
     //required this.onTinTextChanged,
     required this.onBranchTextChanged,
     required this.onFileChanged,
@@ -333,12 +337,53 @@ class ReceiptDetailsViewState extends State<ReceiptDetailsView> {
               const SizedBox(height: 16),
               _buildTinInvoiceArea(),
               const SizedBox(height: 16),
-              ActionButton(
-                label: 'Add Credit Note',
-                icon: Icons.add_card,
-                onPressed: widget.addCreditnote,
-                type: ActionButtonType.tertiary,
-                disabled: !widget.dealer.hasBankGuarantee,
+              // ActionButton(
+              //   label: 'Add Credit Note',
+              //   icon: Icons.add_card,
+              //   onPressed: widget.addCreditnote,
+              //   type: ActionButtonType.tertiary,
+              //   disabled: !widget.dealer.hasBankGuarantee,
+              // ),
+              // added claimable amount by Darshan R on 21/04/2026
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      key: ValueKey(
+                        'usable_${widget.usableAmount.toStringAsFixed(2)}',
+                      ),
+                      initialValue: formatNumber(widget.usableAmount),
+                      readOnly: true,
+                      enabled: false,
+                      decoration: const InputDecoration(
+                        labelText: 'Usable Amount',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppTextField(
+                      controller: widget.claimedAmountController,
+                      labelText: 'Claimed Amount',
+                      keyboardType: TextInputType.number,
+                      isFinanceNum: true,
+                      onChanged: (value) {
+                        widget.onClaimedAmountChanged(value);
+                        _validateChildForm();
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return null;
+                        }
+                        final claimedAmount = parseCurrency(value);
+                        if (claimedAmount > 5000.0) {
+                          return 'Claimed amount cannot exceed 5000';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Row(
