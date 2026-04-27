@@ -4,18 +4,22 @@ import 'package:flutter/scheduler.dart'; //This ensures the entire widget tree i
 import 'package:myapp/config/app_config.dart';
 import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/errors/app_exceptions.dart';
+import 'package:myapp/mappers/mapper_registry.dart';
 import 'package:myapp/models/bank_branch_model.dart';
 import 'package:myapp/models/bank_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/region_model.dart';
 import 'package:myapp/models/assignee_model.dart';
 import 'package:myapp/models/return_request_model.dart';
+import 'package:myapp/services/api_service.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/log_text_service.dart';
 //import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/theme/app_colors.dart';
 import 'package:myapp/theme/app_theme_helper.dart';
+import 'package:myapp/widgets/app_executer.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:myapp/widgets/cards/common_selection_card.dart';
@@ -119,14 +123,15 @@ class _AppSelectionFieldState<T extends Mappable>
     extends State<AppSelectionField<T>> {
   T? _lastSelectedItem;
   List<T> _fetchedItems = [];
-  late final AppLoadingOverlay _loadingOverlay;
-  final SecureStorageService _secureStorageService =
-      SecureStorageService(); // Instantiate SecureStorageService
+  //late final AppLoadingOverlay _loadingOverlay;
+  // final SecureStorageService _secureStorageService =
+  //     SecureStorageService(); // Instantiate SecureStorageService
+  //final ApiService api = ApiService();
 
   @override
   void initState() {
     super.initState();
-    _loadingOverlay = AppLoadingOverlay();
+    // _loadingOverlay = AppLoadingOverlay();
 
     _lastSelectedItem = widget.initialValue;
     widget.controller.addListener(_handleTextChange);
@@ -139,7 +144,6 @@ class _AppSelectionFieldState<T extends Mappable>
       SchedulerBinding.instance.addPostFrameCallback((_) {
         // This code will run after the first frame is rendered.
         if (mounted) {
-          // Always check if the widget is still in the tree
           widget.onSelected(widget.initialValue as T);
           widget.onCommitStateChanged?.call(true);
         }
@@ -163,7 +167,7 @@ class _AppSelectionFieldState<T extends Mappable>
 
   @override
   void dispose() {
-    _loadingOverlay.hide();
+    //_loadingOverlay.hide();
     widget.controller.removeListener(_handleTextChange);
     super.dispose();
   }
@@ -182,80 +186,45 @@ class _AppSelectionFieldState<T extends Mappable>
   }
 
   Future<void> _showSelectionSheet(BuildContext context) async {
-    // // If items are already fetched, just show the selection sheet WITH OUT REFETCH
-    // if (_fetchedItems.isNotEmpty) {
-    //   await _presentSelectionSheet(context, _fetchedItems);
-    //   return;
-    // }
-
     if (widget.preRequest != null) {
       final shouldProceed = await widget.preRequest!();
       if (!shouldProceed) {
         return;
       }
     }
-    _loadingOverlay.show(context); // Use the common overlay
     try {
-      //Sring baseUrl =;
-      String baseUrl = Config.baseApiTestUrl;
-      String fullUrl = baseUrl + widget.dataUrl;
+      Map<String, dynamic> requestBody = {};
+      if (widget.filterConditions != null) {
+        for (var condition in widget.filterConditions!) {
+          final field = condition[0];
+          final operator = condition[1];
+          final value = condition[2];
 
-      // final String? accessToken = await _secureStorageService.getAccessToken();
-
-      // if (accessToken == null) {
-      //   // Handle case where no token is found (e.g., user not logged in)
-      //   print('Error: No access token found. User is not authenticated.');
-      //   // You might want to navigate to a login screen or show an error message
-      //   throw UnauthorisedException('Please log in to access this data.');
-      // }
-
-      // MOCK API
-      // Comment
-      // if (widget.filterConditions != null &&
-      //     widget.filterConditions!.isNotEmpty) {
-      //   final String filterJson = jsonEncode(widget.filterConditions);
-      //   final String encodedFilters = Uri.encodeComponent(filterJson);
-      //   fullUrl = '${fullUrl}?filters=$encodedFilters';
-      // }
-      // print(fullUrl);
-      // comment
-      // final items = await MockApiService.get<T>(
-      //   fullUrl,
-      //   authToken: accessToken, // Pass the retrieved access token
-      // );
-      // MOCK API
-
-    Map<String, dynamic> requestBody = {};
-    if (widget.filterConditions != null) {
-      for (var condition in widget.filterConditions!) {
-        final field = condition[0];
-        final operator = condition[1];
-        final value = condition[2];
-      if (operator == "=") {
-        requestBody[field] = value;
+          if (operator == "=") {
+            requestBody[field] = value;
+          }
+        }
       }
-    }
-  }
 
-    final items = await helperInquiry<T>(
-      fullUrl,
-      body: requestBody
-    );
-      //final items = await MockApiService.get<T>(fullUrl);
-      _loadingOverlay.hide();
-      if (mounted) {
+      final ApiService api = ApiService();
+      final response = await execute<List<T>>(
+        context: context,
+        task: () async {
+          final res = await api.fetchList<T>(url: widget.dataUrl, body: requestBody);
+          return res;
+        },
+      );
+
+      final items = response;
+      if (items != null && mounted) {
         setState(() {
           _fetchedItems = items;
         });
-        await _presentSelectionSheet(context, _fetchedItems);
+
+        await _presentSelectionSheet(context, items);
       }
     } catch (e) {
-      _loadingOverlay.hide();
       if (mounted) {
-        // String errorMessage = e.toString();
-        // if (errorMessage.startsWith('Exception: ')) {
-        //   errorMessage = errorMessage.substring('Exception: '.length);
-        // }
         showSnackBar(
           context: context,
           message: e.toString(),
@@ -265,7 +234,6 @@ class _AppSelectionFieldState<T extends Mappable>
     }
   }
 
-  // Helper to present the actual selection sheet after data is ready
   // Helper to present the actual selection sheet after data is ready
   Future<void> _presentSelectionSheet(
     BuildContext context,
@@ -300,7 +268,7 @@ class _AppSelectionFieldState<T extends Mappable>
     final selectedItem = await showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
-      backgroundColor:AppColors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) {
         // Switch based on layout type - Added by Darshan R on 16/03/2026
         switch (widget.layoutType) {
@@ -342,7 +310,7 @@ class _AppSelectionFieldState<T extends Mappable>
                     );
                   },
                 );
-                case Bank:
+              case Bank:
                 return CardSelectionSheet(
                   title: widget.selectionSheetTitle,
                   initialSearchQuery: initialQuery,
@@ -354,11 +322,11 @@ class _AppSelectionFieldState<T extends Mappable>
                       data: data,
                       title: (t) => t.bankName,
                       value: (t) => t.bankCode,
-                      titleRatio: 0.8
+                      titleRatio: 0.8,
                     );
                   },
                 );
-                case BankBranch:
+              case BankBranch:
                 return CardSelectionSheet(
                   title: widget.selectionSheetTitle,
                   initialSearchQuery: initialQuery,
@@ -370,11 +338,11 @@ class _AppSelectionFieldState<T extends Mappable>
                       data: data,
                       title: (t) => t.branchName,
                       value: (t) => t.branchCode,
-                      titleRatio: 0.8
+                      titleRatio: 0.8,
                     );
                   },
                 );
-                case ReturnRequest:
+              case ReturnRequest:
                 return CardSelectionSheet(
                   title: widget.selectionSheetTitle,
                   initialSearchQuery: initialQuery,
@@ -389,7 +357,7 @@ class _AppSelectionFieldState<T extends Mappable>
                     );
                   },
                 );
-                case Assignee:
+              case Assignee:
                 return CardSelectionSheet(
                   title: widget.selectionSheetTitle,
                   initialSearchQuery: initialQuery,
@@ -405,7 +373,6 @@ class _AppSelectionFieldState<T extends Mappable>
                     );
                   },
                 );
-
 
               default:
                 break;
@@ -782,7 +749,7 @@ class CardSelectionSheet<T extends Mappable> extends StatefulWidget {
     required this.items,
     required this.cardBuilder,
     required this.valueFields,
-    this.initialSearchQuery
+    this.initialSearchQuery,
   });
 
   @override
@@ -797,7 +764,7 @@ class _CardSelectionSheetState<T extends Mappable>
   @override
   void initState() {
     super.initState();
-     _searchController = TextEditingController(text: widget.initialSearchQuery);
+    _searchController = TextEditingController(text: widget.initialSearchQuery);
     _filteredItems = [];
     _searchController.addListener(_performFilter);
     _performFilter();

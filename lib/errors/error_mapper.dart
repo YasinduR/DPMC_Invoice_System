@@ -15,7 +15,7 @@ class ErrorMapper {
         return ValidationException(decoded['message'] ?? 'Bad request');
 
       case 401:
-        return const UnauthorisedException();
+        return UnauthorisedException(decoded['message'] ?? 'Session expired. Please login again');
 
       case 403:
         return const ForbiddenException();

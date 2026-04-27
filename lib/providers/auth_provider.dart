@@ -199,6 +199,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       await _ensureLocationServicesAreOn();
+      
       final user = await _authService.login(
         context: context,
         username: username,
@@ -408,6 +409,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         username: state.currentUser!.username,
         securityQandA: securityQandA,
         newPassword: newPassword,
+        onError:(e){ return null;}
+
       );
 
       state = state.copyWith(
@@ -443,6 +446,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         context: context,
         username: username,
         newPassword: newPassword,
+        onError:(e){ return null;}
+
       );
       // ignore: unnecessary_null_comparison
       if (updatedUser != null) {
@@ -488,6 +493,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         username: state.currentUser!.username,
         oldPassword: oldPassword,
         newPassword: newPassword,
+        onError:(e){ return null;}
+
       );
       await logout(context);
     } catch (e) {
@@ -499,7 +506,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout(BuildContext context) async {
     await _authService.logout(context: context);
-    await NotificationService.clearCurrentAppUser();
+    
     state = const AuthState.initial();
   }
 }

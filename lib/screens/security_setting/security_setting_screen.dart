@@ -317,7 +317,7 @@ Future<void> _handleActivityHistoryChange(bool newValue) async {
 
     return AppPage(
       title: 'Settings',
-      currentRouteName: 'securitySetting',
+      currentRouteName: 'setting',
       onBack: _goBack,
       contentPadding: EdgeInsets.zero,
       child: SettingsView(

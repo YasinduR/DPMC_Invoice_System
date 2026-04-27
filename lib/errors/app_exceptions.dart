@@ -65,15 +65,22 @@ class TimeoutException extends AppException {
 // class UnauthorisedException extends AppException {
 //   const UnauthorisedException(String s)
 //       : super('Session expired. Please login again', statusCode: 401);
+// }UnauthorisedException 
+
+// class UnauthorisedException extends AppException {
+//   const UnauthorisedException([String? message])
+//       : super(
+//           message ?? 'Session expired. Please login again',
+//           statusCode: 401,
+//         );
 // }
 
-class UnauthorisedException extends AppException {
-  const UnauthorisedException([String? message])
-      : super(
-          message ?? 'Session expired. Please login again',
-          statusCode: 401,
-        );
+
+class UnauthorisedException  extends AppException {
+  const UnauthorisedException (String message)
+      : super(message, statusCode: 401);
 }
+
 
 class AccountLockedException extends AppException {
     const AccountLockedException([String? message])

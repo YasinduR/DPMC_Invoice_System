@@ -410,493 +410,493 @@ class MockApiService {
             ); // Use specific exception
           }
         }
-      case 'api/user/login':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for login.');
-        }
-        final username = (body['username'] as String?)?.toLowerCase();
-        final password = body['password'];
-        final mode = body['mode']; // BioMetric
+      // case 'api/user/login':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid body type for login.');
+      //   }
+      //   final username = (body['username'] as String?)?.toLowerCase();
+      //   final password = body['password'];
+      //   final mode = body['mode']; // BioMetric
 
-        try {
-          final user = DummyData.users.firstWhere(
-            (u) => u.username == username,
-            orElse: () => throw UnauthorisedException('User not found.'),
-          );
+      //   try {
+      //     final user = DummyData.users.firstWhere(
+      //       (u) => u.username == username,
+      //       orElse: () => throw UnauthorisedException('User not found.'),
+      //     );
 
-          if (user.isLocked) {
-            throw UnauthorisedException(
-              'Your account is locked. Please contact support.',
-            );
-          }
-          final isPasswordCorrect = BCrypt.checkpw(password, user.password);
+      //     if (user.isLocked) {
+      //       throw UnauthorisedException(
+      //         'Your account is locked. Please contact support.',
+      //       );
+      //     }
+      //     final isPasswordCorrect = BCrypt.checkpw(password, user.password);
 
-          if (isPasswordCorrect) {
-            user.incPins = 0;
-            bool passwordIsExpired = false;
-            const Duration passwordExpiryDuration = Duration(
-              seconds: 1000,
-            ); // For Testing Tme GAP IS 30 SEC
+      //     if (isPasswordCorrect) {
+      //       user.incPins = 0;
+      //       bool passwordIsExpired = false;
+      //       const Duration passwordExpiryDuration = Duration(
+      //         seconds: 1000,
+      //       ); // For Testing Tme GAP IS 30 SEC
 
-            if (user.passwordUpdatedAt != null) {
-              final Duration timeSinceLastUpdate = DateTime.now().difference(
-                user.passwordUpdatedAt!,
-              );
-              if (timeSinceLastUpdate > passwordExpiryDuration) {
-                passwordIsExpired = true;
-                print(
-                  'DEBUG: Password for ${user.username} has expired (last updated: ${user.passwordUpdatedAt}, expired after $passwordExpiryDuration).',
-                );
-              } else {
-                print(
-                  'DEBUG: Password for ${user.username} is NOT expired (last updated: ${user.passwordUpdatedAt}, still valid for ${(passwordExpiryDuration - timeSinceLastUpdate).inSeconds} seconds).',
-                );
-              }
-            } else {
-              passwordIsExpired = true;
-              print(
-                'DEBUG: Password for ${user.username} has no update date, treating as expired.',
-              );
-            }
+      //       if (user.passwordUpdatedAt != null) {
+      //         final Duration timeSinceLastUpdate = DateTime.now().difference(
+      //           user.passwordUpdatedAt!,
+      //         );
+      //         if (timeSinceLastUpdate > passwordExpiryDuration) {
+      //           passwordIsExpired = true;
+      //           print(
+      //             'DEBUG: Password for ${user.username} has expired (last updated: ${user.passwordUpdatedAt}, expired after $passwordExpiryDuration).',
+      //           );
+      //         } else {
+      //           print(
+      //             'DEBUG: Password for ${user.username} is NOT expired (last updated: ${user.passwordUpdatedAt}, still valid for ${(passwordExpiryDuration - timeSinceLastUpdate).inSeconds} seconds).',
+      //           );
+      //         }
+      //       } else {
+      //         passwordIsExpired = true;
+      //         print(
+      //           'DEBUG: Password for ${user.username} has no update date, treating as expired.',
+      //         );
+      //       }
 
-            final userRoles = user.roles;
+      //       final userRoles = user.roles;
 
-            final permittedScreenIds =
-                DummyData.perms
-                    .where((perm) => userRoles.contains(perm.RoleId))
-                    .map((perm) => perm.ScreenId)
-                    .toSet();
+      //       final permittedScreenIds =
+      //           DummyData.perms
+      //               .where((perm) => userRoles.contains(perm.RoleId))
+      //               .map((perm) => perm.ScreenId)
+      //               .toSet();
 
-            final accessibleScreens =
-                DummyData.screens
-                    .where(
-                      (screen) => permittedScreenIds.contains(screen.screenId),
-                    )
-                    .toList();
+      //       final accessibleScreens =
+      //           DummyData.screens
+      //               .where(
+      //                 (screen) => permittedScreenIds.contains(screen.screenId),
+      //               )
+      //               .toList();
 
-            final userRoleNames =
-                DummyData.roles
-                    .where(
-                      (role) => userRoles.contains(role.roleId),
-                    ) // Filter by ID
-                    .map((role) => role.roleName) // Extract just the name
-                    .toList(); // Convert to a List<String>
+      //       final userRoleNames =
+      //           DummyData.roles
+      //               .where(
+      //                 (role) => userRoles.contains(role.roleId),
+      //               ) // Filter by ID
+      //               .map((role) => role.roleName) // Extract just the name
+      //               .toList(); // Convert to a List<String>
 
-            // Return a Map containing user data and tokens
-            // Generate mock tokens
-            // final DateTime tokenIssuedAt = DateTime.now();
-            // final DateTime tokenExpiresAt = tokenIssuedAt.add(
-            //   const Duration(seconds: 1000),
-            // );
+      //       // Return a Map containing user data and tokens
+      //       // Generate mock tokens
+      //       // final DateTime tokenIssuedAt = DateTime.now();
+      //       // final DateTime tokenExpiresAt = tokenIssuedAt.add(
+      //       //   const Duration(seconds: 1000),
+      //       // );
 
-            // final jwt = JWT(
-            //   {
-            //     'userId': user.id,
-            //     'username': user.username,
-            //     'roles': user.roles,
-            //     'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
-            //     'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
-            //   },
-            //   issuer: 'mock_api_service',
-            //   subject: user.id,
-            // );
+      //       // final jwt = JWT(
+      //       //   {
+      //       //     'userId': user.id,
+      //       //     'username': user.username,
+      //       //     'roles': user.roles,
+      //       //     'iat': tokenIssuedAt.millisecondsSinceEpoch ~/ 1000,
+      //       //     'exp': tokenExpiresAt.millisecondsSinceEpoch ~/ 1000,
+      //       //   },
+      //       //   issuer: 'mock_api_service',
+      //       //   subject: user.id,
+      //       // );
 
-            // final String accessToken = jwt.sign(SecretKey(_jwtSecretKey));
-            // final String refreshToken = 'refresh-${_uuid.v4()}';
+      //       // final String accessToken = jwt.sign(SecretKey(_jwtSecretKey));
+      //       // final String refreshToken = 'refresh-${_uuid.v4()}';
 
-            // final DateTime accessTokenExpiry = tokenExpiresAt;
+      //       // final DateTime accessTokenExpiry = tokenExpiresAt;
 
-            final String accessToken = await _generateAccessToken(user);
-            final String refreshToken = await _generateRefreshToken(user);
+      //       final String accessToken = await _generateAccessToken(user);
+      //       final String refreshToken = await _generateRefreshToken(user);
 
-            // final DateTime accessTokenExpiry = tokenExpiresAt;
+      //       // final DateTime accessTokenExpiry = tokenExpiresAt;
 
-            return {
-              'user':
-                  user
-                      .copyWith(
-                        accessibleScreen: accessibleScreens,
-                        rolenames: userRoleNames,
-                        isPasswordExpired: passwordIsExpired,
-                      )
-                      .toMap(),
-              'accessToken': accessToken,
-              'refreshToken': refreshToken,
-              // 'accessTokenExpiry': accessTokenExpiry.toIso8601String(),
-            };
+      //       return {
+      //         'user':
+      //             user
+      //                 .copyWith(
+      //                   accessibleScreen: accessibleScreens,
+      //                   rolenames: userRoleNames,
+      //                   isPasswordExpired: passwordIsExpired,
+      //                 )
+      //                 .toMap(),
+      //         'accessToken': accessToken,
+      //         'refreshToken': refreshToken,
+      //         // 'accessTokenExpiry': accessTokenExpiry.toIso8601String(),
+      //       };
 
-            // final String accessToken = 'access-${_uuid.v4()}';
-            // final String refreshToken = 'refresh-${_uuid.v4()}';
-            // // Set access token expiry to 1 hour from now for example
-            // final DateTime accessTokenExpiry = DateTime.now().add(
-            //   const Duration(hours: 1),
-            // );
-            // return {
-            //   'user': user.copyWith(
-            //     accessibleScreen: accessibleScreens,
-            //     rolenames: userRoleNames,
-            //     isPasswordExpired: passwordIsExpired,
-            //   ).toMap(), // Convert user object to map
-            //   'accessToken': accessToken,
-            //   'refreshToken': refreshToken,
-            //   'accessTokenExpiry': accessTokenExpiry.toIso8601String(),
-            // };
-            // return user.copyWith(
-            //   accessibleScreen: accessibleScreens,
-            //   rolenames: userRoleNames,
-            //   isPasswordExpired: passwordIsExpired,
-            // );
-          } else {
-            if (mode == 'BioMetric') {
-              throw UnauthorisedException(
-                'Biometric login failed. Please login using an another way.',
-              );
-            } else {
-              user.incPins++;
-              if (user.incPins >= 3) {
-                user.isLocked = true;
-                throw UnauthorisedException(
-                  'Your Account has been locked due to too many incorrect attempts.',
-                );
-              } else {
-                throw UnauthorisedException(
-                  'Invalid Password. You have ${3 - user.incPins} attempt(s) remaining before your account is locked.',
-                ); // Use specific exception
-              }
-            }
-          }
-        } catch (e) {
-          //throw UnauthorisedException('Invalid username or password.');
-          rethrow;
-        }
+      //       // final String accessToken = 'access-${_uuid.v4()}';
+      //       // final String refreshToken = 'refresh-${_uuid.v4()}';
+      //       // // Set access token expiry to 1 hour from now for example
+      //       // final DateTime accessTokenExpiry = DateTime.now().add(
+      //       //   const Duration(hours: 1),
+      //       // );
+      //       // return {
+      //       //   'user': user.copyWith(
+      //       //     accessibleScreen: accessibleScreens,
+      //       //     rolenames: userRoleNames,
+      //       //     isPasswordExpired: passwordIsExpired,
+      //       //   ).toMap(), // Convert user object to map
+      //       //   'accessToken': accessToken,
+      //       //   'refreshToken': refreshToken,
+      //       //   'accessTokenExpiry': accessTokenExpiry.toIso8601String(),
+      //       // };
+      //       // return user.copyWith(
+      //       //   accessibleScreen: accessibleScreens,
+      //       //   rolenames: userRoleNames,
+      //       //   isPasswordExpired: passwordIsExpired,
+      //       // );
+      //     } else {
+      //       if (mode == 'BioMetric') {
+      //         throw UnauthorisedException(
+      //           'Biometric login failed. Please login using an another way.',
+      //         );
+      //       } else {
+      //         user.incPins++;
+      //         if (user.incPins >= 3) {
+      //           user.isLocked = true;
+      //           throw UnauthorisedException(
+      //             'Your Account has been locked due to too many incorrect attempts.',
+      //           );
+      //         } else {
+      //           throw UnauthorisedException(
+      //             'Invalid Password. You have ${3 - user.incPins} attempt(s) remaining before your account is locked.',
+      //           ); // Use specific exception
+      //         }
+      //       }
+      //     }
+      //   } catch (e) {
+      //     //throw UnauthorisedException('Invalid username or password.');
+      //     rethrow;
+      //   }
 
-      case 'api/user/set-password':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for password update.');
-        }
-        final username = (body['username'] as String?)?.toLowerCase();
+      // case 'api/user/set-password':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid body type for password update.');
+      //   }
+      //   final username = (body['username'] as String?)?.toLowerCase();
 
-        // final oldPassword = body['oldPassword'];
-        final newPassword = body['newPassword'];
+      //   // final oldPassword = body['oldPassword'];
+      //   final newPassword = body['newPassword'];
 
-        final securityQuestion = body['securityQuestion'] as String?;
-        final securityAnswer = body['securityAnswer'] as String?;
+      //   final securityQuestion = body['securityQuestion'] as String?;
+      //   final securityAnswer = body['securityAnswer'] as String?;
 
-        if (securityQuestion == null || securityQuestion.isEmpty) {
-          throw Exception('Security question is required.');
-        }
-        if (securityAnswer == null || securityAnswer.isEmpty) {
-          throw Exception('Security answer is required.');
-        }
+      //   if (securityQuestion == null || securityQuestion.isEmpty) {
+      //     throw Exception('Security question is required.');
+      //   }
+      //   if (securityAnswer == null || securityAnswer.isEmpty) {
+      //     throw Exception('Security answer is required.');
+      //   }
 
-        try {
-          final userIndex = DummyData.users.indexWhere(
-            (u) => u.username == username,
-          );
-          if (userIndex == -1) {
-            throw UnauthorisedException('User not found.');
-          }
-          final userToUpdate = DummyData.users[userIndex];
-          //final isPasswordCorrect = BCrypt.checkpw(oldPassword, userToUpdate.password);
-          final hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-          final updatedUser = userToUpdate.copyWith(
-            password: hashedPassword,
-            isTemporaryPassword: false, // Mark as no longer temporary
-            passwordUpdatedAt: DateTime.now(), // Update the date
-          );
-          DummyData.users[userIndex] = updatedUser;
+      //   try {
+      //     final userIndex = DummyData.users.indexWhere(
+      //       (u) => u.username == username,
+      //     );
+      //     if (userIndex == -1) {
+      //       throw UnauthorisedException('User not found.');
+      //     }
+      //     final userToUpdate = DummyData.users[userIndex];
+      //     //final isPasswordCorrect = BCrypt.checkpw(oldPassword, userToUpdate.password);
+      //     final hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+      //     final updatedUser = userToUpdate.copyWith(
+      //       password: hashedPassword,
+      //       isTemporaryPassword: false, // Mark as no longer temporary
+      //       passwordUpdatedAt: DateTime.now(), // Update the date
+      //     );
+      //     DummyData.users[userIndex] = updatedUser;
 
-          // Step 1: Get the user's roles
-          final userRoles = updatedUser.roles;
+      //     // Step 1: Get the user's roles
+      //     final userRoles = updatedUser.roles;
 
-          // Step 2: Find all permitted ScreenIds for the user's roles
-          // We use a Set to automatically handle duplicate ScreenIds
-          final permittedScreenIds =
-              DummyData.perms
-                  .where((perm) => userRoles.contains(perm.RoleId))
-                  .map((perm) => perm.ScreenId)
-                  .toSet();
+      //     // Step 2: Find all permitted ScreenIds for the user's roles
+      //     // We use a Set to automatically handle duplicate ScreenIds
+      //     final permittedScreenIds =
+      //         DummyData.perms
+      //             .where((perm) => userRoles.contains(perm.RoleId))
+      //             .map((perm) => perm.ScreenId)
+      //             .toSet();
 
-          // Step 3: Filter the master list of screens to get the accessible ones
-          final accessibleScreens =
-              DummyData.screens
-                  .where(
-                    (screen) => permittedScreenIds.contains(screen.screenId),
-                  )
-                  .toList();
+      //     // Step 3: Filter the master list of screens to get the accessible ones
+      //     final accessibleScreens =
+      //         DummyData.screens
+      //             .where(
+      //               (screen) => permittedScreenIds.contains(screen.screenId),
+      //             )
+      //             .toList();
 
-          // Step 2: Find the corresponding role names from the master list
-          final userRoleNames =
-              DummyData.roles
-                  .where(
-                    (role) => userRoles.contains(role.roleId),
-                  ) // Filter by ID
-                  .map((role) => role.roleName) // Extract just the name
-                  .toList(); // Convert to a List<String>
+      //     // Step 2: Find the corresponding role names from the master list
+      //     final userRoleNames =
+      //         DummyData.roles
+      //             .where(
+      //               (role) => userRoles.contains(role.roleId),
+      //             ) // Filter by ID
+      //             .map((role) => role.roleName) // Extract just the name
+      //             .toList(); // Convert to a List<String>
 
-          // Step 4 & 5: Create a new User object with the accessible screens and return it
-          return updatedUser.copyWith(
-            accessibleScreen: accessibleScreens,
-            rolenames: userRoleNames,
-          );
-        } catch (e) {
-          rethrow;
-        }
+      //     // Step 4 & 5: Create a new User object with the accessible screens and return it
+      //     return updatedUser.copyWith(
+      //       accessibleScreen: accessibleScreens,
+      //       rolenames: userRoleNames,
+      //     );
+      //   } catch (e) {
+      //     rethrow;
+      //   }
 
-      case 'api/user/renew-password':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for password update.');
-        }
-        final username = (body['username'] as String?)?.toLowerCase();
-        final newPassword = body['newPassword'];
+      // case 'api/user/renew-password':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid body type for password update.');
+      //   }
+      //   final username = (body['username'] as String?)?.toLowerCase();
+      //   final newPassword = body['newPassword'];
 
-        try {
-          final userIndex = DummyData.users.indexWhere(
-            (u) => u.username == username,
-          );
-          if (userIndex == -1) {
-            throw UnauthorisedException('User not found.');
-          }
-          final userToUpdate = DummyData.users[userIndex];
-          final hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-          final updatedUser = userToUpdate.copyWith(
-            password: hashedPassword,
-            isTemporaryPassword: false, // Mark as no longer temporary
-            isPasswordExpired:
-                false, // IMPORTANT: Password is no longer expired
-            passwordUpdatedAt: DateTime.now(), // Update the date
-          );
-          DummyData.users[userIndex] = updatedUser;
+      //   try {
+      //     final userIndex = DummyData.users.indexWhere(
+      //       (u) => u.username == username,
+      //     );
+      //     if (userIndex == -1) {
+      //       throw UnauthorisedException('User not found.');
+      //     }
+      //     final userToUpdate = DummyData.users[userIndex];
+      //     final hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+      //     final updatedUser = userToUpdate.copyWith(
+      //       password: hashedPassword,
+      //       isTemporaryPassword: false, // Mark as no longer temporary
+      //       isPasswordExpired:
+      //           false, // IMPORTANT: Password is no longer expired
+      //       passwordUpdatedAt: DateTime.now(), // Update the date
+      //     );
+      //     DummyData.users[userIndex] = updatedUser;
 
-          // Step 1: Get the user's roles
-          final userRoles = updatedUser.roles;
+      //     // Step 1: Get the user's roles
+      //     final userRoles = updatedUser.roles;
 
-          // Step 2: Find all permitted ScreenIds for the user's roles
-          // We use a Set to automatically handle duplicate ScreenIds
-          final permittedScreenIds =
-              DummyData.perms
-                  .where((perm) => userRoles.contains(perm.RoleId))
-                  .map((perm) => perm.ScreenId)
-                  .toSet();
+      //     // Step 2: Find all permitted ScreenIds for the user's roles
+      //     // We use a Set to automatically handle duplicate ScreenIds
+      //     final permittedScreenIds =
+      //         DummyData.perms
+      //             .where((perm) => userRoles.contains(perm.RoleId))
+      //             .map((perm) => perm.ScreenId)
+      //             .toSet();
 
-          // Step 3: Filter the master list of screens to get the accessible ones
-          final accessibleScreens =
-              DummyData.screens
-                  .where(
-                    (screen) => permittedScreenIds.contains(screen.screenId),
-                  )
-                  .toList();
+      //     // Step 3: Filter the master list of screens to get the accessible ones
+      //     final accessibleScreens =
+      //         DummyData.screens
+      //             .where(
+      //               (screen) => permittedScreenIds.contains(screen.screenId),
+      //             )
+      //             .toList();
 
-          // Step 2: Find the corresponding role names from the master list
-          final userRoleNames =
-              DummyData.roles
-                  .where(
-                    (role) => userRoles.contains(role.roleId),
-                  ) // Filter by ID
-                  .map((role) => role.roleName) // Extract just the name
-                  .toList(); // Convert to a List<String>
+      //     // Step 2: Find the corresponding role names from the master list
+      //     final userRoleNames =
+      //         DummyData.roles
+      //             .where(
+      //               (role) => userRoles.contains(role.roleId),
+      //             ) // Filter by ID
+      //             .map((role) => role.roleName) // Extract just the name
+      //             .toList(); // Convert to a List<String>
 
-          // Step 4 & 5: Create a new User object with the accessible screens and return it
-          return updatedUser.copyWith(
-            accessibleScreen: accessibleScreens,
-            rolenames: userRoleNames,
-          );
-        } catch (e) {
-          rethrow;
-        }
+      //     // Step 4 & 5: Create a new User object with the accessible screens and return it
+      //     return updatedUser.copyWith(
+      //       accessibleScreen: accessibleScreens,
+      //       rolenames: userRoleNames,
+      //     );
+      //   } catch (e) {
+      //     rethrow;
+      //   }
 
-      case 'api/user/changepassword':
-        if (body is! Map<String, dynamic>) {
-          throw Exception(
-            'Invalid body type for changePassword. Expected a Map.',
-          );
-        }
-        final username = (body['username'] as String?)?.toLowerCase();
-        final oldPassword = body['oldPassword'];
-        final newPassword = body['newPassword'];
+      // case 'api/user/changepassword':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception(
+      //       'Invalid body type for changePassword. Expected a Map.',
+      //     );
+      //   }
+      //   final username = (body['username'] as String?)?.toLowerCase();
+      //   final oldPassword = body['oldPassword'];
+      //   final newPassword = body['newPassword'];
 
-        User oldUser;
-        try {
-          oldUser = DummyData.users.firstWhere((u) => u.username == username);
-        } catch (e) {
-          throw UnauthorisedException('Could not find a user to update.');
-        }
-        if (!BCrypt.checkpw(oldPassword, oldUser.password)) {
-          throw UnauthorisedException(
-            'The old password you entered is incorrect.',
-          );
-        }
-        final String newHashedPassword = BCrypt.hashpw(
-          newPassword,
-          BCrypt.gensalt(),
-        );
-        try {
-          final userIndex = DummyData.users.indexOf(oldUser);
+      //   User oldUser;
+      //   try {
+      //     oldUser = DummyData.users.firstWhere((u) => u.username == username);
+      //   } catch (e) {
+      //     throw UnauthorisedException('Could not find a user to update.');
+      //   }
+      //   if (!BCrypt.checkpw(oldPassword, oldUser.password)) {
+      //     throw UnauthorisedException(
+      //       'The old password you entered is incorrect.',
+      //     );
+      //   }
+      //   final String newHashedPassword = BCrypt.hashpw(
+      //     newPassword,
+      //     BCrypt.gensalt(),
+      //   );
+      //   try {
+      //     final userIndex = DummyData.users.indexOf(oldUser);
 
-          final updatedUser = oldUser.copyWith(
-            // Use copyWith
-            password: newHashedPassword,
-            passwordUpdatedAt: DateTime.now(),
-            isTemporaryPassword: false, // No longer a temporary password
-            isPasswordExpired: false, // Password is now current and not expired
-          );
-          DummyData.users[userIndex] = updatedUser;
+      //     final updatedUser = oldUser.copyWith(
+      //       // Use copyWith
+      //       password: newHashedPassword,
+      //       passwordUpdatedAt: DateTime.now(),
+      //       isTemporaryPassword: false, // No longer a temporary password
+      //       isPasswordExpired: false, // Password is now current and not expired
+      //     );
+      //     DummyData.users[userIndex] = updatedUser;
 
-          return true;
-        } catch (e) {
-          throw UnauthorisedException('Could update the user.'); // chnage later
-        }
+      //     return true;
+      //   } catch (e) {
+      //     throw UnauthorisedException('Could update the user.'); // chnage later
+      //   }
 
-      case 'api/user/request-password-reset':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for password reset request.');
-        }
-        final username = (body['username'] as String?)?.toLowerCase();
-        //final email = (body['email'] as String?)?.toLowerCase();
-        try {
-          final user = DummyData.users.firstWhere(
-            (u) => u.username == username,
-            orElse: () => throw UnauthorisedException('User not found.'),
-          );
-          if (user.isLocked) {
-            throw UnauthorisedException(
-              'Your account is locked. Please contact support.',
-            );
-          }
-          if (user.telephone.isEmpty) {
-            throw UnauthorisedException(
-              'User\'s telephone number not available for password reset.',
-            );
-          }
+      // case 'api/user/request-password-reset':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid body type for password reset request.');
+      //   }
+      //   final username = (body['username'] as String?)?.toLowerCase();
+      //   //final email = (body['email'] as String?)?.toLowerCase();
+      //   try {
+      //     final user = DummyData.users.firstWhere(
+      //       (u) => u.username == username,
+      //       orElse: () => throw UnauthorisedException('User not found.'),
+      //     );
+      //     if (user.isLocked) {
+      //       throw UnauthorisedException(
+      //         'Your account is locked. Please contact support.',
+      //       );
+      //     }
+      //     if (user.telephone.isEmpty) {
+      //       throw UnauthorisedException(
+      //         'User\'s telephone number not available for password reset.',
+      //       );
+      //     }
 
-          // Get the last three digits of the telephone number
-          final String phoneNumber = user.telephone;
-          String lastThreeDigits = '';
-          if (phoneNumber.length >= 3) {
-            lastThreeDigits = phoneNumber.substring(phoneNumber.length - 3);
-          } else {
-            // Handle cases where phone number is less than 3 digits
-            lastThreeDigits = phoneNumber;
-          }
+      //     // Get the last three digits of the telephone number
+      //     final String phoneNumber = user.telephone;
+      //     String lastThreeDigits = '';
+      //     if (phoneNumber.length >= 3) {
+      //       lastThreeDigits = phoneNumber.substring(phoneNumber.length - 3);
+      //     } else {
+      //       // Handle cases where phone number is less than 3 digits
+      //       lastThreeDigits = phoneNumber;
+      //     }
 
-          // generate pending OTP - Added By Darshan R on 12/03/2026
-          final String otp = (Random().nextInt(900000) + 100000).toString();
-          _otpStore[username!] = {
-            'otp': otp,
-            'expiry': DateTime.now().add(const Duration(minutes: 5)),
-            'used': false,
-            'failedAttempts': 0,
-          };
-          devOtp = otp; // DEV ONLY
+      //     // generate pending OTP - Added By Darshan R on 12/03/2026
+      //     final String otp = (Random().nextInt(900000) + 100000).toString();
+      //     _otpStore[username!] = {
+      //       'otp': otp,
+      //       'expiry': DateTime.now().add(const Duration(minutes: 5)),
+      //       'used': false,
+      //       'failedAttempts': 0,
+      //     };
+      //     devOtp = otp; // DEV ONLY
 
-          // Construct the message
-          return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
-        } catch (e) {
-          rethrow;
-        }
+      //     // Construct the message
+      //     return 'Password reset code sent to the mobile ending with ***$lastThreeDigits';
+      //   } catch (e) {
+      //     rethrow;
+      //   }
 
-      case 'api/user/verify-otp':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body for OTP verification.');
-        }
-        final otpUsername = (body['username'] as String?)?.toLowerCase();
-        final otpToken = body['token'] as String?;
-        if (otpUsername == null || otpToken == null) {
-          throw Exception('Username and token are required.');
-        }
-        final otpRecord = _otpStore[otpUsername];
-        if (otpRecord == null) {
-          throw UnauthorisedException(
-            'No OTP request found. Please try again.',
-          );
-        }
-        if (otpRecord['used'] as bool) {
-          throw UnauthorisedException('OTP has already been used.');
-        }
-        if (DateTime.now().isAfter(otpRecord['expiry'] as DateTime)) {
-          _otpStore.remove(otpUsername);
-          throw UnauthorisedException(
-            'OTP has expired. Please request a new one.',
-          );
-        }
-        if (otpRecord['otp'] as String != otpToken) {
-          final int attempts = (otpRecord['failedAttempts'] as int) + 1;
-          _otpStore[otpUsername]!['failedAttempts'] = attempts;
+      // case 'api/user/verify-otp':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid body for OTP verification.');
+      //   }
+      //   final otpUsername = (body['username'] as String?)?.toLowerCase();
+      //   final otpToken = body['token'] as String?;
+      //   if (otpUsername == null || otpToken == null) {
+      //     throw Exception('Username and token are required.');
+      //   }
+      //   final otpRecord = _otpStore[otpUsername];
+      //   if (otpRecord == null) {
+      //     throw UnauthorisedException(
+      //       'No OTP request found. Please try again.',
+      //     );
+      //   }
+      //   if (otpRecord['used'] as bool) {
+      //     throw UnauthorisedException('OTP has already been used.');
+      //   }
+      //   if (DateTime.now().isAfter(otpRecord['expiry'] as DateTime)) {
+      //     _otpStore.remove(otpUsername);
+      //     throw UnauthorisedException(
+      //       'OTP has expired. Please request a new one.',
+      //     );
+      //   }
+      //   if (otpRecord['otp'] as String != otpToken) {
+      //     final int attempts = (otpRecord['failedAttempts'] as int) + 1;
+      //     _otpStore[otpUsername]!['failedAttempts'] = attempts;
 
-          if (attempts >= 3) {
-            _otpStore.remove(otpUsername);
-            throw UnauthorisedException(
-              'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
-            );
-          }
+      //     if (attempts >= 3) {
+      //       _otpStore.remove(otpUsername);
+      //       throw UnauthorisedException(
+      //         'OTP is no longer valid due to too many incorrect attempts. Please request a new one.',
+      //       );
+      //     }
 
-          final int remaining = 3 - attempts;
-          throw UnauthorisedException(
-            'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
-          );
-        }
-        _otpStore[otpUsername]!['used'] = true;
-        return await _generateResetToken(otpUsername);
+      //     final int remaining = 3 - attempts;
+      //     throw UnauthorisedException(
+      //       'Invalid OTP. You have $remaining attempt${remaining == 1 ? '' : 's'} remaining.',
+      //     );
+      //   }
+      //   _otpStore[otpUsername]!['used'] = true;
+      //   return await _generateResetToken(otpUsername);
 
-      case 'api/user/reset-password':
-        if (body is! Map<String, dynamic>) {
-          throw Exception('Invalid body type for password reset.');
-        }
-        final username = (body['username'] as String?)?.toLowerCase();
-        final token = body['token'];
-        final newPassword = body['newPassword'];
+      // case 'api/user/reset-password':
+      //   if (body is! Map<String, dynamic>) {
+      //     throw Exception('Invalid body type for password reset.');
+      //   }
+      //   final username = (body['username'] as String?)?.toLowerCase();
+      //   final token = body['token'];
+      //   final newPassword = body['newPassword'];
 
-        try {
-          final JWT resetJwt = JWT.verify(token, SecretKey(_jwtSecretKey));
-          final payload = resetJwt.payload as Map<String, dynamic>;
-          if (payload['type'] != 'password_reset') {
-            throw UnauthorisedException('Invalid reset token.');
-          }
-          if (resetJwt.subject != username) {
-            throw UnauthorisedException('Reset token does not match the user.');
-          }
-        } on JWTExpiredException {
-          throw UnauthorisedException(
-            'Reset token has expired. Please start over.',
-          );
-        } on UnauthorisedException {
-          rethrow;
-        }catch (_) {
-          throw UnauthorisedException(
-            'Invalid reset token. Please start over.',
-          );
-        }
+      //   try {
+      //     final JWT resetJwt = JWT.verify(token, SecretKey(_jwtSecretKey));
+      //     final payload = resetJwt.payload as Map<String, dynamic>;
+      //     if (payload['type'] != 'password_reset') {
+      //       throw UnauthorisedException('Invalid reset token.');
+      //     }
+      //     if (resetJwt.subject != username) {
+      //       throw UnauthorisedException('Reset token does not match the user.');
+      //     }
+      //   } on JWTExpiredException {
+      //     throw UnauthorisedException(
+      //       'Reset token has expired. Please start over.',
+      //     );
+      //   } on UnauthorisedException {
+      //     rethrow;
+      //   }catch (_) {
+      //     throw UnauthorisedException(
+      //       'Invalid reset token. Please start over.',
+      //     );
+      //   }
 
-        try {
-          final oldUser = DummyData.users.firstWhere(
-            (u) => u.username == username,
-            orElse: () => throw UnauthorisedException('User not found.'),
-          );
+      //   try {
+      //     final oldUser = DummyData.users.firstWhere(
+      //       (u) => u.username == username,
+      //       orElse: () => throw UnauthorisedException('User not found.'),
+      //     );
 
-          if (oldUser.isLocked) {
-            throw UnauthorisedException(
-              'Your account is locked. Please contact support.',
-            );
-          }
+      //     if (oldUser.isLocked) {
+      //       throw UnauthorisedException(
+      //         'Your account is locked. Please contact support.',
+      //       );
+      //     }
 
-          final String newHashedPassword = BCrypt.hashpw(
-            newPassword,
-            BCrypt.gensalt(),
-          );
+      //     final String newHashedPassword = BCrypt.hashpw(
+      //       newPassword,
+      //       BCrypt.gensalt(),
+      //     );
 
-          final userIndex = DummyData.users.indexOf(oldUser);
-          final updatedUser = oldUser.copyWith(
-            // Use copyWith
-            password: newHashedPassword,
-            passwordUpdatedAt: DateTime.now(),
-            isTemporaryPassword: false, // No longer a temporary password
-            isPasswordExpired: false, // Password is now current and not expired
-          );
-          DummyData.users[userIndex] = updatedUser;
-          return true;
-        } catch (e) {
-          rethrow;
-        }
+      //     final userIndex = DummyData.users.indexOf(oldUser);
+      //     final updatedUser = oldUser.copyWith(
+      //       // Use copyWith
+      //       password: newHashedPassword,
+      //       passwordUpdatedAt: DateTime.now(),
+      //       isTemporaryPassword: false, // No longer a temporary password
+      //       isPasswordExpired: false, // Password is now current and not expired
+      //     );
+      //     DummyData.users[userIndex] = updatedUser;
+      //     return true;
+      //   } catch (e) {
+      //     rethrow;
+      //   }
 
       case 'api/receipts/save':
         if (body is! Receipt) {

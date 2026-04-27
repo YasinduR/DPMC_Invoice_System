@@ -7,79 +7,66 @@ import 'package:myapp/mappers/mappable.dart';
 import 'package:myapp/mappers/mapper_registry.dart';
 import 'package:myapp/errors/error_mapper.dart';
 import 'package:myapp/errors/app_exceptions.dart';
-import 'package:myapp/helpers/api_response_handler.dart';
 import 'package:myapp/models/activity_model.dart';
-import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/screen_model.dart';
 import 'package:myapp/models/user_model.dart';
-import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/services/api_service.dart';
 import 'package:myapp/services/local_storage_service.dart';
 import 'package:myapp/services/mock_api_service.dart';
 import 'package:myapp/services/secure_storage_services.dart';
 import 'package:myapp/widgets/app_loading_overlay.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ApiRequest {
-  static Future<T> execute<T>(Future<T> Function() request) async {
-    try {
-      return await request();
-    } catch (e) {
-      throw ErrorMapper.fromError(e);
-    }
-  }
-}
+// Future<List<T>> helperInquiry<T extends Mappable>(
+//   String url, {
+//   required Map<String, dynamic> body,
+// }) async {
+//   try {
+//     final uri = Uri.parse(url);
 
-Future<List<T>> helperInquiry<T extends Mappable>(
-  String url, {
-  required Map<String, dynamic> body,
-}) async {
-  try {
-    final uri = Uri.parse(url);
+//     final storage = SecureStorageService();
+//     final authToken = await storage.getAccessToken();
 
-    final storage = SecureStorageService();
-    final authToken = await storage.getAccessToken();
+//     if (authToken == null) {
+//       throw const UnauthorisedException('Please log in to continue');
+//     }
 
-    if (authToken == null) {
-      throw const UnauthorisedException('Please log in to continue');
-    }
+//     final response = await http
+//         .post(
+//           uri,
+//           headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': 'Bearer $authToken',
+//           },
+//           body: jsonEncode(body),
+//         )
+//         .timeout(const Duration(seconds: 15)); // 🔥 important
 
-    final response = await http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $authToken',
-          },
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 15)); // 🔥 important
+//     final decoded = jsonDecode(response.body);
 
-    final decoded = jsonDecode(response.body);
+//     if (response.statusCode != 200) {
+//       throw ErrorMapper.fromHttp(response, decoded);
+//     }
 
-    if (response.statusCode != 200) {
-      throw ErrorMapper.fromHttp(response, decoded);
-    }
+//     if (decoded['success'] != true) {
+//       throw ApiException(
+//         decoded['message'] ?? 'Request failed',
+//         statusCode: response.statusCode,
+//       );
+//     }
 
-    if (decoded['success'] != true) {
-      throw ApiException(
-        decoded['message'] ?? 'Request failed',
-        statusCode: response.statusCode,
-      );
-    }
+//     final data = decoded['data'];
 
-    final data = decoded['data'];
+//     if (data is! List) {
+//       throw const ApiException('Invalid response format');
+//     }
 
-    if (data is! List) {
-      throw const ApiException('Invalid response format');
-    }
-
-    return data.map<T>((e) => MapperRegistry.fromMap<T>(e)).toList();
-  } catch (e) {
-    if (e is AppException) rethrow;
-    throw ErrorMapper.fromError(e);
-  }
-}
+//     return data.map<T>((e) => MapperRegistry.fromMap<T>(e)).toList();
+//   } catch (e) {
+//     if (e is AppException) rethrow;
+//     throw ErrorMapper.fromError(e);
+//   }
+// }
 
 // Future<List<T>> postList<T>({
 //   required String endpoint,
@@ -391,82 +378,82 @@ Future<void> inquire<T extends Mappable>({
   }
 }
 
-Future<void> dealerLogin({
-  required BuildContext context,
-  required String dealerCode,
-  required String pin,
-  required VoidCallback onSuccess,
-  required Function(Exception e) onError,
-}) async {
-  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
-  if (!context.mounted) return;
+// Future<void> dealerLogin({
+//   required BuildContext context,
+//   required String dealerCode,
+//   required String pin,
+//   required VoidCallback onSuccess,
+//   required Function(Exception e) onError,
+// }) async {
+//   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+//   if (!context.mounted) return;
 
-  try {
-    loadingOverlay.show(context);
-    String baseUrl = Config.baseApiTestUrl;
-    String url = '${baseUrl}dealer/login';
+//   try {
+//     loadingOverlay.show(context);
+//     String baseUrl = Config.baseApiTestUrl;
+//     String url = '${baseUrl}dealer/login';
 
-    final uri = Uri.parse(url);
-    final storage = SecureStorageService();
-    final authToken = await storage.getAccessToken();
+//     final uri = Uri.parse(url);
+//     final storage = SecureStorageService();
+//     final authToken = await storage.getAccessToken();
 
-    if (authToken == null) {
-      throw const UnauthorisedException('Please log in to continue');
-    }
+//     if (authToken == null) {
+//       throw const UnauthorisedException('Please log in to continue');
+//     }
 
-    final response = await http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $authToken',
-          },
-          body: jsonEncode({'dealerCode': dealerCode, 'pin': pin}),
-        )
-        .timeout(const Duration(seconds: 15));
+//     final response = await http
+//         .post(
+//           uri,
+//           headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': 'Bearer $authToken',
+//           },
+//           body: jsonEncode({'dealerCode': dealerCode, 'pin': pin}),
+//         )
+//         .timeout(const Duration(seconds: 15));
 
-    final decoded = jsonDecode(response.body);
+//     final decoded = jsonDecode(response.body);
 
-    if (response.statusCode != 200) {
-      //throw ErrorMapper.fromHttp(response, decoded);
-      onError(ErrorMapper.fromHttp(response, decoded));
-      return;
-    }
+//     if (response.statusCode != 200) {
+//       //throw ErrorMapper.fromHttp(response, decoded);
+//       onError(ErrorMapper.fromHttp(response, decoded));
+//       return;
+//     }
 
-    final bool isAuthenticated = decoded['success'] == true;
+//     final bool isAuthenticated = decoded['success'] == true;
 
-    // final SecureStorageService _secureStorageService =
-    //     SecureStorageService(); // Instantiate SecureStorageService
-    // final String? accessToken = await _secureStorageService.getAccessToken();
+//     // final SecureStorageService _secureStorageService =
+//     //     SecureStorageService(); // Instantiate SecureStorageService
+//     // final String? accessToken = await _secureStorageService.getAccessToken();
 
-    // final bool isAuthenticated =
-    //     await MockApiService.post(
-    //           url,
-    //           body: {'dealerCode': dealerCode, 'pin': pin},
-    //           accessToken: accessToken,
-    //         )
-    //         as bool;
+//     // final bool isAuthenticated =
+//     //     await MockApiService.post(
+//     //           url,
+//     //           body: {'dealerCode': dealerCode, 'pin': pin},
+//     //           accessToken: accessToken,
+//     //         )
+//     //         as bool;
 
-    if (isAuthenticated) {
-      onSuccess();
-    } else {
-      onError(UnauthorisedException('Authentication failed.'));
-    }
-  } catch (e) {
-    onError(ErrorMapper.fromError(e));
+//     if (isAuthenticated) {
+//       onSuccess();
+//     } else {
+//       onError(UnauthorisedException('Authentication failed.'));
+//     }
+//   } catch (e) {
+//     onError(ErrorMapper.fromError(e));
 
-    // if (e is Exception) {
-    //   ErrorMapper.fromError(e);
-    //   onError(e);
-    // } else {
-    //   onError(Exception(e.toString()));
-    // }
-  } finally {
-    if (loadingOverlay.isShowing) {
-      loadingOverlay.hide();
-    }
-  }
-}
+//     // if (e is Exception) {
+//     //   ErrorMapper.fromError(e);
+//     //   onError(e);
+//     // } else {
+//     //   onError(Exception(e.toString()));
+//     // }
+//   } finally {
+//     if (loadingOverlay.isShowing) {
+//       loadingOverlay.hide();
+//     }
+//   }
+// }
 
 Future<void> save<T extends Mappable>({
   required BuildContext context,
@@ -545,70 +532,101 @@ Future<void> save<T extends Mappable>({
   }
 }
 
-Future<void> checkScreenPermission({
-  required BuildContext context,
-  required String screenId,
-  required List<String> roleIds,
-  required VoidCallback onSuccess,
-  required Function(String errorMessage) onError,
-}) async {
-  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
-  if (!context.mounted) return;
 
-  try {
-    loadingOverlay.show(context);
-    String baseUrl = Config.baseUrl;
-    final SecureStorageService _secureStorageService =
-        SecureStorageService(); // Instantiate SecureStorageService
-    final String? accessToken = await _secureStorageService.getAccessToken();
+// Future<void> checkScreenPermission({
+//   required BuildContext context,
+//   required String userId,          // New: user ID (from logged‑in user)
+//   required String screenName,      // Use screenName (e.g. 'setupPrint') – not the uppercase screenId
+//   required VoidCallback onSuccess,
+//   required Function(String errorMessage) onError,
+// }) async {
+//   final apiService = ApiService();
 
-    final bool hasPermission =
-        await MockApiService.post(
-              '${baseUrl}permission/check',
-              body: {'screenId': screenId, 'roleIds': roleIds},
-              accessToken: accessToken,
-            )
-            as bool;
+//   await execute(
+//     context: context,
+//     task: () async {
+//       final hasPermission = await apiService.hasScreenPermission(
+//         userId: userId,
+//         screenName: screenName,
+//       );
 
-    if (hasPermission) {
-      onSuccess();
-    } else {
-      onError('Access Denied: You do not have permission to view this screen.');
-    }
-  } catch (e) {
-    onError(e.toString());
-  } finally {
-    if (loadingOverlay.isShowing) {
-      loadingOverlay.hide();
-    }
-  }
-}
+//       if (hasPermission) {
+//         onSuccess();
+//       } else {
+//         onError('Access Denied: You do not have permission to view this screen.');
+//       }
+//       // Return a dummy value because `execute` expects a Future<T?>
+//       return null;
+//     },
+//     onError: (Exception e) {
+//       onError(e.toString());
+//     },
+//   );
+// }
+// Future<void> checkScreenPermission({
+//   required BuildContext context,
+//   required String screenId,
+//   required List<String> roleIds,
+//   required VoidCallback onSuccess,
+//   required Function(String errorMessage) onError,
+// }) async {
+//   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
+//   if (!context.mounted) return;
 
-// THIS IS TO COLLECT ALL SCREEN INFO ON APP ROUTE INITIALIZING //
-Future<List<Screen>> loadScreens() async {
-  try {
-    // final String? accessToken = await _secureStorageService.getAccessToken();
+//   try {
+//     loadingOverlay.show(context);
+//     String baseUrl = Config.baseUrl;
+//     final SecureStorageService _secureStorageService =
+//         SecureStorageService(); // Instantiate SecureStorageService
+//     final String? accessToken = await _secureStorageService.getAccessToken();
 
-    // if (accessToken == null) {
-    //   // Handle case where no token is found (e.g., user not logged in)
-    //   print('Error: No access token found. User is not authenticated.');
-    //   // You might want to navigate to a login screen or show an error message
-    //   throw UnauthorisedException('Please log in to access this data.');
-    // }
+//     final bool hasPermission =
+//         await MockApiService.post(
+//               '${baseUrl}permission/check',
+//               body: {'screenId': screenId, 'roleIds': roleIds},
+//               accessToken: accessToken,
+//             )
+//             as bool;
 
-    // final List<Screen> data = await MockApiService.get<Screen>(
-    //   'api/screens/list',
-    //   authToken: accessToken, // Pass the retrieved access token
-    // );
-    String baseUrl = Config.baseUrl;
-    final List<Screen> data = await MockApiService.get<Screen>(
-      '${baseUrl}screens/list',
-    );
-    return data;
-  } catch (e) {
-    throw Exception('Failed to load screens: $e');
-  }
-}
+//     if (hasPermission) {
+//       onSuccess();
+//     } else {
+//       onError('Access Denied: You do not have permission to view this screen.');
+//     }
+//   } catch (e) {
+//     onError(e.toString());
+//   } finally {
+//     if (loadingOverlay.isShowing) {
+//       loadingOverlay.hide();
+//     }
+//   }
+// }
+
+// // THIS IS TO COLLECT ALL SCREEN INFO ON APP ROUTE INITIALIZING //
+// Future<List<Screen>> loadScreens() async {
+//   try {
+//     // final String? accessToken = await _secureStorageService.getAccessToken();
+
+//     // if (accessToken == null) {
+//     //   // Handle case where no token is found (e.g., user not logged in)
+//     //   print('Error: No access token found. User is not authenticated.');
+//     //   // You might want to navigate to a login screen or show an error message
+//     //   throw UnauthorisedException('Please log in to access this data.');
+//     // }
+
+//     // final List<Screen> data = await MockApiService.get<Screen>(
+//     //   'api/screens/list',
+//     //   authToken: accessToken, // Pass the retrieved access token
+//     // );
+//     String baseUrl = Config.baseUrl;
+//     final List<Screen> data = await MockApiService.get<Screen>(
+//       '${baseUrl}screens/list',
+//     );
+//     return data;
+//   } catch (e) {
+//     throw Exception('Failed to load screens: $e');
+//   }
+// }
 
 Future<void> fetchImage({
   required BuildContext context,

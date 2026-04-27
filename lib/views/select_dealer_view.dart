@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:myapp/errors/app_exceptions.dart';
 import 'package:myapp/models/dealer_model.dart';
 import 'package:myapp/models/region_model.dart';
+import 'package:myapp/services/api_service.dart';
 import 'package:myapp/services/api_util_service.dart';
 import 'package:myapp/widgets/app_dialog_boxes.dart';
 import 'package:myapp/widgets/app_action_button.dart';
+import 'package:myapp/widgets/app_executer.dart';
 import 'package:myapp/widgets/app_helper_field.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 
@@ -91,40 +93,68 @@ class _SelectDealerViewState extends State<SelectDealerView> {
       FocusScope.of(context).unfocus();
       return;
     } else {
-      dealerLogin(
-        context: context,
-        dealerCode: _currentSelectedDealer?.accountCode ?? ' ',
-        pin: pin,
-        onSuccess: () async {
-          await Future.delayed(const Duration(milliseconds: 200));
-          if (mounted) {
-            FocusScope.of(context).unfocus();
-            widget.onDealerSelected(_currentSelectedDealer!);
-          }
-        },
-        onError: (e) {
-          if (mounted) {
-            FocusScope.of(context).unfocus();
-            String errorMessage = e.toString();
-            if (e is AccountLockedException) {
-              //errorMessage = e.toString();
-              setState(() {
-                _isDealerAccountLocked = true;
-              });
-            // } else if (e is AppException) {
-            //   errorMessage = e.toString();
-            } 
-            // else {
-            //   errorMessage = e.toString();
-            // }
-            showSnackBar(
-              context: context,
-              message: errorMessage,
-              type: MessageType.error,
-            );
-          }
-        },
-      );
+
+      final api = ApiService();
+
+final result = await execute<void>(
+  context: context,
+  task: () => api.dealerLogin(
+    dealerCode: _currentSelectedDealer?.accountCode ?? '',
+    pin: pin,
+  ),
+  onError: (e) {
+    if (e is AccountLockedException) {
+      setState(() {
+        _isDealerAccountLocked = true;
+      });
+    }
+    return;
+  },
+);
+
+//if (result == null) return;
+
+if (mounted) {
+  FocusScope.of(context).unfocus();
+  widget.onDealerSelected(_currentSelectedDealer!);
+}
+
+
+
+      // dealerLogin(
+      //   context: context,
+      //   dealerCode: _currentSelectedDealer?.accountCode ?? ' ',
+      //   pin: pin,
+      //   onSuccess: () async {
+      //     await Future.delayed(const Duration(milliseconds: 200));
+      //     if (mounted) {
+      //       FocusScope.of(context).unfocus();
+      //       widget.onDealerSelected(_currentSelectedDealer!);
+      //     }
+      //   },
+      //   onError: (e) {
+      //     if (mounted) {
+      //       FocusScope.of(context).unfocus();
+      //       String errorMessage = e.toString();
+      //       if (e is AccountLockedException) {
+      //         //errorMessage = e.toString();
+      //         setState(() {
+      //           _isDealerAccountLocked = true;
+      //         });
+      //       // } else if (e is AppException) {
+      //       //   errorMessage = e.toString();
+      //       } 
+      //       // else {
+      //       //   errorMessage = e.toString();
+      //       // }
+      //       showSnackBar(
+      //         context: context,
+      //         message: errorMessage,
+      //         type: MessageType.error,
+      //       );
+      //     }
+      //   },
+      // );
     }
   }
 

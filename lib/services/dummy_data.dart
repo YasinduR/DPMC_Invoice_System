@@ -1,4 +1,4 @@
-import 'dart:math'; 
+import 'dart:math';
 
 import 'package:bcrypt/bcrypt.dart';
 import 'package:myapp/models/Tin_invoice_model.dart';
@@ -28,7 +28,6 @@ import 'package:myapp/models/user_model.dart';
 //// IMPORTANT :  This works as the DataBase remove later
 
 class DummyData {
-
   static final dummyInv1 = InvoiceSave(
     invoiceNumber: "DN20260224002",
     tinNo: "PTIBDM202602170463",
@@ -310,27 +309,28 @@ class DummyData {
   ];
 
   static final List<Assignee> _assignees = [
-Assignee(
-    supervisorId: '1122',
-    assigneeId: '2619',
-    name: 'Yasindu Ganegoda',
-    dealerListAssigned: [
-      'AC2000123306', // Madapatha Car Mart
-      'AC2000123307', // Jayalath Enterprises
-      'AC2000123308', // Kesbewa Auto Zone
-    ],
-  ),
-  Assignee(
-    supervisorId: '1122',
-    assigneeId: '2896',
-    name: 'Darshan Ravichandran',
-    dealerListAssigned: [
-      'AC2000123301', // Perera & Sons Motors
-      'AC2000123302', // Colombo Auto Traders
-      'AC2000123303', // Capital Wheels
-      'AC2000123304', // De Silva Car Sales
-      'AC2000123305', // Metro Vehicle Centre
-    ]),
+    Assignee(
+      supervisorId: '1122',
+      assigneeId: '2619',
+      name: 'Yasindu Ganegoda',
+      dealerListAssigned: [
+        'AC2000123306', // Madapatha Car Mart
+        'AC2000123307', // Jayalath Enterprises
+        'AC2000123308', // Kesbewa Auto Zone
+      ],
+    ),
+    Assignee(
+      supervisorId: '1122',
+      assigneeId: '2896',
+      name: 'Darshan Ravichandran',
+      dealerListAssigned: [
+        'AC2000123301', // Perera & Sons Motors
+        'AC2000123302', // Colombo Auto Traders
+        'AC2000123303', // Capital Wheels
+        'AC2000123304', // De Silva Car Sales
+        'AC2000123305', // Metro Vehicle Centre
+      ],
+    ),
   ];
 
   static final List<Screen> _screens = [
@@ -432,7 +432,7 @@ Assignee(
 
     Screen(
       screenId: '015',
-      screenName: 'securitySetting',
+      screenName: 'setting',
       menuId: '00', // availble under each menu
       title: 'Settings',
       iconName: 'security_settings',
@@ -550,9 +550,8 @@ Assignee(
       email: 'yasindu@example.com',
       telephone: '+94771234567',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
-      roles: ['001'],
+      roles: ['TempCustomer'],
       isTemporaryPassword: false,
-      passwordUpdatedAt: DateTime.now(),
     ),
     User(
       id: '8108',
@@ -560,9 +559,8 @@ Assignee(
       email: 'nimesh@example.com',
       telephone: '+94761234566',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
-      roles: ['001', '002'],
+      roles: ['TempCustomer', 'Employee'],
       isTemporaryPassword: false,
-      passwordUpdatedAt: DateTime.now(),
     ),
     User(
       id: '1122',
@@ -570,9 +568,8 @@ Assignee(
       email: 'sachith@example.com',
       telephone: '+94711234567',
       isTemporaryPassword: false,
-      passwordUpdatedAt: DateTime.now(),
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
-      roles: ['003'],
+      roles: ['Supervisor'],
     ),
     User(
       id: '1111',
@@ -580,7 +577,7 @@ Assignee(
       email: 'sameera@example.com',
       telephone: '+94771234568',
       password: BCrypt.hashpw('12345', BCrypt.gensalt()),
-      roles: ['002', '003'],
+      roles: ['Employee', 'Supervisor'],
     ),
     User(
       id: '1000',
@@ -588,7 +585,7 @@ Assignee(
       email: 'admin@example.com',
       telephone: '+94771234555',
       password: BCrypt.hashpw('admin12345', BCrypt.gensalt()),
-      roles: ['001', '002', '003'],
+      roles: ['TempCustomer', 'Employee', 'Supervisor'],
     ),
     User(
       id: '2896',
@@ -596,9 +593,8 @@ Assignee(
       email: 'darshanr@example.com',
       telephone: '+94771234567',
       password: BCrypt.hashpw('d', BCrypt.gensalt()),
-      roles: ['001'],
+      roles: ['TempCustomer'],
       isTemporaryPassword: false,
-      passwordUpdatedAt: DateTime.now(),
     ),
   ];
 
@@ -1719,265 +1715,427 @@ Assignee(
       ],
     ),
 
-      // ==================== Dummy data for AC2000123307 (Jayalath Enterprises) ====================
-  TinData(
-    tinNumber: 'TIN111222333',
-    orderNumber: 'PADC202510260001',
-    totalValue: 2500.00,
-    paymentStatus: 'P',
-    dealercode: 'AC2000123307',
-    payOnDel: 'N',
-    bagCount: 3,
-    tagCount: 5,
-    plasticBCount: 1,
-    remark: 'Priority delivery',
-    parts: [],
-  ),
-  TinData(
-    tinNumber: 'TIN444555666',
-    orderNumber: 'PADC202510260002',
-    totalValue: 1250.75,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123307',
-    payOnDel: 'Y',
-    bagCount: 2,
-    tagCount: 3,
-    plasticBCount: 0,
-    remark: '-',
-    parts: [
-      Part(id: 'p21', partNo: 'B102345', requestQty: 1, price: 800.00, description: 'Battery 12V'),
-      Part(id: 'p22', partNo: 'B102346', requestQty: 1, price: 450.75, description: 'Alternator Belt'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN777888999',
-    orderNumber: 'PADC202510260003',
-    totalValue: 8920.30,
-    paymentStatus: 'C',
-    dealercode: 'AC2000123307',
-    payOnDel: 'N',
-    bagCount: 5,
-    tagCount: 9,
-    plasticBCount: 2,
-    remark: 'Contains glass parts',
-    parts: [
-      Part(id: 'p23', partNo: 'W1234A', requestQty: 2, price: 1250.00, description: 'Windshield'),
-      Part(id: 'p24', partNo: 'W1234B', requestQty: 1, price: 3500.00, description: 'Rear Window'),
-      Part(id: 'p25', partNo: 'M5678', requestQty: 1, price: 2920.30, description: 'Side Mirror Assembly'),
-    ],
-  ),
+    // ==================== Dummy data for AC2000123307 (Jayalath Enterprises) ====================
+    TinData(
+      tinNumber: 'TIN111222333',
+      orderNumber: 'PADC202510260001',
+      totalValue: 2500.00,
+      paymentStatus: 'P',
+      dealercode: 'AC2000123307',
+      payOnDel: 'N',
+      bagCount: 3,
+      tagCount: 5,
+      plasticBCount: 1,
+      remark: 'Priority delivery',
+      parts: [],
+    ),
+    TinData(
+      tinNumber: 'TIN444555666',
+      orderNumber: 'PADC202510260002',
+      totalValue: 1250.75,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123307',
+      payOnDel: 'Y',
+      bagCount: 2,
+      tagCount: 3,
+      plasticBCount: 0,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p21',
+          partNo: 'B102345',
+          requestQty: 1,
+          price: 800.00,
+          description: 'Battery 12V',
+        ),
+        Part(
+          id: 'p22',
+          partNo: 'B102346',
+          requestQty: 1,
+          price: 450.75,
+          description: 'Alternator Belt',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN777888999',
+      orderNumber: 'PADC202510260003',
+      totalValue: 8920.30,
+      paymentStatus: 'C',
+      dealercode: 'AC2000123307',
+      payOnDel: 'N',
+      bagCount: 5,
+      tagCount: 9,
+      plasticBCount: 2,
+      remark: 'Contains glass parts',
+      parts: [
+        Part(
+          id: 'p23',
+          partNo: 'W1234A',
+          requestQty: 2,
+          price: 1250.00,
+          description: 'Windshield',
+        ),
+        Part(
+          id: 'p24',
+          partNo: 'W1234B',
+          requestQty: 1,
+          price: 3500.00,
+          description: 'Rear Window',
+        ),
+        Part(
+          id: 'p25',
+          partNo: 'M5678',
+          requestQty: 1,
+          price: 2920.30,
+          description: 'Side Mirror Assembly',
+        ),
+      ],
+    ),
 
-  // ==================== Dummy data for AC2000123308 (Kesbewa Auto Zone) ====================
-  TinData(
-    tinNumber: 'TIN987123456',
-    orderNumber: 'PADC202510270001',
-    totalValue: 340.25,
-    paymentStatus: 'P',
-    dealercode: 'AC2000123308',
-    payOnDel: 'Y',
-    bagCount: 1,
-    tagCount: 1,
-    plasticBCount: 0,
-    remark: 'Urgent',
-    parts: [],
-  ),
-  TinData(
-    tinNumber: 'TIN654321987',
-    orderNumber: 'PADC202510270002',
-    totalValue: 11200.00,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123308',
-    payOnDel: 'N',
-    bagCount: 6,
-    tagCount: 12,
-    plasticBCount: 4,
-    remark: '-',
-    parts: [
-      Part(id: 'p26', partNo: 'E101', requestQty: 1, price: 6200.00, description: 'Engine Control Unit'),
-      Part(id: 'p27', partNo: 'E102', requestQty: 2, price: 1500.00, description: 'Oxygen Sensor'),
-      Part(id: 'p28', partNo: 'E103', requestQty: 2, price: 1000.00, description: 'MAF Sensor'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN456789123',
-    orderNumber: 'PADC202510270003',
-    totalValue: 3875.50,
-    paymentStatus: 'C',
-    dealercode: 'AC2000123308',
-    payOnDel: 'Y',
-    bagCount: 3,
-    tagCount: 5,
-    plasticBCount: 1,
-    remark: 'Returnable packaging',
-    parts: [
-      Part(id: 'p29', partNo: 'C001', requestQty: 4, price: 425.00, description: 'Clutch Kit'),
-      Part(id: 'p30', partNo: 'C002', requestQty: 2, price: 187.75, description: 'Clutch Cable'),
-    ],
-  ),
+    // ==================== Dummy data for AC2000123308 (Kesbewa Auto Zone) ====================
+    TinData(
+      tinNumber: 'TIN987123456',
+      orderNumber: 'PADC202510270001',
+      totalValue: 340.25,
+      paymentStatus: 'P',
+      dealercode: 'AC2000123308',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 1,
+      plasticBCount: 0,
+      remark: 'Urgent',
+      parts: [],
+    ),
+    TinData(
+      tinNumber: 'TIN654321987',
+      orderNumber: 'PADC202510270002',
+      totalValue: 11200.00,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123308',
+      payOnDel: 'N',
+      bagCount: 6,
+      tagCount: 12,
+      plasticBCount: 4,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p26',
+          partNo: 'E101',
+          requestQty: 1,
+          price: 6200.00,
+          description: 'Engine Control Unit',
+        ),
+        Part(
+          id: 'p27',
+          partNo: 'E102',
+          requestQty: 2,
+          price: 1500.00,
+          description: 'Oxygen Sensor',
+        ),
+        Part(
+          id: 'p28',
+          partNo: 'E103',
+          requestQty: 2,
+          price: 1000.00,
+          description: 'MAF Sensor',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN456789123',
+      orderNumber: 'PADC202510270003',
+      totalValue: 3875.50,
+      paymentStatus: 'C',
+      dealercode: 'AC2000123308',
+      payOnDel: 'Y',
+      bagCount: 3,
+      tagCount: 5,
+      plasticBCount: 1,
+      remark: 'Returnable packaging',
+      parts: [
+        Part(
+          id: 'p29',
+          partNo: 'C001',
+          requestQty: 4,
+          price: 425.00,
+          description: 'Clutch Kit',
+        ),
+        Part(
+          id: 'p30',
+          partNo: 'C002',
+          requestQty: 2,
+          price: 187.75,
+          description: 'Clutch Cable',
+        ),
+      ],
+    ),
 
-  // ==================== Dummy data for AC2000123301 (Perera & Sons Motors) ====================
-  TinData(
-    tinNumber: 'TIN112233445',
-    orderNumber: 'PADC202510280001',
-    totalValue: 14500.00,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123301',
-    payOnDel: 'N',
-    bagCount: 10,
-    tagCount: 18,
-    plasticBCount: 6,
-    remark: 'Fragile electronics',
-    parts: [
-      Part(id: 'p31', partNo: 'INFOT1', requestQty: 3, price: 2500.00, description: 'Infotainment Screen'),
-      Part(id: 'p32', partNo: 'SENS1', requestQty: 5, price: 800.00, description: 'Parking Sensor'),
-      Part(id: 'p33', partNo: 'CAM1', requestQty: 2, price: 1200.00, description: 'Rear Camera'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN554433221',
-    orderNumber: 'PADC202510280002',
-    totalValue: 975.30,
-    paymentStatus: 'P',
-    dealercode: 'AC2000123301',
-    payOnDel: 'Y',
-    bagCount: 1,
-    tagCount: 2,
-    plasticBCount: 1,
-    remark: '-',
-    parts: [],
-  ),
+    // ==================== Dummy data for AC2000123301 (Perera & Sons Motors) ====================
+    TinData(
+      tinNumber: 'TIN112233445',
+      orderNumber: 'PADC202510280001',
+      totalValue: 14500.00,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123301',
+      payOnDel: 'N',
+      bagCount: 10,
+      tagCount: 18,
+      plasticBCount: 6,
+      remark: 'Fragile electronics',
+      parts: [
+        Part(
+          id: 'p31',
+          partNo: 'INFOT1',
+          requestQty: 3,
+          price: 2500.00,
+          description: 'Infotainment Screen',
+        ),
+        Part(
+          id: 'p32',
+          partNo: 'SENS1',
+          requestQty: 5,
+          price: 800.00,
+          description: 'Parking Sensor',
+        ),
+        Part(
+          id: 'p33',
+          partNo: 'CAM1',
+          requestQty: 2,
+          price: 1200.00,
+          description: 'Rear Camera',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN554433221',
+      orderNumber: 'PADC202510280002',
+      totalValue: 975.30,
+      paymentStatus: 'P',
+      dealercode: 'AC2000123301',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 2,
+      plasticBCount: 1,
+      remark: '-',
+      parts: [],
+    ),
 
-  // ==================== Dummy data for AC2000123302 (Colombo Auto Traders) ====================
-  TinData(
-    tinNumber: 'TIN998877665',
-    orderNumber: 'PADC202510290001',
-    totalValue: 5230.00,
-    paymentStatus: 'C',
-    dealercode: 'AC2000123302',
-    payOnDel: 'N',
-    bagCount: 4,
-    tagCount: 7,
-    plasticBCount: 2,
-    remark: 'Express shipping',
-    parts: [
-      Part(id: 'p34', partNo: 'ACCOMP1', requestQty: 1, price: 3500.00, description: 'AC Compressor'),
-      Part(id: 'p35', partNo: 'COND1', requestQty: 1, price: 1730.00, description: 'Condenser'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN332211445',
-    orderNumber: 'PADC202510290002',
-    totalValue: 2840.50,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123302',
-    payOnDel: 'Y',
-    bagCount: 2,
-    tagCount: 3,
-    plasticBCount: 1,
-    remark: '-',
-    parts: [
-      Part(id: 'p36', partNo: 'FILT1', requestQty: 5, price: 120.00, description: 'Oil Filter'),
-      Part(id: 'p37', partNo: 'FILT2', requestQty: 3, price: 180.00, description: 'Air Filter'),
-    ],
-  ),
+    // ==================== Dummy data for AC2000123302 (Colombo Auto Traders) ====================
+    TinData(
+      tinNumber: 'TIN998877665',
+      orderNumber: 'PADC202510290001',
+      totalValue: 5230.00,
+      paymentStatus: 'C',
+      dealercode: 'AC2000123302',
+      payOnDel: 'N',
+      bagCount: 4,
+      tagCount: 7,
+      plasticBCount: 2,
+      remark: 'Express shipping',
+      parts: [
+        Part(
+          id: 'p34',
+          partNo: 'ACCOMP1',
+          requestQty: 1,
+          price: 3500.00,
+          description: 'AC Compressor',
+        ),
+        Part(
+          id: 'p35',
+          partNo: 'COND1',
+          requestQty: 1,
+          price: 1730.00,
+          description: 'Condenser',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN332211445',
+      orderNumber: 'PADC202510290002',
+      totalValue: 2840.50,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123302',
+      payOnDel: 'Y',
+      bagCount: 2,
+      tagCount: 3,
+      plasticBCount: 1,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p36',
+          partNo: 'FILT1',
+          requestQty: 5,
+          price: 120.00,
+          description: 'Oil Filter',
+        ),
+        Part(
+          id: 'p37',
+          partNo: 'FILT2',
+          requestQty: 3,
+          price: 180.00,
+          description: 'Air Filter',
+        ),
+      ],
+    ),
 
-  // ==================== Dummy data for AC2000123303 (Capital Wheels) ====================
-  TinData(
-    tinNumber: 'TIN123987654',
-    orderNumber: 'PADC202510300001',
-    totalValue: 36200.00,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123303',
-    payOnDel: 'N',
-    bagCount: 12,
-    tagCount: 24,
-    plasticBCount: 8,
-    remark: 'Heavy items, forklift required',
-    parts: [
-      Part(id: 'p38', partNo: 'WHEEL1', requestQty: 4, price: 6500.00, description: 'Alloy Wheel 18"'),
-      Part(id: 'p39', partNo: 'TIRE1', requestQty: 4, price: 2500.00, description: 'Performance Tire'),
-      Part(id: 'p40', partNo: 'LUG1', requestQty: 20, price: 35.00, description: 'Lug Nut Set'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN789654123',
-    orderNumber: 'PADC202510300002',
-    totalValue: 780.00,
-    paymentStatus: 'P',
-    dealercode: 'AC2000123303',
-    payOnDel: 'Y',
-    bagCount: 1,
-    tagCount: 2,
-    plasticBCount: 0,
-    remark: '-',
-    parts: [],
-  ),
+    // ==================== Dummy data for AC2000123303 (Capital Wheels) ====================
+    TinData(
+      tinNumber: 'TIN123987654',
+      orderNumber: 'PADC202510300001',
+      totalValue: 36200.00,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123303',
+      payOnDel: 'N',
+      bagCount: 12,
+      tagCount: 24,
+      plasticBCount: 8,
+      remark: 'Heavy items, forklift required',
+      parts: [
+        Part(
+          id: 'p38',
+          partNo: 'WHEEL1',
+          requestQty: 4,
+          price: 6500.00,
+          description: 'Alloy Wheel 18"',
+        ),
+        Part(
+          id: 'p39',
+          partNo: 'TIRE1',
+          requestQty: 4,
+          price: 2500.00,
+          description: 'Performance Tire',
+        ),
+        Part(
+          id: 'p40',
+          partNo: 'LUG1',
+          requestQty: 20,
+          price: 35.00,
+          description: 'Lug Nut Set',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN789654123',
+      orderNumber: 'PADC202510300002',
+      totalValue: 780.00,
+      paymentStatus: 'P',
+      dealercode: 'AC2000123303',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 2,
+      plasticBCount: 0,
+      remark: '-',
+      parts: [],
+    ),
 
-  // ==================== Dummy data for AC2000123304 (De Silva Car Sales) ====================
-  TinData(
-    tinNumber: 'TIN567890123',
-    orderNumber: 'PADC202510310001',
-    totalValue: 4800.00,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123304',
-    payOnDel: 'N',
-    bagCount: 3,
-    tagCount: 6,
-    plasticBCount: 2,
-    remark: 'Rush order',
-    parts: [
-      Part(id: 'p41', partNo: 'LAMP1', requestQty: 2, price: 450.00, description: 'Headlight Assembly'),
-      Part(id: 'p42', partNo: 'LAMP2', requestQty: 2, price: 350.00, description: 'Tail Light'),
-      Part(id: 'p43', partNo: 'BULB1', requestQty: 10, price: 25.00, description: 'LED Bulb'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN234567890',
-    orderNumber: 'PADC202510310002',
-    totalValue: 2100.00,
-    paymentStatus: 'C',
-    dealercode: 'AC2000123304',
-    payOnDel: 'Y',
-    bagCount: 2,
-    tagCount: 3,
-    plasticBCount: 1,
-    remark: '-',
-    parts: [
-      Part(id: 'p44', partNo: 'BELT1', requestQty: 1, price: 2100.00, description: 'Timing Belt Kit'),
-    ],
-  ),
+    // ==================== Dummy data for AC2000123304 (De Silva Car Sales) ====================
+    TinData(
+      tinNumber: 'TIN567890123',
+      orderNumber: 'PADC202510310001',
+      totalValue: 4800.00,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123304',
+      payOnDel: 'N',
+      bagCount: 3,
+      tagCount: 6,
+      plasticBCount: 2,
+      remark: 'Rush order',
+      parts: [
+        Part(
+          id: 'p41',
+          partNo: 'LAMP1',
+          requestQty: 2,
+          price: 450.00,
+          description: 'Headlight Assembly',
+        ),
+        Part(
+          id: 'p42',
+          partNo: 'LAMP2',
+          requestQty: 2,
+          price: 350.00,
+          description: 'Tail Light',
+        ),
+        Part(
+          id: 'p43',
+          partNo: 'BULB1',
+          requestQty: 10,
+          price: 25.00,
+          description: 'LED Bulb',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN234567890',
+      orderNumber: 'PADC202510310002',
+      totalValue: 2100.00,
+      paymentStatus: 'C',
+      dealercode: 'AC2000123304',
+      payOnDel: 'Y',
+      bagCount: 2,
+      tagCount: 3,
+      plasticBCount: 1,
+      remark: '-',
+      parts: [
+        Part(
+          id: 'p44',
+          partNo: 'BELT1',
+          requestQty: 1,
+          price: 2100.00,
+          description: 'Timing Belt Kit',
+        ),
+      ],
+    ),
 
-  // ==================== Dummy data for AC2000123305 (Metro Vehicle Centre) ====================
-  TinData(
-    tinNumber: 'TIN345678901',
-    orderNumber: 'PADC202511010001',
-    totalValue: 15750.00,
-    paymentStatus: 'A',
-    dealercode: 'AC2000123305',
-    payOnDel: 'N',
-    bagCount: 7,
-    tagCount: 14,
-    plasticBCount: 3,
-    remark: 'Inspection required',
-    parts: [
-      Part(id: 'p45', partNo: 'SUSP1', requestQty: 2, price: 3500.00, description: 'Shock Absorber'),
-      Part(id: 'p46', partNo: 'SUSP2', requestQty: 2, price: 2250.00, description: 'Strut Assembly'),
-      Part(id: 'p47', partNo: 'SUSP3', requestQty: 1, price: 4250.00, description: 'Control Arm'),
-    ],
-  ),
-  TinData(
-    tinNumber: 'TIN456789012',
-    orderNumber: 'PADC202511010002',
-    totalValue: 950.25,
-    paymentStatus: 'P',
-    dealercode: 'AC2000123305',
-    payOnDel: 'Y',
-    bagCount: 1,
-    tagCount: 2,
-    plasticBCount: 0,
-    remark: '-',
-    parts: [],
-  ),
+    // ==================== Dummy data for AC2000123305 (Metro Vehicle Centre) ====================
+    TinData(
+      tinNumber: 'TIN345678901',
+      orderNumber: 'PADC202511010001',
+      totalValue: 15750.00,
+      paymentStatus: 'A',
+      dealercode: 'AC2000123305',
+      payOnDel: 'N',
+      bagCount: 7,
+      tagCount: 14,
+      plasticBCount: 3,
+      remark: 'Inspection required',
+      parts: [
+        Part(
+          id: 'p45',
+          partNo: 'SUSP1',
+          requestQty: 2,
+          price: 3500.00,
+          description: 'Shock Absorber',
+        ),
+        Part(
+          id: 'p46',
+          partNo: 'SUSP2',
+          requestQty: 2,
+          price: 2250.00,
+          description: 'Strut Assembly',
+        ),
+        Part(
+          id: 'p47',
+          partNo: 'SUSP3',
+          requestQty: 1,
+          price: 4250.00,
+          description: 'Control Arm',
+        ),
+      ],
+    ),
+    TinData(
+      tinNumber: 'TIN456789012',
+      orderNumber: 'PADC202511010002',
+      totalValue: 950.25,
+      paymentStatus: 'P',
+      dealercode: 'AC2000123305',
+      payOnDel: 'Y',
+      bagCount: 1,
+      tagCount: 2,
+      plasticBCount: 0,
+      remark: '-',
+      parts: [],
+    ),
   ];
 
   // static final List<TinData> _tins = [

@@ -41,6 +41,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       final resetTokenmsg = await _authService.requestPasswordReset(
         context: context,
         username: username,
+        onError:(e){ return null;}
       );
 
       if (resetTokenmsg != null) {
@@ -110,8 +111,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         username: _username,
         token: token,
         newPassword: newPassword,
+       onError:(e){ return false;}
+
       );
-      if (success && mounted) {
+      if (success! && mounted) {
         await _storageService.clearSavedLoginInfo();
         await showInfoDialog(
           context: context,
@@ -185,12 +188,22 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 context: context,
                 username: _username,
                 token: token,
+                onError:(e){ return null;}
+
               );
-              if (mounted) {
+              if (mounted && resetToken!=null) {
                 setState(() {
                   _token = resetToken;     // stores the signed reset JWT
                   _currentStep = 2;
                 });
+              }
+              else{
+                showSnackBar(
+                context: context,
+                message: 'Invalid or expired OTP.',
+                type: MessageType.error,
+              );
+
               }
             } catch (e) {
               if (mounted) {

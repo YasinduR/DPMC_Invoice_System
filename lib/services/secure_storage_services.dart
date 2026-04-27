@@ -3,7 +3,8 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:myapp/errors/app_exceptions.dart';
-import 'package:myapp/services/mock_api_service.dart';
+import 'package:myapp/services/api_service.dart';
+//import 'package:myapp/services/mock_api_service.dart';
 
 // Flutter Secure Storage For Saving Tokens
 class SecureStorageService {  
@@ -43,6 +44,8 @@ class SecureStorageService {
       return null;
     }
 
+    
+
     try {
       final JWT jwt = JWT.decode(accessToken);
       final int? expiryTimestamp = jwt.payload['exp'] as int?;
@@ -69,13 +72,21 @@ class SecureStorageService {
         }
 
         try {
-          final Map<String, dynamic> refreshResponse = await MockApiService.post(
-            'api/refreshToken',
-            body: {'refreshToken': refreshToken},
-          );
 
-          final String newAccessToken = refreshResponse['accessToken'] as String;
-          final String newRefreshToken = refreshResponse['refreshToken'] as String; // Assuming rolling refresh tokens
+            final apiService = ApiService(); // or get it from dependency injection
+            final tokens = await apiService.refreshToken(refreshToken);
+            final String newAccessToken = tokens['accessToken']!;
+            final String newRefreshToken = tokens['refreshToken']!; // use returned refresh token
+
+
+
+          // final Map<String, dynamic> refreshResponse = await MockApiService.post(
+          //   'api/refreshToken',
+          //   body: {'refreshToken': refreshToken},
+          // );
+
+          // final String newAccessToken = refreshResponse['accessToken'] as String;
+          // final String newRefreshToken = refreshResponse['refreshToken'] as String; // Assuming rolling refresh tokens
 
           // Save the newly obtained tokens
           await saveTokens(
@@ -112,5 +123,5 @@ class SecureStorageService {
     print('SecureStorageService: All tokens cleared securely.');
   }
 
-  
+
 }

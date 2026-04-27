@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/services/api_service.dart';
 import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/widgets/app_executer.dart';
 import 'package:myapp/widgets/app_page.dart';
 
 // Middle Screen for Every Menu Screen
@@ -34,39 +36,87 @@ class _PermissionCheckScreenState extends ConsumerState<PermissionCheckScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkPermission());
   }
 
-  Future<void> _checkPermission() async {
-    if (!mounted) return;
 
-    final user = ref.read(authProvider).currentUser;
-    if (user == null) {
-      setState(() {
-        _currentTitle = 'Access Denied';
-        _errorMessage = 'Authentication Error: No user is currently logged in.';
-      });
-      return;
-    }
+Future<void> _checkPermission() async {
+  if (!mounted) return;
 
-    await checkScreenPermission(
-      context: context,
-      screenId: widget.screenId,
-      roleIds: user.roles,
-      onSuccess: () {
-        if (!mounted) return;
-        // On success, replace this screen entirely with the destination.
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: widget.destinationScreenBuilder),
-        );
-      },
-      onError: (errorMessage) {
-        if (!mounted) return;
-        // On error, update the state to rebuild the UI with the error message.
-        setState(() {
-          _currentTitle = 'Access Denied';
-          _errorMessage = errorMessage;
-        });
-      },
-    );
+  final user = ref.read(authProvider).currentUser;
+  if (user == null) {
+    setState(() {
+      _currentTitle = 'Access Denied';
+      _errorMessage = 'Authentication Error: No user is currently logged in.';
+    });
+    return;
   }
+
+  final api = ApiService();
+  // Execute the permission check with loading overlay and error handling
+  final hasPermission = await execute<bool>(
+    context: context,
+    task: () => api.hasScreenPermission(
+      userId: user.id,
+      screenId: widget.screenId,  // make sure you pass the screenName (e.g. 'setupPrint')
+    ),
+    onError: (e) {
+      // Optional: custom error handling, e.g. set an error message in state
+      if (mounted) {
+        setState(() {
+          _currentTitle = 'Error';
+          _errorMessage = e.toString();
+        });
+      }
+    },
+  );
+
+  if (!mounted) return;
+
+  if (hasPermission == true) {
+    // On success, replace this screen with the destination
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: widget.destinationScreenBuilder),
+    );
+  } else {
+    // hasPermission is false or null (if execute returned null due to error)
+    setState(() {
+      _currentTitle = 'Access Denied';
+      _errorMessage = 'You do not have permission to view this screen.';
+    });
+  }
+}
+  // Future<void> _checkPermission() async {
+  //   if (!mounted) return;
+
+  //   final user = ref.read(authProvider).currentUser;
+  //   if (user == null) {
+  //     setState(() {
+  //       _currentTitle = 'Access Denied';
+  //       _errorMessage = 'Authentication Error: No user is currently logged in.';
+  //     });
+  //     return;
+  //   }
+
+
+  //   await checkScreenPermission(
+  //     context: context,
+  //     screenId: widget.screenId,
+  //     roleIds: user.roles,
+  //     onSuccess: () {
+  //       if (!mounted) return;
+  //       // On success, replace this screen entirely with the destination.
+  //       Navigator.of(context).pushReplacement(
+  //         MaterialPageRoute(builder: widget.destinationScreenBuilder),
+  //       );
+  //     },
+  //     onError: (errorMessage) {
+  //       if (!mounted) return;
+  //       // On error, update the state to rebuild the UI with the error message.
+  //       setState(() {
+  //         _currentTitle = 'Access Denied';
+  //         _errorMessage = errorMessage;
+  //       });
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
