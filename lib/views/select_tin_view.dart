@@ -10,7 +10,8 @@ import 'package:myapp/widgets/app_image_viewer.dart';
 import 'package:myapp/widgets/app_snack_bars.dart';
 // import 'package:myapp/widgets/cards/dealer_info_card.dart';
 import 'package:myapp/widgets/cards/dealer_info_detail_card.dart';
-import 'package:myapp/services/api_util_service.dart';
+// import 'package:myapp/services/api_util_service.dart';
+import 'package:myapp/services/remote_file_service.dart';
 // import 'package:myapp/widgets/cards/tin_stats_card.dart';
 import 'package:myapp/models/tin_stat_model.dart';
 
@@ -57,17 +58,18 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
     //_loadTinCounts();
   }
 
+  // modified to fetch from SFTP by Darshan R on 28/04/2026
   Future<void> _loadTINImage(tin) async {
     _isImageLoading = true;
-    await fetchImage(
+    final remotePath = RemoteFileService().buildAbsolutePathFromRelative(tin.imagePath);
+    
+    await RemoteFileService().fetchFile(
       context: context,
-      imagePath: tin.imagePath,
+      remotePath: remotePath,
       onSuccess: (file) {
         setState(() {
           _tinImage = file;
           _isImageLoading = false;
-
-          //_currentSelectedTin = tin;
         });
       },
       onError: (err) {
@@ -75,7 +77,6 @@ class _SelectTinNumberViewState extends State<SelectTinNumberView> {
         setState(() {
           _tinImage = null;
           _isImageLoading = false;
-          //_currentSelectedTin = tin;
         });
       },
     );

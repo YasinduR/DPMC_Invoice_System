@@ -273,72 +273,36 @@ Future<List<Screen>> loadScreens() async {
 }
 
 
-// Future<void> fetchImage({
-//   required BuildContext context,
-//   String? ftpPath,
-//   required String imagePath, // later FTP path
-//   required Function(File? file) onSuccess,
-//   required Function(String errorMessage) onError,
-
-// }) async {
-//   final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
-
-//   try {
-//     loadingOverlay.show(context);
-
-//     await Future.delayed(const Duration(seconds: 2));
-
-//     final String basePath = ftpPath ?? Config.baseFtp;
-//     final String fullPath = '$basePath$imagePath';
-//     final file = File(fullPath);
-    
-//     if (await file.exists()) {
-//       onSuccess(file);
-//     } else {
-//       throw Exception("Image not found");
-//     }
-
-//   } catch (e) {
-//     onError('Failed to load image: $e');
-//   } finally {
-//     if (loadingOverlay.isShowing) {
-//       loadingOverlay.hide();
-//     }
-//   }
-// }
-
 Future<void> fetchImage({
   required BuildContext context,
   String? ftpPath,
-  required String imagePath,
+  required String imagePath, // later FTP path
   required Function(File? file) onSuccess,
   required Function(String errorMessage) onError,
+
 }) async {
-  final String basePath = ftpPath ?? Config.baseSftp;
+  final AppLoadingOverlay loadingOverlay = AppLoadingOverlay();
 
-  // If caller gives full remote path, use it directly.
-  final bool isAbsoluteRemote = imagePath.startsWith('/');
+  try {
+    loadingOverlay.show(context);
 
-  final String normalizedBase = basePath.endsWith('/')
-      ? basePath.substring(0, basePath.length - 1)
-      : basePath;
+    await Future.delayed(const Duration(seconds: 2));
 
-  final String normalizedImage = imagePath.startsWith('/')
-      ? imagePath.substring(1)
-      : imagePath;
-
-  final String remotePath = isAbsoluteRemote
-      ? imagePath
-      : '$normalizedBase/$normalizedImage';
-
-  await RemoteFileService().fetchFile(
-    context: context,
-    remotePath: remotePath,
-    onSuccess: (file) {
+    final String basePath = ftpPath ?? Config.baseFtp;
+    final String fullPath = '$basePath$imagePath';
+    final file = File(fullPath);
+    
+    if (await file.exists()) {
       onSuccess(file);
-    },
-    onError: (err) {
-      onError(err);
-    },
-  );
+    } else {
+      throw Exception("Image not found");
+    }
+
+  } catch (e) {
+    onError('Failed to load image: $e');
+  } finally {
+    if (loadingOverlay.isShowing) {
+      loadingOverlay.hide();
+    }
+  }
 }
